@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
+    <IsDeploymentTarget>true</IsDeploymentTarget>
+  </PropertyGroup>
+
+  <!-- Produce a Linux native executable when publishing; set reasonable defaults for this Linux-specific project -->
+  <PropertyGroup>
+    <!-- Runtime identifier for Linux x64; adjust if you build for other architectures -->
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <!-- Build self-contained so the runtime is bundled and an ELF executable can be produced -->
+    <SelfContained>true</SelfContained>
+    <!-- Prefer single-file output when publishing -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Do not trim by default; trimming can be enabled later if desired -->
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <WatchdogProject>..\Everywhere.Watchdog\Everywhere.Watchdog.csproj</WatchdogProject>
+    <WatchdogOutDir>$(MSBuildThisFileDirectory)$(WatchdogProject)\..\bin\$(Configuration)\net9.0\linux-x64\publish\</WatchdogOutDir>
+    <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog</WatchdogExecutable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop"/>
+    <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
+    <PackageReference Include="SkiaSharp"/>
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Everywhere.Abstractions\Everywhere.Abstractions.csproj" />
+    <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\img\Everywhere.ico">
+      <Link>Everywhere.ico</Link>
+    </None>
+    <Content Include="$(WatchdogExecutable)">
+      <Link>Everywhere.Watchdog</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="BuildWatchdog" BeforeTargets="BeforeBuild" Inputs="$(WatchdogProject)" Outputs="$(WatchdogExecutable)">
+    <Message Text="Watchdog executable is out-of-date. Building..." Importance="high"/>
+    <Exec Command="dotnet restore &quot;$(WatchdogProject)&quot; -r linux-x64"/>
+    <Exec Command="dotnet publish &quot;$(WatchdogProject)&quot; -c $(Configuration) -r linux-x64 --self-contained --no-restore -o &quot;$(WatchdogOutDir)&quot;"/>
+  </Target>
+</Project>

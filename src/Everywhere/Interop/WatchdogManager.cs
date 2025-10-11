@@ -52,9 +52,13 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
 
         // 1. Start the Watchdog process.
         _logger.LogDebug("Launching Watchdog process with pipe name: {PipeName}", pipeName);
+
+        // Choose the correct executable name for the current platform.
+        var watchdogExeName = GetWatchdogExecutableName();
+
         _watchdogProcess = Process.Start(new ProcessStartInfo
         {
-            FileName = "Everywhere.Watchdog.exe",
+            FileName = watchdogExeName,
             Arguments = pipeName,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -91,6 +95,24 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
             _watchdogProcess.BeginOutputReadLine();
             _watchdogProcess.BeginErrorReadLine();
         }
+    }
+
+    private static string GetWatchdogExecutableName()
+    {
+        // On Windows the watchdog binary has .exe suffix; on Unix-like systems it is a native ELF binary without .exe.
+        try
+        {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                return "Everywhere.Watchdog.exe";
+            }
+        }
+        catch
+        {
+            // If RuntimeInformation is not available for some reason, fall through to default.
+        }
+
+        return "Everywhere.Watchdog";
     }
 
     /// <summary>
