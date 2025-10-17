@@ -285,7 +285,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
             if (_display == IntPtr.Zero) return;
 
-            // 设置跳过任务栏状态
+            // Skip Task Bar
             IntPtr atomState = XInternAtom(_display, "_NET_WM_STATE", 0);
             IntPtr atomSkip = XInternAtom(_display, "_NET_WM_STATE_SKIP_TASKBAR", 0);
             if (atomState != IntPtr.Zero && atomSkip != IntPtr.Zero)
@@ -549,7 +549,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         XSetErrorHandler(OnXError);
         Lock evLock = new Lock();
         var evPtr = Marshal.AllocHGlobal(256);
-        // var evCopyPtr = Marshal.AllocHGlobal(256);
         var buf = new byte[4];
         try
         {
@@ -625,14 +624,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                                 XNextEvent(_display, evPtr);
                                 e = Marshal.PtrToStructure<XAnyEvent>(evPtr);
                                 evKey = Marshal.PtrToStructure<XKeyEvent>(evPtr);
-                                // Marshal.StructureToPtr(e, evCopyPtr, false);
-                                // Marshal.Copy(evPtr, evBuffer, 0, 256);
                             }
                             if (e.type is KeyPress or KeyRelease)
                             {
-                                // evKey = Marshal.PtrToStructure<XKeyEvent>(Marshal. evBuffer);
-                                Log.Logger.Information("X recv key={key},mod={mod},press={press}",
-                                    evKey.keycode, evKey.state, evKey.type == KeyPress);
+                                // Log.Logger.Information("X recv key={key},mod={mod},press={press}",
+                                //     evKey.keycode, evKey.state, evKey.type == KeyPress);
                                 var state = evKey.state;
                                 var norm = state & ~(LockMask | Mod2Mask);
                                 var key = KeycodeToAvaloniaKey(evKey.keycode);

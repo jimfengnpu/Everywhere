@@ -7,7 +7,10 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Configuration;
+using Everywhere.Extensions;
+using Everywhere.I18N;
 using Everywhere.Interop;
+using Everywhere.Linux.Interop;
 using Microsoft.Extensions.Logging;
 #if !DEBUG
 using Everywhere.Utilities;
@@ -32,6 +35,7 @@ public sealed partial class SoftwareUpdater(
             { "User-Agent", "libcurl/7.64.1 r-curl/4.3.2 http/1.4.2 EverywhereUpdater" }
         }
     };
+    private readonly ActivitySource _activitySource = new(typeof(SoftwareUpdater).FullName.NotNull());
 
 #if !DEBUG
     private PeriodicTimer? _timer;
@@ -39,6 +43,7 @@ public sealed partial class SoftwareUpdater(
 
     private Task? _updateTask;
     private Asset? _latestAsset;
+    private Version? _notifiedVersion;
 
     public Version CurrentVersion { get; } = typeof(SoftwareUpdater).Assembly.GetName().Version ?? new Version(0, 0, 0);
 
@@ -100,10 +105,8 @@ public sealed partial class SoftwareUpdater(
             var isInstalled = nativeHelper.IsInstalled;
 
             // Determine asset type and construct download URL
-            var assetType = isInstalled ? "setup" : "zip";
-            var assetNameSuffix = isInstalled ?
-                $"-Linux-x64-Setup-v{versionString}.exe" :
-                $"-Linux-x64-v{versionString}.zip";
+            var assetType = "zip";
+            var assetNameSuffix = $"-Linux-x64-v{versionString}.zip";
 
             var assetMetadata = assets?.FirstOrDefault(a => a.Name.EndsWith(assetNameSuffix, StringComparison.OrdinalIgnoreCase));
 
@@ -118,6 +121,13 @@ public sealed partial class SoftwareUpdater(
             }
 
             LatestVersion = latestVersion > CurrentVersion ? latestVersion : null;
+            if (_notifiedVersion != LatestVersion && LatestVersion is not null)
+            {
+                _notifiedVersion = LatestVersion;
+                new LinuxNativeHelper().ShowDesktopNotification(
+                    LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message.I18N(),
+                    LocaleKey.Common_Info.I18N());
+            }
         }
         catch (Exception ex)
         {
@@ -128,7 +138,7 @@ public sealed partial class SoftwareUpdater(
         LastCheckTime = DateTimeOffset.UtcNow;
     }
 
-    public async Task PerformUpdateAsync(IProgress<double> progress)
+    public async Task PerformUpdateAsync(IProgress<double> progress, CancellationToken cancellationToken)
     {
         if (_updateTask is not null)
         {
@@ -142,31 +152,34 @@ public sealed partial class SoftwareUpdater(
             return;
         }
 
-        _updateTask = Task.Run(async () =>
-        {
-            try
+        _updateTask = Task.Run(
+            async () =>
             {
-                var assetPath = await DownloadAssetAsync(asset, progress);
+                using var activity = _activitySource.StartActivity();
+                try
+                {
+                    var assetPath = await DownloadAssetAsync(asset, progress);
 
-                if (assetPath.EndsWith(".exe"))
-                {
-                    UpdateViaInstaller(assetPath);
+                    if (assetPath.EndsWith(".exe"))
+                    {
+                        UpdateViaInstaller(assetPath);
+                    }
+                    else
+                    {
+                        await UpdateViaPortableAsync(assetPath);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    await UpdateViaPortableAsync(assetPath);
+                    logger.LogInformation(ex, "Failed to perform update.");
+                    throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogInformation(ex, "Failed to perform update.");
-                throw;
-            }
-            finally
-            {
-                _updateTask = null;
-            }
-        });
+                finally
+                {
+                    _updateTask = null;
+                }
+            },
+            cancellationToken);
 
         await _updateTask;
     }

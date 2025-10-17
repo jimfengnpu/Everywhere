@@ -118,7 +118,7 @@ public class LinuxVisualElementContext: IVisualElementContext
                 if (element == IntPtr.Zero) return null;
                 var parent = AtspiService.atspi_accessible_get_parent(element, IntPtr.Zero);
                 if (parent == IntPtr.Zero) return null;
-                // TODO Get window element from backend instead of At-spi
+                // TODO: Get window element from backend instead of At-spi
                 // if (windowBarrier && context.ElementType(parent) == VisualElementType.Window)
                 //     return ...;
                 return new AtspiVisualElement(context, parent, windowBarrier);
@@ -240,8 +240,6 @@ public class LinuxVisualElementContext: IVisualElementContext
         {
             return Task.FromResult(context._backend.Capture(this, BoundingRectangle));
         }
-
-        
     }
 
     private IVisualElement? GetAtspiVisualElement(Func<IntPtr> provider, bool windowBarrier = true)
