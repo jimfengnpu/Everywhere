@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Input;
+using Avalonia.Threading;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
@@ -41,6 +42,8 @@ public class HotkeyInitializer(
         using var _ = _syncLock.EnterScope();
 
         _chatHotkeySubscription?.Dispose();
+        if (!hotkey.IsValid) return;
+
         _chatHotkeySubscription = hotkeyListener.Register(
             hotkey,
             () => ThreadPool.QueueUserWorkItem(_ =>

@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using ZLinq;
 
 namespace Everywhere.Configuration;
@@ -96,12 +97,28 @@ public class SettingsStringItem(string name) : SettingsItem(name)
         set => SetValue(IsMultilineProperty, value);
     }
 
+    public static readonly StyledProperty<TextWrapping> TextWrappingProperty = AvaloniaProperty.Register<SettingsStringItem, TextWrapping>(nameof(TextWrapping));
+
+    public TextWrapping TextWrapping
+    {
+        get => GetValue(TextWrappingProperty);
+        set => SetValue(TextWrappingProperty, value);
+    }
+
     public static readonly StyledProperty<char> PasswordCharProperty = AvaloniaProperty.Register<SettingsStringItem, char>(nameof(PasswordChar));
 
     public char PasswordChar
     {
         get => GetValue(PasswordCharProperty);
         set => SetValue(PasswordCharProperty, value);
+    }
+
+    public static readonly StyledProperty<double> HeightProperty = AvaloniaProperty.Register<SettingsStringItem, double>(nameof(Height));
+
+    public double Height
+    {
+        get => GetValue(HeightProperty);
+        set => SetValue(HeightProperty, value);
     }
 }
 
@@ -184,18 +201,18 @@ public class SettingsSelectionItem(string name) : SettingsItem(name)
 
     public static readonly DirectProperty<SettingsSelectionItem, Item?> SelectedItemProperty =
         AvaloniaProperty.RegisterDirect<SettingsSelectionItem, Item?>(
-        nameof(SelectedItem),
-        o => o.SelectedItem,
-        (o, v) => o.SelectedItem = v);
+            nameof(SelectedItem),
+            o => o.SelectedItem,
+            (o, v) => o.SelectedItem = v);
 
     public Item? SelectedItem
     {
-        get => ItemsSource.FirstOrDefault(i => Equals(i.Value, Value));
+        get;
         set
         {
-            if (Equals(Value, value?.Value)) return;
-            var oldValue = SelectedItem;
-            Value = value?.Value;
+            if (Equals(field, value)) return;
+            var oldValue = field;
+            field = value;
             RaisePropertyChanged(SelectedItemProperty, oldValue, value);
         }
     }
@@ -204,11 +221,17 @@ public class SettingsSelectionItem(string name) : SettingsItem(name)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ValueProperty)
+        if (change.Property == ValueProperty && ItemsSource.AsValueEnumerable().Count() > 0)
         {
-            var oldValue = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.OldValue));
-            var newValue = SelectedItem;
-            RaisePropertyChanged(SelectedItemProperty, oldValue, newValue);
+            SelectedItem = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+        }
+        else if (change.Property == ItemsSourceProperty)
+        {
+            SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+        }
+        else if (change.Property == SelectedItemProperty)
+        {
+            Value = change.NewValue.As<Item>()?.Value;
         }
     }
 
@@ -249,7 +272,31 @@ public class SettingsCustomizableItem(string name, SettingsItem customValueItem)
     }
 }
 
-public class SettingsKeyboardHotkeyItem(string name) : SettingsItem(name);
+public abstract class SettingsTypedItem(string name, IDataTemplate? dataTemplate) : SettingsItem(name)
+{
+    public IDataTemplate? DataTemplate => dataTemplate;
+
+    public static SettingsTypedItem? TryCreate(Type propertyType, string name)
+    {
+        if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
+            resource is not IDataTemplate dataTemplate)
+        {
+            return null;
+        }
+
+        var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
+        var constructor = typedItem.GetConstructor([typeof(string), typeof(IDataTemplate)]);
+        return (SettingsTypedItem?)constructor?.Invoke([name, dataTemplate]);
+    }
+}
+
+/// <summary>
+/// A settings item that holds a value of a specific type.
+/// TType is used for DataTemplate selection.
+/// </summary>
+/// <param name="name"></param>
+/// <typeparam name="TType"></typeparam>
+public class SettingsTypedItem<TType>(string name, IDataTemplate? dataTemplate) : SettingsTypedItem(name, dataTemplate);
 
 public class SettingsControlItem(string name, Control control) : SettingsItem(name)
 {

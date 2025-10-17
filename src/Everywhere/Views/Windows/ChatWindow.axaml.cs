@@ -5,10 +5,13 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat;
+using Everywhere.Common;
 using Everywhere.Configuration;
 using LiveMarkdown.Avalonia;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.Views;
 
@@ -100,6 +103,7 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         {
             var value = change.NewValue is true;
             _settings.Internal.IsChatWindowPinned = value;
+            ShowInTaskbar = value;
 
             if (value)
             {
@@ -288,13 +292,20 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
 
     private void HandleTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        BeginMoveDrag(e);
+        try
+        {
+            BeginMoveDrag(e);
+        }
+        catch
+        {
+            // ignored
+        }
     }
 
     private void HandleChatContextManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(IChatContextManager.Current)) return;
-        SizeToContent = SizeToContent.WidthAndHeight; // Update size to content when chat context changes
+        Dispatcher.UIThread.InvokeOnDemand(() => SizeToContent = SizeToContent.WidthAndHeight); // Update size to content when chat context changes
         _isResizedByUser = false;
     }
 
@@ -305,10 +316,15 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         IsOpened = ViewModel.IsOpened;
         if (IsOpened)
         {
+            ShowInTaskbar = true; // temporarily show in taskbar to avoid window blink in the bottom left corner
+            WindowState = WindowState.Minimized;
             Show();
+            WindowState = WindowState.Normal;
+
             Topmost = false;
-            Topmost = true;
+            Focus();
             ChatInputBox.Focus();
+            Topmost = true;
 
             switch (_settings.ChatWindow.WindowPinMode)
             {
@@ -329,6 +345,8 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
                     break;
                 }
             }
+
+            ShowInTaskbar = IsWindowPinned; // restore show in taskbar state
         }
         else
         {
@@ -360,15 +378,42 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
     {
         if (!e.Pointer.IsPrimary) return;
 
+        // BeginResizeDrag implementation requires CanResize to be true, so we temporarily set it to true, then set it back
         CanResize = true;
         BeginResizeDrag(WindowEdge.SouthEast, e);
+        CanResize = false;
     }
 
-    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    protected override void OnKeyDown(KeyEventArgs e)
     {
-        base.OnPointerCaptureLost(e);
+        switch (e)
+        {
+            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
+                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
+                break;
+            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
+                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
+                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
+                break;
+        }
 
-        CanResize = false;
+        base.OnKeyDown(e);
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        // do not allow closing, just hide the window
+        e.Cancel = true;
+        IsOpened = false;
+
+        base.OnClosing(e);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+
+        ServiceLocator.Resolve<ILogger<ChatWindow>>().LogError("Chat window was closed unexpectedly. This should not happen.");
     }
 
     [RelayCommand]

@@ -15,8 +15,12 @@
 
   </h1>
 
+  <a href="https://trendshift.io/repositories/15106" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15106" alt="DearVa%2FEverywhere | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
   <p align="center">
     <a href="https://everywhere.sylinko.com/zh-CN/"><strong>查看文档 »</strong></a>
+    &nbsp;&middot;&nbsp;
+    <a href="【你的下一代 AI 助手｜Everywhere】 https://www.bilibili.com/video/BV1mcxvzfESz"><strong>观看宣传片 »</strong></a>
     <br />
     <br />
     <a href="https://github.com/DearVa/Everywhere">查看演示</a>
@@ -218,6 +222,10 @@
 本项目基于 Apache 2.0 许可证发布，详情请查阅 [LICENSE](LICENSE)。
 
 第三方许可证：参见 [ThirdPartyNotices.txt](ThirdPartyNotices.txt)。
+
+## 🤩 鸣谢
+
+本项目的代码签名证书（Code Signing Certificate）由 [Certum中国](https://www.certumcodesign.cn/) 赞助提供，[Certum中国](https://www.certumcodesign.cn/) 持续为开源社区贡献一份力量。
 
 ## 📈 星标历史
 

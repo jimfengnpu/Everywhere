@@ -12,6 +12,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using ZLinq;
 
 namespace Everywhere.Common;
 
@@ -88,7 +89,12 @@ public static class Entrance
             o.Release = typeof(Entrance).Assembly.GetName().Version?.ToString();
 
             o.UseOpenTelemetry();
-            o.SetBeforeSend(evt => evt.Exception.Unwarp() is OperationCanceledException or HandledException { IsExpected: true } ? null : evt);
+            o.SetBeforeSend(evt =>
+                evt.Exception.Segregate()
+                    .AsValueEnumerable()
+                    .Any(e => e is not OperationCanceledException and not HandledException { IsExpected: true }) ?
+                    evt :
+                    null);
             o.SetBeforeSendTransaction(transaction => SendOnlyNecessaryTelemetry ? null : transaction);
             o.SetBeforeBreadcrumb(breadcrumb => SendOnlyNecessaryTelemetry ? null : breadcrumb);
         });
@@ -126,7 +132,11 @@ public static class Entrance
                 Path.Combine(dataPath, "logs", ".jsonl"),
                 rollingInterval: RollingInterval.Day)
 #if !DISABLE_TELEMETRY
-            .WriteTo.Sentry(LogEventLevel.Error, LogEventLevel.Information)
+            .WriteTo.Logger(lc => lc
+                .Filter.ByIncludingOnly(logEvent =>
+                    logEvent.Properties.TryGetValue("SourceContext", out var sourceContextValue) &&
+                    sourceContextValue.As<ScalarValue>()?.Value?.ToString()?.StartsWith("Everywhere.") is true)
+                .WriteTo.Sentry(LogEventLevel.Error, LogEventLevel.Information))
 #endif
             .CreateLogger();
     }

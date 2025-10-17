@@ -15,8 +15,12 @@ Every moment, Every place. Your AI - `Everywhere`
 
   </h1>
 
+  <a href="https://trendshift.io/repositories/15106" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15106" alt="DearVa%2FEverywhere | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
   <p align="center">
     <a href="https://everywhere.sylinko.com"><strong>Explore the docs »</strong></a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://youtu.be/BGujYa5hbXo"><strong>Watch the trailer »</strong></a>
     <br />
     <br />
     <a href="https://github.com/DearVa/Everywhere">View Demo</a>
@@ -219,6 +223,10 @@ We welcome issues, feature ideas, and PRs! See [CONTRIBUTING.md](CONTRIBUTING.md
 Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for more information.
 
 Third-Party Licenses: See [ThirdPartyNotices.txt](ThirdPartyNotices.txt) for details.
+
+## 🤩 Special Thanks
+
+The Code Signing Certificate for this project is sponsored by [Certum China](https://www.certumcodesign.cn/), which continues to contribute to the open-source community.
 
 ## 📈 Star History
 

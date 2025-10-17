@@ -33,6 +33,7 @@ public class Settings : ObservableObject
 {
     public CommonSettings Common { get; set; } = new();
 
+    [HiddenSettingsItem]
     public ModelSettings Model { get; set; } = new();
 
     public ChatWindowSettings ChatWindow { get; set; } = new();
@@ -66,6 +67,15 @@ public partial class CommonSettings : SettingsCategory
     [HiddenSettingsItem]
     public static IEnumerable<string> LanguageSource => LocaleManager.AvailableLocaleNames;
 
+    /// <summary>
+    /// Gets or sets the current application language.
+    /// </summary>
+    /// <remarks>
+    /// Warn that this may be "default", which stands for en-US.
+    /// </remarks>
+    /// <example>
+    /// default, zh-hans, ru, de, ja, it, fr, es, ko, zh-hant, zh-hant-hk
+    /// </example>
     [SettingsSelectionItem(ItemsSourceBindingPath = nameof(LanguageSource), I18N = true)]
     public string Language
     {
@@ -194,13 +204,16 @@ public partial class ChatWindowSettings : SettingsCategory
 {
     public override string Header => "ChatWindow";
 
-    public override LucideIconKind Icon => LucideIconKind.BotMessageSquare;
+    public override LucideIconKind Icon => LucideIconKind.MessageCircle;
 
     [ObservableProperty]
     public partial KeyboardHotkey Hotkey { get; set; } = new(Key.E, KeyModifiers.Control | KeyModifiers.Shift);
 
     [ObservableProperty]
     public partial ChatWindowPinMode WindowPinMode { get; set; }
+
+    [ObservableProperty]
+    public partial VisualTreeXmlDetailLevel VisualTreeXmlDetailLevel { get; set; } = VisualTreeXmlDetailLevel.Detailed;
 
     /// <summary>
     /// When enabled, automatically add focused element as attachment when opening chat window.
@@ -219,6 +232,14 @@ public partial class ChatWindowSettings : SettingsCategory
     /// </summary>
     [ObservableProperty]
     public partial bool ShowChatStatistics { get; set; } = true;
+
+    // [ObservableProperty]
+    // [SettingsSelectionItem(ItemsSourceBindingPath = "")]
+    // public partial Guid TitleGeneratorAssistantId { get; set; }
+    //
+    // [ObservableProperty]
+    // [SettingsStringItem(Watermark = Prompts.TitleGeneratorPrompt, IsMultiline = true, Height = 50)]
+    // public partial Customizable<string> TitleGeneratorPromptTemplate { get; set; } = Prompts.TitleGeneratorPrompt;
 }
 
 public partial class ModelSettings : SettingsCategory
@@ -227,61 +248,28 @@ public partial class ModelSettings : SettingsCategory
 
     public override LucideIconKind Icon => LucideIconKind.Brain;
 
-    [HiddenSettingsItem]
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedModelProvider), nameof(SelectedModelDefinition))]
-    public partial ObservableCollection<ModelProvider> ModelProviders { get; set; } = [];
+    public partial ObservableCollection<CustomAssistant> CustomAssistants { get; set; } = [];
 
-    [HiddenSettingsItem]
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedModelProvider))]
-    public partial string? SelectedModelProviderId { get; set; }
+    public partial Guid SelectedCustomAssistantId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the currently selected custom assistant via <see cref="SelectedCustomAssistantId"/>.
+    /// If the index is invalid, returns the first assistant or null if the list is empty.
+    /// Setting this property will update the index accordingly.
+    /// </summary>
     [JsonIgnore]
-    [SettingsItems(IsExpanded = true)]
-    [SettingsSelectionItem(ItemsSourceBindingPath = nameof(ModelProviders), DataTemplateKey = typeof(ModelProvider))]
-    public ModelProvider? SelectedModelProvider
+    public CustomAssistant? SelectedCustomAssistant
     {
-        get => ModelProviders.FirstOrDefault(p => p.Id == SelectedModelProviderId);
+        get => CustomAssistants.FirstOrDefault(a => a.Id == SelectedCustomAssistantId) ??
+            CustomAssistants.FirstOrDefault(); // Default to first assistant if index is invalid.
         set
         {
-            if (Equals(SelectedModelProviderId, value?.Id)) return;
-            SelectedModelProviderId = value?.Id;
-            SelectedModelDefinitionId = value?.ModelDefinitions.FirstOrDefault(m => m.IsDefault)?.Id ?? value?.ModelDefinitions.FirstOrDefault()?.Id;
+            SelectedCustomAssistantId = CustomAssistants.FirstOrDefault(a => a == value)?.Id ?? Guid.Empty;
+            OnPropertyChanged();
         }
     }
-
-    [HiddenSettingsItem]
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedModelDefinition))]
-    public partial string? SelectedModelDefinitionId { get; set; }
-
-    [JsonIgnore]
-    [SettingsItems(IsExpanded = true)]
-    [SettingsSelectionItem(
-        ItemsSourceBindingPath = $"{nameof(SelectedModelProvider)}.{nameof(ModelProvider.ModelDefinitions)}",
-        DataTemplateKey = typeof(ModelDefinition))]
-    public ModelDefinition? SelectedModelDefinition
-    {
-        get => SelectedModelProvider?.ModelDefinitions.FirstOrDefault(m => m.Id == SelectedModelDefinitionId);
-        set => SelectedModelDefinitionId = value?.Id;
-    }
-
-    [ObservableProperty]
-    [SettingsDoubleItem(Min = 0.0, Max = 2.0, Step = 0.1)]
-    public partial Customizable<double> Temperature { get; set; } = 1.0;
-
-    [ObservableProperty]
-    [SettingsDoubleItem(Min = 0.0, Max = 1.0, Step = 0.1)]
-    public partial Customizable<double> TopP { get; set; } = 0.9;
-
-    [ObservableProperty]
-    [SettingsDoubleItem(Min = -2.0, Max = 2.0, Step = 0.1)]
-    public partial Customizable<double> PresencePenalty { get; set; } = 0.0;
-
-    [ObservableProperty]
-    [SettingsDoubleItem(Min = -2.0, Max = 2.0, Step = 0.1)]
-    public partial Customizable<double> FrequencyPenalty { get; set; } = 0.0;
 }
 
 public class PluginSettings : SettingsCategory
@@ -339,13 +327,7 @@ public partial class InternalSettings : SettingsCategory
     public partial bool IsFirstTimeHideToTrayIcon { get; set; } = true;
 
     [ObservableProperty]
-    public partial bool IsImageEnabled { get; set; }
-
-    [ObservableProperty]
     public partial bool IsToolCallEnabled { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsWebSearchEnabled { get; set; }
 
     public int MaxChatAttachmentCount { get; set; } = 10;
 
@@ -357,6 +339,9 @@ public partial class InternalSettings : SettingsCategory
 
     [ObservableProperty]
     public partial string? ChatInputBoxText { get; set; }
+
+    [ObservableProperty]
+    public partial int VisualTreeTokenLimit { get; set; } = 4096;
 }
 
 public static class SettingsExtensions

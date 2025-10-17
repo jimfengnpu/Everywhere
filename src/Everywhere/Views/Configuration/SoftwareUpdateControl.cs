@@ -2,6 +2,7 @@
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
+using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
@@ -10,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.ValueConverters;
+using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using ShadUI;
 
@@ -98,6 +100,12 @@ public class SoftwareUpdateControl : StackPanel
             },
             new Button
             {
+                [ButtonAssist.IconProperty] = new LucideIcon
+                {
+                    Kind = LucideIconKind.RefreshCcw,
+                    Size = 18,
+                    Margin = new Thickness(0, 0, 6, 0)
+                },
                 [!ButtonAssist.ShowProgressProperty] = new Binding
                 {
                     Path = "Command.IsRunning",
@@ -131,6 +139,7 @@ public class SoftwareUpdateControl : StackPanel
                     }
                     catch (Exception ex)
                     {
+                        ex = new HandledException(ex, LocaleKey.Settings_Common_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content);
                         logger.LogError(ex, "Failed to check for updates.");
                         ShowErrorToast(ex);
                     }
@@ -148,8 +157,9 @@ public class SoftwareUpdateControl : StackPanel
                 [!TemplatedControl.BackgroundProperty] = new DynamicResourceExtension("SuccessColor60"),
                 [!IsVisibleProperty] = new Binding
                 {
-                    Path = $"!!{nameof(ISoftwareUpdater.LatestVersion)}",
-                    Source = softwareUpdater
+                    Path = nameof(ISoftwareUpdater.LatestVersion),
+                    Source = softwareUpdater,
+                    Converter = ObjectConverters.IsNotNull
                 },
                 Classes = { "Outline" },
                 Content = new TextBlock
@@ -176,17 +186,20 @@ public class SoftwareUpdateControl : StackPanel
                     try
                     {
                         var progress = new Progress<double>();
+                        var cts = new CancellationTokenSource();
                         toastManager
                             .CreateToast(LocaleKey.Common_Info.I18N())
                             .WithContent(LocaleKey.Settings_Common_SoftwareUpdate_Toast_DownloadingUpdate.I18N())
                             .WithProgress(progress)
+                            .WithCancellationTokenSource(cts)
                             .WithDelay(0d)
                             .OnBottomRight()
                             .ShowInfo();
-                        await softwareUpdater.PerformUpdateAsync(progress);
+                        await softwareUpdater.PerformUpdateAsync(progress, cts.Token);
                     }
                     catch (Exception ex)
                     {
+                        ex = new HandledException(ex, LocaleKey.Settings_Common_SoftwareUpdate_Toast_UpdateFailed_Content);
                         logger.LogError(ex, "Failed to perform update.");
                         ShowErrorToast(ex);
                     }

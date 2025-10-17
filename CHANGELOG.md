@@ -1,3 +1,93 @@
+## [v0.3.12](https://github.com/DearVa/Everywhere/releases/tag/v0.3.12) - 2025-10-16
+
+### 🚀 Improvements
+- Removed the obsolete Bing web search engine
+- Optimized error handling
+
+### 🐛 Bug Fixes
+- Fixed an issue where the chat window could not be resized
+- Fixed an issue where the Tavily search engine could not be invoked
+- Fixed an issue where the chat action bubble did not display error messages
+- Fixed an issue where variables in the system prompt were not rendered
+- Fixed an issue where the chat topic summary was sometimes empty (Note: This is not fully resolved, as some models may still produce empty results)
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.11...v0.3.12
+
+
+
+## [v0.3.11](https://github.com/DearVa/Everywhere/releases/tag/v0.3.11) - 2025-10-16
+
+### ⚠️ Breaking Changes ⚠️
+Due to the model configuration page being rebuilt, previously configured model settings (including API keys, etc.) will be lost! However, they still exist in the software settings file. Advanced users can find them at `C:\Users\<username>\AppData\Roaming\Everywhere\settings.json`.
+
+### ✨ Features
+- 🎉 Added custom assistants! You can now create multiple assistants with different icons, names, and prompts, and switch between them freely during a chat
+- Added support for the Tavily web search engine
+
+### 🚀 Improvements
+- Optimized exception handling
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.10...v0.3.11
+
+
+
+## [v0.3.10](https://github.com/DearVa/Everywhere/releases/tag/v0.3.10) - 2025-10-14
+
+### 🚀 Improvements
+- Introduced a new, modern installer that remembers the previous installation location during updates
+
+### 🐛 Bug Fixes
+- Fixed an issue where an error was thrown if the OpenAI API key was empty (which is allowed for services like LM Studio)
+- Fixed a bug that prevented pasting images as attachments in some cases
+- Fixed a bug that caused the application to freeze when sending messages with images
+- Fixed an issue causing an HTTP 400 error during function calls
+- Fixed an issue where requests could be blocked by Cloudflare from some third-party model providers
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.9...v0.3.10
+
+
+
+## [v0.3.9](https://github.com/DearVa/Everywhere/releases/tag/v0.3.9) - 2025-10-13
+
+### ✨ Features
+- Provider icons in settings are now loaded as local resources for faster display
+- Added deep-thought output support for Ollama, SiliconFlow, and some OpenAI-compatible models; fixed SiliconFlow and similar models not outputting results
+- Added option to show chat plugin permissions in settings
+
+### 🚀 Improvements
+- Enhanced error handling and user-friendly messages
+
+### 🐛 Bug Fixes
+- Fixed dialog covering the title bar, making the window undraggable or unresponsive
+- Fixed some prompt tasks (e.g. translation) may use the wrong target language
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.8...v0.3.9
+
+
+
+## [v0.3.8](https://github.com/DearVa/Everywhere/releases/tag/v0.3.8) - 2025-10-11
+
+### ✨ Features
+- Software updates can now be cancelled by dismissing the toast notification
+- Added more keyboard shortcuts: `Ctrl+N` for a new chat, `Ctrl+T` to for tools switch
+- Added a visual tree length limit setting to save tokens
+- Added a notification when an update is available
+
+### 🚀 Improvements
+- Optimized the button layout in the chat window
+- Added more friendly error messages for a better user experience
+
+### 🐛 Bug Fixes
+- Fixed a potential error when loading settings
+- Fixed an issue where the chat window could not be reopened after being accidentally closed
+- Fixed a missing scrollbar on the chat plugin page (#28)
+- Fixed unnecessary telemetry logging
+- Corrected a typo for an Ollama model: deepseek R1 8B -> deepseek R1 7B
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.7...v0.3.8
+
+
+
 ## [v0.3.7](https://github.com/DearVa/Everywhere/releases/tag/v0.3.7) - 2025-10-11
 
 ### 🐞 Fixed

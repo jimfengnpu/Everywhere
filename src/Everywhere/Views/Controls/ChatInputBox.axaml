@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:be="clr-namespace:Everywhere.Behaviors" xmlns:chat="clr-namespace:Everywhere.Chat"
-  xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views">
+  xmlns:ai="clr-namespace:Everywhere.AI" xmlns:be="clr-namespace:Everywhere.Behaviors"
+  xmlns:chat="clr-namespace:Everywhere.Chat" xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
+  xmlns:v="clr-namespace:Everywhere.Views" xmlns:vc="clr-namespace:Everywhere.ValueConverters">
 
   <ControlTheme
     x:Key="{x:Type v:ChatInputBox}"
@@ -60,8 +61,13 @@
                 TextWrapping="{TemplateBinding TextWrapping}">
                 <TextBlock.IsVisible>
                   <MultiBinding Converter="{x:Static BoolConverters.And}">
-                    <Binding ElementName="PART_TextPresenter" Path="PreeditText" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
-                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                    <Binding
+                      Converter="{x:Static StringConverters.IsNullOrEmpty}"
+                      ElementName="PART_TextPresenter" Path="PreeditText"/>
+                    <Binding
+                      Converter="{x:Static StringConverters.IsNullOrEmpty}"
+                      Path="Text"
+                      RelativeSource="{RelativeSource TemplatedParent}"/>
                   </MultiBinding>
                 </TextBlock.IsVisible>
               </TextBlock>
@@ -226,10 +232,139 @@
             Orientation="Horizontal" Spacing="4">
             <Menu Focusable="False">
               <MenuItem
-                Classes="Outline Rounded" shadui:MenuItemAssist.PopupPlacement="TopEdgeAlignedLeft"
+                Classes="Outline Rounded" Width="30"
+                Height="30" Margin="0,0,4,0"
+                shadui:MenuItemAssist.PopupMaxHeight="400" shadui:MenuItemAssist.PopupPlacement="Top"
+                shadui:MenuItemAssist.PopupVerticalOffset="-4" Focusable="False"
+                Grid.IsSharedSizeScope="True"
+                ItemsSource="{TemplateBinding CustomAssistants, Mode=OneWay}"
+                SelectedItem="{TemplateBinding SelectedCustomAssistant, Mode=OneWay}"
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_CustomAssistantsMenuItem_ToolTip}}">
+
+                <MenuItem.Header>
+                  <v:IconPresenter
+                    Width="30" Height="30"
+                    FontSize="16"
+                    Icon="{Binding SelectedCustomAssistant.Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
+                    IconSize="16"/>
+                </MenuItem.Header>
+
+                <MenuItem.ItemContainerTheme>
+                  <ControlTheme TargetType="MenuItem">
+                    <Style Selector="^:pointerover">
+                      <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
+                    </Style>
+
+                    <Style Selector="^/template/ DockPanel.Selected">
+                      <Style Selector="^ Border#SelectedBorder">
+                        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+                      </Style>
+                      <Style Selector="^ Border#ContainerBorder">
+                        <Setter Property="Background" Value="{DynamicResource SecondaryCardBackgroundColor}"/>
+                      </Style>
+                    </Style>
+
+                    <Style Selector="^/template/ shadui|Badge">
+                      <Setter Property="Height" Value="18"/>
+                      <Setter Property="CornerRadius" Value="4"/>
+                      <Style Selector="^ LucideIcon">
+                        <Setter Property="Size" Value="12"/>
+                      </Style>
+                    </Style>
+
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="Command" Value="{Binding $parent[v:ChatInputBox].SetSelectedCustomAssistantCommand}"/>
+                    <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}}"/>
+                    <Setter Property="Template">
+                      <ControlTemplate
+                        x:DataType="ai:CustomAssistant" TargetType="MenuItem">
+                        <DockPanel
+                          Height="36" Margin="0,0,6,0"
+                          Background="Transparent" LastChildFill="True">
+                          <Classes.Selected>
+                            <MultiBinding Converter="{x:Static vc:CommonConverters.AllEquals}">
+                              <Binding Path="."/>
+                              <Binding Path="$parent[v:ChatInputBox].SelectedCustomAssistant"/>
+                            </MultiBinding>
+                          </Classes.Selected>
+
+                          <Border
+                            x:Name="SelectedBorder" DockPanel.Dock="Left"
+                            Width="4" Margin="4,2,2,2"
+                            CornerRadius="2">
+                          </Border>
+
+                          <Border
+                            x:Name="ContainerBorder" Margin="0,2,4,2"
+                            Padding="4,2"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4">
+                            <Grid ColumnSpacing="4">
+                              <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition
+                                  Width="Auto" SharedSizeGroup="Badges"/>
+                              </Grid.ColumnDefinitions>
+
+                              <v:IconPresenter
+                                Grid.Column="0" Width="20"
+                                Height="20" VerticalAlignment="Center"
+                                FontSize="14"
+                                Icon="{Binding Icon}"
+                                IconSize="14"/>
+                              <TextBlock
+                                Grid.Column="1" VerticalAlignment="Center"
+                                Text="{Binding Name}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTip.Tip="{Binding Description}"/>
+
+                              <StackPanel
+                                Grid.Column="2" Margin="16,0,0,0"
+                                HorizontalAlignment="Right" Orientation="Horizontal"
+                                Spacing="2">
+                                <shadui:Badge
+                                  Background="Chocolate"
+                                  IsVisible="{Binding IsImageInputSupported.ActualValue}"
+                                  ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsImageInputSupported_Header}}">
+                                  <LucideIcon Kind="Eye"/>
+                                </shadui:Badge>
+                                <shadui:Badge
+                                  Background="CadetBlue"
+                                  IsVisible="{Binding IsFunctionCallingSupported.ActualValue}"
+                                  ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsFunctionCallingSupported_Header}}">
+                                  <LucideIcon Kind="Hammer"/>
+                                </shadui:Badge>
+                                <shadui:Badge
+                                  Background="ForestGreen"
+                                  IsVisible="{Binding IsDeepThinkingSupported.ActualValue}"
+                                  ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsDeepThinkingSupported_Header}}">
+                                  <LucideIcon Kind="Brain"/>
+                                </shadui:Badge>
+                                <shadui:Badge
+                                  Background="MediumSlateBlue"
+                                  IsVisible="{Binding MaxTokens.ActualValue}"
+                                  ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_MaxTokens_Header}}">
+                                  <TextBlock
+                                    FontSize="12"
+                                    Text="{Binding MaxTokens.ActualValue, Converter={x:Static vc:TokenCountHumanizationConverter.Shared}}"/>
+                                </shadui:Badge>
+                              </StackPanel>
+                            </Grid>
+                          </Border>
+                        </DockPanel>
+                      </ControlTemplate>
+                    </Setter>
+                  </ControlTheme>
+                </MenuItem.ItemContainerTheme>
+              </MenuItem>
+
+              <MenuItem
+                Classes="Outline Rounded" Width="30"
+                Height="30" shadui:MenuItemAssist.PopupPlacement="Top"
                 shadui:MenuItemAssist.PopupVerticalOffset="-4"
                 ItemsSource="{TemplateBinding AddChatAttachmentMenuItems}"
-                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentButton_ToolTip}}">
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_ToolTip}}">
                 <shadui:MenuItemAssist.Label>
                   <TextBlock>
                     <Run Text="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_Header}}"/>
@@ -244,40 +379,46 @@
                 <MenuItem.Header>
                   <LucideIcon
                     HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Kind="Paperclip" Size="18"/>
+                    Kind="Paperclip" Size="16"/>
                 </MenuItem.Header>
               </MenuItem>
             </Menu>
 
             <ToggleButton
-              Classes="Outline Rounded" Focusable="False"
+              Classes="Outline Rounded" Width="30"
+              Height="30" Focusable="False"
               IsChecked="{Binding IsImageEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
               IsVisible="{TemplateBinding IsImageSupported}"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ImageButton_ToolTip}}">
-              <StackPanel
-                Orientation="Horizontal" Spacing="2">
-                <LucideIcon
-                  Kind="Image" Size="16"/>
-                <TextBlock
-                  Classes="Caption"
-                  Text="{I18N {x:Static LocaleKey.ChatInputBox_ImageButton_Text}}"/>
-              </StackPanel>
+              <LucideIcon
+                Kind="Image" Size="16"/>
             </ToggleButton>
 
             <ToggleButton
-              Classes="Outline Rounded" Focusable="False"
+              Classes="Outline Rounded" Width="30"
+              Height="30" Focusable="False"
               IsChecked="{Binding IsToolCallEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
               IsVisible="{TemplateBinding IsToolCallSupported}"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ToolCallButton_ToolTip}}">
-              <StackPanel
-                Orientation="Horizontal" Spacing="2">
-                <LucideIcon
-                  Kind="Hammer" Size="16"/>
-                <TextBlock
-                  Classes="Caption"
-                  Text="{I18N {x:Static LocaleKey.ChatInputBox_ToolCallButton_Text}}"/>
-              </StackPanel>
+              <LucideIcon
+                Margin="-1,-1,1,1" Kind="Hammer"
+                Size="16"/>
             </ToggleButton>
+
+            <Menu Focusable="False">
+              <MenuItem
+                Classes="Outline Rounded" Width="30"
+                Height="30" shadui:MenuItemAssist.PopupPlacement="Top"
+                shadui:MenuItemAssist.PopupVerticalOffset="-4"
+                ItemsSource="{TemplateBinding SettingsMenuItems}"
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_SettingsMenuItem_ToolTip}}">
+                <MenuItem.Header>
+                  <LucideIcon
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Kind="Settings" Size="16"/>
+                </MenuItem.Header>
+              </MenuItem>
+            </Menu>
           </StackPanel>
 
           <StackPanel

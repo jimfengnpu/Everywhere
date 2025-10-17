@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -55,13 +56,14 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             Dispatcher.UIThread.InvokeAsync(
                 () =>
                 {
+                    RemoveCommand.NotifyCanExecuteChanged();
+                    CreateNewCommand.NotifyCanExecuteChanged();
+
                     if (IsEmptyContext(previous)) Remove(previous);
                 },
                 DispatcherPriority.Background);
 
             OnPropertyChanged(nameof(ChatMessageNodes));
-            RemoveCommand.NotifyCanExecuteChanged();
-            CreateNewCommand.NotifyCanExecuteChanged();
         }
     }
 
@@ -84,6 +86,16 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             ).ToReadOnlyList();
         }
     }
+
+    public IReadOnlyDictionary<string, Func<string>> SystemPromptVariables =>
+        ImmutableDictionary.CreateRange(
+            new KeyValuePair<string, Func<string>>[]
+            {
+                new("Time", () => DateTime.Now.ToString("F")),
+                new("OS", () => Environment.OSVersion.ToString()),
+                new("SystemLanguage", () => _settings.Common.Language == "default" ? "en-US" : _settings.Common.Language),
+                new("WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{DateTime.Now:yyyy-MM-dd}"))
+            });
 
     [field: AllowNull, MaybeNull]
     public IRelayCommand CreateNewCommand =>
@@ -140,14 +152,9 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         if (IsEmptyContext(_current)) return;
 
         var renderedSystemPrompt = Prompts.RenderPrompt(
-            Prompts.DefaultSystemPrompt,
-            new Dictionary<string, Func<string>>
-            {
-                { "OS", () => Environment.OSVersion.ToString() },
-                { "Time", () => DateTime.Now.ToString("F") },
-                { "SystemLanguage", () => _settings.Common.Language },
-                { "WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{DateTime.Now:yyyy-MM-dd}") }
-            });
+            _settings.Model.SelectedCustomAssistant?.SystemPrompt ?? Prompts.DefaultSystemPrompt,
+            SystemPromptVariables
+        );
 
         _current = new ChatContext(renderedSystemPrompt);
         _current.Changed += HandleChatContextChanged;

@@ -1,8 +1,9 @@
 ﻿using System.Reflection;
+using Avalonia.Collections;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
-using Everywhere.Interop;
+using Avalonia.Media;
 using ZLinq;
 
 namespace Everywhere.Configuration;
@@ -10,16 +11,23 @@ namespace Everywhere.Configuration;
 /// <summary>
 /// Factory class for creating settings items based on the properties of a target object.
 /// </summary>
-public static class SettingsItemFactory
+public class SettingsItems : AvaloniaList<SettingsItem>
 {
     /// <summary>
-    /// Creates settings items for the specified settings category.
+    /// The owner object for which the settings items are created.
+    /// </summary>
+    /// TODO: Support setting owner and changing settings dynamically.
+    public object Owner { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SettingsItems"/> class for the specified settings category.
     /// </summary>
     /// <param name="category"></param>
-    /// <returns></returns>
-    public static SettingsItem[] CreateForCategory(SettingsCategory category)
+    public SettingsItems(SettingsCategory category) : this(category, CreateItems(category, string.Empty, category.Header, category.GetType())) { }
+
+    private SettingsItems(object owner, IEnumerable<SettingsItem> collection) : base(collection)
     {
-        return CreateItems(category, string.Empty, category.Header, category.GetType());
+        Owner = owner;
     }
 
     /// <summary>
@@ -28,21 +36,19 @@ public static class SettingsItemFactory
     /// <param name="target"></param>
     /// <param name="groupName"></param>
     /// <returns></returns>
-    public static SettingsItem[] CreateForObject(object target, string groupName)
+    public static SettingsItems CreateForObject<T>(T target, string groupName) where T : class
     {
-        return CreateItems(target, string.Empty, groupName, target.GetType());
+        return new SettingsItems(target, CreateItems(target, string.Empty, groupName, typeof(T)));
     }
 
-    private static SettingsItem[] CreateItems(object target, string bindingPath, string groupName, Type ownerType)
+    private static IEnumerable<SettingsItem> CreateItems(object target, string bindingPath, string groupName, Type ownerType)
     {
         return ownerType
             .GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public)
-            .AsValueEnumerable()
             .Where(p => p is { CanRead: true })
             .Where(p => p.GetCustomAttribute<HiddenSettingsItemAttribute>() is null)
             .Select(p => CreateItem(target, bindingPath, groupName, p))
-            .OfType<SettingsItem>()
-            .ToArray();
+            .OfType<SettingsItem>();
     }
 
     private static SettingsItem? CreateItem(
@@ -52,7 +58,7 @@ public static class SettingsItemFactory
         PropertyInfo itemPropertyInfo,
         MemberInfo? attributeOwner = null)
     {
-        SettingsItem? result = null;
+        SettingsItem? result;
 
         attributeOwner ??= itemPropertyInfo;
         var name = $"{ownerName}_{itemPropertyInfo.Name}";
@@ -87,7 +93,7 @@ public static class SettingsItemFactory
                                 .ToArray();
                         }
 
-                        var keyPrefix = $"SettingsSelectionItem_{ownerName}{bindingPath.Replace('.', '_')}_{itemPropertyInfo.Name}";
+                        var keyPrefix = $"{nameof(SettingsSelectionItem)}_{ownerName}{bindingPath.Replace('.', '_')}_{itemPropertyInfo.Name}";
                         return enumerable
                             .AsValueEnumerable()
                             .Select(k => new SettingsSelectionItem.Item(new DynamicResourceKey($"{keyPrefix}_{k}"), k, contentTemplate))
@@ -117,7 +123,9 @@ public static class SettingsItemFactory
                 Watermark = attribute?.Watermark,
                 MaxLength = attribute?.MaxLength ?? int.MaxValue,
                 IsMultiline = attribute?.IsMultiline ?? false,
-                PasswordChar = (attribute?.IsPassword ?? false) ? '*' : '\0'
+                TextWrapping = attribute?.IsMultiline is true ? TextWrapping.Wrap : TextWrapping.NoWrap,
+                PasswordChar = (attribute?.IsPassword ?? false) ? '*' : '\0',
+                Height = attribute?.Height ?? double.NaN
             };
         }
         else if (itemPropertyInfo.PropertyType == typeof(int))
@@ -170,10 +178,6 @@ public static class SettingsItemFactory
                 };
             }
         }
-        else if (itemPropertyInfo.PropertyType == typeof(KeyboardHotkey))
-        {
-            result = new SettingsKeyboardHotkeyItem(name);
-        }
         else if (itemPropertyInfo.PropertyType.IsEnum)
         {
             result = SettingsSelectionItem.FromEnum(itemPropertyInfo.PropertyType, name);
@@ -186,6 +190,10 @@ public static class SettingsItemFactory
             var control = settingsControl.CreateControl();
             control.DataContext = target;
             result = new SettingsControlItem(name, control);
+        }
+        else
+        {
+            result = SettingsTypedItem.TryCreate(itemPropertyInfo.PropertyType, name);
         }
 
         if (result is null) return null;

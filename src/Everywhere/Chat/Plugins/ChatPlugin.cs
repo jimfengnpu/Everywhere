@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Everywhere.AI;
 using Everywhere.Configuration;
 using Lucide.Avalonia;
 using Microsoft.SemanticKernel;
@@ -37,7 +38,11 @@ public abstract partial class ChatPlugin(string name) : KernelPlugin(name)
     /// Gets or sets the allowed permissions for the plugin.
     /// </summary>
     [ObservableProperty]
-    public partial Customizable<ChatFunctionPermissions> AllowedPermissions { get; set; } = ChatFunctionPermissions.None;
+    public partial Customizable<ChatFunctionPermissions> AllowedPermissions { get; set; } =
+        ChatFunctionPermissions.ScreenAccess |
+        ChatFunctionPermissions.NetworkAccess |
+        ChatFunctionPermissions.ClipboardAccess |
+        ChatFunctionPermissions.FileRead;
 
     /// <summary>
     /// Gets the list of functions provided by this plugin for Binding use in the UI.
@@ -55,7 +60,8 @@ public abstract partial class ChatPlugin(string name) : KernelPlugin(name)
 
     protected readonly ObservableList<ChatFunction> _functions = [];
 
-    public virtual IEnumerable<ChatFunction> SnapshotFunctions(ChatContext chatContext) => _functions.Where(f => f.IsEnabled);
+    public virtual IEnumerable<ChatFunction> SnapshotFunctions(ChatContext chatContext, CustomAssistant customAssistant) =>
+        _functions.Where(f => f.IsEnabled);
 
     public override IEnumerator<KernelFunction> GetEnumerator() =>
         _functions.Where(f => f.IsEnabled).Select(f => f.KernelFunction).GetEnumerator();

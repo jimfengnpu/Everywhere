@@ -26,7 +26,7 @@ public abstract partial class DynamicResourceKeyBase : IObservable<object?>
 
 public class EmptyDynamicResourceKey : DynamicResourceKeyBase
 {
-    public static EmptyDynamicResourceKey Instance { get; } = new();
+    public static EmptyDynamicResourceKey Shared { get; } = new();
 
     public override IDisposable Subscribe(IObserver<object?> observer)
     {
@@ -45,10 +45,10 @@ public class EmptyDynamicResourceKey : DynamicResourceKeyBase
 public partial class DynamicResourceKey(object key) : DynamicResourceKeyBase
 {
     [Key(0)]
-    protected object Key { get; } = key;
+    public object Key { get; } = key;
 
     protected IObservable<object?> GetObservable() =>
-        Application.Current?.Resources.GetResourceObservable(Key, NotFoundConverter) ?? EmptyDynamicResourceKey.Instance;
+        Application.Current?.Resources.GetResourceObservable(Key, NotFoundConverter) ?? EmptyDynamicResourceKey.Shared;
 
     private object? NotFoundConverter(object? value) => value is UnsetValueType ? Key : value;
 
@@ -106,10 +106,10 @@ public partial class DirectResourceKey(object key) : DynamicResourceKey(key)
 /// <param name="key"></param>
 /// <param name="args"></param>
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
-public partial class FormattedDynamicResourceKey(object key, params DynamicResourceKeyBase[] args) : DynamicResourceKey(key)
+public partial class FormattedDynamicResourceKey(object key, params IReadOnlyList<DynamicResourceKeyBase> args) : DynamicResourceKey(key)
 {
     [Key(1)]
-    private DynamicResourceKeyBase[] Args { get; } = args;
+    private IReadOnlyList<DynamicResourceKeyBase> Args { get; } = args;
 
     public override IDisposable Subscribe(IObserver<object?> observer)
     {
@@ -128,8 +128,8 @@ public partial class FormattedDynamicResourceKey(object key, params DynamicResou
             return string.Empty;
         }
 
-        var resolvedArgs = new object?[Args.Length];
-        for (var i = 0; i < Args.Length; i++)
+        var resolvedArgs = new object?[Args.Count];
+        for (var i = 0; i < Args.Count; i++)
         {
             if (Args[i] is DynamicResourceKey dynamicKey) resolvedArgs[i] = dynamicKey.ToString();
             else resolvedArgs[i] = Args[i];
@@ -234,4 +234,6 @@ public class DynamicResourceKeyAttribute(string key) : Attribute
 public static class DynamicResourceKeyExtension
 {
     public static string I18N(this string key) => DynamicResourceKey.Resolve(key);
+
+    public static string I18N(this string key, params DynamicResourceKeyBase[] args) => new FormattedDynamicResourceKey(key, args).ToString();
 }
