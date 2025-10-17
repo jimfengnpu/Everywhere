@@ -159,10 +159,20 @@ public static partial class NativeMessageBox
 #endif
 
 #if LINUX
-    private static NativeMessageBoxResult ShowLinuxMessageBox(string title, string message, NativeMessageBoxButtons buttons)
+    private static NativeMessageBoxResult ShowLinuxMessageBox(string title, string message, NativeMessageBoxButtons buttons, NativeMessageBoxIcon icon)
     {
-        // Implement Linux specific message box logic here
-        throw new NotImplementedException("Linux message box not implemented.");
+        // Todo: Add Real native message box using x11 backend
+        // Minimal Linux implementation: write to stderr and return Ok for confirmation dialogs.
+        try
+        {
+            var full = $"{title}\n\n{message}";
+            System.Console.Error.WriteLine(full);
+        }
+        catch { }
+
+        return buttons == NativeMessageBoxButtons.Ok || buttons == NativeMessageBoxButtons.None
+            ? NativeMessageBoxResult.Ok
+            : NativeMessageBoxResult.None;
     }
 #endif
 }

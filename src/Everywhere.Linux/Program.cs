@@ -36,8 +36,10 @@ public static class Program
 
                 .AddLogging(builder => builder
                     .AddSerilog(dispose: true)
-                    .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Warning))
+                    .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Debug))
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
+                .AddSingleton<ILinuxDisplayBackend, LinuxDisplayBackend>()
+                .AddSingleton<AtspiService>()
                 .AddSingleton<IVisualElementContext, LinuxVisualElementContext>()
                 .AddSingleton<IHotkeyListener, LinuxHotkeyListener>()
                 .AddSingleton<INativeHelper, LinuxNativeHelper>()

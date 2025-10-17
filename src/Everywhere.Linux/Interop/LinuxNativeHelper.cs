@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Everywhere.Common;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
@@ -15,25 +16,28 @@ public class LinuxNativeHelper : INativeHelper
 
     public bool IsAdministratorStartupEnabled { get; set; }
 
+    private readonly ILinuxDisplayBackend? _backend = ServiceLocator.Resolve<ILinuxDisplayBackend>();
+
     public void RestartAsAdministrator()
     {
         // No-op on Linux by default. Could re-exec with sudo if desired.
+        ShowDesktopNotification("if Administrator needed on Linux, Please re-exec with sudo.");
     }
 
     public void SetWindowNoFocus(Window window)
     {
-        // Platform-specific behavior not implemented. Leave no-op.
+        _backend?.SetWindowNoFocus(window);
     }
 
     public void SetWindowHitTestInvisible(Window window)
     {
-        // Not implemented for minimal Linux support.
+        _backend?.SetWindowHitTestInvisible(window);
     }
 
     public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius)
     {
-        // Avalonia currently doesn't provide a cross-platform way to set window corner radius from code for all platforms.
-        // Keep as no-op to satisfy the interface.
+        // Currently not implemented for Linux
+        _backend?.SetWindowCornerRadius(window, cornerRadius);
     }
 
     public void HideWindowWithoutAnimation(Window window)

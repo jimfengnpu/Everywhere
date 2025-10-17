@@ -7,7 +7,7 @@ public class RuntimeConstantProvider : IRuntimeConstantProvider
     public object? this[RuntimeConstantType type] => type switch
     {
         RuntimeConstantType.WritableDataPath => EnsureDirectory(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local", "share", "Everywhere")),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Everywhere")),
         _ => null
     };
 
