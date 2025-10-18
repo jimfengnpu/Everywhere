@@ -50,6 +50,12 @@ public interface ILinuxDisplayBackend
     void SetWindowHitTestInvisible(Window window);
 
     void RegisterFocusChanged(Action handler);
-
-    Bitmap Capture(IVisualElement window, PixelRect rect);
+    
+    /// <summary>
+    /// Capture screen bitmap of window within rect
+    /// </summary>
+    /// <param name="window"> if null, capture full screen</param>
+    /// <param name="rect"></param>
+    /// <returns></returns>
+    Bitmap Capture(IVisualElement? window, PixelRect rect);
 }

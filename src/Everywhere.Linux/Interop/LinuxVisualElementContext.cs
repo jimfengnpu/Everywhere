@@ -1,8 +1,11 @@
 using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using ZLinq;
 namespace Everywhere.Linux.Interop;
 
 /// <summary>
@@ -10,7 +13,7 @@ namespace Everywhere.Linux.Interop;
 /// Using ILinuxDisplayBackend for keyboard/mouse event and windows info.
 /// Using AtspiService to access UI elements inside window.
 /// </summary>
-public class LinuxVisualElementContext: IVisualElementContext
+public partial class LinuxVisualElementContext: IVisualElementContext
 {
     private readonly INativeHelper _nativeHelper;
     private readonly ILinuxDisplayBackend _backend;
@@ -38,11 +41,11 @@ public class LinuxVisualElementContext: IVisualElementContext
         backend.Context = this;
         this._logger = logger;
 
-        backend.RegisterFocusChanged(() =>
-        {
-            if (KeyboardFocusedElementChanged is not { } handler) return;
-            handler(KeyboardFocusedElement);
-        });
+        // backend.RegisterFocusChanged(() =>
+        // {
+        //     if (KeyboardFocusedElementChanged is not { } handler) return;
+        //     handler(KeyboardFocusedElement);
+        // });
     }
     
 
@@ -74,10 +77,18 @@ public class LinuxVisualElementContext: IVisualElementContext
         return ElementFromPoint(point, mode);
     }
 
-    public Task<IVisualElement?> PickElementAsync(PickElementMode mode)
+    public async Task<IVisualElement?> PickElementAsync(PickElementMode mode)
     {
-        // TODO
-        return Task.FromResult<IVisualElement?>(null);
+        if (Application.Current is not { ApplicationLifetime: ClassicDesktopStyleApplicationLifetime desktopLifetime })
+        {
+            return null;
+        }
+
+        var windows = desktopLifetime.Windows.AsValueEnumerable().Where(w => w.IsVisible).ToList();
+        foreach (var window in windows) _nativeHelper.HideWindowWithoutAnimation(window);
+        var result = await ElementPicker.PickAsync(this, _nativeHelper, mode);
+        foreach (var window in windows) window.IsVisible = true;
+        return result;
     }
 
     private IntPtr AtspiElementFromPoint(PixelPoint point, IVisualElement? appWindow)
@@ -233,6 +244,7 @@ public class LinuxVisualElementContext: IVisualElementContext
                 var rectPtr = AtspiService.atspi_component_get_extents(element, AtspiService.AtspiCoordTypeScreen, IntPtr.Zero);
                 var rect = Marshal.PtrToStructure<AtspiService.AtspiRect>(rectPtr);
                 AtspiService.g_free(rectPtr);
+                Log.Logger.Debug("Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}", Name, rect.x, rect.y, rect.width, rect.height);
                 return new PixelRect(rect.x, rect.y, rect.width, rect.height);
             }
         }
@@ -242,7 +254,7 @@ public class LinuxVisualElementContext: IVisualElementContext
         }
     }
 
-    private IVisualElement? GetAtspiVisualElement(Func<IntPtr> provider, bool windowBarrier = true)
+    private AtspiVisualElement? GetAtspiVisualElement(Func<IntPtr> provider, bool windowBarrier = true)
     {
         try
         {

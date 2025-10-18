@@ -29,7 +29,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend
         }
         else
         {
-            throw new PlatformNotSupportedException("Wayland is not supported yet.");
+            throw new PlatformNotSupportedException("Other Backend(Such as Wayland) is not supported yet.");
         }
         _impl.Open();
     }
@@ -114,7 +114,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend
         _impl.RegisterFocusChanged(handler);
     }
 
-    public Bitmap Capture(IVisualElement window, PixelRect rect)
+    public Bitmap Capture(IVisualElement? window, PixelRect rect)
     {
         return _impl.Capture(window, rect);
     }

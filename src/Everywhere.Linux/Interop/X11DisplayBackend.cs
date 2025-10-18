@@ -330,11 +330,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         _focusChangedHook = handler;
     }
 
-    public Bitmap Capture(IVisualElement window, PixelRect rect)
+    public Bitmap Capture(IVisualElement? window, PixelRect rect)
     {
         try
         {
-            IntPtr wnd = window.NativeWindowHandle;
+            IntPtr wnd = window?.NativeWindowHandle?? _rootWindow;
             if (wnd == IntPtr.Zero) throw new InvalidOperationException("Invalid window handle");
             var image = XGetImage(_display, wnd, rect.X, rect.Y,
                 (uint)rect.Width, (uint)rect.Height, AllPlanes, ZPixmap);
@@ -344,13 +344,22 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             {
                 var ximage = Marshal.PtrToStructure<XImage>(image);
                 var stride = ximage.bytes_per_line;
-                return new Bitmap(
-                    Avalonia.Platform.PixelFormat.Bgra8888,
-                    Avalonia.Platform.AlphaFormat.Unpremul,
-                    ximage.data,
-                    new PixelSize(rect.Width, rect.Height),
-                    new Vector(96, 96),
-                    stride);
+                int bufferSize = ximage.bytes_per_line * ximage.height;
+                byte[] pixelData = new byte[bufferSize];
+                Marshal.Copy(ximage.data, pixelData, 0, bufferSize);
+                unsafe
+                {
+                    fixed (byte* p = pixelData)
+                    {
+                        return new Bitmap(
+                            Avalonia.Platform.PixelFormat.Bgra8888,
+                            Avalonia.Platform.AlphaFormat.Unpremul,
+                            new nint(p),
+                            new PixelSize(rect.Width, rect.Height),
+                            new Vector(96, 96),
+                            stride);
+                    }
+                }
             }
             finally { XDestroyImage(image); }
         }
@@ -909,7 +918,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         out IntPtr actualTypeReturn, out int actualFormatReturn, out ulong nitemsReturn, out ulong bytesAfterReturn, out IntPtr propReturn);
     private const int RevertToPointerRoot = 1;
     private const int RevertToParent = 2;
-    [LibraryImport("libX11.so.6")]
+    [LibraryImport(LibX11)]
     private static partial void XSetInputFocus(IntPtr display, IntPtr window, int revert_to, uint time);
 
     // XChangeProperty 
