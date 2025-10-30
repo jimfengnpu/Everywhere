@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Anthropic.SDK.Messaging;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.AI;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
@@ -716,7 +717,7 @@ public class ChatService(
             {
                 // The function requires permissions that are not granted.
                 var promise = new TaskCompletionSource<ConsentDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
-                EventHub<ChatPluginConsentRequest>.Publish(
+                WeakReferenceMessenger.Default.Send(
                     new ChatPluginConsentRequest(
                         promise,
                         new FormattedDynamicResourceKey(
@@ -1043,7 +1044,7 @@ public class ChatService(
         }
 
         var promise = new TaskCompletionSource<ConsentDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
-        EventHub<ChatPluginConsentRequest>.Publish(
+        WeakReferenceMessenger.Default.Send(
             new ChatPluginConsentRequest(
                 promise,
                 headerKey,

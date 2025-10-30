@@ -8,6 +8,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -24,7 +25,7 @@ using ZLinq;
 
 namespace Everywhere.ViewModels;
 
-public partial class ChatWindowViewModel : BusyViewModelBase, IEventSubscriber<ChatPluginConsentRequest>
+public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPluginConsentRequest>
 {
     public Settings Settings { get; }
 
@@ -99,7 +100,7 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IEventSubscriber<C
         _blobStorage = blobStorage;
         _logger = logger;
 
-        EventHub<ChatPluginConsentRequest>.Subscribe(this);
+        WeakReferenceMessenger.Default.Register(this);
 
         InitializeCommands();
     }
@@ -469,23 +470,23 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IEventSubscriber<C
         }
     }
 
-    public void HandleEvent(ChatPluginConsentRequest @event)
+    public void Receive(ChatPluginConsentRequest message)
     {
         Dispatcher.UIThread.InvokeOnDemand(() =>
         {
             var card = new ConsentDecisionCard
             {
-                Header = @event.HeaderKey.ToTextBlock(),
-                Content = @event.Content,
+                Header = message.HeaderKey.ToTextBlock(),
+                Content = message.Content,
             };
             card.ConsentSelected += (_, args) =>
             {
-                @event.Promise.TrySetResult(args.Decision);
+                message.Promise.TrySetResult(args.Decision);
                 DialogManager.Close(card);
             };
             DialogManager
                 .CreateDialog(card)
-                .ShowAsync(@event.CancellationToken);
+                .ShowAsync(message.CancellationToken);
         });
     }
 }
