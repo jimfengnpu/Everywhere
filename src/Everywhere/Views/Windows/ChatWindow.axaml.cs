@@ -416,6 +416,14 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        // allow closing only on application or OS shutdown
+        // otherwise, Windows will say "Everywhere is preventing shutdown"
+        if (e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)
+        {
+            base.OnClosing(e);
+            return;
+        }
+
         // do not allow closing, just hide the window
         e.Cancel = true;
         IsOpened = false;
