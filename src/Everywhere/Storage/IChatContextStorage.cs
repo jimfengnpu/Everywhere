@@ -52,6 +52,14 @@ public interface IChatContextStorage
     /// This method is idempotent and safe to call frequently.
     /// </summary>
     Task SaveChatContextAsync(ChatContext context, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Saves chat context metadata only (e.g., topic changes).
+    /// </summary>
+    /// <param name="metadata"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task SaveChatContextMetadataAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

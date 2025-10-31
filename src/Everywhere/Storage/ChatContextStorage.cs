@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using Everywhere.Chat;
 using Everywhere.Database;
@@ -20,6 +21,10 @@ public sealed class ChatContextStorage(
     MessagePackSerializerOptions? serializerOptions = null
 ) : IChatContextStorage
 {
+    // cache of alive instances to avoid multi-instance but same id problems
+    private readonly ConcurrentDictionary<Guid, WeakReference<ChatContextMetadata>> _metadataCache = [];
+    private readonly ConcurrentDictionary<Guid, WeakReference<ChatContext>> _contextCache = [];
+
     public async Task AddChatContextAsync(ChatContext context, CancellationToken cancellationToken = default)
     {
         if (context.Metadata.Id.Version != 7)
@@ -52,6 +57,10 @@ public sealed class ChatContextStorage(
         }
 
         await db.SaveChangesAsync(cancellationToken);
+
+        // Canonicalize cache entries (replace dead refs atomically)
+        SetAlive(_contextCache, context.Metadata.Id, context);
+        SetAlive(_metadataCache, context.Metadata.Id, context.Metadata);
     }
 
     public async Task DeleteChatContextAsync(Guid chatContextId, CancellationToken cancellationToken = default)
@@ -72,6 +81,10 @@ public sealed class ChatContextStorage(
                 cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
+
+        // Invalidate caches
+        _contextCache.TryRemove(chatContextId, out _);
+        _metadataCache.TryRemove(chatContextId, out _);
     }
 
     public async IAsyncEnumerable<ChatContextMetadata> QueryChatContextsAsync(
@@ -103,13 +116,18 @@ public sealed class ChatContextStorage(
 
         await foreach (var entity in query.AsAsyncEnumerable().WithCancellation(cancellationToken))
         {
-            yield return new ChatContextMetadata
-            {
-                Id = entity.Id,
-                DateCreated = entity.CreatedAt,
-                DateModified = entity.UpdatedAt,
-                Topic = entity.Topic
-            };
+            var metadata = GetOrAddAlive(
+                _metadataCache,
+                entity.Id,
+                () => new ChatContextMetadata
+                {
+                    Id = entity.Id,
+                    DateCreated = entity.CreatedAt,
+                    DateModified = entity.UpdatedAt,
+                    Topic = entity.Topic
+                });
+
+            yield return metadata;
         }
 
         IQueryable<ChatContextEntity> ApplyOrder<TKey>(
@@ -155,6 +173,10 @@ public sealed class ChatContextStorage(
 
     public async Task<ChatContext> GetChatContextAsync(Guid chatContextId, CancellationToken cancellationToken = default)
     {
+        // 1) Fast path: alive cached context
+        if (_contextCache.TryGetValue(chatContextId, out var wr) && wr.TryGetTarget(out var cached))
+            return cached;
+
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
 
         var ctxRow = await db.Chats.AsNoTracking().FirstOrDefaultAsync(x => x.Id == chatContextId, cancellationToken)
@@ -249,16 +271,24 @@ public sealed class ChatContextStorage(
             ApplyChildren(id, node, row);
         }
 
-        var meta = new ChatContextMetadata
-        {
-            Id = ctxRow.Id,
-            DateCreated = ctxRow.CreatedAt,
-            DateModified = ctxRow.UpdatedAt,
-            Topic = ctxRow.Topic
-        };
+        // Canonical metadata instance
+        var metadata = GetOrAddAlive(
+            _metadataCache,
+            ctxRow.Id,
+            () => new ChatContextMetadata
+            {
+                Id = ctxRow.Id,
+                DateCreated = ctxRow.CreatedAt,
+                DateModified = ctxRow.UpdatedAt,
+                Topic = ctxRow.Topic
+            });
 
-        var ctx = new ChatContext(meta, nodesById.Values, rootNode);
-        return ctx;
+        var built = new ChatContext(metadata, nodesById.Values, rootNode);
+
+        // Canonical context instance (replace dead refs if any)
+        var finalContext = GetOrAddAlive(_contextCache, chatContextId, () => built);
+
+        return finalContext;
     }
 
     public async Task SaveChatContextAsync(ChatContext context, CancellationToken cancellationToken = default)
@@ -379,9 +409,100 @@ public sealed class ChatContextStorage(
         }
 
         await db.SaveChangesAsync(cancellationToken);
+
+        // Canonicalize cache after save
+        SetAlive(_contextCache, context.Metadata.Id, context);
+        SetAlive(_metadataCache, context.Metadata.Id, context.Metadata);
+    }
+
+    public async Task SaveChatContextMetadataAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default)
+    {
+        await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+
+        var ctxRow = await db.Chats.FirstOrDefaultAsync(x => x.Id == metadata.Id, cancellationToken);
+        if (ctxRow is null)
+        {
+            ctxRow = new ChatContextEntity
+            {
+                Id = metadata.Id,
+                CreatedAt = metadata.DateCreated,
+                UpdatedAt = metadata.DateModified,
+                Topic = metadata.Topic,
+                IsDeleted = false
+            };
+            db.Chats.Add(ctxRow);
+            await db.SaveChangesAsync(cancellationToken);
+
+            SetAlive(_metadataCache, metadata.Id, metadata);
+            _contextCache.TryRemove(metadata.Id, out _); // context stale -> force reload path
+            return;
+        }
+
+        ctxRow.Topic = metadata.Topic;
+        ctxRow.UpdatedAt = metadata.DateModified;
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        SetAlive(_metadataCache, metadata.Id, metadata);
+        _contextCache.TryRemove(metadata.Id, out _); // keep metadata-context coherence
     }
 
     // ————— helpers —————
+    private static T GetOrAddAlive<T>(
+        ConcurrentDictionary<Guid, WeakReference<T>> cache,
+        Guid id,
+        Func<T> factory) where T : class
+    {
+        while (true)
+        {
+            if (cache.TryGetValue(id, out var existingWr) && existingWr.TryGetTarget(out var existing))
+                return existing;
+
+            var created = factory();
+            var newWr = new WeakReference<T>(created);
+
+            if (existingWr is null)
+            {
+                if (cache.TryAdd(id, newWr))
+                    return created;
+                // Lost the race, retry to read the winner
+            }
+            else
+            {
+                if (cache.TryUpdate(id, newWr, existingWr))
+                    return created;
+                // Lost the race, retry to read the winner
+            }
+        }
+    }
+
+    private static void SetAlive<T>(
+        ConcurrentDictionary<Guid, WeakReference<T>> cache,
+        Guid id,
+        T instance) where T : class
+    {
+        var newWr = new WeakReference<T>(instance);
+
+        while (true)
+        {
+            if (!cache.TryGetValue(id, out var existingWr))
+            {
+                if (cache.TryAdd(id, newWr))
+                    return;
+                continue; // race, retry
+            }
+
+            // If the cache already points to the very same instance, nothing to do
+            if (existingWr.TryGetTarget(out var existing) && ReferenceEquals(existing, instance))
+                return;
+
+            // Either dead or different instance -> replace
+            if (cache.TryUpdate(id, newWr, existingWr))
+                return;
+
+            // race, retry
+        }
+    }
 
     private ChatNodeEntity BuildNodeEntity(Guid chatId, ChatMessageNode node, DateTimeOffset now) =>
         new()

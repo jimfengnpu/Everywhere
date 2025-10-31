@@ -178,7 +178,7 @@
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
         <value>Einstellung...</value>
     </data>
-    <data name="ChatContext_Metadata_Title_Default" xml:space="preserve">
+    <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>Unbenannte Sitzung</value>
     </data>
     <data name="ChatAttachment_RemoveButton_ToolTip" xml:space="preserve">

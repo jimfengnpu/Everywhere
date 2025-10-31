@@ -25,7 +25,10 @@ using ZLinq;
 
 namespace Everywhere.ViewModels;
 
-public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPluginConsentRequest>
+public partial class ChatWindowViewModel :
+    BusyViewModelBase,
+    IRecipient<ChatPluginConsentRequest>,
+    IRecipient<ChatContextMetadataChangedMessage>
 {
     public Settings Settings { get; }
 
@@ -52,6 +55,39 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPlu
 
     [ObservableProperty]
     public partial PixelRect TargetBoundingRect { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the chat window is currently viewing history page.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsViewingHistory { get; set; }
+
+    public bool? IsAllHistorySelected
+    {
+        get
+        {
+            bool? value = null;
+            foreach (var metadata in ChatContextManager.AllHistory.AsValueEnumerable().SelectMany(h => h.MetadataList))
+            {
+                if (metadata.IsSelected)
+                {
+                    if (value == false) return null;
+                    value = true;
+                }
+                else
+                {
+                    if (value == true) return null;
+                    value = false;
+                }
+            }
+            return value;
+        }
+        set
+        {
+            if (!value.HasValue) return; // do nothing for indeterminate state
+            ChatContextManager.AllHistory.SelectMany(h => h.MetadataList).ForEach(m => m.IsSelected = value.Value);
+        }
+    }
 
     /// <summary>
     /// Indicates whether the file picker is currently open.
@@ -93,6 +129,7 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPlu
     {
         Settings = settings;
         ChatContextManager = chatContextManager;
+        ChatContextManager.PropertyChanged += HandleChatContextManagerPropertyChanged;
 
         _chatService = chatService;
         _visualElementContext = visualElementContext;
@@ -100,9 +137,14 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPlu
         _blobStorage = blobStorage;
         _logger = logger;
 
-        WeakReferenceMessenger.Default.Register(this);
+        WeakReferenceMessenger.Default.RegisterAll(this);
 
         InitializeCommands();
+    }
+
+    ~ChatWindowViewModel()
+    {
+        ChatContextManager.PropertyChanged -= HandleChatContextManagerPropertyChanged;
     }
 
     private void InitializeCommands()
@@ -447,6 +489,22 @@ public partial class ChatWindowViewModel : BusyViewModelBase, IRecipient<ChatPlu
 
     [RelayCommand]
     private Task CopyAsync(ChatMessage chatMessage) => Clipboard.SetTextAsync(chatMessage.ToString());
+
+    [RelayCommand]
+    private void SwitchViewingHistory(object? value)
+    {
+        IsViewingHistory = Convert.ToBoolean(value);
+    }
+
+    public void Receive(ChatContextMetadataChangedMessage message)
+    {
+        if (message.PropertyName == nameof(ChatContextMetadata.IsSelected)) OnPropertyChanged(nameof(IsAllHistorySelected));
+    }
+
+    private void HandleChatContextManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IChatContextManager.AllHistory)) OnPropertyChanged(nameof(IsAllHistorySelected));
+    }
 
     [RelayCommand]
     private void Close()

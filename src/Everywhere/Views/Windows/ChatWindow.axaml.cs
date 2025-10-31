@@ -89,8 +89,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     {
         EnsureInitialized();
         ApplyStyling();
-        StartRendering();
-        StopRendering();
+        ApplyTemplate();
         _windowHelper.SetCloaked(this, true);
         ShowActivated = true;
         Topmost = true;
@@ -358,12 +357,10 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
             ShowInTaskbar = IsWindowPinned;
             _windowHelper.SetCloaked(this, false);
-            StartRendering();
             ChatInputBox.Focus();
         }
         else
         {
-            StopRendering();
             ShowInTaskbar = false;
             _windowHelper.SetCloaked(this, true);
         }

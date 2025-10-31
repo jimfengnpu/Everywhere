@@ -1,8 +1,9 @@
-﻿using Everywhere.Common;
+﻿using System.Collections.ObjectModel;
+using Everywhere.Common;
 
 namespace Everywhere.Chat;
 
 public record ChatContextHistory(
     HumanizedDate Date,
-    IReadOnlyList<ChatContext> Contexts
+    ObservableCollection<ChatContextMetadata> MetadataList
 );

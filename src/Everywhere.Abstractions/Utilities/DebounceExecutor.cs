@@ -1,3 +1,5 @@
+using ITimer = Everywhere.Common.ITimer;
+
 namespace Everywhere.Utilities;
 
 /// <summary>
@@ -5,29 +7,34 @@ namespace Everywhere.Utilities;
 /// It debounces calls to a parameterless method and, when the delay has passed,
 /// it invokes a value provider (Func{T}) and passes the result to an action (Action{T}).
 /// </summary>
-/// <typeparam name="T">The type of the value to be processed.</typeparam>
-public sealed class DebounceExecutor<T> : IDisposable
+/// <typeparam name="TSender">The type of the value to be processed.</typeparam>
+/// <typeparam name="TTimer"></typeparam>
+public class DebounceExecutor<TSender, TTimer> : IDisposable where TTimer : class, ITimer, new()
 {
-    private readonly Timer _timer;
-    private readonly Func<T> _valueProvider;
-    private readonly Action<T> _action;
-    private readonly TimeSpan _delay;
+    /// <summary>
+    /// Gets or sets the debounce delay time.
+    /// </summary>
+    public TimeSpan Delay { get; set; }
+
+    private readonly TTimer _timer;
+    private readonly Func<TSender> _valueProvider;
+    private readonly Action<TSender> _action;
 
     private volatile bool _isDisposed;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DebounceExecutor{T}"/> class.
+    /// Initializes a new instance of the <see cref="DebounceExecutor{TSender, TTimer}"/> class.
     /// </summary>
     /// <param name="valueProvider">The function to call to get the value when the action is to be executed.</param>
     /// <param name="action">The action to execute with the value from the provider.</param>
     /// <param name="delay">The debounce delay time.</param>
-    public DebounceExecutor(Func<T> valueProvider, Action<T> action, TimeSpan delay)
+    public DebounceExecutor(Func<TSender> valueProvider, Action<TSender> action, TimeSpan delay)
     {
         _valueProvider = valueProvider;
         _action = action;
-        _delay = delay;
-        // The state object is 'this' instance, passed to the callback.
-        _timer = new Timer(TimerCallback, this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        Delay = delay;
+        _timer = new TTimer();
+        _timer.Callback += TimerCallback;
     }
 
     /// <summary>
@@ -43,7 +50,8 @@ public sealed class DebounceExecutor<T> : IDisposable
         }
 
         // This is thread-safe. It will reset the timer to the specified delay.
-        _timer.Change(_delay, Timeout.InfiniteTimeSpan);
+        _timer.Interval = Delay;
+        _timer.Start();
     }
 
     public void Cancel()
@@ -54,14 +62,12 @@ public sealed class DebounceExecutor<T> : IDisposable
         }
 
         // Cancel the timer by setting the due time to infinite.
-        _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _timer.Stop();
     }
 
-    private static void TimerCallback(object? state)
+    private void TimerCallback()
     {
-        // The callback runs on a ThreadPool thread.
-        var instance = (DebounceExecutor<T>)state!;
-        if (instance._isDisposed)
+        if (_isDisposed)
         {
             return;
         }
@@ -69,8 +75,8 @@ public sealed class DebounceExecutor<T> : IDisposable
         try
         {
             // Get the value and execute the action.
-            var value = instance._valueProvider();
-            instance._action(value);
+            var value = _valueProvider();
+            _action(value);
         }
         catch
         {
@@ -88,16 +94,10 @@ public sealed class DebounceExecutor<T> : IDisposable
         {
             return;
         }
-        _isDisposed = true;
 
-        // Dispose the timer, which prevents any further callbacks.
-        // The WaitHandle ensures that we wait for any currently executing callback to complete.
-        using (var waitHandle = new ManualResetEvent(false))
-        {
-            if (_timer.Dispose(waitHandle))
-            {
-                waitHandle.WaitOne();
-            }
-        }
+        _timer.Dispose();
+
+        _isDisposed = true;
+        GC.SuppressFinalize(this);
     }
 }

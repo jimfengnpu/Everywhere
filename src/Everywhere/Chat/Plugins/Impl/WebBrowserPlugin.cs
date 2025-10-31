@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
 using Everywhere.Chat.Permissions;
+using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Utilities;
@@ -38,7 +39,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     private readonly IWatchdogManager _watchdogManager;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<WebBrowserPlugin> _logger;
-    private readonly DebounceExecutor<WebBrowserPlugin> _browserDisposer;
+    private readonly DebounceExecutor<WebBrowserPlugin, ThreadingTimerImpl> _browserDisposer;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -62,7 +63,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         _watchdogManager = watchdogManager;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<WebBrowserPlugin>();
-        _browserDisposer = new DebounceExecutor<WebBrowserPlugin>(
+        _browserDisposer = new DebounceExecutor<WebBrowserPlugin, ThreadingTimerImpl>(
             () => this,
             static that =>
             {

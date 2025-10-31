@@ -95,7 +95,7 @@
         <value>向 Everywhere 提问，或是随便聊聊</value>
     </data>
     <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
-        <value>添加附件到当前会话</value>
+        <value>添加附件到当前对话</value>
     </data>
     <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>添加附件</value>
@@ -187,8 +187,8 @@
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
         <value>设置中</value>
     </data>
-    <data name="ChatContext_Metadata_Title_Default" xml:space="preserve">
-        <value>未命名会话</value>
+    <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
+        <value>未命名对话</value>
     </data>
     <data name="ChatAttachment_RemoveButton_ToolTip" xml:space="preserve">
         <value>移除</value>
@@ -1265,5 +1265,17 @@
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles" xml:space="preserve">
         <value>支持的文件</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
+        <value>话题</value>
+    </data>
+    <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
+        <value>日期</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_Rename_Header" xml:space="preserve">
+        <value>重命名对话</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
+        <value>删除对话</value>
     </data>
 </root>

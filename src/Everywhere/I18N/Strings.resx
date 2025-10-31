@@ -203,7 +203,7 @@
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
         <value>Setting...</value>
     </data>
-    <data name="ChatContext_Metadata_Title_Default" xml:space="preserve">
+    <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>Unnamed Session</value>
     </data>
     <data name="ChatAttachment_RemoveButton_ToolTip" xml:space="preserve">
@@ -1281,5 +1281,17 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
         <value>All Files</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
+        <value>Topic</value>
+    </data>
+    <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
+        <value>Date</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_Rename_Header" xml:space="preserve">
+        <value>Rename Chat</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
+        <value>Delete Chat</value>
     </data>
 </root>

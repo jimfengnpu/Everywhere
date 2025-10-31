@@ -371,7 +371,7 @@ public class ChatService(
 
             activity?.SetTag("tool_calls.count", toolCallCount);
 
-            if (!chatContext.IsTemporary && // Do not generate titles for temporary contexts.
+            if (!chatContext.Metadata.IsTemporary && // Do not generate titles for temporary contexts.
                 chatContext.Metadata.Topic.IsNullOrEmpty() &&
                 chatHistory.Any(c => c.Role == AuthorRole.User) &&
                 chatHistory.Any(c => c.Role == AuthorRole.Assistant) &&
