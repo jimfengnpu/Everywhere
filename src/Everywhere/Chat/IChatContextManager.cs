@@ -3,6 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Everywhere.Chat;
 
+/// <summary>
+/// Manages chat contexts and their history. This is used behind <see cref="ChatWindowViewModel"/>.
+/// </summary>
 public interface IChatContextManager : INotifyPropertyChanged
 {
     /// <summary>

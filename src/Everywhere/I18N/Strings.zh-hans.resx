@@ -1281,4 +1281,10 @@
     <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
         <value>Türkçe</value>
     </data>
+    <data name="ChatContextManager_LoadChatContextFailedToast_Content" xml:space="preserve">
+        <value>加载对话失败: {0}</value>
+    </data>
+    <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
+        <value>查看全部</value>
+    </data>
 </root>

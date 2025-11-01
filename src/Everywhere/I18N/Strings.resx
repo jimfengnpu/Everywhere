@@ -1297,4 +1297,10 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
         <value>Türkçe</value>
     </data>
+    <data name="ChatContextManager_LoadChatContextFailedToast_Content" xml:space="preserve">
+        <value>Failed to load chat: {0}</value>
+    </data>
+    <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
+        <value>View All</value>
+    </data>
 </root>

@@ -324,6 +324,18 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         {
             _logger.LogError(ex, "Failed to load chat context {ChatContextId}", id);
 
+            await Dispatcher.UIThread.InvokeOnDemandAsync(() =>
+            {
+                ServiceLocator
+                    .Resolve<ToastManager>()
+                    .CreateToast(LocaleKey.Common_Error.I18N())
+                    .WithContent(
+                        new FormattedDynamicResourceKey(
+                            LocaleKey.ChatContextManager_LoadChatContextFailedToast_Content,
+                            ex.GetFriendlyMessage()).ToTextBlock())
+                    .ShowError();
+            });
+
             if (deleteIfFailed) await _chatContextStorage.DeleteChatContextAsync(id).ConfigureAwait(false);
 
             return null;

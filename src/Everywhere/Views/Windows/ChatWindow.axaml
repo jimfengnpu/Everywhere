@@ -173,7 +173,7 @@
 
                 <Button
                   Grid.Row="2" MinHeight="28"
-                  Content="View All">
+                  Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}">
                   <Interaction.Behaviors>
                     <ButtonClickEventTriggerBehavior>
                       <ButtonClickEventTriggerBehavior.Actions>
@@ -995,8 +995,15 @@
                             IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
                           <TextBlock
                             Grid.Column="1" VerticalAlignment="Center"
-                            Text="{Binding ActualTopic}"
-                            TextTrimming="CharacterEllipsis"/>
+                            IsVisible="{Binding IsTemporary}"
+                            Opacity="0.6"
+                            Text="{I18N {x:Static LocaleKey.ChatContext_Temporary}}"/>
+                          <shadui:EditableTextBlock
+                            x:Name="TopicEditableTextBlock" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding !IsTemporary}"
+                            Text="{Binding Topic, Mode=TwoWay}"
+                            Watermark="{I18N {x:Static LocaleKey.ChatContext_Metadata_Topic_Default}}"/>
                           <TextBlock
                             Grid.Column="2" VerticalAlignment="Center"
                             Text="{Binding LocalDateModified, StringFormat='{}{0:G}'}"
@@ -1007,8 +1014,10 @@
                             <Button.Flyout>
                               <MenuFlyout>
                                 <MenuItem
+                                  Command="{Binding #TopicEditableTextBlock.EnterEditMode}"
                                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Rename_Header}}"
-                                  Icon="{LucideIconContent Pencil}"/>
+                                  Icon="{LucideIconContent Pencil}"
+                                  IsVisible="{Binding !IsTemporary}"/>
                                 <MenuItem
                                   Foreground="{DynamicResource DestructiveColor}"
                                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Delete_Header}}">
