@@ -352,21 +352,27 @@ public class ChatService(
 
                 var chatSpan = new AssistantChatMessageSpan();
                 assistantChatMessage.Spans.Add(chatSpan);
-                var functionCallContents = await GetStreamingChatMessageContentsAsync(
-                    kernel,
-                    kernelMixin,
-                    chatHistory,
-                    customAssistant,
-                    chatSpan,
-                    assistantChatMessage,
-                    cancellationToken);
-                if (functionCallContents.Count <= 0) break;
+                try
+                {
+                    var functionCallContents = await GetStreamingChatMessageContentsAsync(
+                        kernel,
+                        kernelMixin,
+                        chatHistory,
+                        customAssistant,
+                        chatSpan,
+                        assistantChatMessage,
+                        cancellationToken);
+                    if (functionCallContents.Count <= 0) break;
 
-                toolCallCount += functionCallContents.Count;
+                    toolCallCount += functionCallContents.Count;
 
-                await InvokeFunctionsAsync(kernel, chatContext, chatHistory, chatSpan, functionCallContents, cancellationToken);
-
-                chatSpan.FinishedAt = DateTimeOffset.UtcNow;
+                    await InvokeFunctionsAsync(kernel, chatContext, chatHistory, chatSpan, functionCallContents, cancellationToken);
+                }
+                finally
+                {
+                    chatSpan.FinishedAt = DateTimeOffset.UtcNow;
+                    chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
+                }
             }
 
             activity?.SetTag("tool_calls.count", toolCallCount);
@@ -860,8 +866,12 @@ public class ChatService(
                     var result = functionCall.Results.AsValueEnumerable().FirstOrDefault(r => r.CallId == callId);
                     yield return result?.ToChatMessage() ?? new ChatMessageContent(
                         AuthorRole.Tool,
-                        $"Error: No result found for function call ID '{callId}'. " +
-                        $"This may caused by an error during function execution or user cancellation.");
+                        [
+                            new FunctionResultContent(
+                                functionCall.Calls[callIndex],
+                                $"Error: No result found for function call ID '{callId}'. " +
+                                $"This may caused by an error during function execution or user cancellation.")
+                        ]);
 
                     if (result is not null &&
                         await TryCreateExtraToolCallResultsContentAsync(result, cancellationToken) is { } extraToolCallResultsContent)
