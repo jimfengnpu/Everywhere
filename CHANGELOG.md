@@ -1,3 +1,23 @@
+## [v0.4.3](https://github.com/DearVa/Everywhere/releases/tag/v0.4.3) - 2025-11-2
+
+### ✨ Features
+- Added Türkçe language support (Thanks @complex-cgn)
+- Improved chat history viewing & management (including topic editing and multi-selecting/deleting chats)
+
+### 🚀 Improvements
+- Reduced memory usage & UI freeze when rendering markdown codeblocks (2700% improvement)
+- Added more icons to the assistant IconEditor and optimized its performance
+
+### 🐛 Bug Fixes
+- (Windows) Fixed an issue where Everywhere could prevent system shutdown
+- Fixed an issue where the chat window could not be closed by pressing the Esc key
+- Fixed an issue where canceling a tool call could prevent the conversation from continuing
+- Fixed an issue where some reasoning-focused LLMs could not use tools correctly
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.2...v0.4.3
+
+
+
 ## [v0.4.2](https://github.com/DearVa/Everywhere/releases/tag/v0.4.2) - 2025-10-28
 
 ### ✨ Features

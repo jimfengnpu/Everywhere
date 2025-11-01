@@ -1272,10 +1272,10 @@
     <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
         <value>日期</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Rename_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_RenameMenuItem_Header" xml:space="preserve">
         <value>重命名对话</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
         <value>删除对话</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
@@ -1287,7 +1287,7 @@
     <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
         <value>查看全部</value>
     </data>
-    <data name="ChatWindow_ChatHistory_DeleteSelected_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_DeleteSelectedMenuItem_Header" xml:space="preserve">
         <value>删除选中的对话</value>
     </data>
     <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">

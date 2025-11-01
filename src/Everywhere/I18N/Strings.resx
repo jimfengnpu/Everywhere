@@ -1288,10 +1288,10 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
         <value>Date</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Rename_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_RenameMenuItem_Header" xml:space="preserve">
         <value>Rename Chat</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
         <value>Delete Chat</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
@@ -1303,7 +1303,7 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
         <value>View All</value>
     </data>
-    <data name="ChatWindow_ChatHistory_DeleteSelected_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_DeleteSelectedMenuItem_Header" xml:space="preserve">
         <value>Delete Selected</value>
     </data>
     <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">

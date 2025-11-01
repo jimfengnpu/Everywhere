@@ -899,13 +899,24 @@
             <Menu HorizontalAlignment="Right">
               <MenuItem
                 Classes="Ghost" Height="30"
-                Padding="6,4" shadui:MenuItemAssist.PopupPlacement="Bottom"
-                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_ToolTip}}">
+                Padding="6,4" shadui:MenuItemAssist.PopupPlacement="Bottom">
                 <MenuItem.Header>
                   <LucideIcon
                     HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Kind="Paperclip" Size="16"/>
+                    Kind="Ellipsis" Size="16"/>
                 </MenuItem.Header>
+
+                <MenuItem
+                  Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveSelectedCommand}"
+                  CommandParameter="{Binding}"
+                  Foreground="{DynamicResource DestructiveColor}"
+                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteSelectedMenuItem_Header}}">
+                  <MenuItem.Icon>
+                    <LucideIcon
+                      Foreground="{DynamicResource DestructiveColor}"
+                      Kind="Trash2" Size="1"/>
+                  </MenuItem.Icon>
+                </MenuItem>
               </MenuItem>
             </Menu>
           </Panel>
@@ -979,21 +990,23 @@
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="ContextMenu">
                           <Setter.Value>
-                            <ContextMenu x:DataType="chat:ChatContextMetadata">
+                            <ContextMenu
+                              x:DataType="chat:ChatContextMetadata"
+                              CornerRadius="{DynamicResource LgCornerRadius}">
                               <MenuItem
                                 Command="{Binding StartRenaming}"
-                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Rename_Header}}"
+                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_RenameMenuItem_Header}}"
                                 Icon="{LucideIconContent Pencil}"
                                 IsVisible="{Binding !IsTemporary}"/>
                               <MenuItem
                                 Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
                                 CommandParameter="{Binding}"
                                 Foreground="{DynamicResource DestructiveColor}"
-                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Delete_Header}}">
+                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteMenuItem_Header}}">
                                 <MenuItem.Icon>
                                   <LucideIcon
                                     Foreground="{DynamicResource DestructiveColor}"
-                                    Kind="Delete"/>
+                                    Kind="Trash2"/>
                                 </MenuItem.Icon>
                               </MenuItem>
                             </ContextMenu>
@@ -1047,18 +1060,18 @@
                               <MenuFlyout>
                                 <MenuItem
                                   Command="{Binding #TopicEditableTextBlock.EnterEditMode}"
-                                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Rename_Header}}"
+                                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_RenameMenuItem_Header}}"
                                   Icon="{LucideIconContent Pencil}"
                                   IsVisible="{Binding !IsTemporary}"/>
                                 <MenuItem
                                   Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
                                   CommandParameter="{Binding}"
                                   Foreground="{DynamicResource DestructiveColor}"
-                                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Delete_Header}}">
+                                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteMenuItem_Header}}">
                                   <MenuItem.Icon>
                                     <LucideIcon
                                       Foreground="{DynamicResource DestructiveColor}"
-                                      Kind="Delete"/>
+                                      Kind="Trash2" Size="14"/>
                                   </MenuItem.Icon>
                                 </MenuItem>
                               </MenuFlyout>

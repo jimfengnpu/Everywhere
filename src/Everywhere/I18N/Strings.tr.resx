@@ -1415,10 +1415,10 @@
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
         <value>Konu</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
         <value>Sohbeti sil</value>
     </data>
-    <data name="ChatWindow_ChatHistory_Rename_Header" xml:space="preserve">
+    <data name="ChatWindow_ChatHistory_RenameMenuItem_Header" xml:space="preserve">
         <value>Yeniden adlandırma diyaloğu</value>
     </data>
 </root>
