@@ -317,6 +317,12 @@ public partial class ChatContextMetadata : ObservableObject
     [ObservableProperty]
     public partial bool IsSelected { get; set; }
 
+    [IgnoreMember]
+    [ObservableProperty]
+    public partial bool IsRenaming { get; set; }
+
+    public void StartRenaming() => IsRenaming = true;
+
     public override bool Equals(object? obj) => obj is ChatContextMetadata other && Id == other.Id;
 
     public override int GetHashCode() => Id.GetHashCode();

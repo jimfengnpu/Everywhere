@@ -119,6 +119,8 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
 
     IRelayCommand<ChatContextMetadata> IChatContextManager.RemoveCommand => RemoveCommand;
 
+    IRelayCommand IChatContextManager.RemoveSelectedCommand => RemoveSelectedCommand;
+
     private ICollection<ChatContextMetadata> LoadedMetadata => _metadataMap.To<IDictionary<Guid, ChatContextMetadata>>().Values;
 
     private ChatContext? _current;
@@ -280,6 +282,15 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         OnPropertyChanged(nameof(AllHistory));
         OnPropertyChanged(nameof(RecentHistory));
         RemoveCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand]
+    private async Task RemoveSelectedAsync()
+    {
+        foreach (var metadata in LoadedMetadata.AsValueEnumerable().Where(m => m.IsSelected).ToList())
+        {
+            await RemoveAsync(metadata);
+        }
     }
 
     /// <summary>

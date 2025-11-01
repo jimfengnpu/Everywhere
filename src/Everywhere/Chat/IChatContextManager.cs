@@ -57,4 +57,9 @@ public interface IChatContextManager : INotifyPropertyChanged
     /// Removes the given chat context.
     /// </summary>
     IRelayCommand<ChatContextMetadata> RemoveCommand { get; }
+
+    /// <summary>
+    /// Removes the selected chat context from history.
+    /// </summary>
+    IRelayCommand RemoveSelectedCommand { get; }
 }

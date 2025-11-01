@@ -74,7 +74,8 @@
                 <DataTemplate DataType="plugins:ChatPluginFileReference">
                   <HyperlinkButton
                     Padding="2"
-                    Command="{Binding OpenFileLocationCommand}">
+                    Command="{Binding OpenFileLocationCommand}"
+                    TextBlock.TextTrimming="CharacterEllipsis">
                     <HyperlinkButton.Content>
                       <StackPanel
                         Orientation="Horizontal" Spacing="4">
@@ -115,7 +116,8 @@
                   <HyperlinkButton
                     Padding="2"
                     Content="{Binding DisplayNameKey^}"
-                    NavigateUri="{Binding Url, Converter={x:Static vc:CommonConverters.StringToUri}}"/>
+                    NavigateUri="{Binding Url, Converter={x:Static vc:CommonConverters.StringToUri}}"
+                    TextBlock.TextTrimming="CharacterEllipsis"/>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>

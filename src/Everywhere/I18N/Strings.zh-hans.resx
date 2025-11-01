@@ -1287,4 +1287,7 @@
     <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
         <value>查看全部</value>
     </data>
+    <data name="ChatWindow_ChatHistory_DeleteSelected_Header" xml:space="preserve">
+        <value>删除选中的对话</value>
+    </data>
 </root>

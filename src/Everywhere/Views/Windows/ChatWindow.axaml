@@ -896,8 +896,20 @@
             <MenuItem.Header>
               <LucideIcon
                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                Kind="Paperclip" Size="16"/>
+                Kind="Ellipsis" Size="16"/>
             </MenuItem.Header>
+
+            <MenuItem
+              Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveSelectedCommand}"
+              CommandParameter="{Binding}"
+              Foreground="{DynamicResource DestructiveColor}"
+              Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteSelected_Header}}">
+              <MenuItem.Icon>
+                <LucideIcon
+                  Foreground="{DynamicResource DestructiveColor}"
+                  Kind="Delete"/>
+              </MenuItem.Icon>
+            </MenuItem>
           </MenuItem>
         </Menu>
 
@@ -972,6 +984,28 @@
                     <ListBox.Styles>
                       <Style Selector="ListBoxItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="ContextMenu">
+                          <Setter.Value>
+                            <ContextMenu x:DataType="chat:ChatContextMetadata">
+                              <MenuItem
+                                Command="{Binding StartRenaming}"
+                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Rename_Header}}"
+                                Icon="{LucideIconContent Pencil}"
+                                IsVisible="{Binding !IsTemporary}"/>
+                              <MenuItem
+                                Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
+                                CommandParameter="{Binding}"
+                                Foreground="{DynamicResource DestructiveColor}"
+                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Delete_Header}}">
+                                <MenuItem.Icon>
+                                  <LucideIcon
+                                    Foreground="{DynamicResource DestructiveColor}"
+                                    Kind="Delete"/>
+                                </MenuItem.Icon>
+                              </MenuItem>
+                            </ContextMenu>
+                          </Setter.Value>
+                        </Setter>
                       </Style>
 
                       <Style Selector="LucideIcon">
@@ -1003,6 +1037,7 @@
                           <shadui:EditableTextBlock
                             x:Name="TopicEditableTextBlock" Grid.Column="1"
                             VerticalAlignment="Center"
+                            IsEditing="{Binding IsRenaming, Mode=TwoWay}"
                             IsVisible="{Binding !IsTemporary}"
                             Text="{Binding Topic, Mode=TwoWay}"
                             Watermark="{I18N {x:Static LocaleKey.ChatContext_Metadata_Topic_Default}}"/>
@@ -1021,6 +1056,8 @@
                                   Icon="{LucideIconContent Pencil}"
                                   IsVisible="{Binding !IsTemporary}"/>
                                 <MenuItem
+                                  Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
+                                  CommandParameter="{Binding}"
                                   Foreground="{DynamicResource DestructiveColor}"
                                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_Delete_Header}}">
                                   <MenuItem.Icon>
