@@ -74,7 +74,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         _settings = settings;
 
         InitializeComponent();
-        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, true);
 
         chatContextManager.PropertyChanged += HandleChatContextManagerPropertyChanged;
         ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
@@ -97,16 +97,27 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
     private void HandleKeyDown(object? sender, KeyEventArgs e)
     {
-        switch (e.Key)
+        switch (e)
         {
-            case Key.Escape when e.KeyModifiers == KeyModifiers.None:
+            case { Key: Key.Escape }:
             {
                 IsOpened = false;
                 break;
             }
-            case Key.D when e.KeyModifiers == KeyModifiers.Control:
+            case { Key: Key.D, KeyModifiers: KeyModifiers.Control }:
             {
                 IsWindowPinned = !IsWindowPinned;
+                break;
+            }
+            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
+            {
+                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
+                break;
+            }
+            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
+                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
+            {
+                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
                 break;
             }
         }
@@ -384,31 +395,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         if (!ViewModel.AddClipboardCommand.CanExecute(null)) return;
 
         ViewModel.AddClipboardCommand.Execute(null);
-    }
-
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
-        switch (e)
-        {
-            case { Key: Key.Escape }:
-            {
-                IsOpened = false;
-                break;
-            }
-            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
-            {
-                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
-                break;
-            }
-            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
-                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
-            {
-                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
-                break;
-            }
-        }
-
-        base.OnKeyDown(e);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
