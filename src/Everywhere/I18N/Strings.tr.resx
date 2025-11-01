@@ -30,7 +30,7 @@
         <value>中文 (简体)</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_default" xml:space="preserve">
-        <value>İngilizce (Birleşik Devletler)</value>
+        <value>English (United States)</value>
     </data>
     <data name="Settings_Common_Theme_Description" xml:space="preserve">
         <value>Yazılım için ekran temasını seçin.</value>

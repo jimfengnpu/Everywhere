@@ -369,7 +369,7 @@ public record ModelProviderTemplate
                     DisplayName = "DeepSeek V3.2 Exp (Thinking Mode)",
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
-                    IsFunctionCallingSupported = true,
+                    IsFunctionCallingSupported = false,
                     IsDeepThinkingSupported = true,
                 }
             ]
