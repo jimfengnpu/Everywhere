@@ -1306,4 +1306,7 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="ChatWindow_ChatHistory_DeleteSelected_Header" xml:space="preserve">
         <value>Delete Selected</value>
     </data>
+    <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
+        <value>Back</value>
+    </data>
 </root>

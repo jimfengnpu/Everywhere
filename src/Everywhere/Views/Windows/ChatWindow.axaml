@@ -220,7 +220,8 @@
         <TextBlock
           Classes="Large" Margin="8,0,0,0"
           VerticalAlignment="Center" IsHitTestVisible="False"
-          Text="{Binding ChatContextManager.Current.Metadata.ActualTopic}">
+          Text="{Binding ChatContextManager.Current.Metadata.ActualTopic}"
+          TextTrimming="CharacterEllipsis">
           <TextBlock.Transitions>
             <Transitions>
               <shadui:StringTransition
@@ -881,41 +882,37 @@
       <Grid
         IsSharedSizeScope="True"
         IsVisible="{Binding IsViewingHistory}"
-        RowDefinitions="Auto,Auto,Auto,*">
-        <Button
-          HorizontalAlignment="Left"
-          shadui:ButtonAssist.Icon="{LucideIconContent ArrowLeft}"
-          Command="{Binding SwitchViewingHistoryCommand}"
-          CommandParameter="False" Content="Back"/>
+        RowDefinitions="Auto,Auto,*">
+        <Border
+          Grid.Row="0" Padding="4,2"
+          BorderBrush="{DynamicResource BorderColor}"
+          BorderThickness="0,0,0,0">
+          <Panel Margin="0,2,4,2">
+            <Button
+              Classes="Ghost" Height="30"
+              Padding="6,4" HorizontalAlignment="Left"
+              shadui:ButtonAssist.Icon="{LucideIconContent ArrowLeft}"
+              Command="{Binding SwitchViewingHistoryCommand}"
+              CommandParameter="False"
+              Content="{I18N {x:Static LocaleKey.ChatWindow_BackAllHistoryButton_Content}}"/>
 
-        <Menu
-          Grid.Row="0" HorizontalAlignment="Right">
-          <MenuItem
-            Classes="Ghost" shadui:MenuItemAssist.PopupPlacement="Bottom"
-            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_ToolTip}}">
-            <MenuItem.Header>
-              <LucideIcon
-                HorizontalAlignment="Center" VerticalAlignment="Center"
-                Kind="Ellipsis" Size="16"/>
-            </MenuItem.Header>
-
-            <MenuItem
-              Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveSelectedCommand}"
-              CommandParameter="{Binding}"
-              Foreground="{DynamicResource DestructiveColor}"
-              Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteSelected_Header}}">
-              <MenuItem.Icon>
-                <LucideIcon
-                  Foreground="{DynamicResource DestructiveColor}"
-                  Kind="Delete"/>
-              </MenuItem.Icon>
-            </MenuItem>
-          </MenuItem>
-        </Menu>
+            <Menu HorizontalAlignment="Right">
+              <MenuItem
+                Classes="Ghost" Height="30"
+                Padding="6,4" shadui:MenuItemAssist.PopupPlacement="Bottom"
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_ToolTip}}">
+                <MenuItem.Header>
+                  <LucideIcon
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Kind="Paperclip" Size="16"/>
+                </MenuItem.Header>
+              </MenuItem>
+            </Menu>
+          </Panel>
+        </Border>
 
         <Grid
-          Margin="23,0,20,0" ColumnSpacing="8"
-          Row="1">
+          Margin="23,8,20,2" Row="1">
           <Grid.ColumnDefinitions>
             <ColumnDefinition
               Width="Auto" SharedSizeGroup="Check"/>
@@ -930,20 +927,16 @@
             Grid.Column="0"
             IsChecked="{Binding IsAllHistorySelected}"/>
           <TextBlock
-            Grid.Column="1" VerticalAlignment="Center"
+            Grid.Column="1" Margin="8,0"
+            VerticalAlignment="Center"
             Text="{I18N {x:Static LocaleKey.ChatContext_Metadata_Topic_Header}}"/>
           <TextBlock
             Grid.Column="2" VerticalAlignment="Center"
             Text="{I18N {x:Static LocaleKey.ChatContext_Metadata_DateModified_Header}}"/>
         </Grid>
 
-        <Border
-          Grid.Row="2" Height="1"
-          Margin="0,6,0,0"
-          Background="{DynamicResource BorderColor}"/>
-
         <ScrollViewer
-          Grid.Row="3" HorizontalContentAlignment="Stretch"
+          Grid.Row="2" HorizontalContentAlignment="Stretch"
           HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
           <Interaction.Behaviors>
             <be:AutoLoadBehavior Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.LoadMoreHistoryCommand}">
@@ -1015,7 +1008,7 @@
 
                     <ListBox.ItemTemplate>
                       <DataTemplate DataType="chat:ChatContextMetadata">
-                        <Grid ColumnSpacing="8">
+                        <Grid>
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition
                               Width="Auto" SharedSizeGroup="Check"/>
@@ -1030,23 +1023,25 @@
                             Grid.Column="0"
                             IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
                           <TextBlock
-                            Grid.Column="1" VerticalAlignment="Center"
+                            Grid.Column="1" Margin="8,0"
+                            VerticalAlignment="Center"
                             IsVisible="{Binding IsTemporary}"
                             Opacity="0.6"
                             Text="{I18N {x:Static LocaleKey.ChatContext_Temporary}}"/>
                           <shadui:EditableTextBlock
                             x:Name="TopicEditableTextBlock" Grid.Column="1"
-                            VerticalAlignment="Center"
+                            Margin="8,0" VerticalAlignment="Center"
                             IsEditing="{Binding IsRenaming, Mode=TwoWay}"
                             IsVisible="{Binding !IsTemporary}"
                             Text="{Binding Topic, Mode=TwoWay}"
+                            TextTrimming="CharacterEllipsis"
                             Watermark="{I18N {x:Static LocaleKey.ChatContext_Metadata_Topic_Default}}"/>
                           <TextBlock
                             Grid.Column="2" VerticalAlignment="Center"
                             Text="{Binding LocalDateModified, StringFormat='{}{0:G}'}"
                             TextTrimming="CharacterEllipsis"/>
                           <Button
-                            Grid.Column="3"
+                            Grid.Column="3" Margin="8,0,0,0"
                             Content="{LucideIconContent Ellipsis}">
                             <Button.Flyout>
                               <MenuFlyout>

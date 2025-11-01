@@ -1290,4 +1290,7 @@
     <data name="ChatWindow_ChatHistory_DeleteSelected_Header" xml:space="preserve">
         <value>删除选中的对话</value>
     </data>
+    <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
+        <value>返回</value>
+    </data>
 </root>
