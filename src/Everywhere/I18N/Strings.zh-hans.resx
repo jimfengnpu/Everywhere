@@ -1278,4 +1278,7 @@
     <data name="ChatWindow_ChatHistory_Delete_Header" xml:space="preserve">
         <value>删除对话</value>
     </data>
+    <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
+        <value>Türkçe</value>
+    </data>
 </root>

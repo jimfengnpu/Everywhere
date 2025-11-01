@@ -163,6 +163,7 @@ Every moment, Every place. Your AI - `Everywhere`
         • 日本語<br>
         • 한국어<br>
         • Русский<br>
+        • Türkçe (Thanks @complex-cgn)<br>
         • 中文 (繁體)<br>
         • 中文 (繁體 香港特別行政區)<br><br>
         <b>Contributions Welcome</b><br>

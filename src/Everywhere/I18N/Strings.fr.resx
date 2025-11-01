@@ -52,4 +52,7 @@
     <data name="ChangeLogView_ReportBugHyperlinkButton_NavigateUri" xml:space="preserve">
         <value>https://github.com/DearVa/Everywhere/issues/new?template=bug-report.yml</value>
     </data>
+    <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
+        <value>Türkçe</value>
+    </data>
 </root>
