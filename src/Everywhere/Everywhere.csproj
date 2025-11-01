@@ -37,15 +37,15 @@
     <PackageReference Include="PuppeteerSharp"/>
     <PackageReference Include="Sentry"/>
     <PackageReference Include="Sentry.OpenTelemetry"/>
-    <PackageReference Include="Sentry.Serilog" />
+    <PackageReference Include="Sentry.Serilog"/>
     <PackageReference Include="Serilog"/>
     <PackageReference Include="Serilog.Extensions.Logging"/>
     <PackageReference Include="Serilog.Sinks.Console"/>
     <PackageReference Include="Serilog.Sinks.File"/>
     <PackageReference Include="System.Drawing.Common"/>
-    <PackageReference Include="Tavily" />
+    <PackageReference Include="Tavily"/>
     <PackageReference Include="Xaml.Behaviors.Avalonia"/>
-    <PackageReference Include="Xaml.Behaviors.Interactivity" />
+    <PackageReference Include="Xaml.Behaviors.Interactivity"/>
   </ItemGroup>
 
   <ItemGroup>
