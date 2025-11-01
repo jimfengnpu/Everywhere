@@ -319,17 +319,12 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         var y = Math.Max(area.Y, Math.Min(pos.Y, area.Y + area.Height - size.Height));
         return new PixelPoint(x, y);
     }
-
-    private void HandleTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
+    
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        try
-        {
+        base.OnPointerPressed(e);
+        if (TitleBarBorder.Bounds.Contains(e.GetCurrentPoint(this).Position))
             BeginMoveDrag(e);
-        }
-        catch
-        {
-            // ignored
-        }
     }
 
     private void HandleChatContextManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)

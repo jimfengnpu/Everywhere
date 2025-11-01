@@ -27,7 +27,7 @@
   </v:ReactiveShadWindow.Hosts>
 
   <Grid
-    x:Name="RootGrid" RowDefinitions="44,*">
+    x:Name="RootGrid" RowDefinitions="Auto,*">
     <ExperimentalAcrylicBorder
       Grid.Row="0" Grid.RowSpan="2">
       <ExperimentalAcrylicBorder.Material>
@@ -37,198 +37,200 @@
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
 
-    <DockPanel
-      Grid.Row="0" Margin="8"
-      Background="Transparent" LastChildFill="True"
-      PointerPressed="HandleTitleBarPointerPressed">
-      <Viewbox
-        DockPanel.Dock="Left" Width="36"
-        Height="36" Margin="0,0,0,-4">
-        <ContentPresenter Content="{StaticResource AssistantAvatar}"/>
-      </Viewbox>
+    <Border
+      x:Name="TitleBarBorder" Grid.Row="0"
+      Height="44" Padding="8,0"
+      Background="Transparent">
+      <DockPanel LastChildFill="True">
+        <Viewbox
+          DockPanel.Dock="Left" Width="36"
+          Height="36" Margin="0,0,0,-4">
+          <ContentPresenter Content="{StaticResource AssistantAvatar}"/>
+        </Viewbox>
 
-      <StackPanel
-        DockPanel.Dock="Right" VerticalAlignment="Center"
-        Orientation="Horizontal" Spacing="4">
-        <StackPanel.Styles>
-          <Style Selector=":is(Button).TitleBar">
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="MinHeight" Value="28"/>
-            <Setter Property="MinWidth" Value="28"/>
-            <Setter Property="Width" Value="28"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Background" Value="Transparent"/>
+        <StackPanel
+          DockPanel.Dock="Right" VerticalAlignment="Center"
+          Orientation="Horizontal" Spacing="4">
+          <StackPanel.Styles>
+            <Style Selector=":is(Button).TitleBar">
+              <Setter Property="Focusable" Value="False"/>
+              <Setter Property="Height" Value="28"/>
+              <Setter Property="MinHeight" Value="28"/>
+              <Setter Property="MinWidth" Value="28"/>
+              <Setter Property="Width" Value="28"/>
+              <Setter Property="Padding" Value="0"/>
+              <Setter Property="CornerRadius" Value="4"/>
+              <Setter Property="Background" Value="Transparent"/>
 
-            <Style Selector="^.Close /template/ Border#HoverBackground">
-              <Setter Property="Background" Value="#C42B1C"/>
+              <Style Selector="^.Close /template/ Border#HoverBackground">
+                <Setter Property="Background" Value="#C42B1C"/>
+              </Style>
+
+              <Style Selector="^ LucideIcon">
+                <Setter Property="Size" Value="20"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+              </Style>
             </Style>
 
-            <Style Selector="^ LucideIcon">
-              <Setter Property="Size" Value="20"/>
-              <Setter Property="HorizontalAlignment" Value="Center"/>
-              <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style Selector="FlyoutPresenter">
+              <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+              <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
+              <Setter Property="BorderThickness" Value="1"/>
+              <Setter Property="CornerRadius" Value="8.5"/>
+              <Setter Property="Padding" Value="0"/>
             </Style>
-          </Style>
 
-          <Style Selector="FlyoutPresenter">
-            <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8.5"/>
-            <Setter Property="Padding" Value="0"/>
-          </Style>
+            <Style Selector="MenuFlyoutPresenter">
+              <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+              <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
+              <Setter Property="BorderThickness" Value="1"/>
+              <Setter Property="CornerRadius" Value="8.5"/>
+              <Setter Property="Padding" Value="0"/>
 
-          <Style Selector="MenuFlyoutPresenter">
-            <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8.5"/>
-            <Setter Property="Padding" Value="0"/>
-
-            <Style Selector="^ MenuItem.MenuFlyoutMenuItem /template/ Border#HoverBackground">
-              <Setter Property="Background" Value="{DynamicResource SecondaryCardBackgroundColor}"/>
+              <Style Selector="^ MenuItem.MenuFlyoutMenuItem /template/ Border#HoverBackground">
+                <Setter Property="Background" Value="{DynamicResource SecondaryCardBackgroundColor}"/>
+              </Style>
             </Style>
-          </Style>
 
-          <Style Selector="Expander:not(.CanExpand)">
-            <Style Selector="^ ToggleButton#PART_ToggleButton">
-              <Setter Property="IsEnabled" Value="False"/>
+            <Style Selector="Expander:not(.CanExpand)">
+              <Style Selector="^ ToggleButton#PART_ToggleButton">
+                <Setter Property="IsEnabled" Value="False"/>
+              </Style>
+              <Style Selector="^ LucideIcon#PART_Icon">
+                <Setter Property="IsVisible" Value="False"/>
+              </Style>
+              <Style Selector="^ ContentControl#ContentExpandControlContainer">
+                <Setter Property="IsVisible" Value="False"/>
+              </Style>
             </Style>
-            <Style Selector="^ LucideIcon#PART_Icon">
-              <Setter Property="IsVisible" Value="False"/>
-            </Style>
-            <Style Selector="^ ContentControl#ContentExpandControlContainer">
-              <Setter Property="IsVisible" Value="False"/>
-            </Style>
-          </Style>
-        </StackPanel.Styles>
+          </StackPanel.Styles>
 
-        <Button
-          x:Name="HistoryButton" Classes="Ghost TitleBar"
-          Command="{Binding ChatContextManager.UpdateRecentHistoryCommand}"
-          IsVisible="{Binding !IsViewingHistory}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
-          <Button.Flyout>
-            <Flyout ShowMode="Transient">
-              <Grid RowDefinitions="*,1,Auto">
-                <ScrollViewer
-                  Grid.Row="0" Width="200"
-                  MaxHeight="400" HorizontalContentAlignment="Stretch"
-                  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                  <ItemsControl
-                    Margin="8" Padding="0"
-                    ItemsSource="{Binding ChatContextManager.RecentHistory}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <StackPanel
-                          Orientation="Vertical" Spacing="8"/>
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+          <Button
+            x:Name="HistoryButton" Classes="Ghost TitleBar"
+            Command="{Binding ChatContextManager.UpdateRecentHistoryCommand}"
+            IsVisible="{Binding !IsViewingHistory}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
+            <Button.Flyout>
+              <Flyout ShowMode="Transient">
+                <Grid RowDefinitions="*,1,Auto">
+                  <ScrollViewer
+                    Grid.Row="0" Width="200"
+                    MaxHeight="400" HorizontalContentAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl
+                      Margin="8" Padding="0"
+                      ItemsSource="{Binding ChatContextManager.RecentHistory}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel
+                            Orientation="Vertical" Spacing="8"/>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate DataType="chat:ChatContextHistory">
-                        <StackPanel
-                          Orientation="Vertical" Spacing="4">
-                          <TextBlock
-                            Classes="Muted" HorizontalAlignment="Left"
-                            FontSize="12">
-                            <TextBlock.Text>
-                              <I18N Key="{Binding Date, Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
-                            </TextBlock.Text>
-                          </TextBlock>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="chat:ChatContextHistory">
+                          <StackPanel
+                            Orientation="Vertical" Spacing="4">
+                            <TextBlock
+                              Classes="Muted" HorizontalAlignment="Left"
+                              FontSize="12">
+                              <TextBlock.Text>
+                                <I18N Key="{Binding Date, Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
+                              </TextBlock.Text>
+                            </TextBlock>
 
-                          <ListBox
-                            Padding="0" Background="Transparent"
-                            BorderThickness="0" CornerRadius="0"
-                            ItemsSource="{Binding MetadataList}"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            SelectedItem="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.CurrentMetadata, FallbackValue={x:Null}}">
-                            <ListBox.Styles>
-                              <Style Selector="ListBoxItem">
-                                <Setter Property="Height" Value="28"/>
-                                <Setter Property="Padding" Value="6,0"/>
-                                <Setter Property="CornerRadius" Value="4"/>
-                              </Style>
-                            </ListBox.Styles>
+                            <ListBox
+                              Padding="0" Background="Transparent"
+                              BorderThickness="0" CornerRadius="0"
+                              ItemsSource="{Binding MetadataList}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              SelectedItem="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.CurrentMetadata, FallbackValue={x:Null}}">
+                              <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                  <Setter Property="Height" Value="28"/>
+                                  <Setter Property="Padding" Value="6,0"/>
+                                  <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                              </ListBox.Styles>
 
-                            <ListBox.ItemTemplate>
-                              <DataTemplate DataType="chat:ChatContextMetadata">
-                                <TextBlock
-                                  Text="{Binding ActualTopic}"
-                                  TextTrimming="CharacterEllipsis"/>
-                              </DataTemplate>
-                            </ListBox.ItemTemplate>
-                          </ListBox>
-                        </StackPanel>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </ScrollViewer>
+                              <ListBox.ItemTemplate>
+                                <DataTemplate DataType="chat:ChatContextMetadata">
+                                  <TextBlock
+                                    Text="{Binding ActualTopic}"
+                                    TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                              </ListBox.ItemTemplate>
+                            </ListBox>
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </ScrollViewer>
 
-                <Border
-                  Grid.Row="1"
-                  Background="{DynamicResource BorderColor}"/>
+                  <Border
+                    Grid.Row="1"
+                    Background="{DynamicResource BorderColor}"/>
 
-                <Button
-                  Grid.Row="2" MinHeight="28"
-                  Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}">
-                  <Interaction.Behaviors>
-                    <ButtonClickEventTriggerBehavior>
-                      <ButtonClickEventTriggerBehavior.Actions>
-                        <HideFlyoutAction Flyout="{Binding #HistoryButton.Flyout}"/>
-                        <InvokeCommandAction
-                          Command="{Binding SwitchViewingHistoryCommand}"
-                          CommandParameter="True"/>
-                      </ButtonClickEventTriggerBehavior.Actions>
-                    </ButtonClickEventTriggerBehavior>
-                  </Interaction.Behaviors>
-                </Button>
-              </Grid>
-            </Flyout>
-          </Button.Flyout>
+                  <Button
+                    Grid.Row="2" MinHeight="28"
+                    Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}">
+                    <Interaction.Behaviors>
+                      <ButtonClickEventTriggerBehavior>
+                        <ButtonClickEventTriggerBehavior.Actions>
+                          <HideFlyoutAction Flyout="{Binding #HistoryButton.Flyout}"/>
+                          <InvokeCommandAction
+                            Command="{Binding SwitchViewingHistoryCommand}"
+                            CommandParameter="True"/>
+                        </ButtonClickEventTriggerBehavior.Actions>
+                      </ButtonClickEventTriggerBehavior>
+                    </Interaction.Behaviors>
+                  </Button>
+                </Grid>
+              </Flyout>
+            </Button.Flyout>
 
-          <LucideIcon
-            Kind="History" Size="16"/>
-        </Button>
+            <LucideIcon
+              Kind="History" Size="16"/>
+          </Button>
 
-        <Button
-          Classes="Ghost TitleBar"
-          Command="{Binding ChatContextManager.CreateNewCommand}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_CreateNew_ToolTip}}">
-          <LucideIcon Kind="Plus"/>
-        </Button>
+          <Button
+            Classes="Ghost TitleBar"
+            Command="{Binding ChatContextManager.CreateNewCommand}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_CreateNew_ToolTip}}">
+            <LucideIcon Kind="Plus"/>
+          </Button>
 
-        <ToggleButton
-          Classes="Ghost TitleBar"
-          IsChecked="{Binding $parent[v:ChatWindow].IsWindowPinned, Mode=TwoWay}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}">
-          <LucideIcon
-            Kind="Pin" Size="16"/>
-        </ToggleButton>
+          <ToggleButton
+            Classes="Ghost TitleBar"
+            IsChecked="{Binding $parent[v:ChatWindow].IsWindowPinned, Mode=TwoWay}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}">
+            <LucideIcon
+              Kind="Pin" Size="16"/>
+          </ToggleButton>
 
-        <Button
-          Classes="Ghost TitleBar Close"
-          Command="{Binding CloseCommand}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_Close_ToolTip}}">
-          <LucideIcon Kind="X"/>
-        </Button>
-      </StackPanel>
+          <Button
+            Classes="Ghost TitleBar Close"
+            Command="{Binding CloseCommand}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_Close_ToolTip}}">
+            <LucideIcon Kind="X"/>
+          </Button>
+        </StackPanel>
 
-      <TextBlock
-        Classes="Large" Margin="8,0,0,0"
-        VerticalAlignment="Center" IsHitTestVisible="False"
-        Text="{Binding ChatContextManager.Current.Metadata.ActualTopic}">
-        <TextBlock.Transitions>
-          <Transitions>
-            <shadui:StringTransition
-              Easing="CubicEaseInOut" Property="Text"
-              Duration="0:0:0.4"/>
-          </Transitions>
-        </TextBlock.Transitions>
-      </TextBlock>
-    </DockPanel>
+        <TextBlock
+          Classes="Large" Margin="8,0,0,0"
+          VerticalAlignment="Center" IsHitTestVisible="False"
+          Text="{Binding ChatContextManager.Current.Metadata.ActualTopic}">
+          <TextBlock.Transitions>
+            <Transitions>
+              <shadui:StringTransition
+                Easing="CubicEaseInOut" Property="Text"
+                Duration="0:0:0.4"/>
+            </Transitions>
+          </TextBlock.Transitions>
+        </TextBlock>
+      </DockPanel>
+    </Border>
 
     <Panel Grid.Row="1">
       <Grid
