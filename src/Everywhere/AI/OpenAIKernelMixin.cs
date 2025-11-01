@@ -94,13 +94,13 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
         private static PropertyInfo? _choiceDeltaProperty;
         private static PropertyInfo? _deltaRawDataProperty;
 
-        public async Task<ChatResponse> GetResponseAsync(
+        public Task<ChatResponse> GetResponseAsync(
             IEnumerable<ChatMessage> messages,
             ChatOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            var res = await client.GetResponseAsync(messages, options, cancellationToken);
-            return res;
+            messages = EnsureCompatibilityFields(messages);
+            return client.GetResponseAsync(messages, options, cancellationToken);
         }
 
         public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
@@ -108,6 +108,8 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
             ChatOptions? options = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            messages = EnsureCompatibilityFields(messages);
+
             // cache the value to avoid property changes during enumeration
             var isDeepThinkingSupported = owner.IsDeepThinkingSupported;
             await foreach (var update in client.GetStreamingResponseAsync(messages, options, cancellationToken))
@@ -195,6 +197,37 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
                 }
 
                 yield return update;
+            }
+        }
+
+        /// <summary>
+        /// Ensure each ChatMessage contains the compatibility fields required by some models/clients.
+        /// We use reflection to avoid compile-time dependency on the concrete ChatMessage shape.
+        /// The fields added are: 'refusal', 'annotations', 'audio', 'function_call' (all set to null).
+        /// </summary>
+        private static IEnumerable<ChatMessage> EnsureCompatibilityFields(IEnumerable<ChatMessage> messages)
+        {
+            foreach (var msg in messages)
+            {
+                if (msg.AdditionalProperties is { } dict)
+                {
+                    dict.TryAdd("refusal", null);
+                    dict.TryAdd("annotations", null);
+                    dict.TryAdd("audio", null);
+                    dict.TryAdd("function_call", null);
+                }
+                else
+                {
+                    msg.AdditionalProperties = new AdditionalPropertiesDictionary
+                    {
+                        ["refusal"] = null,
+                        ["annotations"] = null,
+                        ["audio"] = null,
+                        ["function_call"] = null
+                    };
+                }
+
+                yield return msg;
             }
         }
 
