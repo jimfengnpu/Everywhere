@@ -94,9 +94,9 @@
 <table>
   <thead>
     <tr>
-      <th style="width:28%">类别</th>
-      <th style="width:35%">✅ 当前支持</th>
-      <th style="width:41%">🚧 进行中</th>
+      <th style="width:30%">类别</th>
+      <th style="width:45%">✅ 当前支持</th>
+      <th style="width:25%">🚧 进行中</th>
     </tr>
   </thead>
   <tbody>
@@ -153,9 +153,7 @@
       <td><b>🌐 语言支持</b></td>
       <td>
         • 简体中文<br>
-        • English
-      </td>
-      <td>
+        • English<br>
         • Deutsch<br>
         • Español<br>
         • Français<br>
@@ -163,11 +161,13 @@
         • 日本語<br>
         • 한국어<br>
         • Русский<br>
-        • Türkçe (Thanks @complex-cgn)<br>
+        • Türkçe (感谢 @complex-cgn)<br>
         • 中文 (繁體)<br>
         • 中文 (繁體 香港特別行政區)<br><br>
-        <b>欢迎贡献</b><br>
-        <a href="https://crowdin.com/project/everywhere" rel="nofollow" target="_blank"><img style="width:140px;height:40px" src="https://badges.crowdin.net/badge/dark/crowdin-on-light.png" srcset="https://badges.crowdin.net/badge/dark/crowdin-on-light.png 1x,https://badges.crowdin.net/badge/dark/crowdin-on-light@2x.png 2x" alt="Crowdin | Everywhere" /></a>
+      </td>
+      <td>
+        部分翻译由 AI 辅助完成，<br>
+        欢迎校对改进！<br><br>
       </td>
     </tr>
   </tbody>

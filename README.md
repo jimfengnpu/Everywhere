@@ -94,9 +94,9 @@ Every moment, Every place. Your AI - `Everywhere`
 <table>
   <thead>
     <tr>
-      <th style="width:28%">Category</th>
-      <th style="width:35%">✅ Currently Supported</th>
-      <th style="width:41%">🚧 Work in Progress</th>
+      <th style="width:30%">Category</th>
+      <th style="width:45%">✅ Currently Supported</th>
+      <th style="width:25%">🚧 Work in Progress</th>
     </tr>
   </thead>
   <tbody>
@@ -153,9 +153,7 @@ Every moment, Every place. Your AI - `Everywhere`
       <td><b>🌐 Language Support</b></td>
       <td>
         • 简体中文<br>
-        • English
-      </td>
-      <td>
+        • English<br>
         • Deutsch<br>
         • Español<br>
         • Français<br>
@@ -166,8 +164,10 @@ Every moment, Every place. Your AI - `Everywhere`
         • Türkçe (Thanks @complex-cgn)<br>
         • 中文 (繁體)<br>
         • 中文 (繁體 香港特別行政區)<br><br>
-        <b>Contributions Welcome</b><br>
-        <a href="https://crowdin.com/project/everywhere" rel="nofollow" target="_blank"><img style="width:140px;height:40px" src="https://badges.crowdin.net/badge/dark/crowdin-on-light.png" srcset="https://badges.crowdin.net/badge/dark/crowdin-on-light.png 1x,https://badges.crowdin.net/badge/dark/crowdin-on-light@2x.png 2x" alt="Crowdin | Everywhere" /></a>
+      </td>
+      <td>
+        Some translations were AI-assisted.<br>
+        Feedback and corrections are welcome!<br><br>
       </td>
     </tr>
   </tbody>
