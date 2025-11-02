@@ -1,6 +1,6 @@
 ﻿using Everywhere.Configuration;
 
-namespace Everywhere.Darwin.Configuration;
+namespace Everywhere.Mac.Configuration;
 
 public class RuntimeConstantProvider : IRuntimeConstantProvider
 {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Everywhere.Common;
 
-namespace Everywhere.Darwin.Mock;
+namespace Everywhere.Mac.Mock;
 
 public class MockSoftwareUpdater : ISoftwareUpdater
 {

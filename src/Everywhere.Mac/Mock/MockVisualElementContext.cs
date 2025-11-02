@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Everywhere.Interop;
 
-namespace Everywhere.Darwin.Mock;
+namespace Everywhere.Mac.Mock;
 
 public class MockVisualElementContext : IVisualElementContext
 {

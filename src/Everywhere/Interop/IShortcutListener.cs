@@ -1,5 +1,8 @@
 ﻿namespace Everywhere.Interop;
 
+/// <summary>
+/// Provides a Global keyboard and mouse shortcut listener.
+/// </summary>
 public interface IShortcutListener
 {
     // Register a keyboard shortcut. Multiple handlers for the same shortcut are supported.
@@ -18,7 +21,7 @@ public interface IShortcutListener
 }
 
 /// <summary>
-/// Represents a scope for capturing keyboard shortcuts.
+/// Represents a scope for capturing keyboard shortcuts. Useful for allowing users to set custom keyboard shortcuts.
 /// </summary>
 public interface IKeyboardShortcutScope : IDisposable
 {

@@ -2,7 +2,7 @@
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 
-namespace Everywhere.Darwin.Mock;
+namespace Everywhere.Mac.Mock;
 
 public class MockNativeHelper : INativeHelper
 {

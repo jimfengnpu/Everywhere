@@ -5,17 +5,19 @@ using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
 using Everywhere.Configuration;
-using Everywhere.Darwin.Configuration;
-using Everywhere.Darwin.Mock;
+using Everywhere.Mac.Configuration;
+using Everywhere.Mac.Mock;
 using Everywhere.Extensions;
 using Everywhere.Initialization;
 using Everywhere.Interop;
+using Everywhere.Mac.Initialization;
+using Everywhere.Mac.Interop;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
 
-namespace Everywhere.Darwin;
+namespace Everywhere.Mac;
 
 public static class Program
 {
@@ -33,7 +35,7 @@ public static class Program
                     .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Warning))
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
                 .AddSingleton<IVisualElementContext, MockVisualElementContext>()
-                .AddSingleton<IShortcutListener, MockShortcutListener>()
+                .AddSingleton<IShortcutListener, CGEventShortcutListener>()
                 .AddSingleton<INativeHelper, MockNativeHelper>()
                 .AddSingleton<IWindowHelper, MockWindowHelper>()
                 .AddSingleton<ISoftwareUpdater, MockSoftwareUpdater>()
@@ -66,6 +68,7 @@ public static class Program
                 .AddTransient<IAsyncInitializer, ChatWindowInitializer>()
                 .AddTransient<IAsyncInitializer, SettingsInitializer>()
                 .AddTransient<IAsyncInitializer, UpdaterInitializer>()
+                .AddTransient<IAsyncInitializer, PermissionInitializer>()
 
             #endregion
 

@@ -92,7 +92,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverythingNet", "3rd\Everyt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveMarkdown.Avalonia.Demo", "3rd\LiveMarkdown.Avalonia\src\LiveMarkdown.Avalonia.Demo\LiveMarkdown.Avalonia.Demo.csproj", "{9CEE90E0-359F-49B4-AD3C-AB3D698D4CB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Darwin", "src\Everywhere.Darwin\Everywhere.Darwin.csproj", "{97F60D77-44F8-4297-8C45-B1B28C120F5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Mac", "src\Everywhere.Mac\Everywhere.Mac.csproj", "{97F60D77-44F8-4297-8C45-B1B28C120F5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

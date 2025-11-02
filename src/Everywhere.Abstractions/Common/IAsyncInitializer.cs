@@ -1,7 +1,12 @@
 ﻿namespace Everywhere.Common;
 
+/// <summary>
+/// Smaller numbers are initialized first.
+/// </summary>
 public enum AsyncInitializerPriority
 {
+    Highest = int.MinValue,
+
     Database = 10,
 
     Settings = 100,
