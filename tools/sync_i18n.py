@@ -39,6 +39,10 @@ NO_TRANSLATE_PATTERNS = [
     r'SettingsSelectionItem_Common_Language_.*'
 ]
 
+# Helper for printing logs immediately in CI environments
+def log(message):
+    print(message, flush=True)
+
 class I18nSync:
     """
     Automatically synchronizes i18n resx resources using AI translation.
@@ -75,7 +79,7 @@ class I18nSync:
                     resources[name] = value_node.text or ""
             return resources
         except ET.ParseError as e:
-            print(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
+            log(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
             return {}
 
     def _read_resx_ordered(self, file_path: str) -> List[Tuple[str, str]]:
@@ -93,7 +97,7 @@ class I18nSync:
                     ordered_resources.append((name, value_node.text or ""))
             return ordered_resources
         except ET.ParseError as e:
-            print(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
+            log(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
             return []
 
     def _get_language_comment(self, file_path: str) -> Optional[str]:
@@ -176,32 +180,32 @@ Translation Guidelines:
             return json.loads(content)
 
         except APIError as e:
-            print(f"  ! API Error: {e}")
+            log(f"  ! API Error: {e}")
         except json.JSONDecodeError as e:
-            print(f"  ! JSON Decode Error: {e}")
+            log(f"  ! JSON Decode Error: {e}")
             # The library's retry mechanism should handle transient issues,
             # so if we get here, it's likely a persistent problem.
-            print(f"  ! Received problematic content from API.")
+            log(f"  ! Received problematic content from API.")
 
-        print(f"  [x] Failed to get translation after {self.client.max_retries} retries.")
+        log(f"  [x] Failed to get translation after {self.client.max_retries} retries.")
         return None
 
     def run(self):
         """Executes the synchronization process."""
-        print("=== Everywhere i18n Synchronization (Python) ===")
-        print(f"Base URL: {self.base_url}")
-        print(f"Model: {self.model_id}")
-        print(f"I18N Path: {self.i18n_path}\n")
+        log("=== Everywhere i18n Synchronization (Python) ===")
+        log(f"Base URL: {self.base_url}")
+        log(f"Model: {self.model_id}")
+        log(f"I18N Path: {self.i18n_path}\n")
 
         if not os.path.exists(self.base_resx_path):
-            print(f"[x] Error: Base resource file not found: {self.base_resx_path}")
+            log(f"[x] Error: Base resource file not found: {self.base_resx_path}")
             return
 
-        print("Reading base resources from Strings.resx...")
+        log("Reading base resources from Strings.resx...")
         base_resources_ordered = self._read_resx_ordered(self.base_resx_path)
         base_resources = dict(base_resources_ordered)
         base_resource_keys = [key for key, _ in base_resources_ordered]
-        print(f"Found {len(base_resources)} base resources.\n")
+        log(f"Found {len(base_resources)} base resources.\n")
 
         localized_files = [f for f in os.listdir(self.i18n_path) if f.startswith('Strings.') and f.endswith('.resx')]
 
@@ -215,23 +219,23 @@ Translation Guidelines:
             lang_comment = self._get_language_comment(file_path)
             lang_name = lang_comment if lang_comment else lang_code
 
-            print(f"Processing: {filename} ({lang_name})")
+            log(f"Processing: {filename} ({lang_name})")
             existing_resources = self._read_resx(file_path)
             all_resources = existing_resources.copy()
             missing_keys = [key for key in base_resources if key not in existing_resources]
 
             if not missing_keys:
-                print("  [OK] No missing resources. Verifying order...")
+                log("  [OK] No missing resources. Verifying order...")
                 self._write_resx(file_path, all_resources, base_resource_keys, lang_comment)
-                print("  [OK] File order synchronized.")
+                log("  [OK] File order synchronized.")
                 continue
 
-            print(f"  Found {len(missing_keys)} missing resources.")
+            log(f"  Found {len(missing_keys)} missing resources.")
             to_translate = {}
             for key in missing_keys:
                 if any(re.match(pattern, key) for pattern in NO_TRANSLATE_PATTERNS):
                     all_resources[key] = base_resources[key]
-                    print(f"  - Copying non-translatable key: {key}")
+                    log(f"  - Copying non-translatable key: {key}")
                 else:
                     to_translate[key] = base_resources[key]
 
@@ -245,26 +249,26 @@ Translation Guidelines:
                     batch_keys = keys_to_translate[batch_start:batch_end]
                     batch_resources = {key: to_translate[key] for key in batch_keys}
 
-                    print(f"  Translating batch {i + 1}/{num_batches} ({len(batch_resources)} items)...")
+                    log(f"  Translating batch {i + 1}/{num_batches} ({len(batch_resources)} items)...")
                     translations = self._invoke_ai_translation(batch_resources, lang_name)
 
                     if translations:
                         for key, value in translations.items():
                             if key in all_resources:
-                                print(f"  ! Warning: AI returned an already existing key '{key}'. Ignoring.")
+                                log(f"  ! Warning: AI returned an already existing key '{key}'. Ignoring.")
                             elif key not in to_translate:
-                                print(f"  ! Warning: AI returned an unexpected key '{key}'. Ignoring.")
+                                log(f"  ! Warning: AI returned an unexpected key '{key}'. Ignoring.")
                             else:
                                 all_resources[key] = value
-                        print(f"  [OK] Batch {i + 1} translated.")
+                        log(f"  [OK] Batch {i + 1} translated.")
                     else:
-                        print(f"  [x] Failed to translate batch {i + 1}.")
+                        log(f"  [x] Failed to translate batch {i + 1}.")
 
-            print("  Saving and reordering file...")
+            log("  Saving and reordering file...")
             self._write_resx(file_path, all_resources, base_resource_keys, lang_comment)
-            print(f"  [OK] {filename} updated.\n")
+            log(f"  [OK] {filename} updated.\n")
 
-        print("=== Synchronization Complete ===")
+        log("=== Synchronization Complete ===")
 
 def main():
     """Main function to parse arguments and run the sync process."""
@@ -283,8 +287,8 @@ def main():
     args = parser.parse_args()
 
     if not all([args.base_url, args.api_key, args.model_id]):
-        print("Error: --base-url, --api-key, and --model-id are required.")
-        print("Provide them as arguments, or set OPENAI_API_BASE, OPENAI_API_KEY, MODEL_ID as environment variables.")
+        log("Error: --base-url, --api-key, and --model-id are required.")
+        log("Provide them as arguments, or set OPENAI_API_BASE, OPENAI_API_KEY, MODEL_ID as environment variables.")
         exit(1)
 
     sync_tool = I18nSync(args)
