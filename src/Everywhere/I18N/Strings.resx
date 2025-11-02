@@ -1135,6 +1135,21 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>Paste</value>
     </data>
+    <data name="Common_OK" xml:space="preserve">
+        <value>OK</value>
+    </data>
+    <data name="Common_Cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="Common_Abort" xml:space="preserve">
+        <value>Abort</value>
+    </data>
+    <data name="Common_Retry" xml:space="preserve">
+        <value>Retry</value>
+    </data>
+    <data name="Common_Ignore" xml:space="preserve">
+        <value>Ignore</value>
+	</data>
     <data name="ConsentDecision_Deny" xml:space="preserve">
         <value>Deny</value>
     </data>

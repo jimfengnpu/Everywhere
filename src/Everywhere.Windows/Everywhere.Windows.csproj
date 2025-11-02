@@ -1,20 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows10.0.20348.0</TargetFramework>
+    <TargetFramework>$(TargetFrameworkPrefix)-windows10.0.20348.0</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IsDeploymentTarget>true</IsDeploymentTarget>
   </PropertyGroup>
 
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <WatchdogProject>..\Everywhere.Watchdog\Everywhere.Watchdog.csproj</WatchdogProject>
-    <WatchdogOutDir>$(MSBuildThisFileDirectory)$(WatchdogProject)\..\bin\$(Configuration)\net9.0\win-x64\publish\</WatchdogOutDir>
-    <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog.exe</WatchdogExecutable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,9 +46,6 @@
     </Content>
   </ItemGroup>
 
-  <Target Name="BuildWatchdog" BeforeTargets="BeforeBuild" Inputs="$(WatchdogProject)" Outputs="$(WatchdogExecutable)">
-    <Message Text="Watchdog executable is out-of-date. Building..." Importance="high"/>
-    <Exec Command="dotnet restore &quot;$(WatchdogProject)&quot; -r win-x64"/>
-    <Exec Command="dotnet publish &quot;$(WatchdogProject)&quot; -c $(Configuration) -r win-x64 --self-contained --no-restore -o &quot;$(WatchdogOutDir)&quot;"/>
-  </Target>
+  <Import Project="..\Build.Watchdog.targets" />
+
 </Project>

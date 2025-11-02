@@ -1119,6 +1119,21 @@
     <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>粘贴</value>
     </data>
+    <data name="Common_OK" xml:space="preserve">
+        <value>确定</value>
+    </data>
+    <data name="Common_Abort" xml:space="preserve">
+        <value>终止</value>
+    </data>
+    <data name="Common_Cancel" xml:space="preserve">
+        <value>取消</value>
+    </data>
+    <data name="Common_Ignore" xml:space="preserve">
+        <value>忽略</value>
+    </data>
+    <data name="Common_Retry" xml:space="preserve">
+        <value>重试</value>
+	</data>
     <data name="ConsentDecision_AllowOnce" xml:space="preserve">
         <value>允许一次</value>
     </data>

@@ -10,6 +10,7 @@ using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Views;
 using Microsoft.Extensions.DependencyInjection;
+using MsBox.Avalonia.Enums;
 using Serilog;
 using ShadUI;
 using Window = Avalonia.Controls.Window;
@@ -30,11 +31,11 @@ public class App : Application
         {
             Log.Logger.Error(e.Exception, "UI Thread Unhandled Exception");
 
-            NativeMessageBox.Show(
+            NativeMessageBox.ShowAsync(
                 "Unexpected Error",
                 $"An unexpected error occurred:\n{e.Exception.Message}\n\nPlease check the logs for more details.",
-                NativeMessageBoxButtons.Ok,
-                NativeMessageBoxIcon.Error);
+                ButtonEnum.Ok,
+                Icon.Error).WaitOnDispatcherFrame();
 
             e.Handled = true;
         };
@@ -89,11 +90,11 @@ public class App : Application
         {
             Log.Logger.Fatal(ex, "Failed to initialize application");
 
-            NativeMessageBox.Show(
+            NativeMessageBox.ShowAsync(
                 "Initialization Error",
                 $"An error occurred during application initialization:\n{ex.Message}\n\nPlease check the logs for more details.",
-                NativeMessageBoxButtons.Ok,
-                NativeMessageBoxIcon.Error);
+                ButtonEnum.Ok,
+                Icon.Error).WaitOnDispatcherFrame();
         }
 
         Log.ForContext<App>().Information("Application started");
