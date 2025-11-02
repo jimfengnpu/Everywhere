@@ -157,8 +157,9 @@ Translation Guidelines:
 4. Use natural, native expressions for the target language: {target_language}.
 5. Keep technical terms consistent.
 6. For language names (like "中文 (简体)"), DO NOT TRANSLATE - keep them as is.
-7. Ensure UI text is concise and clear for a software interface.
-8. Return ONLY a valid JSON object with the same keys and translated values. Do NOT add any explanations, comments, or markdown formatting.
+7. For proper nouns, brand names, and trademarks (like "Everywhere"), DO NOT TRANSLATE - keep them as is.
+8. Ensure UI text is concise and clear for a software interface.
+9. Return ONLY a valid JSON object with the same keys and translated values. Do NOT add any explanations, comments, or markdown formatting.
 """
         try:
             response = self.client.chat.completions.create(
