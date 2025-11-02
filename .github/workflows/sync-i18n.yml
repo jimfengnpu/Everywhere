@@ -10,16 +10,27 @@ on:
 
 jobs:
   sync-and-pr:
-    runs-on: windows-latest
+    # Using ubuntu is generally faster for GitHub-hosted runners
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run i18n Sync Script
-        shell: pwsh
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Specify a Python version
+
+      - name: Install dependencies
         run: |
-          ./tools/sync_i18n/sync_i18n.ps1 -BaseUrl "https://api.openai.com/v1" -ApiKey "${{ secrets.OPENAI_API_KEY }}" -ModelId "gpt-4o"
+          python -m pip install --upgrade pip
+          pip install openai
+
+      - name: Run i18n Sync Script
+        run: |
+          python ./tools/sync_i18n.py --base-url "https://api.openai.com/v1" --model-id "gpt-4o"
         env:
+          # Pass API key as an environment variable for security
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Create Pull Request with Translations
