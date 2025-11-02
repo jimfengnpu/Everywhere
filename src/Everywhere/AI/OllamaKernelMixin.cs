@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using Everywhere.Configuration;
+﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -27,23 +24,19 @@ public sealed partial class OllamaKernelMixin : KernelMixinBase
         };
 
     private readonly OllamaApiClient _client;
-    private readonly HttpClient _ollamaHttpClient;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OllamaKernelMixin"/> class.
     /// </summary>
     public OllamaKernelMixin(CustomAssistant customAssistant) : base(customAssistant)
     {
-        _ollamaHttpClient = ProxyHttpClientFactory.CreateHttpClient();
-        _ollamaHttpClient.BaseAddress = new Uri(Endpoint, UriKind.Absolute);
-        _client = new OllamaApiClient(_ollamaHttpClient, ModelId);
+        _client = new OllamaApiClient(Endpoint, ModelId);
         ChatCompletionService = new OptimizedOllamaApiClient(_client, this).AsChatCompletionService();
     }
 
     public override void Dispose()
     {
         _client.Dispose();
-        _ollamaHttpClient.Dispose();
     }
 
     private sealed partial class OptimizedOllamaApiClient(OllamaApiClient client, OllamaKernelMixin owner) : IChatClient

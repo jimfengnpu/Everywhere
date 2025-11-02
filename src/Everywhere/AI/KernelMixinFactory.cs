@@ -1,18 +1,22 @@
-﻿using Everywhere.Common;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Everywhere.Common;
 using Everywhere.Configuration;
+using Everywhere.Utilities;
 
 namespace Everywhere.AI;
 
 /// <summary>
 /// A factory for creating instances of <see cref="IKernelMixin"/>.
 /// </summary>
-public class KernelMixinFactory : IKernelMixinFactory
+public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyChangedMessage>
 {
+    private readonly Lock _syncLock = new();
+
     private KernelMixinBase? _cachedKernelMixin;
 
     public KernelMixinFactory()
     {
-        NetworkProxyConfigurator.ProxyConfigurationChanged += HandleProxyConfigurationChanged;
+        WeakReferenceMessenger.Default.Register(this);
     }
 
     /// <summary>
@@ -24,6 +28,8 @@ public class KernelMixinFactory : IKernelMixinFactory
     /// <exception cref="HandledChatException">Thrown if the model provider or definition is not found or not supported.</exception>
     public IKernelMixin GetOrCreate(CustomAssistant customAssistant, string? apiKeyOverride = null)
     {
+        using var lockScope = _syncLock.EnterScope();
+
         if (!Uri.TryCreate(customAssistant.Endpoint.ActualValue, UriKind.Absolute, out _))
         {
             throw new HandledChatException(
@@ -61,9 +67,11 @@ public class KernelMixinFactory : IKernelMixinFactory
         };
     }
 
-    private void HandleProxyConfigurationChanged(object? sender, ProxyConfigurationChangedEventArgs e)
+    public void Receive(NetworkProxyChangedMessage message)
     {
-        _cachedKernelMixin?.Dispose();
-        _cachedKernelMixin = null;
+        using var _ = _syncLock.EnterScope();
+
+        // Invalidate the cached kernel mixin when the network proxy changes.
+        DisposeCollector.DisposeToDefault(ref _cachedKernelMixin);
     }
 }

@@ -46,46 +46,46 @@
     <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
         <value>浅色</value>
     </data>
-    <data name="Settings_Network_IsProxyEnabled_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_IsEnabled_Header" xml:space="preserve">
         <value>使用自定义代理</value>
     </data>
-    <data name="Settings_Network_IsProxyEnabled_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_IsEnabled_Description" xml:space="preserve">
         <value>为应用指定专用代理，覆盖系统代理设置。</value>
     </data>
-    <data name="Settings_Network_ProxyAddress_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Endpoint_Header" xml:space="preserve">
         <value>代理服务器</value>
     </data>
-    <data name="Settings_Network_ProxyAddress_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Address_Description" xml:space="preserve">
         <value>输入代理地址，例如 http://127.0.0.1:7890。</value>
     </data>
-    <data name="Settings_Network_BypassProxyOnLocal_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassOnLocal_Header" xml:space="preserve">
         <value>对本地地址不使用代理</value>
     </data>
-    <data name="Settings_Network_BypassProxyOnLocal_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassOnLocal_Description" xml:space="preserve">
         <value>访问内网或回环地址时直接连接。</value>
     </data>
-    <data name="Settings_Network_ProxyBypassList_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassList_Header" xml:space="preserve">
         <value>跳过列表</value>
     </data>
-    <data name="Settings_Network_ProxyBypassList_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassList_Description" xml:space="preserve">
         <value>可选。每行一个匹配模式，命中的请求将跳过代理。</value>
     </data>
-    <data name="Settings_Network_UseProxyAuthentication_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_UseAuthentication_Header" xml:space="preserve">
         <value>代理认证</value>
     </data>
-    <data name="Settings_Network_UseProxyAuthentication_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_UseAuthentication_Description" xml:space="preserve">
         <value>当代理需要认证时启用凭据。</value>
     </data>
-    <data name="Settings_Network_ProxyUsername_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Username_Header" xml:space="preserve">
         <value>用户名</value>
     </data>
-    <data name="Settings_Network_ProxyUsername_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Username_Description" xml:space="preserve">
         <value>代理服务器的用户名。</value>
     </data>
-    <data name="Settings_Network_ProxyPassword_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Password_Header" xml:space="preserve">
         <value>密码</value>
     </data>
-    <data name="Settings_Network_ProxyPassword_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Password_Description" xml:space="preserve">
         <value>代理服务器的密码。</value>
     </data>
     <data name="SettingsCategory_ChatWindow_Header" xml:space="preserve">
@@ -1352,5 +1352,11 @@
     </data>
     <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
         <value>返回</value>
+    </data>
+    <data name="Settings_Common_Proxy_Header" xml:space="preserve">
+        <value>代理</value>
+    </data>
+    <data name="Settings_Common_Proxy_Description" xml:space="preserve">
+        <value>设置网络代理。</value>
     </data>
 </root>

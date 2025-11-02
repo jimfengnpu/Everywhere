@@ -1,7 +1,5 @@
 ﻿using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
@@ -10,7 +8,6 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using OpenAI;
 using OpenAI.Chat;
-using Everywhere.Configuration;
 using BinaryContent = System.ClientModel.BinaryContent;
 using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 using FunctionCallContent = Microsoft.Extensions.AI.FunctionCallContent;
@@ -27,20 +24,17 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
 
     public OpenAIKernelMixin(CustomAssistant customAssistant) : base(customAssistant)
     {
-        var httpClient = ProxyHttpClientFactory.CreateHttpClient();
-        var optimizedClient = new OptimizedChatClient(
-            ModelId,
-            new ApiKeyCredential(ApiKey.IsNullOrWhiteSpace() ? "NO_API_KEY" : ApiKey),
-            new OpenAIClientOptions
-            {
-                Endpoint = new Uri(Endpoint, UriKind.Absolute)
-            },
-            httpClient);
-
         ChatCompletionService = new OptimizedOpenAIApiClient(
-            optimizedClient.AsIChatClient(),
-            this,
-            httpClient
+            new OptimizedChatClient(
+                ModelId,
+                // some models don't need API key (e.g. LM Studio)
+                new ApiKeyCredential(ApiKey.IsNullOrWhiteSpace() ? "NO_API_KEY" : ApiKey),
+                new OpenAIClientOptions
+                {
+                    Endpoint = new Uri(Endpoint, UriKind.Absolute)
+                }
+            ).AsIChatClient(),
+            this
         ).AsChatCompletionService();
     }
 
@@ -67,8 +61,8 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
     /// <remarks>
     /// Layered upon layer, are you an onion?
     /// </remarks>
-    private sealed class OptimizedChatClient(string modelId, ApiKeyCredential credential, OpenAIClientOptions options, HttpClient httpClient)
-        : ChatClient(modelId, credential, ConfigureOptions(options, httpClient))
+    private sealed class OptimizedChatClient(string modelId, ApiKeyCredential credential, OpenAIClientOptions options)
+        : ChatClient(modelId, credential, options)
     {
         public override Task<ClientResult> CompleteChatAsync(BinaryContent content, RequestOptions? options = null)
         {
@@ -86,29 +80,19 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
 
             return base.CompleteChatAsync(content, options);
         }
-
-        private static OpenAIClientOptions ConfigureOptions(OpenAIClientOptions options, HttpClient httpClient)
-        {
-            options ??= new OpenAIClientOptions();
-            options.Transport = new HttpClientPipelineTransport(httpClient);
-            return options;
-        }
     }
 
     /// <summary>
     /// optimized wrapper around OpenAI's IChatClient to extract reasoning content from internal properties.
     /// </summary>
-    private sealed class OptimizedOpenAIApiClient(
-        IChatClient client,
-        OpenAIKernelMixin owner,
-        HttpClient transportHttpClient) : IChatClient
+    private sealed class OptimizedOpenAIApiClient(IChatClient client, OpenAIKernelMixin owner) : IChatClient
     {
-        private static readonly PropertyInfo? ChoicesProperty = typeof(StreamingChatCompletionUpdate).GetProperty("Choices", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly PropertyInfo? ChoicesProperty =
+            typeof(StreamingChatCompletionUpdate).GetProperty("Choices", BindingFlags.NonPublic | BindingFlags.Instance);
         private static PropertyInfo? _choiceCountProperty;
         private static PropertyInfo? _choiceIndexerProperty;
         private static PropertyInfo? _choiceDeltaProperty;
         private static PropertyInfo? _deltaRawDataProperty;
-
 
         public Task<ChatResponse> GetResponseAsync(
             IEnumerable<ChatMessage> messages,
@@ -255,7 +239,6 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
         public void Dispose()
         {
             client.Dispose();
-            transportHttpClient.Dispose();
         }
     }
 }

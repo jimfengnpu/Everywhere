@@ -58,46 +58,46 @@
     <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
         <value>Light</value>
     </data>
-    <data name="Settings_Network_IsProxyEnabled_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_IsEnabled_Header" xml:space="preserve">
         <value>Use custom proxy</value>
     </data>
-    <data name="Settings_Network_IsProxyEnabled_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_IsEnabled_Description" xml:space="preserve">
         <value>Override the system proxy with an application-specific proxy.</value>
     </data>
-    <data name="Settings_Network_ProxyAddress_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Endpoint_Header" xml:space="preserve">
         <value>Proxy server</value>
     </data>
-    <data name="Settings_Network_ProxyAddress_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Address_Description" xml:space="preserve">
         <value>Enter the proxy URI, for example http://127.0.0.1:7890.</value>
     </data>
-    <data name="Settings_Network_BypassProxyOnLocal_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassOnLocal_Header" xml:space="preserve">
         <value>Bypass proxy for local addresses</value>
     </data>
-    <data name="Settings_Network_BypassProxyOnLocal_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassOnLocal_Description" xml:space="preserve">
         <value>Send requests to intranet and loopback addresses directly.</value>
     </data>
-    <data name="Settings_Network_ProxyBypassList_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassList_Header" xml:space="preserve">
         <value>Bypass list</value>
     </data>
-    <data name="Settings_Network_ProxyBypassList_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_BypassList_Description" xml:space="preserve">
         <value>Optional. One pattern per line; matching hosts bypass the proxy.</value>
     </data>
-    <data name="Settings_Network_UseProxyAuthentication_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_UseAuthentication_Header" xml:space="preserve">
         <value>Proxy authentication</value>
     </data>
-    <data name="Settings_Network_UseProxyAuthentication_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_UseAuthentication_Description" xml:space="preserve">
         <value>Enable credentials when the proxy requires authentication.</value>
     </data>
-    <data name="Settings_Network_ProxyUsername_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Username_Header" xml:space="preserve">
         <value>Username</value>
     </data>
-    <data name="Settings_Network_ProxyUsername_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Username_Description" xml:space="preserve">
         <value>User name for the proxy server.</value>
     </data>
-    <data name="Settings_Network_ProxyPassword_Header" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Password_Header" xml:space="preserve">
         <value>Password</value>
     </data>
-    <data name="Settings_Network_ProxyPassword_Description" xml:space="preserve">
+    <data name="Settings_Common_Proxy_Password_Description" xml:space="preserve">
         <value>Password for the proxy server.</value>
     </data>
     <data name="SettingsCategory_ChatWindow_Header" xml:space="preserve">
@@ -1368,5 +1368,11 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     </data>
     <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
         <value>Back</value>
+    </data>
+    <data name="Settings_Common_Proxy_Header" xml:space="preserve">
+        <value>Proxy</value>
+    </data>
+    <data name="Settings_Common_Proxy_Description" xml:space="preserve">
+        <value>Setting the network proxy.</value>
     </data>
 </root>

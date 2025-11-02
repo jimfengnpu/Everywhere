@@ -196,8 +196,7 @@ public class SettingsItems : AvaloniaList<SettingsItem>
             result = SettingsTypedItem.TryCreate(itemPropertyInfo.PropertyType, name);
         }
 
-        if (result is null) return null;
-
+        result ??= new SettingsItem(name); // Fallback to a basic SettingsItem if type is unsupported
         result[!SettingsItem.ValueProperty] = MakeBinding(itemPropertyInfo.Name);
 
         if (itemPropertyInfo.GetCustomAttribute<SettingsItemAttribute>() is { } settingsItemAttribute)

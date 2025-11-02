@@ -11,7 +11,7 @@ namespace Everywhere.Configuration;
 /// Represents a single settings item for View.
 /// </summary>
 /// <param name="name"></param>
-public abstract class SettingsItem(string name) : AvaloniaObject
+public class SettingsItem(string name) : AvaloniaObject
 {
     public DynamicResourceKey HeaderKey => $"Settings_{name}_Header";
 

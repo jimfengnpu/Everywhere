@@ -26,6 +26,13 @@
       </ItemsPanelTemplate>
     </Setter>
 
+    <Setter Property="ItemContainerTheme">
+      <ControlTheme
+        x:DataType="c:SettingsItem" TargetType="ContentPresenter">
+        <Setter Property="IsVisible" Value="{Binding IsVisible}"/>
+      </ControlTheme>
+    </Setter>
+
     <Setter Property="ItemTemplate">
       <DataTemplate DataType="c:SettingsItem">
         <Expander
@@ -35,8 +42,7 @@
           Classes.NotExpandable="{Binding !IsExpandable}"
           CornerRadius="{Binding $parent[v:SettingsItemsControl].CornerRadius}"
           IsEnabled="{Binding IsEnabled}"
-          IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
-          IsVisible="{Binding IsVisible}">
+          IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
           <Expander.Styles>
             <Style Selector="ContentControl#PART_SettingsItemContentControl">
               <Setter Property="at:DataTemplatesAttach.DataTemplates">
@@ -142,6 +148,8 @@
                   <DataTemplate DataType="c:SettingsControlItem">
                     <ContentControl Content="{Binding Control}"/>
                   </DataTemplate>
+
+                  <DataTemplate DataType="c:SettingsItem"/>
                 </DataTemplates>
               </Setter>
             </Style>

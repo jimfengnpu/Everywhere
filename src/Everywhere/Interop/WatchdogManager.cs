@@ -52,18 +52,21 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
 
         // 1. Start the Watchdog process.
         _logger.LogDebug("Launching Watchdog process with pipe name: {PipeName}", pipeName);
-        _watchdogProcess = Process.Start(new ProcessStartInfo
-        {
+        _watchdogProcess = Process.Start(
+            new ProcessStartInfo
+            {
 #if MACOS
-            FileName = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../Resources/Everywhere.Watchdog")),
+                FileName = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../Resources/Everywhere.Watchdog")),
+#elif WINDOWS
+                FileName = "Everywhere.Watchdog.exe",
 #else
-            FileName = "Everywhere.Watchdog",
+                FileName = "Everywhere.Watchdog",
 #endif
-            Arguments = pipeName,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true,
-        });
+                Arguments = pipeName,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+            });
         if (_watchdogProcess is null)
         {
             _logger.LogError("Watchdog process could not be started.");

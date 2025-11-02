@@ -127,6 +127,9 @@ public partial class CommonSettings : SettingsCategory
         }
     }
 
+    [SettingsItems]
+    public ProxySettings Proxy { get; set; } = new();
+
     public bool DiagnosticData
     {
         get => !Entrance.SendOnlyNecessaryTelemetry;

@@ -7,6 +7,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
+using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Chat.Permissions;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -26,7 +27,7 @@ using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
 
-public partial class WebBrowserPlugin : BuiltInChatPlugin
+public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkProxyChangedMessage>
 {
     public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Header);
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Description);
@@ -92,7 +93,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             },
             TimeSpan.FromMinutes(5)); // Dispose browser after 5 minutes of inactivity
 
-        NetworkProxyConfigurator.ProxyConfigurationChanged += HandleProxyConfigurationChanged;
+        WeakReferenceMessenger.Default.Register(this);
 
         _functions.Add(
             new NativeChatFunction(
@@ -108,8 +109,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         new ObjectObserver(HandleSettingsChanged).Observe(_webSearchEngineSettings);
     }
 
-    private void HandleProxyConfigurationChanged(object? sender, ProxyConfigurationChangedEventArgs e)
+    public void Receive(NetworkProxyChangedMessage message)
     {
+        // Invalidate the connector when the network proxy changes.
         _connector = null;
         _maxSearchCount = 0;
     }

@@ -14,8 +14,6 @@ public class Settings : ObservableObject
 {
     public CommonSettings Common { get; set; } = new();
 
-    public NetworkSettings Network { get; set; } = new();
-
     [HiddenSettingsItem]
     public ModelSettings Model { get; set; } = new();
 
