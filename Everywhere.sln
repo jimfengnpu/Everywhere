@@ -64,6 +64,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{2F651C37-C3A7-41FF-8A36-0A7DB0DED09D}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\release.yml = .github\workflows\release.yml
+		.github\workflows\close-stale-issues.yml = .github\workflows\close-stale-issues.yml
+		.github\workflows\sync-i18n.yml = .github\workflows\sync-i18n.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{30A74410-E803-4C56-BE95-C8E1BE690C7A}"
