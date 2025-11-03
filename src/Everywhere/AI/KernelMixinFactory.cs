@@ -1,13 +1,23 @@
-﻿using Everywhere.Common;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Everywhere.Common;
+using Everywhere.Configuration;
+using Everywhere.Utilities;
 
 namespace Everywhere.AI;
 
 /// <summary>
 /// A factory for creating instances of <see cref="IKernelMixin"/>.
 /// </summary>
-public class KernelMixinFactory : IKernelMixinFactory
+public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyChangedMessage>
 {
+    private readonly Lock _syncLock = new();
+
     private KernelMixinBase? _cachedKernelMixin;
+
+    public KernelMixinFactory()
+    {
+        WeakReferenceMessenger.Default.Register(this);
+    }
 
     /// <summary>
     /// Gets an existing <see cref="IKernelMixin"/> instance from the cache or creates a new one.
@@ -18,6 +28,8 @@ public class KernelMixinFactory : IKernelMixinFactory
     /// <exception cref="HandledChatException">Thrown if the model provider or definition is not found or not supported.</exception>
     public IKernelMixin GetOrCreate(CustomAssistant customAssistant, string? apiKeyOverride = null)
     {
+        using var lockScope = _syncLock.EnterScope();
+
         if (!Uri.TryCreate(customAssistant.Endpoint.ActualValue, UriKind.Absolute, out _))
         {
             throw new HandledChatException(
@@ -36,7 +48,7 @@ public class KernelMixinFactory : IKernelMixinFactory
         if (_cachedKernelMixin is not null &&
             _cachedKernelMixin.Schema == customAssistant.Schema &&
             _cachedKernelMixin.ModelId == customAssistant.ModelId &&
-            _cachedKernelMixin.Endpoint == customAssistant.Endpoint &&
+            _cachedKernelMixin.Endpoint == customAssistant.Endpoint.ActualValue.Trim().Trim('/') &&
             _cachedKernelMixin.ApiKey == apiKey)
         {
             return _cachedKernelMixin;
@@ -53,5 +65,13 @@ public class KernelMixinFactory : IKernelMixinFactory
                 HandledChatExceptionType.InvalidConfiguration,
                 new DynamicResourceKey(LocaleKey.KernelMixinFactory_UnsupportedModelProviderSchema))
         };
+    }
+
+    public void Receive(NetworkProxyChangedMessage message)
+    {
+        using var _ = _syncLock.EnterScope();
+
+        // Invalidate the cached kernel mixin when the network proxy changes.
+        DisposeCollector.DisposeToDefault(ref _cachedKernelMixin);
     }
 }

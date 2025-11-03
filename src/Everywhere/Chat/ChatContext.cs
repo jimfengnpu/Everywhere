@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Everywhere.Chat.Permissions;
 using Everywhere.Interop;
 using Everywhere.Utilities;
 using MessagePack;
@@ -8,7 +10,16 @@ using ObservableCollections;
 
 namespace Everywhere.Chat;
 
-public delegate void ChatContextChangedEventHandler(ChatContext context);
+/// <summary>
+/// Message sent when chat context metadata changes.
+/// </summary>
+/// <param name="Context"></param>
+/// <param name="PropertyName">
+/// DateModified -> indicates the context has been modified. Need to save.
+/// Topic -> indicates the topic has changed. Need to save.
+/// IsSelected -> indicates selection state has changed.
+/// </param>
+public record ChatContextMetadataChangedMessage(ChatContext Context, string? PropertyName);
 
 /// <summary>
 /// Maintains the context of the chat, including a tree of <see cref="ChatMessageNode"/> and other metadata.
@@ -19,10 +30,6 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
 {
     [Key(0)]
     public ChatContextMetadata Metadata { get; }
-
-    [IgnoreMember]
-    [ObservableProperty]
-    public partial bool IsRenamingMetadataTitle { get; set; }
 
     /// <summary>
     /// Messages in the current branch.
@@ -38,19 +45,23 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
     }
 
     /// <summary>
-    /// VisualElement.Id: VisualElement.
+    /// Key: VisualElement.Id
+    /// Value: VisualElement.
     /// VisualElement is dynamically created and not serialized, so we keep a map here to track them.
     /// This is also not serialized.
     /// </summary>
     [IgnoreMember]
     public ResilientCache<int, IVisualElement> VisualElements { get; } = new();
 
-    public ChatMessageNode this[int index] => _branchNodes[index];
-
     /// <summary>
-    /// Event raised when the chat context is modified, e.g., a new message is added or a node is updated.
+    /// A map of granted permissions for plugin functions in this chat context (session).
+    /// Key: PluginName.FunctionName.id
+    /// Value: Granted permissions for the function.
     /// </summary>
-    public event ChatContextChangedEventHandler? Changed;
+    [IgnoreMember]
+    public Dictionary<string, ChatFunctionPermissions> GrantedPermissions { get; } = new();
+
+    public ChatMessageNode this[int index] => _branchNodes[index];
 
     /// <summary>
     /// Backing store for MessagePack (de)serialization: nodes are persisted as a collection, and linked by Ids.
@@ -190,14 +201,18 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
     /// <param name="e"></param>
     private void HandleMetadataPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        Changed?.Invoke(this);
+        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(this, e.PropertyName));
     }
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(ChatMessageNode.ChoiceIndex))
+        {
+            UpdateBranchAfterNode(sender.NotNull<ChatMessageNode>());
+        }
+
+        // This will trigger saving the context metadata.
         Metadata.DateModified = DateTimeOffset.UtcNow;
-        if (e.PropertyName != nameof(ChatMessageNode.ChoiceIndex)) return;
-        UpdateBranchAfterNode(sender.NotNull<ChatMessageNode>());
     }
 
     /// <summary>
@@ -261,18 +276,56 @@ public partial class ChatContextMetadata : ObservableObject
     /// Stable ID (Guid v7) to align with database primary key.
     /// </summary>
     [Key(0)]
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
     [Key(1)]
     public DateTimeOffset DateCreated { get; set; }
 
     [Key(2)]
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LocalDateModified))]
     public partial DateTimeOffset DateModified { get; set; }
+
+    [IgnoreMember]
+    public DateTime LocalDateModified => DateModified.ToLocalTime().DateTime;
 
     [Key(3)]
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActualTopic))]
     public partial string? Topic { get; set; }
+
+    [IgnoreMember]
+    public string? ActualTopic
+    {
+        get
+        {
+            if (IsTemporary) return LocaleKey.ChatContext_Temporary.I18N();
+            if (string.IsNullOrWhiteSpace(Topic)) return LocaleKey.ChatContext_Metadata_Topic_Default.I18N();
+            return Topic;
+        }
+        set => Topic = value?.Trim();
+    }
+
+    [IgnoreMember]
+    [ObservableProperty]
+    public partial bool IsTemporary { get; set; }
+
+    /// <summary>
+    /// Used for selection in UI lists.
+    /// </summary>
+    [IgnoreMember]
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
+
+    [IgnoreMember]
+    [ObservableProperty]
+    public partial bool IsRenaming { get; set; }
+
+    public void StartRenaming() => IsRenaming = true;
+
+    public override bool Equals(object? obj) => obj is ChatContextMetadata other && Id == other.Id;
+
+    public override int GetHashCode() => Id.GetHashCode();
 }
 
 /// <summary>Tree node in the chat history. The current branch is resolved by ChoiceIndex per node.</summary>

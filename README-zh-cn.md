@@ -94,9 +94,9 @@
 <table>
   <thead>
     <tr>
-      <th style="width:28%">类别</th>
-      <th style="width:35%">✅ 当前支持</th>
-      <th style="width:41%">🚧 进行中</th>
+      <th style="width:30%">类别</th>
+      <th style="width:45%">✅ 当前支持</th>
+      <th style="width:25%">🚧 进行中</th>
     </tr>
   </thead>
   <tbody>
@@ -153,9 +153,7 @@
       <td><b>🌐 语言支持</b></td>
       <td>
         • 简体中文<br>
-        • English
-      </td>
-      <td>
+        • English<br>
         • Deutsch<br>
         • Español<br>
         • Français<br>
@@ -163,10 +161,13 @@
         • 日本語<br>
         • 한국어<br>
         • Русский<br>
+        • Türkçe (感谢 @complex-cgn)<br>
         • 中文 (繁體)<br>
         • 中文 (繁體 香港特別行政區)<br><br>
-        <b>欢迎贡献</b><br>
-        <a href="https://crowdin.com/project/everywhere" rel="nofollow" target="_blank"><img style="width:140px;height:40px" src="https://badges.crowdin.net/badge/dark/crowdin-on-light.png" srcset="https://badges.crowdin.net/badge/dark/crowdin-on-light.png 1x,https://badges.crowdin.net/badge/dark/crowdin-on-light@2x.png 2x" alt="Crowdin | Everywhere" /></a>
+      </td>
+      <td>
+        部分翻译由 AI 辅助完成，<br>
+        欢迎校对改进！<br><br>
       </td>
     </tr>
   </tbody>
@@ -222,6 +223,12 @@
 本项目基于 Apache 2.0 许可证发布，详情请查阅 [LICENSE](LICENSE)。
 
 第三方许可证：参见 [ThirdPartyNotices.txt](ThirdPartyNotices.txt)。
+
+## 💖 赞助
+
+[![302.ai](https://raw.githubusercontent.com/DearVa/Everywhere/refs/heads/main/img/Sponsors/302-ai-zh.jpg)](https://share.302.ai/5rzmPr)
+
+[302.AI](https://share.302.ai/5rzmPr) 是一个按用量付费的企业级AI资源平台，提供市场上最新、最全面的AI模型和API，以及多种开箱即用的在线AI应用
 
 ## 🤩 鸣谢
 

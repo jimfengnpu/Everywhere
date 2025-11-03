@@ -11,7 +11,7 @@ namespace Everywhere.Configuration;
 /// Represents a single settings item for View.
 /// </summary>
 /// <param name="name"></param>
-public abstract class SettingsItem(string name) : AvaloniaObject
+public class SettingsItem(string name) : AvaloniaObject
 {
     public DynamicResourceKey HeaderKey => $"Settings_{name}_Header";
 
@@ -249,11 +249,11 @@ public class SettingsSelectionItem(string name) : SettingsItem(name)
                 if (Enum.GetName(enumType, x) is { } enumName &&
                     enumType.GetField(enumName)?.GetCustomAttribute<DynamicResourceKeyAttribute>() is { } ppAttribute)
                 {
-                    return new Item(new DynamicResourceKey(ppAttribute.Key), x, null);
+                    return new Item(new DynamicResourceKey(ppAttribute.HeaderKey), x, null);
                 }
 
                 return new Item(new DirectResourceKey(x), x, null);
-            }).ToArray()
+            }).ToList()
         };
     }
 }

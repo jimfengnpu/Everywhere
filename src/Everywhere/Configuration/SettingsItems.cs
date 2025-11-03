@@ -90,14 +90,14 @@ public class SettingsItems : AvaloniaList<SettingsItem>
                             return enumerable
                                 .AsValueEnumerable()
                                 .Select(k => new SettingsSelectionItem.Item(new DirectResourceKey(k), k, contentTemplate))
-                                .ToArray();
+                                .ToList();
                         }
 
                         var keyPrefix = $"{nameof(SettingsSelectionItem)}_{ownerName}{bindingPath.Replace('.', '_')}_{itemPropertyInfo.Name}";
                         return enumerable
                             .AsValueEnumerable()
                             .Select(k => new SettingsSelectionItem.Item(new DynamicResourceKey($"{keyPrefix}_{k}"), k, contentTemplate))
-                            .ToArray();
+                            .ToList();
                     }))
             };
         }
@@ -196,8 +196,7 @@ public class SettingsItems : AvaloniaList<SettingsItem>
             result = SettingsTypedItem.TryCreate(itemPropertyInfo.PropertyType, name);
         }
 
-        if (result is null) return null;
-
+        result ??= new SettingsItem(name); // Fallback to a basic SettingsItem if type is unsupported
         result[!SettingsItem.ValueProperty] = MakeBinding(itemPropertyInfo.Name);
 
         if (itemPropertyInfo.GetCustomAttribute<SettingsItemAttribute>() is { } settingsItemAttribute)

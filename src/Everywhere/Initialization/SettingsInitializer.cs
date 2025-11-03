@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Everywhere.Chat.Plugins;
@@ -20,14 +20,14 @@ public class SettingsInitializer : IAsyncInitializer
     public AsyncInitializerPriority Priority => AsyncInitializerPriority.Settings;
 
     private readonly Dictionary<string, object?> _saveBuffer = new();
-    private readonly DebounceExecutor<Dictionary<string, object?>> _saveDebounceExecutor;
+    private readonly DebounceExecutor<Dictionary<string, object?>, ThreadingTimerImpl> _saveDebounceExecutor;
     private readonly Settings _settings;
 
     public SettingsInitializer(Settings settings, [FromKeyedServices(typeof(Settings))] IConfiguration configuration)
     {
         _settings = settings;
 
-        _saveDebounceExecutor = new DebounceExecutor<Dictionary<string, object?>>(
+        _saveDebounceExecutor = new DebounceExecutor<Dictionary<string, object?>, ThreadingTimerImpl>(
             () => _saveBuffer,
             saveBuffer =>
             {
@@ -73,22 +73,38 @@ public class SettingsInitializer : IAsyncInitializer
                 new WebSearchEngineProvider
                 {
                     Id = "google",
+                    DisplayName = "Google",
                     EndPoint = "https://customsearch.googleapis.com"
                 },
                 new WebSearchEngineProvider
                 {
                     Id = "tavily",
+                    DisplayName = "Tavily",
                     EndPoint = "https://api.tavily.com"
                 },
                 new WebSearchEngineProvider
                 {
                     Id = "brave",
-                    EndPoint = "https://api.search.brave.com/res/v1/web/search?q"
+                    DisplayName = "Brave",
+                    EndPoint = "https://api.search.brave.com/res/v1/web/search"
                 },
                 new WebSearchEngineProvider
                 {
                     Id = "bocha",
+                    DisplayName = "Bocha",
                     EndPoint = "https://api.bochaai.com/v1/web-search"
+                },
+                new WebSearchEngineProvider
+                {
+                    Id = "jina",
+                    DisplayName = "Jina",
+                    EndPoint = "https://s.jina.ai"
+                },
+                new WebSearchEngineProvider
+                {
+                    Id = "searxng",
+                    DisplayName = "SearXNG",
+                    EndPoint = "https://searxng.example.com/search"
                 },
             ],
             webSearchEngineSettings.WebSearchEngineProviders);
@@ -98,7 +114,7 @@ public class SettingsInitializer : IAsyncInitializer
 
     private static void ApplySearchEngineProviders(IList<WebSearchEngineProvider> srcList, ObservableCollection<WebSearchEngineProvider> dstList)
     {
-        var propertyCache = new Dictionary<Type, PropertyInfo[]>();
+        var propertyCache = new Dictionary<Type, IReadOnlyList<PropertyInfo>>();
 
         foreach (var src in srcList)
         {
@@ -124,7 +140,7 @@ public class SettingsInitializer : IAsyncInitializer
         }
     }
 
-    private static void ApplyProperties(object src, object dst, Dictionary<Type, PropertyInfo[]> propertyCache)
+    private static void ApplyProperties(object src, object dst, Dictionary<Type, IReadOnlyList<PropertyInfo>> propertyCache)
     {
         var srcType = src.GetType();
         var dstType = dst.GetType();
@@ -137,7 +153,7 @@ public class SettingsInitializer : IAsyncInitializer
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p is { CanRead: true, CanWrite: true })
                 .Where(p => p.GetCustomAttribute<IgnoreDataMemberAttribute>() is null)
-                .ToArray();
+                .ToList();
             propertyCache[srcType] = properties;
         }
 

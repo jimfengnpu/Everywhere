@@ -1,0 +1,46 @@
+﻿<!-- src/Build.Watchdog.targets -->
+<Project>
+  <!--
+    Defines common properties and targets for building the Watchdog project.
+    The consuming project is expected to define:
+    - $(RuntimeIdentifier)
+    - $(WatchdogExecutable)
+  -->
+  <PropertyGroup>
+    <!-- Define the path to the Watchdog project. -->
+    <WatchdogProject>..\Everywhere.Watchdog\Everywhere.Watchdog.csproj</WatchdogProject>
+
+    <!-- Define the output directory for the Watchdog publish artifacts. -->
+    <WatchdogOutDir>$(MSBuildThisFileDirectory)$(WatchdogProject)\..\bin\$(Configuration)\$(TargetFrameworkPrefix)\$(RuntimeIdentifier)\publish\</WatchdogOutDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([System.String]::Copy($(RuntimeIdentifier)).StartsWith('win')) OR $([MSBuild]::IsOSPlatform('Windows'))">
+    <!-- Define the Watchdog executable path for Windows. -->
+    <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog.exe</WatchdogExecutable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="!($([System.String]::Copy($(RuntimeIdentifier)).StartsWith('win')) OR $([MSBuild]::IsOSPlatform('Windows')))">
+    <!-- Define the Watchdog executable path for non-Windows platforms. -->
+    <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog</WatchdogExecutable>
+  </PropertyGroup>
+
+  <!--
+    A target to build and publish the Watchdog project.
+    This target runs before the main build process. It checks if the Watchdog executable
+    is missing or out-of-date and rebuilds it if necessary.
+  -->
+  <Target Name="BuildWatchdog"
+          BeforeTargets="BeforeBuild"
+          Inputs="$(WatchdogProject)"
+          Outputs="$(WatchdogExecutable)">
+
+    <Message Text="Watchdog executable is out-of-date. Building..." Importance="high"/>
+
+    <!-- Restore dependencies for the specified RuntimeIdentifier. -->
+    <Exec Command="dotnet restore &quot;$(WatchdogProject)&quot; -r $(RuntimeIdentifier)"/>
+
+    <!-- Publish the Watchdog project as a self-contained application. -->
+    <Exec Command="dotnet publish &quot;$(WatchdogProject)&quot; -c $(Configuration) -r $(RuntimeIdentifier) --self-contained --no-restore -o &quot;$(WatchdogOutDir)&quot;"/>
+  </Target>
+
+</Project>

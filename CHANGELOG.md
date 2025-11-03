@@ -1,3 +1,107 @@
+## [v0.4.3](https://github.com/DearVa/Everywhere/releases/tag/v0.4.3) - 2025-11-2
+
+### ✨ Features
+- Added Türkçe language support (Thanks @complex-cgn)
+- Improved chat history viewing & management (including topic editing and multi-selecting/deleting chats)
+
+### 🚀 Improvements
+- Reduced memory usage & UI freeze when rendering markdown codeblocks (2700% improvement)
+- Added more icons to the assistant IconEditor and optimized its performance
+
+### 🐛 Bug Fixes
+- (Windows) Fixed an issue where Everywhere could prevent system shutdown
+- Fixed an issue where the chat window could not be closed by pressing the Esc key
+- Fixed an issue where canceling a tool call could prevent the conversation from continuing
+- Fixed an issue where some reasoning-focused LLMs could not use tools correctly
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.2...v0.4.3
+
+
+
+## [v0.4.2](https://github.com/DearVa/Everywhere/releases/tag/v0.4.2) - 2025-10-28
+
+### ✨ Features
+- Now you can upload documents (PDF, Word, Text, etc.) directly in the chat window as attachments for context (⚠️ only supported by models that allow file inputs)
+
+### 🚀 Improvements
+- Chat window can be closed when press shortcut again
+- Optimized encoding handling in "File system" chat plugin
+
+### 🐛 Bug Fixes
+- Fixed chat topic may not generate correctly for some models
+- Fixed "Web search" chat tool may report `count out of range` error
+- Fixed "Scroll to end" button in chat window mistakenly get focused
+- (Windows) Fixed missing `Everything.dll`
+- (Windows) Fixed chat window still appears in `Alt+Tab` list when closed
+- (Windows) Fixed chat window disappears when picking a file
+- (Windows) Fixed icon & title of update notify is missing
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.1...v0.4.2
+
+
+
+## [v0.4.1](https://github.com/DearVa/Everywhere/releases/tag/v0.4.1) - 2025-10-27
+
+### ⚠️ BREAKING CHANGE: Chat window shortcut will reset to `Ctrl+Shift+E` due to renaming "Hotkey" to "Shortcut".
+️
+### 🚀 Improvements
+- Renamed DeepSeek models to their new official names
+- I18N: Changed "Hotkey" to "Shortcut"
+- Refactored "operate UI elements" chat tool for better stability
+
+### 🐛 Bug Fixes
+- Fixed window cannot maximize when clicking the maximize button
+- Fixed "Web snapshot" chat tool not working
+- Fixed "everything" chat tool cannot work when "file system" chat tool is enabled
+- Fixed token counting may be bigger than actual usage in some cases
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.0...v0.4.1
+
+
+
+## [v0.4.0](https://github.com/DearVa/Everywhere/releases/tag/v0.4.0) - 2025-10-26
+
+### ✨ Features
+- Plugin Execution Feedback
+  - High-permission plugins now require user confirmation before running
+  - Results of plugin calls are now displayed in the chat window 
+    - File system plugin lists which files were accessed
+    - File changes are shown and can be reviewed before applying
+    - Web search now displays the specific query being used
+- Temporary Chat
+  - Temporary chats that are not saved will now be automatically deleted when switching to another chat or creating a new one
+  - You can choose to automatically enter temporary chat mode in settings
+- Web Search Enhancements
+  - Added Jina as a web search provider
+  - Added SearXNG as a web search provider
+- Added settings for controlling visual context usage and detail level
+- Chat window now displays the current chat title
+- (Windows) Integrated Everything to accelerate local file searches
+
+### 🚀 Improvements
+- Improved the main window UI layout & style
+- Enabled right-click context menu (copy, cut, paste) in the chat input box
+- Added a scroll-to-bottom button in the chat window
+- Added more emoji choices for custom assistants
+
+### 🐛 Bug Fixes
+- Fixed chat history was sometimes not sorted correctly
+- Fixed the `Alt` key could not be used as a hotkey
+- Fixed the default assistant's icon could not be changed
+- Fixed the element picker could not be closed with a right-click
+- Fixed the main window would appear after picking an element
+- Fixed potential unresponsiveness issues during chats
+- Fixed connection test failures for Custom Assistants
+- Fixed chat title generation may fail for some models
+- Fixed fonts may become _Italic_ unexpectedly
+- Fixed a dead link in the Welcome Dialog
+- Fixed a recursive self-reference issue
+- Fixed wrong acrylic effect on Windows 10
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.3.12...v0.4.0
+
+
+
 ## [v0.3.12](https://github.com/DearVa/Everywhere/releases/tag/v0.3.12) - 2025-10-16
 
 ### 🚀 Improvements

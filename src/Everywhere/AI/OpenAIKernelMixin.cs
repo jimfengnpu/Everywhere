@@ -10,6 +10,7 @@ using OpenAI;
 using OpenAI.Chat;
 using BinaryContent = System.ClientModel.BinaryContent;
 using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using FunctionCallContent = Microsoft.Extensions.AI.FunctionCallContent;
 using TextContent = Microsoft.Extensions.AI.TextContent;
 
 namespace Everywhere.AI;
@@ -25,33 +26,24 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
     {
         ChatCompletionService = new OptimizedOpenAIApiClient(
             new OptimizedChatClient(
-                customAssistant.ModelId,
+                ModelId,
                 // some models don't need API key (e.g. LM Studio)
-                new ApiKeyCredential(customAssistant.ApiKey.IsNullOrWhiteSpace() ? "NO_API_KEY" : customAssistant.ApiKey),
+                new ApiKeyCredential(ApiKey.IsNullOrWhiteSpace() ? "NO_API_KEY" : ApiKey),
                 new OpenAIClientOptions
                 {
-                    Endpoint = new Uri(customAssistant.Endpoint, UriKind.Absolute)
+                    Endpoint = new Uri(Endpoint, UriKind.Absolute)
                 }
             ).AsIChatClient(),
             this
         ).AsChatCompletionService();
     }
 
-    public override PromptExecutionSettings? GetPromptExecutionSettings(FunctionChoiceBehavior? functionChoiceBehavior = null)
+    public override PromptExecutionSettings GetPromptExecutionSettings(FunctionChoiceBehavior? functionChoiceBehavior = null)
     {
         double? temperature = _customAssistant.Temperature.IsCustomValueSet ? _customAssistant.Temperature.ActualValue : null;
         double? topP = _customAssistant.TopP.IsCustomValueSet ? _customAssistant.TopP.ActualValue : null;
         double? presencePenalty = _customAssistant.PresencePenalty.IsCustomValueSet ? _customAssistant.PresencePenalty.ActualValue : null;
         double? frequencyPenalty = _customAssistant.FrequencyPenalty.IsCustomValueSet ? _customAssistant.FrequencyPenalty.ActualValue : null;
-
-        if (temperature is null &&
-            topP is null &&
-            presencePenalty is null &&
-            frequencyPenalty is null &&
-            functionChoiceBehavior is null)
-        {
-            return null;
-        }
 
         return new OpenAIPromptExecutionSettings
         {
@@ -107,6 +99,7 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
             ChatOptions? options = null,
             CancellationToken cancellationToken = default)
         {
+            messages = EnsureCompatibilityFields(messages);
             return client.GetResponseAsync(messages, options, cancellationToken);
         }
 
@@ -115,6 +108,8 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
             ChatOptions? options = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            messages = EnsureCompatibilityFields(messages);
+
             // cache the value to avoid property changes during enumeration
             var isDeepThinkingSupported = owner.IsDeepThinkingSupported;
             await foreach (var update in client.GetStreamingResponseAsync(messages, options, cancellationToken))
@@ -187,7 +182,52 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
                     update.AdditionalProperties = ApplyReasoningProperties(update.AdditionalProperties);
                 }
 
+                // Ensure that all FunctionCallContent items have a unique CallId.
+                for (var i = 0; i < update.Contents.Count; i++)
+                {
+                    var item = update.Contents[i];
+                    if (item is FunctionCallContent { Name.Length: > 0, CallId: null or { Length: 0 } } missingIdContent)
+                    {
+                        // Generate a unique ToolCallId for the function call update.
+                        update.Contents[i] = new FunctionCallContent(
+                            Guid.CreateVersion7().ToString("N"),
+                            missingIdContent.Name,
+                            missingIdContent.Arguments);
+                    }
+                }
+
                 yield return update;
+            }
+        }
+
+        /// <summary>
+        /// Ensure each ChatMessage contains the compatibility fields required by some models/clients.
+        /// We use reflection to avoid compile-time dependency on the concrete ChatMessage shape.
+        /// The fields added are: 'refusal', 'annotations', 'audio', 'function_call' (all set to null).
+        /// </summary>
+        private static IEnumerable<ChatMessage> EnsureCompatibilityFields(IEnumerable<ChatMessage> messages)
+        {
+            foreach (var msg in messages)
+            {
+                if (msg.AdditionalProperties is { } dict)
+                {
+                    dict.TryAdd("refusal", null);
+                    dict.TryAdd("annotations", null);
+                    dict.TryAdd("audio", null);
+                    dict.TryAdd("function_call", null);
+                }
+                else
+                {
+                    msg.AdditionalProperties = new AdditionalPropertiesDictionary
+                    {
+                        ["refusal"] = null,
+                        ["annotations"] = null,
+                        ["audio"] = null,
+                        ["function_call"] = null
+                    };
+                }
+
+                yield return msg;
             }
         }
 

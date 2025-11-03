@@ -1,8 +1,10 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:common="clr-namespace:Everywhere.Common" xmlns:v="using:Everywhere.Views">
+  xmlns:common="clr-namespace:Everywhere.Common" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  xmlns:v="using:Everywhere.Views">
   <Design.PreviewWith>
-    <v:IconEditor/>
+    <v:IconEditor
+      Width="300" Height="500"/>
   </Design.PreviewWith>
 
   <ControlTheme
@@ -17,13 +19,14 @@
                 Header="Lucide"
                 Tag="{x:Static common:ColoredIconType.Lucide}">
                 <ListBox
+                  Classes="Simple"
                   ItemsSource="{x:Static v:IconEditor.AvailableKinds}"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   SelectedItem="{Binding Icon.Kind, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}">
                   <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <WrapPanel
-                        ItemSpacing="3" LineSpacing="3"/>
+                      <shadui:VirtualizingWrapPanel
+                        ItemHeight="48" ItemWidth="48"/>
                     </ItemsPanelTemplate>
                   </ListBox.ItemsPanel>
                   <ListBox.ItemTemplate>
@@ -38,18 +41,22 @@
                 Header="Emoji"
                 Tag="{x:Static common:ColoredIconType.Text}">
                 <ListBox
+                  Classes="Simple"
                   ItemsSource="{x:Static v:IconEditor.AvailableEmojis}"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   SelectedItem="{Binding Icon.Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}">
                   <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <WrapPanel
-                        ItemSpacing="3" LineSpacing="3"/>
+                      <shadui:VirtualizingWrapPanel
+                        ItemHeight="48" ItemWidth="48"/>
                     </ItemsPanelTemplate>
                   </ListBox.ItemsPanel>
                   <ListBox.ItemTemplate>
-                    <DataTemplate DataType="LucideIconKind">
-                      <TextBlock Text="{Binding}"/>
+                    <DataTemplate>
+                      <TextBlock
+                        Width="24" Height="24"
+                        FontSize="20"
+                        Text="{Binding}"/>
                     </DataTemplate>
                   </ListBox.ItemTemplate>
                 </ListBox>

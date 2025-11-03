@@ -1,5 +1,6 @@
 ﻿#if !DEBUG
 using Everywhere.Interop;
+using MsBox.Avalonia.Enums;
 #else
 #define DISABLE_TELEMETRY
 #endif
@@ -59,11 +60,11 @@ public static class Entrance
         {
             if (!args.Contains("--autorun"))
             {
-                NativeMessageBox.Show(
+                NativeMessageBox.ShowAsync(
                     "Info",
                     "Everywhere is already running. Please check your system tray for the application window.",
-                    NativeMessageBoxButtons.Ok,
-                    NativeMessageBoxIcon.Information);
+                    ButtonEnum.Ok,
+                    Icon.Info).WaitOnDispatcherFrame();
             }
 
             Environment.Exit(0);

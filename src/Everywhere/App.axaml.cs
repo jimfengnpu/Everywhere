@@ -10,6 +10,7 @@ using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Views;
 using Microsoft.Extensions.DependencyInjection;
+using MsBox.Avalonia.Enums;
 using Serilog;
 using ShadUI;
 using Window = Avalonia.Controls.Window;
@@ -30,11 +31,11 @@ public class App : Application
         {
             Log.Logger.Error(e.Exception, "UI Thread Unhandled Exception");
 
-            NativeMessageBox.Show(
+            NativeMessageBox.ShowAsync(
                 "Unexpected Error",
                 $"An unexpected error occurred:\n{e.Exception.Message}\n\nPlease check the logs for more details.",
-                NativeMessageBoxButtons.Ok,
-                NativeMessageBoxIcon.Error);
+                ButtonEnum.Ok,
+                Icon.Error).WaitOnDispatcherFrame();
 
             e.Handled = true;
         };
@@ -48,7 +49,7 @@ public class App : Application
 
                     .AddSingleton<IRuntimeConstantProvider, DesignTimeRuntimeConstantProvider>()
                     .AddSingleton<IVisualElementContext, DesignTimeVisualElementContext>()
-                    .AddSingleton<IHotkeyListener, DesignTimeHotkeyListener>()
+                    .AddSingleton<IShortcutListener, DesignTimeShortcutListener>()
                     .AddSingleton<INativeHelper, DesignTimeNativeHelper>()
                     .AddSingleton<Settings>()
 
@@ -78,9 +79,9 @@ public class App : Application
         try
         {
             foreach (var group in ServiceLocator
-                       .Resolve<IEnumerable<IAsyncInitializer>>()
-                       .GroupBy(i => i.Priority)
-                       .OrderBy(g => g.Key))
+                         .Resolve<IEnumerable<IAsyncInitializer>>()
+                         .GroupBy(i => i.Priority)
+                         .OrderBy(g => g.Key))
             {
                 Task.WhenAll(group.Select(i => i.InitializeAsync())).WaitOnDispatcherFrame();
             }
@@ -89,14 +90,14 @@ public class App : Application
         {
             Log.Logger.Fatal(ex, "Failed to initialize application");
 
-            NativeMessageBox.Show(
+            NativeMessageBox.ShowAsync(
                 "Initialization Error",
                 $"An error occurred during application initialization:\n{ex.Message}\n\nPlease check the logs for more details.",
-                NativeMessageBoxButtons.Ok,
-                NativeMessageBoxIcon.Error);
+                ButtonEnum.Ok,
+                Icon.Error).WaitOnDispatcherFrame();
         }
 
-        Log.Logger.Information("Application started");
+        Log.ForContext<App>().Information("Application started");
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -116,7 +117,7 @@ public class App : Application
     {
         // Get an array of plugins to remove
         var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToList();
 
         // remove each entry found
         foreach (var plugin in dataValidationPluginsToRemove)
@@ -213,11 +214,11 @@ file class DesignTimeVisualElementContext : IVisualElementContext
     public Task<IVisualElement?> PickElementAsync(PickElementMode mode) => Task.FromResult<IVisualElement?>(null);
 }
 
-file class DesignTimeHotkeyListener : IHotkeyListener
+file class DesignTimeShortcutListener : IShortcutListener
 {
-    public IDisposable Register(KeyboardHotkey hotkey, Action handler) => throw new NotSupportedException();
-    public IDisposable Register(MouseHotkey hotkey, Action handler) => throw new NotSupportedException();
-    public IKeyboardHotkeyScope StartCaptureKeyboardHotkey() => throw new NotSupportedException();
+    public IDisposable Register(KeyboardShortcut shortcut, Action handler) => throw new NotSupportedException();
+    public IDisposable Register(MouseShortcut shortcut, Action handler) => throw new NotSupportedException();
+    public IKeyboardShortcutScope StartCaptureKeyboardShortcut() => throw new NotSupportedException();
 }
 
 file class DesignTimeNativeHelper : INativeHelper
@@ -227,12 +228,9 @@ file class DesignTimeNativeHelper : INativeHelper
     public bool IsUserStartupEnabled { get; set; }
     public bool IsAdministratorStartupEnabled { get; set; }
     public void RestartAsAdministrator() { }
-    public void SetWindowNoFocus(Window window) { }
-    public void SetWindowHitTestInvisible(Window window) { }
-    public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius) { }
-    public void HideWindowWithoutAnimation(Window window) { }
     public Task<WriteableBitmap?> GetClipboardBitmapAsync() => Task.FromResult<WriteableBitmap?>(null);
     public void ShowDesktopNotification(string message, string? title) { }
+    public void OpenFileLocation(string fullPath) { }
 }
 
 #pragma warning restore CS0067 // The event is for design-time only.

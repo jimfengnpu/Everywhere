@@ -88,6 +88,28 @@ public interface IVisualElement
     /// </remarks>
     string? GetText(int maxLength = -1);
 
+    /// <summary>
+    /// Invokes the default action on the visual element using UI Automation patterns.
+    /// </summary>
+    void Invoke();
+
+    /// <summary>
+    /// Sets the textual content of the visual element using UI Automation patterns.
+    /// </summary>
+    void SetText(string text);
+
+    /// <summary>
+    /// Sends virtual key input to the visual element using UI Automation patterns.
+    /// Supports common keys and shortcuts like Enter, Ctrl+C, or Ctrl+V even when the window is minimized.
+    /// </summary>
+    void SendShortcut(KeyboardShortcut shortcut);
+
+    // /// <summary>
+    // /// Get the selected text of the visual element.
+    // /// </summary>
+    // /// <returns></returns>
+    // string? GetSelectionText();
+
     Task<Bitmap> CaptureAsync();
 }
 

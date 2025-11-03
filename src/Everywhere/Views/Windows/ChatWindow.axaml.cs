@@ -10,13 +10,19 @@ using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Configuration;
+using Everywhere.Interop;
 using LiveMarkdown.Avalonia;
 using Microsoft.Extensions.Logging;
+using ShadUI;
 
 namespace Everywhere.Views;
 
-public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
+public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReactiveHost
 {
+    public DialogHost DialogHost => PART_DialogHost;
+
+    public ToastHost ToastHost => PART_ToastHost;
+
     public static readonly DirectProperty<ChatWindow, bool> IsOpenedProperty =
         AvaloniaProperty.RegisterDirect<ChatWindow, bool>(nameof(IsOpened), o => o.IsOpened);
 
@@ -44,8 +50,8 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         set => SetValue(PlacementProperty, value);
     }
 
-    public static readonly StyledProperty<bool> IsWindowPinnedProperty = AvaloniaProperty.Register<ChatWindow, bool>(
-        nameof(IsWindowPinned));
+    public static readonly StyledProperty<bool> IsWindowPinnedProperty =
+        AvaloniaProperty.Register<ChatWindow, bool>(nameof(IsWindowPinned));
 
     public bool IsWindowPinned
     {
@@ -54,15 +60,21 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
     }
 
     private readonly ILauncher _launcher;
+    private readonly IWindowHelper _windowHelper;
     private readonly Settings _settings;
 
-    public ChatWindow(ILauncher launcher, IChatContextManager chatContextManager, Settings settings)
+    public ChatWindow(
+        ILauncher launcher,
+        IChatContextManager chatContextManager,
+        IWindowHelper windowHelper,
+        Settings settings)
     {
         _launcher = launcher;
+        _windowHelper = windowHelper;
         _settings = settings;
 
         InitializeComponent();
-        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, true);
 
         chatContextManager.PropertyChanged += HandleChatContextManagerPropertyChanged;
         ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
@@ -70,18 +82,42 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         ChatInputBox.PastingFromClipboard += HandleChatInputBoxPastingFromClipboard;
     }
 
+    /// <summary>
+    /// Initializes the chat window.
+    /// </summary>
+    public void Initialize()
+    {
+        EnsureInitialized();
+        ApplyStyling();
+        ApplyTemplate();
+        _windowHelper.SetCloaked(this, true);
+        ShowActivated = true;
+        Topmost = true;
+    }
+
     private void HandleKeyDown(object? sender, KeyEventArgs e)
     {
-        switch (e.Key)
+        switch (e)
         {
-            case Key.Escape when e.KeyModifiers == KeyModifiers.None:
+            case { Key: Key.Escape }:
             {
                 IsOpened = false;
                 break;
             }
-            case Key.D when e.KeyModifiers == KeyModifiers.Control:
+            case { Key: Key.D, KeyModifiers: KeyModifiers.Control }:
             {
                 IsWindowPinned = !IsWindowPinned;
+                break;
+            }
+            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
+            {
+                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
+                break;
+            }
+            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
+                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
+            {
+                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
                 break;
             }
         }
@@ -104,13 +140,7 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
             var value = change.NewValue is true;
             _settings.Internal.IsChatWindowPinned = value;
             ShowInTaskbar = value;
-
-            if (value)
-            {
-                // Pin the window to the topmost level
-                Topmost = false;
-                Topmost = true;
-            }
+            _windowHelper.SetCloaked(this, false); // Uncloak when pinned state changes to ensure visibility
         }
     }
 
@@ -187,7 +217,7 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
     {
         base.OnLostFocus(e);
 
-        if (!IsActive && !IsWindowPinned)
+        if (!ViewModel.IsPickingFiles && !IsActive && !IsWindowPinned && !_windowHelper.AnyModelDialogOpened(this))
         {
             IsOpened = false;
         }
@@ -289,17 +319,12 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         var y = Math.Max(area.Y, Math.Min(pos.Y, area.Y + area.Height - size.Height));
         return new PixelPoint(x, y);
     }
-
-    private void HandleTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
+    
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        try
-        {
+        base.OnPointerPressed(e);
+        if (TitleBarBorder.Bounds.Contains(e.GetCurrentPoint(this).Position))
             BeginMoveDrag(e);
-        }
-        catch
-        {
-            // ignored
-        }
     }
 
     private void HandleChatContextManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -316,16 +341,6 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         IsOpened = ViewModel.IsOpened;
         if (IsOpened)
         {
-            ShowInTaskbar = true; // temporarily show in taskbar to avoid window blink in the bottom left corner
-            WindowState = WindowState.Minimized;
-            Show();
-            WindowState = WindowState.Normal;
-
-            Topmost = false;
-            Focus();
-            ChatInputBox.Focus();
-            Topmost = true;
-
             switch (_settings.ChatWindow.WindowPinMode)
             {
                 case ChatWindowPinMode.RememberLast:
@@ -346,11 +361,14 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
                 }
             }
 
-            ShowInTaskbar = IsWindowPinned; // restore show in taskbar state
+            ShowInTaskbar = IsWindowPinned;
+            _windowHelper.SetCloaked(this, false);
+            ChatInputBox.Focus();
         }
         else
         {
-            Hide();
+            ShowInTaskbar = false;
+            _windowHelper.SetCloaked(this, true);
         }
     }
 
@@ -374,34 +392,16 @@ public partial class ChatWindow : ReactiveWindow<ChatWindowViewModel>
         ViewModel.AddClipboardCommand.Execute(null);
     }
 
-    private void HandleResizeThumbPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (!e.Pointer.IsPrimary) return;
-
-        // BeginResizeDrag implementation requires CanResize to be true, so we temporarily set it to true, then set it back
-        CanResize = true;
-        BeginResizeDrag(WindowEdge.SouthEast, e);
-        CanResize = false;
-    }
-
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
-        switch (e)
-        {
-            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
-                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
-                break;
-            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
-                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
-                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
-                break;
-        }
-
-        base.OnKeyDown(e);
-    }
-
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        // allow closing only on application or OS shutdown
+        // otherwise, Windows will say "Everywhere is preventing shutdown"
+        if (e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)
+        {
+            base.OnClosing(e);
+            return;
+        }
+
         // do not allow closing, just hide the window
         e.Cancel = true;
         IsOpened = false;

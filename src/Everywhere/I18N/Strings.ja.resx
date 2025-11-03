@@ -1,4 +1,6 @@
-﻿<root>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Japanese (日本語) -->
+<root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -11,11 +13,405 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
+    <data name="SettingsPage_Saved_Toast_Title" xml:space="preserve">
+        <value>設定が保存されました</value>
+    </data>
+    <data name="Settings_Common_Language_Header" xml:space="preserve">
+        <value>言語</value>
+    </data>
+    <data name="SettingsCategory_Common_Header" xml:space="preserve">
+        <value>一般設定</value>
+    </data>
+    <data name="SettingsCategory_Network_Header" xml:space="preserve">
+        <value>ネットワーク設定</value>
+    </data>
+    <data name="Settings_Common_Language_Description" xml:space="preserve">
+        <value>ソフトウェアの表示言語を選択します。</value>
+    </data>
     <data name="SettingsSelectionItem_Common_Language_zh-hans" xml:space="preserve">
         <value>中文 (简体)</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_default" xml:space="preserve">
         <value>English (United States)</value>
+    </data>
+    <data name="Settings_Common_Theme_Description" xml:space="preserve">
+        <value>ソフトウェアの表示テーマを選択します。</value>
+    </data>
+    <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
+        <value>システムに従う</value>
+    </data>
+    <data name="SettingsSelectionItem_Common_Theme_Dark" xml:space="preserve">
+        <value>ダーク</value>
+    </data>
+    <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
+        <value>ライト</value>
+    </data>
+    <data name="Settings_Common_Proxy_IsEnabled_Header" xml:space="preserve">
+        <value>カスタムプロキシを使用する</value>
+    </data>
+    <data name="Settings_Common_Proxy_IsEnabled_Description" xml:space="preserve">
+        <value>システムプロキシをアプリケーション専用のプロキシで上書きします。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Endpoint_Header" xml:space="preserve">
+        <value>プロキシサーバー</value>
+    </data>
+    <data name="Settings_Common_Proxy_Address_Description" xml:space="preserve">
+        <value>プロキシURIを入力します。例: http://127.0.0.1:7890。</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassOnLocal_Header" xml:space="preserve">
+        <value>ローカルアドレスのプロキシをバイパス</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassOnLocal_Description" xml:space="preserve">
+        <value>イントラネットおよびループバックアドレスへのリクエストを直接送信します。</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassList_Header" xml:space="preserve">
+        <value>バイパスリスト</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassList_Description" xml:space="preserve">
+        <value>任意。1行につき1パターン; 一致するホストはプロキシをバイパスします。</value>
+    </data>
+    <data name="Settings_Common_Proxy_UseAuthentication_Header" xml:space="preserve">
+        <value>プロキシ認証</value>
+    </data>
+    <data name="Settings_Common_Proxy_UseAuthentication_Description" xml:space="preserve">
+        <value>プロキシが認証を要求する場合に資格情報を有効にします。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Username_Header" xml:space="preserve">
+        <value>ユーザー名</value>
+    </data>
+    <data name="Settings_Common_Proxy_Username_Description" xml:space="preserve">
+        <value>プロキシサーバーのユーザー名。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Password_Header" xml:space="preserve">
+        <value>パスワード</value>
+    </data>
+    <data name="Settings_Common_Proxy_Password_Description" xml:space="preserve">
+        <value>プロキシサーバーのパスワード。</value>
+    </data>
+    <data name="SettingsCategory_ChatWindow_Header" xml:space="preserve">
+        <value>チャット設定</value>
+    </data>
+    <data name="Settings_ChatWindow_Shortcut_Header" xml:space="preserve">
+        <value>ショートカット</value>
+    </data>
+    <data name="Settings_ChatWindow_Shortcut_Description" xml:space="preserve">
+        <value>いつでもチャットウィンドウを呼び出すためのショートカットを設定します。</value>
+    </data>
+    <data name="SettingsCategory_Model_Header" xml:space="preserve">
+        <value>AI設定</value>
+    </data>
+    <data name="Settings_CustomAssistant_Temperature_Header" xml:space="preserve">
+        <value>創造性（temperature）</value>
+    </data>
+    <data name="Settings_CustomAssistant_Temperature_Description" xml:space="preserve">
+        <value>値が高いほど想像力豊かで創造的な応答が得られ、値が低いほど正確で保守的な応答が得られます。1.0を超えると一部のモデルで出力が乱れる可能性があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_TopP_Header" xml:space="preserve">
+        <value>思考の開放性（top_p）</value>
+    </data>
+    <data name="Settings_CustomAssistant_TopP_Description" xml:space="preserve">
+        <value>値が高いほど多様な応答が可能になり、値が低いほど最も可能性の高い応答が優先されます。temperatureと同時に変更することは推奨されません。この設定は一部のモデルでのみ有効です。エラーが発生した場合は、デフォルト値に戻してみてください。</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_Description" xml:space="preserve">
+        <value>ウェブ検索エンジンのサービスプロバイダーを選択します。</value>
+    </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
+        <value>Bing</value>
+    </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
+        <value>Google</value>
+    </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
+        <value>Brave</value>
+    </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
+        <value>Bocha</value>
+    </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
+        <value>Jina</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
+        <value>API URL</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
+        <value>何をすべきかわからない場合はデフォルトのままにしてください。「http(s)://」で始まる必要があります。</value>
+    </data>
+    <data name="ChatInputBox_Watermark" xml:space="preserve">
+        <value>Everywhereに質問する、またはチャットする</value>
+    </data>
+    <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
+        <value>現在のセッションに添付ファイルを追加</value>
+    </data>
+    <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
+        <value>添付ファイルを追加</value>
+    </data>
+    <data name="ChatInputBox_ImageButton_ToolTip" xml:space="preserve">
+        <value>画面へのアクセスを許可する</value>
+    </data>
+    <data name="ChatInputBox_ImageButton_Text" xml:space="preserve">
+        <value>画像</value>
+    </data>
+    <data name="ChatInputBox_ToolCallButton_ToolTip" xml:space="preserve">
+        <value>ツールを使用してアシスタントの機能を強化 (Ctrl+T)</value>
+    </data>
+    <data name="ChatInputBox_ToolCallButton_Text" xml:space="preserve">
+        <value>ツール</value>
+    </data>
+    <data name="ChatInputBox_SendButton_ToolTip" xml:space="preserve">
+        <value>送信</value>
+    </data>
+    <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
+        <value>キャンセル</value>
+    </data>
+    <data name="AssistantCommand_Translate_Description" xml:space="preserve">
+        <value>ターゲット言語に翻訳</value>
+    </data>
+    <data name="AssistantCommand_Rewrite_Description" xml:space="preserve">
+        <value>必要に応じて書き直す</value>
+    </data>
+    <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
+        <value>コンテキストを分析</value>
+    </data>
+    <data name="ActionChatMessage_Header_WebSearching" xml:space="preserve">
+        <value>ウェブ検索</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
+        <value>再生成</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+        <value>コピー</value>
+    </data>
+    <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
+        <value>ウィンドウを開く</value>
+    </data>
+    <data name="Application_TrayIcon_Menu_Exit" xml:space="preserve">
+        <value>終了</value>
+    </data>
+    <data name="Application_TrayIcon_Menu_OpenDebugWindow" xml:space="preserve">
+        <value>デバッグウィンドウを開く</value>
+    </data>
+    <data name="ChatWindow_History_ToolTip" xml:space="preserve">
+        <value>チャット履歴</value>
+    </data>
+    <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
+        <value>新しいチャットを作成 (Ctrl+N)</value>
+    </data>
+    <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
+        <value>閉じる (Esc)</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen" xml:space="preserve">
+        <value>画面を選択</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow" xml:space="preserve">
+        <value>ウィンドウを選択</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
+        <value>要素を選択</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+        <value>クリップボードから貼り付け</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
+        <value>ファイルを添付</value>
+    </data>
+    <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
+        <value>翻訳</value>
+    </data>
+    <data name="ChatWindowViewModel_QuickActions_Verify" xml:space="preserve">
+        <value>要点</value>
+    </data>
+    <data name="ChatWindowViewModel_QuickActions_Summarize" xml:space="preserve">
+        <value>要約</value>
+    </data>
+    <data name="ChatWindow_Title" xml:space="preserve">
+        <value>どのようにお手伝いできますか？</value>
+    </data>
+    <data name="KeyboardShortcutInputBox_Watermark" xml:space="preserve">
+        <value>クリックしてショートカットを設定</value>
+    </data>
+    <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
+        <value>設定中...</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
+        <value>名前のないセッション</value>
+    </data>
+    <data name="ChatAttachment_RemoveButton_ToolTip" xml:space="preserve">
+        <value>削除</value>
+    </data>
+    <data name="VisualElementType_Unknown" xml:space="preserve">
+        <value>不明</value>
+    </data>
+    <data name="VisualElementType_Label" xml:space="preserve">
+        <value>ラベル</value>
+    </data>
+    <data name="VisualElementType_TextEdit" xml:space="preserve">
+        <value>テキストボックス</value>
+    </data>
+    <data name="VisualElementType_Document" xml:space="preserve">
+        <value>ドキュメント</value>
+    </data>
+    <data name="VisualElementType_Button" xml:space="preserve">
+        <value>ボタン</value>
+    </data>
+    <data name="VisualElementType_Hyperlink" xml:space="preserve">
+        <value>ハイパーリンク</value>
+    </data>
+    <data name="VisualElementType_Image" xml:space="preserve">
+        <value>画像</value>
+    </data>
+    <data name="VisualElementType_CheckBox" xml:space="preserve">
+        <value>チェックボックス</value>
+    </data>
+    <data name="VisualElementType_RadioButton" xml:space="preserve">
+        <value>ラジオボタン</value>
+    </data>
+    <data name="VisualElementType_ComboBox" xml:space="preserve">
+        <value>コンボボックス</value>
+    </data>
+    <data name="VisualElementType_ListView" xml:space="preserve">
+        <value>リスト</value>
+    </data>
+    <data name="VisualElementType_ListViewItem" xml:space="preserve">
+        <value>リスト項目</value>
+    </data>
+    <data name="VisualElementType_TreeView" xml:space="preserve">
+        <value>ツリー</value>
+    </data>
+    <data name="VisualElementType_TreeViewItem" xml:space="preserve">
+        <value>ツリー項目</value>
+    </data>
+    <data name="VisualElementType_DataGrid" xml:space="preserve">
+        <value>テーブル</value>
+    </data>
+    <data name="VisualElementType_DataGridItem" xml:space="preserve">
+        <value>テーブル項目</value>
+    </data>
+    <data name="VisualElementType_TabControl" xml:space="preserve">
+        <value>タブ</value>
+    </data>
+    <data name="VisualElementType_TabItem" xml:space="preserve">
+        <value>タブ</value>
+    </data>
+    <data name="VisualElementType_Table" xml:space="preserve">
+        <value>テーブル</value>
+    </data>
+    <data name="VisualElementType_TableRow" xml:space="preserve">
+        <value>テーブル行</value>
+    </data>
+    <data name="VisualElementType_Menu" xml:space="preserve">
+        <value>メニュー</value>
+    </data>
+    <data name="VisualElementType_MenuItem" xml:space="preserve">
+        <value>メニュー項目</value>
+    </data>
+    <data name="VisualElementType_Slider" xml:space="preserve">
+        <value>スライダー</value>
+    </data>
+    <data name="VisualElementType_ScrollBar" xml:space="preserve">
+        <value>スクロールバー</value>
+    </data>
+    <data name="VisualElementType_ProgressBar" xml:space="preserve">
+        <value>プログレスバー</value>
+    </data>
+    <data name="VisualElementType_Panel" xml:space="preserve">
+        <value>パネル</value>
+    </data>
+    <data name="VisualElementType_TopLevel" xml:space="preserve">
+        <value>ウィンドウ</value>
+    </data>
+    <data name="VisualElementType_Screen" xml:space="preserve">
+        <value>画面</value>
+    </data>
+    <data name="HumanizedDate_Today" xml:space="preserve">
+        <value>今日</value>
+    </data>
+    <data name="HumanizedDate_Yesterday" xml:space="preserve">
+        <value>昨日</value>
+    </data>
+    <data name="HumanizedDate_LastWeek" xml:space="preserve">
+        <value>先週</value>
+    </data>
+    <data name="HumanizedDate_LastMonth" xml:space="preserve">
+        <value>先月</value>
+    </data>
+    <data name="HumanizedDate_LastYear" xml:space="preserve">
+        <value>昨年</value>
+    </data>
+    <data name="HumanizedDate_Earlier" xml:space="preserve">
+        <value>以前</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest" xml:space="preserve">
+        <value>HTTPリクエストエラー ({0}): {1}</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_BadRequest" xml:space="preserve">
+        <value>不正なリクエストです。APIキーが間違っているか、ネットワーク/地域がサポートされていない可能性があります。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_Unauthorized" xml:space="preserve">
+        <value>認証されていないリクエストです。APIキーが間違っているか、ネットワーク/地域がサポートされていない可能性があります。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_Forbidden" xml:space="preserve">
+        <value>リクエストが禁止されています。APIキーが間違っているか、ネットワーク/地域がサポートされていない可能性があります。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_NotFound" xml:space="preserve">
+        <value>結果が見つかりません。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_InternalServerError" xml:space="preserve">
+        <value>サーバーでエラーが発生しました。後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_ServiceUnavailable" xml:space="preserve">
+        <value>サーバーが利用できません。後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_GatewayTimeout" xml:space="preserve">
+        <value>ゲートウェイ接続がタイムアウトしました。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_RequestTimeout" xml:space="preserve">
+        <value>リクエスト接続がタイムアウトしました。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_BadGateway" xml:space="preserve">
+        <value>ゲートウェイ接続エラーです。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_HttpRequest_0" xml:space="preserve">
+        <value>不明なエラーです。後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket" xml:space="preserve">
+        <value>ソケットエラー ({0}): {1}</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket_HostNotFound" xml:space="preserve">
+        <value>ホスト名を解決できませんでした。DNS設定を確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket_ConnectionRefused" xml:space="preserve">
+        <value>接続が拒否されました。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket_ConnectionReset" xml:space="preserve">
+        <value>接続がリセットされました。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket_ConnectionAborted" xml:space="preserve">
+        <value>接続が中断されました。ネットワークを確認するか、後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Socket_0" xml:space="preserve">
+        <value>不明なエラーが発生しました。後でもう一度お試しください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Aggregate" xml:space="preserve">
+        <value>1つ以上のエラーが発生しました。
+{0}</value>
+    </data>
+    <data name="FriendlyExceptionMessage_TaskCanceled" xml:space="preserve">
+        <value>タスクがキャンセルされました。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_OperationCanceled" xml:space="preserve">
+        <value>操作がキャンセルされました。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Timeout" xml:space="preserve">
+        <value>最大待機時間を超えました。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Json" xml:space="preserve">
+        <value>JSONデータを解析できませんでした。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Format" xml:space="preserve">
+        <value>フォーマットエラー。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Argument" xml:space="preserve">
+        <value>引数エラー。</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_de" xml:space="preserve">
         <value>Deutsch</value>
@@ -38,16 +434,929 @@
     <data name="SettingsSelectionItem_Common_Language_ru" xml:space="preserve">
         <value>Русский</value>
     </data>
+    <data name="Settings_Common_Theme_Header" xml:space="preserve">
+        <value>テーマ</value>
+    </data>
     <data name="SettingsSelectionItem_Common_Language_zh-hant" xml:space="preserve">
         <value>中文 (繁體)</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_zh-hant-hk" xml:space="preserve">
         <value>中文 (繁體 香港特別行政區)</value>
     </data>
-    <data name="ChangeLogView_FeatureRequestHyperlinkButton_NavigateUri" xml:space="preserve">
-        <value>https://github.com/DearVa/Everywhere/issues/new?template=feature-request.yml</value>
+    <data name="AboutPage_Title" xml:space="preserve">
+        <value>情報</value>
+    </data>
+    <data name="AboutPage_Description" xml:space="preserve">
+        <value>画面の内容をリアルタイムで認識し、アプリケーションの壁を越えて、現在のコンテキストに本当に適したインテリジェントな支援を提供し、デスクトップをシームレスでインテリジェントな作業スペースに変えます。</value>
+    </data>
+    <data name="AboutPage_Version" xml:space="preserve">
+        <value>バージョン: </value>
+    </data>
+    <data name="AboutPage_GithubRepo" xml:space="preserve">
+        <value>Github リポジトリ</value>
+    </data>
+    <data name="AboutPage_OpenSourceLicenses" xml:space="preserve">
+        <value>オープンソースライセンス</value>
+    </data>
+    <data name="App_EverywhereIsAlreadyRunning" xml:space="preserve">
+        <value>Everywhereはすでに実行中です。トレイアイコンを確認してください。</value>
+    </data>
+    <data name="Common_Info" xml:space="preserve">
+        <value>情報</value>
+    </data>
+    <data name="MainView_EverywhereHasMinimizedToTray" xml:space="preserve">
+        <value>Everywhereはトレイに最小化されました</value>
+    </data>
+    <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
+        <value>名前を変更</value>
+    </data>
+    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+        <value>削除</value>
+    </data>
+    <data name="AboutPage_WelcomePage" xml:space="preserve">
+        <value>ウェルカムページ</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message1" xml:space="preserve">
+        <value>👋 Everywhereへようこそ</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message2" xml:space="preserve">
+        <value>お会いできて嬉しいです！あなたのアシスタントとして問題解決をお手伝いします！</value>
+    </data>
+    <data name="ChangeLogView_ReportBugHyperlinkButton_Content" xml:space="preserve">
+        <value>バグを報告</value>
+    </data>
+    <data name="ChangeLogView_FeatureRequestHyperlinkButton_Content" xml:space="preserve">
+        <value>機能リクエスト</value>
     </data>
     <data name="ChangeLogView_ReportBugHyperlinkButton_NavigateUri" xml:space="preserve">
         <value>https://github.com/DearVa/Everywhere/issues/new?template=bug-report.yml</value>
+    </data>
+    <data name="ChangeLogView_FeatureRequestHyperlinkButton_NavigateUri" xml:space="preserve">
+        <value>https://github.com/DearVa/Everywhere/issues/new?template=feature-request.yml</value>
+    </data>
+    <data name="WelcomeView_DiscordHyperlinkButton_Content" xml:space="preserve">
+        <value>Discord</value>
+    </data>
+    <data name="ChatWindow_TogglePin_ToolTip" xml:space="preserve">
+        <value>ウィンドウを固定 (Ctrl+D)</value>
+    </data>
+    <data name="ChatWindowPinMode_RememberPrevious" xml:space="preserve">
+        <value>前の状態を記憶</value>
+    </data>
+    <data name="ChatWindowPinMode_AlwaysPinned" xml:space="preserve">
+        <value>常に固定</value>
+    </data>
+    <data name="ChatWindowPinMode_AlwaysUnpinned" xml:space="preserve">
+        <value>常に固定解除</value>
+    </data>
+    <data name="ChatWindowPinMode_PinOnInput" xml:space="preserve">
+        <value>入力時に固定</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Detailed" xml:space="preserve">
+        <value>詳細</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Compact" xml:space="preserve">
+        <value>コンパクト</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Minimal" xml:space="preserve">
+        <value>最小限</value>
+    </data>
+    <data name="Settings_ChatWindow_WindowPinMode_Header" xml:space="preserve">
+        <value>ウィンドウ固定モード</value>
+    </data>
+    <data name="Settings_ChatWindow_WindowPinMode_Description" xml:space="preserve">
+        <value>チャットウィンドウを開いたときの固定モードを指定します。ウィンドウが固定されていない場合、フォーカスを失うと自動的に隠れます。</value>
+    </data>
+    <data name="Settings_ChatWindow_VisualTreeDetailLevel_Header" xml:space="preserve">
+        <value>ビジュアルツリー詳細レベル</value>
+    </data>
+    <data name="Settings_ChatWindow_VisualTreeDetailLevel_Description" xml:space="preserve">
+        <value>要素を添付する際にUIツリーからどれだけの情報を取得するかを選択します。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_ClientResult" xml:space="preserve">
+        <value>クライアントエラー。</value>
+    </data>
+    <data name="Settings_CustomAssistant_PresencePenalty_Header" xml:space="preserve">
+        <value>表現の多様性 (presence_penalty)</value>
+    </data>
+    <data name="Settings_CustomAssistant_PresencePenalty_Description" xml:space="preserve">
+        <value>値が高いほど、異なる表現を使用し、概念の繰り返しを避ける傾向があります。値が低いほど、繰り返しの概念や物語を使用する傾向があり、より一貫した表現になります。この設定は一部のモデルでのみ有効です。エラーが発生した場合は、デフォルト値に戻してみてください。</value>
+    </data>
+    <data name="Settings_CustomAssistant_FrequencyPenalty_Header" xml:space="preserve">
+        <value>語彙の豊かさ (frequency_penalty)</value>
+    </data>
+    <data name="Settings_CustomAssistant_FrequencyPenalty_Description" xml:space="preserve">
+        <value>値が高いほど、語彙が多様で豊かになります。値が低いほど、言語が単純で明確になります。この設定は一部のモデルでのみ有効です。エラーが発生した場合は、デフォルト値に戻してみてください。</value>
+    </data>
+    <data name="Settings_CustomAssistant_Endpoint_Header" xml:space="preserve">
+        <value>API URL</value>
+    </data>
+    <data name="Settings_CustomAssistant_Endpoint_Description" xml:space="preserve">
+        <value>何をすべきかわからない場合はデフォルトのままにしてください。「http(s)://」で始まる必要があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_ApiKey_Header" xml:space="preserve">
+        <value>APIキー</value>
+    </data>
+    <data name="Settings_CustomAssistant_ApiKey_Description" xml:space="preserve">
+        <value>オンラインモデルの場合、対応する公式から取得する必要があります。詳細はガイドを参照してください。</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
+        <value>画像入力のサポート</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
+        <value>チャットコンテキストで画像をアップロードできます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが画像入力をサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
+        <value>ツール使用のサポート</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
+        <value>モデルはチャットコンテキストで設定したツールを使用できます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが関数呼び出しをサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
+        <value>モデルは返信前に考えることができます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが深い思考をサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
+        <value>深い思考のサポート</value>
+    </data>
+    <data name="Settings_CustomAssistant_MaxTokens_Description" xml:space="preserve">
+        <value>単一チャットの最大コンテキスト長です。何をしているかわからない場合はデフォルト値のままにしてください。デフォルト値より大きく設定すると失敗する可能性があります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_MaxTokens_Header" xml:space="preserve">
+        <value>最大コンテキスト長 (max_tokens)</value>
+    </data>
+    <data name="SettingsPage_Reset_Button_ToolTip" xml:space="preserve">
+        <value>リセット</value>
+    </data>
+    <data name="Settings_CustomAssistant_Schema_Header" xml:space="preserve">
+        <value>APIスキーマ</value>
+    </data>
+    <data name="Settings_CustomAssistant_Schema_Description" xml:space="preserve">
+        <value>APIスキーマを選択します。何をすべきかわからない場合はデフォルトのままにしてください。</value>
+    </data>
+    <data name="Settings_Common_IsStartupEnabled_Header" xml:space="preserve">
+        <value>スタートアップ時に実行</value>
+    </data>
+    <data name="Settings_Common_IsStartupEnabled_Description" xml:space="preserve">
+        <value>Everywhereはスタートアップ後に自動的に実行されます。「管理者としてスタートアップ」が有効な場合、このオプションは管理者モードでのみ無効にできます。</value>
+    </data>
+    <data name="Settings_Common_IsAdministratorStartupEnabled_Header" xml:space="preserve">
+        <value>管理者としてスタートアップ</value>
+    </data>
+    <data name="Settings_Common_IsAdministratorStartupEnabled_Description" xml:space="preserve">
+        <value>Everywhereは管理者として自動的に起動します。このオプションのオン/オフは管理者モードでのみ行えます。</value>
+    </data>
+    <data name="Settings_Common_RestartAsAdministrator_Description" xml:space="preserve">
+        <value>オペレーティングシステムの制限により、管理者としてアプリケーションを実行している場合（権限が昇格している場合）、Everywhereがフォーカスされている昇格されたアプリケーションや「要素を選択」などのEverywhereの機能と相互作用しようとする際に正しく動作しないことがあります。これを解決するには、Everywhereを管理者として実行してください。</value>
+    </data>
+    <data name="Settings_Common_RestartAsAdministrator_Header" xml:space="preserve">
+        <value>管理者として再起動</value>
+    </data>
+    <data name="Settings_Common_RestartAsAdministrator_Button_Content" xml:space="preserve">
+        <value>再起動</value>
+    </data>
+    <data name="Common_Error" xml:space="preserve">
+        <value>エラー</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
+        <value>更新を確認</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
+        <value>現在のバージョン: {0}</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
+        <value>最終確認時刻: </value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
+        <value>リリースノート</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
+        <value>更新する </value>
+    </data>
+    <data name="Common_Unknown" xml:space="preserve">
+        <value>不明</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
+        <value>Everywhereはすでに最新バージョンです。</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
+        <value>新しいバージョン {0} が見つかりました。</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Header" xml:space="preserve">
+        <value>ソフトウェア更新</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Description" xml:space="preserve">
+        <value>更新が利用可能な場合、「更新」をクリックすると、Everywhereが自動的に最新バージョンをダウンロードしてインストールします。プロセス中にポップアップウィンドウで「はい」を選択する必要があるかもしれません。</value>
+    </data>
+    <data name="Settings_Common_IsAutomaticUpdateCheckEnabled_Header" xml:space="preserve">
+        <value>自動更新</value>
+    </data>
+    <data name="Settings_Common_IsAutomaticUpdateCheckEnabled_Description" xml:space="preserve">
+        <value>有効にすると、Everywhereは定期的に更新を確認します（Everywhereが実行中の場合のみで、システムに余分な負荷をかけません）。</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Toast_DownloadingUpdate" xml:space="preserve">
+        <value>アップデートをダウンロード中...</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelId_Header" xml:space="preserve">
+        <value>モデルID</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelId_Description" xml:space="preserve">
+        <value>API呼び出しに使用されるモデル識別子です。例: gpt-4o。わからない場合は、デフォルト値のままにしてください。</value>
+    </data>
+    <data name="ChatPluginPage_Title" xml:space="preserve">
+        <value>チャットプラグイン</value>
+    </data>
+    <data name="ChatPluginPage_Description" xml:space="preserve">
+        <value>チャットプラグインには、組み込みプラグインとMCPプラグインが含まれます。ツール呼び出しをサポートするLLMは、適切なタイミングでこれらのプラグインを使用し（例: ウェブ検索やローカルファイルへのアクセス）、より強力な機能を提供します。</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_Header" xml:space="preserve">
+        <value>ウェブ検索エンジンプロバイダー</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_ApiKey_Header" xml:space="preserve">
+        <value>APIキー</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_ApiKey_Description" xml:space="preserve">
+        <value>対応する公式から取得する必要があります。詳細はガイドを参照してください。</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_SearchEngineId_Header" xml:space="preserve">
+        <value>検索エンジンID</value>
+    </data>
+    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
+        <value>（Googleのみ）プログラム可能な検索エンジンIDを提供します。詳細はガイドを参照してください。</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_Header" xml:space="preserve">
+        <value>ウェブブラウザ</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_Description" xml:space="preserve">
+        <value>検索エンジンやウェブページアクセス機能を提供し、モデルの幻覚を減らし、最新情報を提供します。注意: 「ウェブ検索」ツールを使用するには、検索エンジンAPIキーの設定が必要です（モデルAPIキーとは異なります）。APIキーを設定しない場合は、「ウェブ検索」ツールのチェックを外し、「ウェブブラウザ」ツールのみを使用できます。</value>
+    </data>
+    <data name="NativeChatPlugin_Shell_Header" xml:space="preserve">
+        <value>ターミナル</value>
+    </data>
+    <data name="NativeChatPlugin_Shell_Description" xml:space="preserve">
+        <value>ターミナルでコマンドを実行する機能を提供し、システムとの直接的な対話を可能にし、無限の可能性を提供します。</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_Header" xml:space="preserve">
+        <value>ファイルシステム</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_Description" xml:space="preserve">
+        <value>ファイルへのアクセス機能を提供し、列挙、作成、削除、名前変更、読み取り、書き込みなどが可能です。</value>
+    </data>
+    <data name="NativeChatPlugin_WindowsSystemApi_Header" xml:space="preserve">
+        <value>WindowsシステムAPI</value>
+    </data>
+    <data name="NativeChatPlugin_WindowsSystemApi_Description" xml:space="preserve">
+        <value>アシスタント用のコンパクトなWindows制御面を提供し、コントロールパネルのショートカット、数値およびブール値のシステム設定の更新、コンピュータ使用に適したマウスおよびキーボード操作を含みます。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_InvalidOperation" xml:space="preserve">
+        <value>無効な操作です。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Win32" xml:space="preserve">
+        <value>Windowsシステムエラー。{0}</value>
+    </data>
+    <data name="ChatPluginPage_TabItem_BuiltIn_Header" xml:space="preserve">
+        <value>内蔵</value>
+    </data>
+    <data name="ChatPluginPage_TabItem_Settings_Header" xml:space="preserve">
+        <value>設定</value>
+    </data>
+    <data name="ChatPluginPage_TabItem_Functions_Header" xml:space="preserve">
+        <value>機能</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_Header" xml:space="preserve">
+        <value>ビジュアルツリー</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_Description" xml:space="preserve">
+        <value>画面上のUI要素を認識し操作する機能を提供します。</value>
+    </data>
+    <data name="ChangeLogView_ViewOnGitHubHyperlinkButton_Content" xml:space="preserve">
+        <value>GitHubで見る</value>
+    </data>
+    <data name="ChangeLogView_Header" xml:space="preserve">
+        <value>Everywhereが最新バージョンに更新されました 🎉</value>
+    </data>
+    <data name="ChangeLogView_Content" xml:space="preserve">
+        <value>まだまだ若いので、問題があれば下のリンクからフィードバックをお願いします。進化を続けます！
+また、グループディスカッションに参加するには下のリンクをクリックしてください。さらに多くのソーシャルメディアが構築中ですので、お楽しみに。
+ヒント：「About - What's new」をクリックするとこのメッセージを再度表示できます。</value>
+    </data>
+    <data name="WelcomeView_QQGroupHyperlinkButton_Content" xml:space="preserve">
+        <value>QQグループ</value>
+    </data>
+    <data name="WelcomeView_OfficialDocsHyperlinkButton_Content" xml:space="preserve">
+        <value>公式ドキュメント</value>
+    </data>
+    <data name="AboutPage_WhatsNew" xml:space="preserve">
+        <value>新着情報</value>
+    </data>
+    <data name="WelcomeViewModel_ValidateApiKey_FailedToast_Title" xml:space="preserve">
+        <value>検証に失敗しました</value>
+    </data>
+    <data name="WelcomeView_LetsStartButton_Content" xml:space="preserve">
+        <value>始めましょう！</value>
+    </data>
+    <data name="WelcomeView_SkipButton_Content" xml:space="preserve">
+        <value>スキップ</value>
+    </data>
+    <data name="WelcomeView_PreviousStepButton_Content" xml:space="preserve">
+        <value>前のステップ</value>
+    </data>
+    <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
+        <value>次のステップ</value>
+    </data>
+    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
+        <value>では、ステップ1に進みましょう：「私のための&quot;頭脳&quot;を選ぶ」
+私の知能は強力な大規模言語モデル（LLM）から来ており、以下の専門サービスプロバイダーから提供されています。どれか一つを選んで私を強化してください。</value>
+    </data>
+    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
+        <value>使用中または使用予定のプロバイダーを選択してください。詳細をお知らせします。心配しないでください、Everywhereは独立したクライアントであり、公式に提携しているわけではありません。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
+        <value>OpenAIは、GPTシリーズなどで知られる人気のAIモデルプロバイダーです。公式ウェブサイトで登録し、APIキーを取得できます。対応国と地域のリストを確認してください。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_anthropic_Description" xml:space="preserve">
+        <value>Anthropicは、安全で信頼性のあるAIモデルの開発に注力しており、主力製品はClaudeシリーズです。モデルの詳細とAPIの価格については、公式ウェブサイトをご覧ください。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_google_Description" xml:space="preserve">
+        <value>GoogleはGeminiシリーズのマルチモーダルAIモデルを開発しています。Google AI StudioまたはGoogle Cloud Platformを通じてAPIキーを取得できます。サービスがあなたの地域で利用可能か確認してください。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_deepseek_Description" xml:space="preserve">
+        <value>DeepSeekは一般人工知能に焦点を当てた企業で、コード生成や中国語処理に優れたモデルを提供しています。公式ウェブサイトで登録して始めることができます。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_moonshot_Description" xml:space="preserve">
+        <value>Moonshot AIは長文入力をサポートするKimiインテリジェントアシスタントで知られています。同社はAPIサービスを提供するオープンプラットフォームを提供しています。詳細は公式ウェブサイトをご覧ください。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_openrouter_Description" xml:space="preserve">
+        <value>OpenRouterは、複数のプロバイダー（OpenAI、Anthropic、Googleなど）のさまざまなモデルに単一の統一インターフェースを通じてアクセスできるAPI集約およびルーティングサービスです。これは異なるモデルのテストや比較に非常に便利です（無料モデルを含む）。価格と利用可能なモデルについては、公式ドキュメントを参照してください。</value>
+    </data>
+    <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
+        <value>SiliconFlowは、オープンソースおよび独自モデル（無料モデルを含む）を幅広くサポートする効率的なAI推論プラットフォームです。開発者に柔軟で高性能なモデルのデプロイと推論サービスを提供します。サポートされている具体的なモデルと価格については、公式ウェブサイトをご覧ください。</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
+        <value>素晴らしい！始めるためにAPIキーが必要です。以下のテキストボックスに入力または貼り付けてください。その後、「APIキーを確認」をクリックしてください。</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
+        <value>心配しないでください、あなたのキーは非常に安全です。モデルプロバイダーとの認証にのみ使用され、私はそれを読みません。</value>
+    </data>
+    <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
+        <value>👉 公式ウェブサイト</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message6" xml:space="preserve">
+        <value>ヒント：「About - Welcome Page」をクリックすると、このメッセージを再度開くことができます。</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message5" xml:space="preserve">
+        <value>便利なリンク：</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message3" xml:space="preserve">
+        <value>いつでもどこでも私を呼び出せます。メール、記事、ウェブページなど、現在の作業コンテキストを理解し、より賢く問題を解決するお手伝いをします！</value>
+    </data>
+    <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
+        <value>初めてのご利用の場合、3つの簡単なステップで初期設定を案内します。</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
+        <value>取得方法がわからない場合は、こちらのチュートリアルをご覧ください：</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
+        <value>ささやきヒント：通常「sk-」または「AI」で始まりますので、お見逃しなく！</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
+        <value>👉 クリックして開く</value>
+    </data>
+    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
+        <value>APIキーを確認</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
+        <value>また、モデルを選択するか、デフォルトのままにすることもできます。</value>
+    </data>
+    <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
+        <value>ここにAPIキーを入力...</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+        <value>🎉 確認成功！最後のステップに進みましょう！</value>
+    </data>
+    <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
+        <value>おめでとうございます！すべて完了しました。以下のショートカットキーを使っていつでも私を呼び出せます。</value>
+    </data>
+    <data name="WelcomeView_ShortcutStep_Message2" xml:space="preserve">
+        <value>反応がない場合は、他のソフトウェアが使用している可能性があります。ショートカットキーを変更するにはクリックしてください。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Authentication" xml:space="preserve">
+        <value>認証エラー。</value>
+    </data>
+    <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
+        <value>改善のために、「テレメトリ」を有効にして匿名データを収集する必要があります。このデータは分析のみに使用され、あなたの個人を特定できる情報を含んだり推測したりすることはありません。</value>
+    </data>
+    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
+        <value>必要なデータのみを送信することも選択できます。このオプションは基本機能に影響を与えません。</value>
+    </data>
+    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
+        <value>必要なデータのみ送信</value>
+    </data>
+    <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
+        <value>テレメトリを有効にする</value>
+    </data>
+    <data name="Settings_Common_DiagnosticData_Header" xml:space="preserve">
+        <value>診断データ</value>
+    </data>
+    <data name="Settings_Common_DiagnosticData_Description" xml:space="preserve">
+        <value>改善のために、「テレメトリ」を有効にして匿名データを収集する必要があります。このデータは分析のみに使用され、あなたの個人を特定できる情報を含んだり推測したりすることはありません。必要なデータのみを送信することも選択できます。このオプションは基本機能に影響を与えません。</value>
+    </data>
+    <data name="Settings_ChatWindow_ShowChatStatistics_Header" xml:space="preserve">
+        <value>チャット統計を表示</value>
+    </data>
+    <data name="Settings_ChatWindow_ShowChatStatistics_Description" xml:space="preserve">
+        <value>有効にすると、各会話ラウンドの終わりに使用データがチャットウィンドウに表示されます。</value>
+    </data>
+    <data name="ChatWindow_ChatStatisticsTextBlock_InputTokenCountRun" xml:space="preserve">
+        <value>入力</value>
+    </data>
+    <data name="ChatWindow_ChatStatisticsTextBlock_OutputTokenCountRun" xml:space="preserve">
+        <value>出力</value>
+    </data>
+    <data name="ChatWindow_ChatStatisticsTextBlock_TotalTokenCountRun" xml:space="preserve">
+        <value>合計</value>
+    </data>
+    <data name="ChatWindow_ChatStatisticsTextBlock_ElapsedRun" xml:space="preserve">
+        <value>経過時間</value>
+    </data>
+    <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
+        <value>モデルが正しく構成されていません。モデルプロバイダーまたはIDが欠落しているか、間違っている可能性があります。</value>
+    </data>
+    <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
+        <value>APIキーが欠落しているか無効です。</value>
+    </data>
+    <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
+        <value>API使用量の上限を超えたか、現在のモデルにアクセスする権限がありません。</value>
+    </data>
+    <data name="HandledChatException_RateLimit" xml:space="preserve">
+        <value>レート制限を超えました。後でもう一度お試しください。</value>
+    </data>
+    <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
+        <value>サービスエンドポイントに到達できません。ネットワーク接続を確認してください。</value>
+    </data>
+    <data name="HandledChatException_InvalidEndpoint" xml:space="preserve">
+        <value>提供されたサービスエンドポイントが無効です。</value>
+    </data>
+    <data name="HandledChatException_EmptyResponse" xml:space="preserve">
+        <value>サービスから空の応答が返されました。ネットワークまたはサービスの問題を示している可能性があります。</value>
+    </data>
+    <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
+        <value>選択したモデルは要求された機能をサポートしていません。</value>
+    </data>
+    <data name="HandledChatException_Timeout" xml:space="preserve">
+        <value>サービスへのリクエストがタイムアウトしました。もう一度お試しください。</value>
+    </data>
+    <data name="HandledChatException_NetworkError" xml:space="preserve">
+        <value>ネットワークエラーが発生しました。接続を確認してもう一度お試しください。</value>
+    </data>
+    <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
+        <value>サービスは現在利用できません。後でもう一度お試しください。</value>
+    </data>
+    <data name="HandledChatException_Unknown" xml:space="preserve">
+        <value>不明なエラーが発生しました。</value>
+    </data>
+    <data name="KernelMixinFactory_UnsupportedModelProviderSchema" xml:space="preserve">
+        <value>サポートされていないモデルプロバイダーAPIスキーマです。</value>
+    </data>
+    <data name="ChatWindowViewModel_QuickActions_Solve" xml:space="preserve">
+        <value>解決</value>
+    </data>
+    <data name="Settings_ChatWindow_AutomaticallyAddElement_Header" xml:space="preserve">
+        <value>要素を自動追加</value>
+    </data>
+    <data name="Settings_ChatWindow_AutomaticallyAddElement_Description" xml:space="preserve">
+        <value>有効にすると、チャットウィンドウを開く際にフォーカスされた要素を自動的に添付します。</value>
+    </data>
+    <data name="Settings_ChatWindow_AllowRunInBackground_Header" xml:space="preserve">
+        <value>バックグラウンドでの実行を許可</value>
+    </data>
+    <data name="Settings_ChatWindow_AllowRunInBackground_Description" xml:space="preserve">
+        <value>有効にすると、チャットウィンドウを閉じても現在のタスクは終了しません。</value>
+    </data>
+    <data name="HandledChatException_OperationCancelled" xml:space="preserve">
+        <value>操作がキャンセルされました。</value>
+    </data>
+    <data name="ChatPluginPage_SelectToViewDetails" xml:space="preserve">
+        <value>左の項目を選択して詳細を表示</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Toast_UpdateFailed_Content" xml:space="preserve">
+        <value>更新に失敗しました。</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content" xml:space="preserve">
+        <value>更新の確認に失敗しました。</value>
+    </data>
+    <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
+        <value>更新に失敗しました。</value>
+    </data>
+    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
+        <value>設定</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
+        <value>ビジュアルツリーの長さ制限：</value>
+    </data>
+    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
+        <value>ビジュアルツリーの詳細レベル：</value>
+    </data>
+    <data name="SoftwareUpdater_UpdateAvailable_Toast_Message" xml:space="preserve">
+        <value>アップデートが利用可能です。</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_Assistant_DeepThinking" xml:space="preserve">
+        <value>深く考えています</value>
+    </data>
+    <data name="ChatFunctionPermissions_ScreenRead" xml:space="preserve">
+        <value>画面を読む</value>
+    </data>
+    <data name="ChatFunctionPermissions_ScreenAccess" xml:space="preserve">
+        <value>画面にアクセス</value>
+    </data>
+    <data name="ChatFunctionPermissions_NetworkAccess" xml:space="preserve">
+        <value>ネットワークにアクセス</value>
+    </data>
+    <data name="ChatFunctionPermissions_ClipboardRead" xml:space="preserve">
+        <value>クリップボードを読む</value>
+    </data>
+    <data name="ChatFunctionPermissions_ClipboardAccess" xml:space="preserve">
+        <value>クリップボードにアクセス</value>
+    </data>
+    <data name="ChatFunctionPermissions_FileRead" xml:space="preserve">
+        <value>ファイルを読む</value>
+    </data>
+    <data name="ChatFunctionPermissions_FileAccess" xml:space="preserve">
+        <value>ファイルにアクセス</value>
+    </data>
+    <data name="ChatFunctionPermissions_ShellExecute" xml:space="preserve">
+        <value>シェルスクリプトを実行</value>
+    </data>
+    <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
+        <value>コンテキストの長さが超過しました。</value>
+    </data>
+    <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
+        <value>プロセスにアクセス</value>
+    </data>
+    <data name="CustomAssistant_Name_Default" xml:space="preserve">
+        <value>デフォルトアシスタント</value>
+    </data>
+    <data name="CustomAssistantPage_Title" xml:space="preserve">
+        <value>AIアシスタント</value>
+    </data>
+    <data name="CustomAssistantPage_CreateNewCustomAssistantButton_Content" xml:space="preserve">
+        <value>作成</value>
+    </data>
+    <data name="Settings_CustomAssistant_Name_Header" xml:space="preserve">
+        <value>名前</value>
+    </data>
+    <data name="Settings_CustomAssistant_Name_Description" xml:space="preserve">
+        <value>アシスタントの名前を指定します。表示と区別のためにのみ使用されます。</value>
+    </data>
+    <data name="Settings_CustomAssistant_Description_Header" xml:space="preserve">
+        <value>説明</value>
+    </data>
+    <data name="Settings_CustomAssistant_Description_Description" xml:space="preserve">
+        <value>アシスタントの説明を指定します。表示と区別のためにのみ使用されます。</value>
+    </data>
+    <data name="Settings_CustomAssistant_SystemPrompt_Description" xml:space="preserve">
+        <value>システムプロンプトは、会話の開始時にデフォルトでモデルに送信されます。よく作成されたプロンプトには、紹介、タスクの説明、コンテキスト情報が含まれます。
+プロンプト内に{}で囲まれたプレースホルダーを使用でき、モデルに送信される前に対応する内容に置き換えられます。</value>
+    </data>
+    <data name="Settings_CustomAssistant_SystemPrompt_Header" xml:space="preserve">
+        <value>システムプロンプト</value>
+    </data>
+    <data name="CustomAssistantPage_DeleteCustomAssistantButton_Content" xml:space="preserve">
+        <value>削除</value>
+    </data>
+    <data name="Common_Warning" xml:space="preserve">
+        <value>警告</value>
+    </data>
+    <data name="CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message" xml:space="preserve">
+        <value>&quot;{0}&quot;を削除してもよろしいですか？</value>
+    </data>
+    <data name="Common_Yes" xml:space="preserve">
+        <value>はい</value>
+    </data>
+    <data name="Common_No" xml:space="preserve">
+        <value>いいえ</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
+        <value>モデルプロバイダーテンプレート</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
+        <value>モデル定義テンプレート</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
+        <value>モデルID、画像入力サポート、ツール使用サポートなどのオプションのデフォルト値を自動的に設定するテンプレートを選択します。リセットボタンをクリックすると、未定義の設定に戻ります。</value>
+    </data>
+    <data name="Settings_CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
+        <value>API呼び出しアドレスやAPIモードなどのオプションのデフォルト値を自動的に設定するテンプレートを選択します。リセットボタンをクリックすると、未定義の設定に戻ります。</value>
+    </data>
+    <data name="HandledSystemException_IOException" xml:space="preserve">
+        <value>一般的なI/Oエラーが発生しました。これはファイルの読み書きに問題がある可能性があります。</value>
+    </data>
+    <data name="HandledSystemException_UnauthorizedAccess" xml:space="preserve">
+        <value>必要なリソースへのアクセスが拒否されました。ファイルの権限を確認するか、管理者としてアプリケーションを実行してください。</value>
+    </data>
+    <data name="HandledSystemException_PathTooLong" xml:space="preserve">
+        <value>指定されたファイルまたはディレクトリのパスが長すぎます。短いパスを試してください。</value>
+    </data>
+    <data name="HandledSystemException_OperationCancelled" xml:space="preserve">
+        <value>操作がキャンセルされました。</value>
+    </data>
+    <data name="HandledSystemException_Timeout" xml:space="preserve">
+        <value>操作がタイムアウトしました。システムのパフォーマンスを確認して再試行してください。</value>
+    </data>
+    <data name="HandledSystemException_FileNotFound" xml:space="preserve">
+        <value>指定されたファイルが見つかりません。ファイルが存在し、パスが正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_DirectoryNotFound" xml:space="preserve">
+        <value>指定されたディレクトリが見つかりません。ディレクトリが存在し、パスが正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_NotSupported" xml:space="preserve">
+        <value>要求された操作はシステムでサポートされていません。</value>
+    </data>
+    <data name="HandledSystemException_Security" xml:space="preserve">
+        <value>セキュリティエラーが発生しました。アプリケーションに必要な権限がない可能性があります。</value>
+    </data>
+    <data name="HandledSystemException_COMException" xml:space="preserve">
+        <value>システムコンポーネント（COM）エラーが発生しました。これはOSまたは依存関係に問題があることを示している可能性があります。</value>
+    </data>
+    <data name="HandledSystemException_Win32Exception" xml:space="preserve">
+        <value>Windowsシステムエラーが発生しました。詳細についてはアプリケーションログを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_Socket" xml:space="preserve">
+        <value>ネットワークソケットエラーが発生しました。ネットワーク接続とファイアウォール設定を確認してください。</value>
+    </data>
+    <data name="HandledSystemException_OutOfMemory" xml:space="preserve">
+        <value>アプリケーションのメモリが不足しています。他のプログラムを閉じて、もう一度お試しください。</value>
+    </data>
+    <data name="HandledSystemException_DriveNotFound" xml:space="preserve">
+        <value>指定されたドライブが見つかりません。ドライブが接続されていることを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_EndOfStream" xml:space="preserve">
+        <value>データストリームの予期しない終わりに達しました。これはファイルの破損やネットワークの問題を示している可能性があります。</value>
+    </data>
+    <data name="HandledSystemException_InvalidData" xml:space="preserve">
+        <value>処理中のデータが無効または破損しています。ソースファイルまたはデータを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_Unknown" xml:space="preserve">
+        <value>予期しないシステムエラーが発生しました。もう一度試すか、アプリケーションログを確認してください。</value>
+    </data>
+    <data name="CustomAssistantPage_CheckConnectivityButton_Content" xml:space="preserve">
+        <value>接続を確認</value>
+    </data>
+    <data name="CustomAssistantPageViewModel_CheckConnectivity_SuccessToast_Title" xml:space="preserve">
+        <value>確認成功</value>
+    </data>
+    <data name="CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title" xml:space="preserve">
+        <value>確認失敗</value>
+    </data>
+    <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
+        <value>アシスタントを選択</value>
+    </data>
+    <data name="Settings_CustomAssistant_Icon_Description" xml:space="preserve">
+        <value>アシスタントアイコンをカスタマイズするにはクリックしてください。</value>
+    </data>
+    <data name="Settings_CustomAssistant_Icon_Header" xml:space="preserve">
+        <value>アイコン</value>
+    </data>
+    <data name="IconEditor_BackgroundTabItem_Header" xml:space="preserve">
+        <value>背景</value>
+    </data>
+    <data name="IconEditor_ForegroundTabItem_Header" xml:space="preserve">
+        <value>前景</value>
+    </data>
+    <data name="IconEditor_IconTabItem_Header" xml:space="preserve">
+        <value>アイコン</value>
+    </data>
+    <data name="HandledSystemException_InvalidOperation" xml:space="preserve">
+        <value>操作が無効です。設定が正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_InvalidArgument" xml:space="preserve">
+        <value>引数が無効です。設定が正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_InvalidFormat" xml:space="preserve">
+        <value>形式が無効です。設定が正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_ArgumentNull" xml:space="preserve">
+        <value>引数が空です。設定が正しいことを確認してください。</value>
+    </data>
+    <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
+        <value>引数が有効な範囲外です。設定が正しいことを確認してください。</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
+        <value>Everything</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_Description" xml:space="preserve">
+        <value>Everything（高性能なローカルファイル検索エンジン）を使用して、コンピュータ上のファイルを検索します。</value>
+    </data>
+    <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
+        <value>モデルサービスの利用可能性を確認します。</value>
+    </data>
+    <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>AIアシスタントの新しい設定を開始します。</value>
+    </data>
+    <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>選択したアシスタントを完全に削除します。</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_CopyMenuItem_Header" xml:space="preserve">
+        <value>コピー</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+        <value>切り取り</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+        <value>貼り付け</value>
+    </data>
+    <data name="Common_OK" xml:space="preserve">
+        <value>OK</value>
+    </data>
+    <data name="Common_Cancel" xml:space="preserve">
+        <value>キャンセル</value>
+    </data>
+    <data name="Common_Abort" xml:space="preserve">
+        <value>中止</value>
+    </data>
+    <data name="Common_Retry" xml:space="preserve">
+        <value>再試行</value>
+    </data>
+    <data name="Common_Ignore" xml:space="preserve">
+        <value>無視</value>
+    </data>
+    <data name="ConsentDecision_Deny" xml:space="preserve">
+        <value>拒否</value>
+    </data>
+    <data name="ConsentDecision_AllowOnce" xml:space="preserve">
+        <value>一度だけ許可</value>
+    </data>
+    <data name="ConsentDecision_AllowSession" xml:space="preserve">
+        <value>セッション中許可</value>
+    </data>
+    <data name="ConsentDecision_AlwaysAllow" xml:space="preserve">
+        <value>常に許可</value>
+    </data>
+    <data name="TextDifferenceEditor_AcceptButton_Content" xml:space="preserve">
+        <value>承認</value>
+    </data>
+    <data name="TextDifferenceEditor_RevertButton_Content" xml:space="preserve">
+        <value>元に戻す</value>
+    </data>
+    <data name="TextDifferenceSummaryView_AddedLineCountTextRun_Text" xml:space="preserve">
+        <value> 行追加</value>
+    </data>
+    <data name="TextDifferenceSummaryView_RemovedLineCountTextRun_Text" xml:space="preserve">
+        <value> 行削除</value>
+    </data>
+    <data name="TextDifferenceSummaryView_AcceptAllButton_Content" xml:space="preserve">
+        <value>すべて承認</value>
+    </data>
+    <data name="TextDifferenceSummaryView_EditButton_Content" xml:space="preserve">
+        <value>編集</value>
+    </data>
+    <data name="TextDifferenceSummaryView_DiscardAllButton_Content" xml:space="preserve">
+        <value>すべて破棄</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
+        <value>{0} 個のファイルまたはフォルダが削除されます</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
+        <value>システムファイルまたはディレクトリが削除されます</value>
+    </data>
+    <data name="TextDifferenceEditor_DiscardButton_Content" xml:space="preserve">
+        <value>破棄</value>
+    </data>
+    <data name="ChatPluginConsentRequest_Common_Header" xml:space="preserve">
+        <value>「{0}」に{1}の権限を与えますか？</value>
+    </data>
+    <data name="Common_Comma" xml:space="preserve">
+        <value>、</value>
+    </data>
+    <data name="ChatWindow_ScrollToBottom_ToolTip" xml:space="preserve">
+        <value>一番下までスクロール</value>
+    </data>
+    <data name="ChatContext_Temporary" xml:space="preserve">
+        <value>一時チャット</value>
+    </data>
+    <data name="TemporaryChatMode_Never" xml:space="preserve">
+        <value>しない</value>
+    </data>
+    <data name="TemporaryChatMode_RememberLast" xml:space="preserve">
+        <value>最後を記憶</value>
+    </data>
+    <data name="TemporaryChatMode_Always" xml:space="preserve">
+        <value>常に</value>
+    </data>
+    <data name="Settings_ChatWindow_TemporaryChatMode_Header" xml:space="preserve">
+        <value>一時チャットモード</value>
+    </data>
+    <data name="Settings_ChatWindow_TemporaryChatMode_Description" xml:space="preserve">
+        <value>新しいチャットを作成する際に一時チャットを使用するかどうか。</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
+        <value>ファイルを検索</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
+        <value>ファイル情報を取得</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
+        <value>ファイル内容を検索</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
+        <value>ファイルを読む</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
+        <value>ファイルを移動または名前変更</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
+        <value>ファイルを削除</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
+        <value>ディレクトリを作成</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
+        <value>ファイルに書き込む</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
+        <value>ファイル内容を編集</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
+        <value>検索中: {0}</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
+        <value>ウェブ検索</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_FileReferences_TotalCountTextBlock_Text" xml:space="preserve">
+        <value>{0} ファイルまたはフォルダ</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_FileReferences_HasMoreReferencesTextBlock_Text" xml:space="preserve">
+        <value>など</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
+        <value>ウェブページを訪問</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
+        <value>{0} を訪問中</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
+        <value>{0} URL</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
+        <value>次のターミナルスクリプトが実行されます</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
+        <value>UI要素をキャプチャ</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
+        <value>全画面をキャプチャ</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
+        <value>UI要素を操作</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
+        <value>Everythingでファイルを検索</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
+        <value>スクリプトを実行</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
+        <value>ドキュメント</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles" xml:space="preserve">
+        <value>サポートされているファイル</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
+        <value>画像</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
+        <value>すべてのファイル</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
+        <value>トピック</value>
+    </data>
+    <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
+        <value>日付</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_RenameMenuItem_Header" xml:space="preserve">
+        <value>チャットの名前を変更</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
+        <value>チャットを削除</value>
+    </data>
+    <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
+        <value>Türkçe</value>
+    </data>
+    <data name="ChatContextManager_LoadChatContextFailedToast_Content" xml:space="preserve">
+        <value>チャットの読み込みに失敗しました: {0}</value>
+    </data>
+    <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
+        <value>すべて表示</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_DeleteSelectedMenuItem_Header" xml:space="preserve">
+        <value>選択したものを削除</value>
+    </data>
+    <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
+        <value>戻る</value>
+    </data>
+    <data name="Settings_Common_Proxy_Header" xml:space="preserve">
+        <value>プロキシ</value>
+    </data>
+    <data name="Settings_Common_Proxy_Description" xml:space="preserve">
+        <value>ネットワークプロキシの設定。</value>
     </data>
 </root>

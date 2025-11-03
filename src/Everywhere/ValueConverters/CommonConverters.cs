@@ -12,35 +12,27 @@ public static class CommonConverters
     );
 
     public static IValueConverter StringToUri { get; } = new BidirectionalFuncValueConverter<string?, Uri?>(
-        convert: (x, _) => x == null ? null : new Uri(x, UriKind.RelativeOrAbsolute),
+        convert: (x, _) => Uri.TryCreate(x, UriKind.RelativeOrAbsolute, out var uri) ? uri : null,
         convertBack: (x, _) => x?.ToString()
     );
 
-    public static IValueConverter DateTimeOffsetToString { get; } = new DateTimeOffsetToStringConverter();
+    public static IValueConverter DateTimeOffsetToString { get; } = new BidirectionalFuncValueConverter<DateTimeOffset, string>(
+            convert: (x, p) => x.DateTime.ToLocalTime().ToString(p?.ToString()),
+            convertBack: (x, p) => DateTimeOffset.ParseExact(x, p?.ToString() ?? "o", null)
+        );
+
+    public static IValueConverter FullPathToFileName { get; } = new FuncValueConverter<string, string?>(
+        convert: x => Path.GetFileName(x) is { Length: > 0 } fileName ? fileName : x // return original if no file name found (e.g. Path root)
+    );
 
     public static IMultiValueConverter DefaultMultiValue { get; } = new DefaultMultiValueConverter();
 
     public static IMultiValueConverter AllEquals { get; } = new AllEqualsConverter();
 
-    public static IMultiValueConverter FirstNonNull { get; } = new FirstNonNullConverter();
-
-    private class DateTimeOffsetToStringConverter : IValueConverter
-    {
-        public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value is DateTimeOffset dateTimeOffset)
-            {
-                return dateTimeOffset.DateTime.ToLocalTime().ToString(parameter?.ToString());
-            }
-
-            return null;
-        }
-
-        public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
-    }
+    /// <summary>
+    /// Returns the first non-null and non-UnsetValue value from the input values.
+    /// </summary>
+    public static IMultiValueConverter FirstNotNull { get; } = new FirstNonNullConverter();
 
     private class DefaultMultiValueConverter : IMultiValueConverter
     {

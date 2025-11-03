@@ -42,7 +42,7 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
             throw new InvalidOperationException("WatchdogManager is already initialized.");
         }
 
-        var pipeName = $"Everywhere.Watchdog-{Guid.NewGuid()}";
+        var pipeName = $"Everywhere.Watchdog-{Guid.CreateVersion7().ToString()[..8]}";
         _serverStream = new NamedPipeServerStream(
             pipeName,
             PipeDirection.Out, // The host application only sends commands.
@@ -52,18 +52,21 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
 
         // 1. Start the Watchdog process.
         _logger.LogDebug("Launching Watchdog process with pipe name: {PipeName}", pipeName);
-
-        // Choose the correct executable name for the current platform.
-        var watchdogExeName = GetWatchdogExecutableName();
-
-        _watchdogProcess = Process.Start(new ProcessStartInfo
-        {
-            FileName = watchdogExeName,
-            Arguments = pipeName,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        });
+        _watchdogProcess = Process.Start(
+            new ProcessStartInfo
+            {
+#if MACOS
+                FileName = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../Resources/Everywhere.Watchdog")),
+#elif WINDOWS
+                FileName = "Everywhere.Watchdog.exe",
+#else
+                FileName = "Everywhere.Watchdog",
+#endif
+                Arguments = pipeName,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+            });
         if (_watchdogProcess is null)
         {
             _logger.LogError("Watchdog process could not be started.");
@@ -95,24 +98,6 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
             _watchdogProcess.BeginOutputReadLine();
             _watchdogProcess.BeginErrorReadLine();
         }
-    }
-
-    private static string GetWatchdogExecutableName()
-    {
-        // On Windows the watchdog binary has .exe suffix; on Unix-like systems it is a native ELF binary without .exe.
-        try
-        {
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-            {
-                return "Everywhere.Watchdog.exe";
-            }
-        }
-        catch
-        {
-            // If RuntimeInformation is not available for some reason, fall through to default.
-        }
-
-        return "Everywhere.Watchdog";
     }
 
     /// <summary>

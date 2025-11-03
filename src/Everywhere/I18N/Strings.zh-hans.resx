@@ -1,4 +1,6 @@
-﻿<root>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simplified Chinese (简体中文) -->
+<root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -11,14 +13,17 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="SettingsCategory_Common_Header" xml:space="preserve">
-        <value>通用设置</value>
-    </data>
     <data name="SettingsPage_Saved_Toast_Title" xml:space="preserve">
         <value>设置已保存</value>
     </data>
     <data name="Settings_Common_Language_Header" xml:space="preserve">
         <value>语言</value>
+    </data>
+    <data name="SettingsCategory_Common_Header" xml:space="preserve">
+        <value>通用设置</value>
+    </data>
+    <data name="SettingsCategory_Network_Header" xml:space="preserve">
+        <value>网络设置</value>
     </data>
     <data name="Settings_Common_Language_Description" xml:space="preserve">
         <value>选择软件界面语言。</value>
@@ -41,14 +46,56 @@
     <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
         <value>浅色</value>
     </data>
+    <data name="Settings_Common_Proxy_IsEnabled_Header" xml:space="preserve">
+        <value>使用自定义代理</value>
+    </data>
+    <data name="Settings_Common_Proxy_IsEnabled_Description" xml:space="preserve">
+        <value>为应用指定专用代理，覆盖系统代理设置。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Endpoint_Header" xml:space="preserve">
+        <value>代理服务器</value>
+    </data>
+    <data name="Settings_Common_Proxy_Address_Description" xml:space="preserve">
+        <value>输入代理地址，例如 http://127.0.0.1:7890。</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassOnLocal_Header" xml:space="preserve">
+        <value>对本地地址不使用代理</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassOnLocal_Description" xml:space="preserve">
+        <value>访问内网或回环地址时直接连接。</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassList_Header" xml:space="preserve">
+        <value>跳过列表</value>
+    </data>
+    <data name="Settings_Common_Proxy_BypassList_Description" xml:space="preserve">
+        <value>可选。每行一个匹配模式，命中的请求将跳过代理。</value>
+    </data>
+    <data name="Settings_Common_Proxy_UseAuthentication_Header" xml:space="preserve">
+        <value>代理认证</value>
+    </data>
+    <data name="Settings_Common_Proxy_UseAuthentication_Description" xml:space="preserve">
+        <value>当代理需要认证时启用凭据。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Username_Header" xml:space="preserve">
+        <value>用户名</value>
+    </data>
+    <data name="Settings_Common_Proxy_Username_Description" xml:space="preserve">
+        <value>代理服务器的用户名。</value>
+    </data>
+    <data name="Settings_Common_Proxy_Password_Header" xml:space="preserve">
+        <value>密码</value>
+    </data>
+    <data name="Settings_Common_Proxy_Password_Description" xml:space="preserve">
+        <value>代理服务器的密码。</value>
+    </data>
     <data name="SettingsCategory_ChatWindow_Header" xml:space="preserve">
         <value>聊天窗口设置</value>
     </data>
-    <data name="Settings_ChatWindow_Hotkey_Header" xml:space="preserve">
+    <data name="Settings_ChatWindow_Shortcut_Header" xml:space="preserve">
         <value>快捷键</value>
     </data>
-    <data name="Settings_ChatWindow_Hotkey_Description" xml:space="preserve">
-        <value>设置一个快捷键，在任何时候按下即可唤出聊天悬浮窗。</value>
+    <data name="Settings_ChatWindow_Shortcut_Description" xml:space="preserve">
+        <value>设置一个快捷键，在任何时候按下即可唤出聊天窗口。</value>
     </data>
     <data name="SettingsCategory_Model_Header" xml:space="preserve">
         <value>AI 设置</value>
@@ -80,6 +127,9 @@
     <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
         <value>博查</value>
     </data>
+    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
+        <value>Jina</value>
+    </data>
     <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>API 调用地址</value>
     </data>
@@ -90,7 +140,7 @@
         <value>向 Everywhere 提问，或是随便聊聊</value>
     </data>
     <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
-        <value>添加附件到对话</value>
+        <value>添加附件到当前对话</value>
     </data>
     <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>添加附件</value>
@@ -158,8 +208,8 @@
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
         <value>选择元素</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_ClipboardContent" xml:space="preserve">
-        <value>剪切板内容</value>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+        <value>从剪贴板复制</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
         <value>附加文件</value>
@@ -176,11 +226,14 @@
     <data name="ChatWindow_Title" xml:space="preserve">
         <value>有什么可以帮忙的？</value>
     </data>
-    <data name="KeyboardHotkeyInputBox_Watermark" xml:space="preserve">
+    <data name="KeyboardShortcutInputBox_Watermark" xml:space="preserve">
         <value>点击设置快捷键</value>
     </data>
-    <data name="ChatContext_Metadata_Title_Default" xml:space="preserve">
-        <value>未命名会话</value>
+    <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
+        <value>设置中</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
+        <value>未命名对话</value>
     </data>
     <data name="ChatAttachment_RemoveButton_ToolTip" xml:space="preserve">
         <value>移除</value>
@@ -337,8 +390,10 @@
     </data>
     <data name="FriendlyExceptionMessage_Socket_0" xml:space="preserve">
         <value>未知错误，请稍后再试。</value>
-    </data><data name="FriendlyExceptionMessage_Aggregate" xml:space="preserve">
-        <value>发生一个或多个错误。</value>
+    </data>
+    <data name="FriendlyExceptionMessage_Aggregate" xml:space="preserve">
+        <value>发生一个或多个错误。
+{0}</value>
     </data>
     <data name="FriendlyExceptionMessage_TaskCanceled" xml:space="preserve">
         <value>任务已取消。</value>
@@ -357,9 +412,6 @@
     </data>
     <data name="FriendlyExceptionMessage_Argument" xml:space="preserve">
         <value>参数错误。</value>
-    </data>
-    <data name="Settings_Common_Theme_Header" xml:space="preserve">
-        <value>主题</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_de" xml:space="preserve">
         <value>Deutsch</value>
@@ -381,6 +433,9 @@
     </data>
     <data name="SettingsSelectionItem_Common_Language_ru" xml:space="preserve">
         <value>Русский</value>
+    </data>
+    <data name="Settings_Common_Theme_Header" xml:space="preserve">
+        <value>主题</value>
     </data>
     <data name="SettingsSelectionItem_Common_Language_zh-hant" xml:space="preserve">
         <value>中文 (繁體)</value>
@@ -421,12 +476,6 @@
     <data name="AboutPage_WelcomePage" xml:space="preserve">
         <value>欢迎页</value>
     </data>
-    <data name="WelcomeView_QQGroupHyperlinkButton_Content" xml:space="preserve">
-        <value>QQ 群</value>
-    </data>
-    <data name="WelcomeView_OfficialDocsHyperlinkButton_Content" xml:space="preserve">
-        <value>官方文档</value>
-    </data>
     <data name="WelcomeView_IntroStep_Message1" xml:space="preserve">
         <value>👋 欢迎来到 Everywhere</value>
     </data>
@@ -460,17 +509,17 @@
     <data name="ChatWindowPinMode_AlwaysUnpinned" xml:space="preserve">
         <value>总是不固定</value>
     </data>
-    <data name="VisualTreeXmlDetailLevel_Detailed" xml:space="preserve">
-        <value>详细</value>
-    </data>
-    <data name="VisualTreeXmlDetailLevel_Compact" xml:space="preserve">
-        <value>精简</value>
-    </data>
-    <data name="VisualTreeXmlDetailLevel_Minimal" xml:space="preserve">
-        <value>极简</value>
-    </data>
     <data name="ChatWindowPinMode_PinOnInput" xml:space="preserve">
         <value>输入时固定</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Detailed" xml:space="preserve">
+        <value>详细</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Compact" xml:space="preserve">
+        <value>精简</value>
+    </data>
+    <data name="VisualTreeDetailLevel_Minimal" xml:space="preserve">
+        <value>极简</value>
     </data>
     <data name="Settings_ChatWindow_WindowPinMode_Header" xml:space="preserve">
         <value>窗口固定模式</value>
@@ -487,11 +536,11 @@
     <data name="FriendlyExceptionMessage_ClientResult" xml:space="preserve">
         <value>客户端错误。</value>
     </data>
-    <data name="Settings_CustomAssistant_PresencePenalty_Description" xml:space="preserve">
-        <value>值越大，越倾向不同的表达方式，避免概念重复；值越小，越倾向使用重复的概念或叙述，表达更具一致性。该设置仅对部分模型有效，如果遇到错误，请尝试还原默认值。</value>
-    </data>
     <data name="Settings_CustomAssistant_PresencePenalty_Header" xml:space="preserve">
         <value>表述发散度 (presence_penalty)</value>
+    </data>
+    <data name="Settings_CustomAssistant_PresencePenalty_Description" xml:space="preserve">
+        <value>值越大，越倾向不同的表达方式，避免概念重复；值越小，越倾向使用重复的概念或叙述，表达更具一致性。该设置仅对部分模型有效，如果遇到错误，请尝试还原默认值。</value>
     </data>
     <data name="Settings_CustomAssistant_FrequencyPenalty_Header" xml:space="preserve">
         <value>词汇丰富度 (frequency_penalty)</value>
@@ -523,11 +572,11 @@
     <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>模型会在聊天上下文中使用你配置的工具。如果你不确定这是什么，请保持默认值。如果模型不支持，开启此选项可能会导致调用失败。</value>
     </data>
-    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
-        <value>支持深度思考</value>
-    </data>
     <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
         <value>模型会先思考再回答。如果你不确定这是什么，请保持默认值。如果模型不支持，开启此选项可能会导致调用失败。</value>
+    </data>
+    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
+        <value>支持深度思考</value>
     </data>
     <data name="Settings_CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>单个对话的最大上下文长度。如果你不确定在做什么，请保持默认值。设为大于默认值可能导致调用失败。</value>
@@ -535,8 +584,8 @@
     <data name="Settings_CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>最大上下文长度 (max_tokens)</value>
     </data>
-    <data name="SettingsPage_RestoreDefault_Button_ToolTip" xml:space="preserve">
-        <value>恢复默认</value>
+    <data name="SettingsPage_Reset_Button_ToolTip" xml:space="preserve">
+        <value>重置</value>
     </data>
     <data name="Settings_CustomAssistant_Schema_Header" xml:space="preserve">
         <value>API 模式</value>
@@ -556,17 +605,20 @@
     <data name="Settings_Common_IsAdministratorStartupEnabled_Description" xml:space="preserve">
         <value>Everywhere 会以管理员方式自启动。只有在管理员模式下才能开关当前选项。</value>
     </data>
-    <data name="Settings_Common_RestartAsAdministrator_Header" xml:space="preserve">
-        <value>以管理员身份重启</value>
-    </data>
     <data name="Settings_Common_RestartAsAdministrator_Description" xml:space="preserve">
         <value>由于操作系统限制，当以管理员身份运行任何应用程序（提升权限）时，如果提升权限的应用程序处于活动状态或试图与 Everywhere 的某个功能（如“选择元素”）交互，Everywhere 可能无法正常工作。可以通过以管理员身份运行 Everywhere 来解决此问题。</value>
+    </data>
+    <data name="Settings_Common_RestartAsAdministrator_Header" xml:space="preserve">
+        <value>以管理员身份重启</value>
     </data>
     <data name="Settings_Common_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>重启</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
         <value>错误</value>
+    </data>
+    <data name="Settings_Common_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
+        <value>检查更新</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
         <value>当前版本: {0}</value>
@@ -576,9 +628,6 @@
     </data>
     <data name="Settings_Common_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
         <value>发布说明</value>
-    </data>
-    <data name="Settings_Common_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>检查更新</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
         <value>更新到 </value>
@@ -634,11 +683,11 @@
     <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
         <value>(Google 专用) 提供可编程搜索引擎 ID，详情请参考指南。</value>
     </data>
-    <data name="NativeChatPlugin_WebSearchEngine_Header" xml:space="preserve">
-        <value>网络搜索</value>
+    <data name="NativeChatPlugin_WebBrowser_Header" xml:space="preserve">
+        <value>网络浏览器</value>
     </data>
-    <data name="NativeChatPlugin_WebSearchEngine_Description" xml:space="preserve">
-        <value>提供网络搜索能力，先搜索后回答，可减少大语言模型幻觉，并提供最新信息。注意：使用 web_search 工具需要配置搜索引擎 API 密钥（和大模型 API 密钥是不同的）。如果你不打算配置 API 密钥，可是取消勾选 web_search 工具，仅使用 web_snapshot 工具。</value>
+    <data name="NativeChatPlugin_WebBrowser_Description" xml:space="preserve">
+        <value>提供浏览网络的能力，包括搜索引擎和网页访问功能，可减少模型幻觉，并提供最新信息。注意：使用“网络搜索”工具需要配置搜索引擎 API 密钥（和模型 API 密钥是不同的）。如果你不打算配置 API 密钥，可取消勾选“网络搜索”工具，仅使用“访问网页”工具。</value>
     </data>
     <data name="NativeChatPlugin_Shell_Header" xml:space="preserve">
         <value>终端</value>
@@ -677,7 +726,7 @@
         <value>视觉树</value>
     </data>
     <data name="NativeChatPlugin_VisualTree_Description" xml:space="preserve">
-        <value>提供屏幕内元素的感知能力。</value>
+        <value>提供屏幕内 UI 元素的感知和操作能力。</value>
     </data>
     <data name="ChangeLogView_ViewOnGitHubHyperlinkButton_Content" xml:space="preserve">
         <value>访问 GitHub</value>
@@ -689,6 +738,12 @@
         <value>目前我还刚诞生不久，如果遇到问题，欢迎点击下方链接反馈，我会不断进化的！
 也欢迎点击下方链接进入群组讨论，更多的社交媒体正在建设中，敬请期待。
 提示：你可点击“关于 - 最新变化”重新打开此消息。</value>
+    </data>
+    <data name="WelcomeView_QQGroupHyperlinkButton_Content" xml:space="preserve">
+        <value>QQ 群</value>
+    </data>
+    <data name="WelcomeView_OfficialDocsHyperlinkButton_Content" xml:space="preserve">
+        <value>官方文档</value>
     </data>
     <data name="AboutPage_WhatsNew" xml:space="preserve">
         <value>最新变化</value>
@@ -736,6 +791,12 @@
     <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
         <value>SiliconFlow 是一个国产的高效 AI 推理平台，支持运行多种开源或专有模型（包括免费模型）。它为开发者提供了灵活、高性能的模型部署和推理服务。具体支持的模型和定价策略请访问其官网。</value>
     </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
+        <value>非常好！现在我们需要一个 API 密钥才能开始使用，请将其输入或粘贴到下面的文本框内，之后点击“验证秘钥有消息。</value>
+    </data>
+    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
+        <value>别担心，你的密钥非常安全，它仅用于和模型提供商认证，我不会读取。</value>
+    </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 官方网站</value>
     </data>
@@ -750,12 +811,6 @@
     </data>
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>如果你是第一次使用，接下来我会通过简单的三步带你完成初始配置。</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>非常好！现在我们需要一个 API 密钥才能开始使用，请将其输入或粘贴到下面的文本框内，之后点击“验证秘钥有消息。</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>别担心，你的密钥非常安全，它仅用于和模型提供商认证，我不会读取。</value>
     </data>
     <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
         <value>如果你不确定如何获取，可以看看我为你准备的这篇教程：</value>
@@ -778,26 +833,26 @@
     <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
         <value>🎉 验证成功！让我们进入最后一步吧！</value>
     </data>
-    <data name="WelcomeView_HotkeyStep_Message1" xml:space="preserve">
+    <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
         <value>恭喜！全部完成了。你可以随时按下面的快捷键唤醒我。</value>
     </data>
-    <data name="WelcomeView_HotkeyStep_Message2" xml:space="preserve">
+    <data name="WelcomeView_ShortcutStep_Message2" xml:space="preserve">
         <value>如果没反应，可能是被其他软件占用，可以点击换一个快捷键哦。</value>
     </data>
     <data name="FriendlyExceptionMessage_Authentication" xml:space="preserve">
         <value>认证错误。</value>
-    </data>
-    <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>启用遥测</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>仅发送必要数据</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
         <value>为了帮助我成长，我需要启用“遥测”来收集匿名数据。这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
         <value>您可以选择只发送必要数据，该选择不会影响核心功能。</value>
+    </data>
+    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
+        <value>仅发送必要数据</value>
+    </data>
+    <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
+        <value>启用遥测</value>
     </data>
     <data name="Settings_Common_DiagnosticData_Header" xml:space="preserve">
         <value>诊断数据</value>
@@ -814,20 +869,20 @@
     <data name="ChatWindow_ChatStatisticsTextBlock_InputTokenCountRun" xml:space="preserve">
         <value>输入</value>
     </data>
-    <data name="ChatWindow_ChatStatisticsTextBlock_ElapsedRun" xml:space="preserve">
-        <value>用时</value>
-    </data>
     <data name="ChatWindow_ChatStatisticsTextBlock_OutputTokenCountRun" xml:space="preserve">
         <value>输出</value>
     </data>
     <data name="ChatWindow_ChatStatisticsTextBlock_TotalTokenCountRun" xml:space="preserve">
         <value>总计</value>
     </data>
-    <data name="HandledChatException_Unknown" xml:space="preserve">
-        <value>未知错误。</value>
+    <data name="ChatWindow_ChatStatisticsTextBlock_ElapsedRun" xml:space="preserve">
+        <value>用时</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
         <value>模型配置不正确。模型提供商或 ID 可能缺失或无效。</value>
+    </data>
+    <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
+        <value>API 密钥缺失或无效。</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
         <value>超出 API 使用配额，或者没有访问当前模型的权限。</value>
@@ -856,8 +911,8 @@
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>服务当前不可用，请稍后重试。</value>
     </data>
-    <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
-        <value>API 密钥缺失或无效。</value>
+    <data name="HandledChatException_Unknown" xml:space="preserve">
+        <value>未知错误。</value>
     </data>
     <data name="KernelMixinFactory_UnsupportedModelProviderSchema" xml:space="preserve">
         <value>不支持的模型提供商 API 协议。</value>
@@ -892,7 +947,7 @@
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
         <value>更新失败</value>
     </data>
-    <data name="ChatInputBox_SettingsMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
         <value>设置</value>
     </data>
     <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
@@ -907,26 +962,26 @@
     <data name="ChatWindow_ChatMessage_Assistant_DeepThinking" xml:space="preserve">
         <value>深度思考</value>
     </data>
-    <data name="ChatFunctionPermissions_ClipboardAccess" xml:space="preserve">
-        <value>操作剪切板</value>
-    </data>
-    <data name="ChatFunctionPermissions_ClipboardRead" xml:space="preserve">
-        <value>读取剪切板</value>
-    </data>
-    <data name="ChatFunctionPermissions_FileAccess" xml:space="preserve">
-        <value>操作文件</value>
-    </data>
-    <data name="ChatFunctionPermissions_FileRead" xml:space="preserve">
-        <value>读取文件</value>
-    </data>
-    <data name="ChatFunctionPermissions_NetworkAccess" xml:space="preserve">
-        <value>访问网络</value>
+    <data name="ChatFunctionPermissions_ScreenRead" xml:space="preserve">
+        <value>读取屏幕</value>
     </data>
     <data name="ChatFunctionPermissions_ScreenAccess" xml:space="preserve">
         <value>操作屏幕</value>
     </data>
-    <data name="ChatFunctionPermissions_ScreenRead" xml:space="preserve">
-        <value>读取屏幕</value>
+    <data name="ChatFunctionPermissions_NetworkAccess" xml:space="preserve">
+        <value>访问网络</value>
+    </data>
+    <data name="ChatFunctionPermissions_ClipboardRead" xml:space="preserve">
+        <value>读取剪切板</value>
+    </data>
+    <data name="ChatFunctionPermissions_ClipboardAccess" xml:space="preserve">
+        <value>操作剪切板</value>
+    </data>
+    <data name="ChatFunctionPermissions_FileRead" xml:space="preserve">
+        <value>读取文件</value>
+    </data>
+    <data name="ChatFunctionPermissions_FileAccess" xml:space="preserve">
+        <value>操作文件</value>
     </data>
     <data name="ChatFunctionPermissions_ShellExecute" xml:space="preserve">
         <value>执行终端脚本</value>
@@ -946,13 +1001,6 @@
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_Content" xml:space="preserve">
         <value>创建</value>
     </data>
-    <data name="Settings_CustomAssistant_SystemPrompt_Header" xml:space="preserve">
-        <value>系统提示词</value>
-    </data>
-    <data name="Settings_CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>系统提示词会在对话的开始默认发送给模型，一个好的提示词包括介绍、任务、上下文描述等。
-提示词中可以使用占位符，包含在 {} 中，在发送给模型前会被替换成对应的内容。</value>
-    </data>
     <data name="Settings_CustomAssistant_Name_Header" xml:space="preserve">
         <value>名称</value>
     </data>
@@ -964,6 +1012,13 @@
     </data>
     <data name="Settings_CustomAssistant_Description_Description" xml:space="preserve">
         <value>指定助手的描述，仅用于显示和区分。</value>
+    </data>
+    <data name="Settings_CustomAssistant_SystemPrompt_Description" xml:space="preserve">
+        <value>系统提示词会在对话的开始默认发送给模型，一个好的提示词包括介绍、任务、上下文描述等。
+提示词中可以使用占位符，包含在 {} 中，在发送给模型前会被替换成对应的内容。</value>
+    </data>
+    <data name="Settings_CustomAssistant_SystemPrompt_Header" xml:space="preserve">
+        <value>系统提示词</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_Content" xml:space="preserve">
         <value>删除</value>
@@ -987,14 +1042,11 @@
     <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
         <value>模型定义模板</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>选择一个模板，这会自动设置 API 调用地址、API 模式等选项的默认值。点击重置按钮还原到无定义。</value>
-    </data>
     <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
         <value>选择一个模板，这会自动设置模型 ID、支持图像输入、支持使用工具等等选项的默认值。点击重置按钮还原到无定义。</value>
     </data>
-    <data name="HandledSystemException_Unknown" xml:space="preserve">
-        <value>发生意外的系统错误。请重试或检查应用程序日志。</value>
+    <data name="Settings_CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
+        <value>选择一个模板，这会自动设置 API 调用地址、API 模式等选项的默认值。点击重置按钮还原到无定义。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>发生通用 I/O 错误。可能是读写文件时出现问题。</value>
@@ -1044,6 +1096,9 @@
     <data name="HandledSystemException_InvalidData" xml:space="preserve">
         <value>正在处理的数据无效或已损坏。请检查源文件或数据。</value>
     </data>
+    <data name="HandledSystemException_Unknown" xml:space="preserve">
+        <value>发生意外的系统错误。请重试或检查应用程序日志。</value>
+    </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_Content" xml:space="preserve">
         <value>测试连通性</value>
     </data>
@@ -1056,11 +1111,11 @@
     <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>选择助手</value>
     </data>
-    <data name="Settings_CustomAssistant_Icon_Header" xml:space="preserve">
-        <value>图标</value>
-    </data>
     <data name="Settings_CustomAssistant_Icon_Description" xml:space="preserve">
         <value>点击自定义助手图标。</value>
+    </data>
+    <data name="Settings_CustomAssistant_Icon_Header" xml:space="preserve">
+        <value>图标</value>
     </data>
     <data name="IconEditor_BackgroundTabItem_Header" xml:space="preserve">
         <value>背景色</value>
@@ -1071,11 +1126,8 @@
     <data name="IconEditor_IconTabItem_Header" xml:space="preserve">
         <value>图标</value>
     </data>
-    <data name="HandledSystemException_ArgumentNull" xml:space="preserve">
-        <value>参数是空的。请确保配置正确。</value>
-    </data>
-    <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
-        <value>参数超出有效范围。请确保配置正确。</value>
+    <data name="HandledSystemException_InvalidOperation" xml:space="preserve">
+        <value>操作无效。请确保配置正确。</value>
     </data>
     <data name="HandledSystemException_InvalidArgument" xml:space="preserve">
         <value>参数错误。请确保配置正确。</value>
@@ -1083,7 +1135,229 @@
     <data name="HandledSystemException_InvalidFormat" xml:space="preserve">
         <value>格式无效。请确保配置正确。</value>
     </data>
-    <data name="HandledSystemException_InvalidOperation" xml:space="preserve">
-        <value>操作无效。请确保配置正确。</value>
+    <data name="HandledSystemException_ArgumentNull" xml:space="preserve">
+        <value>参数是空的。请确保配置正确。</value>
+    </data>
+    <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
+        <value>参数超出有效范围。请确保配置正确。</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
+        <value>Everything</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_Description" xml:space="preserve">
+        <value>使用 Everything (一个高性能本地文件搜索引擎) 搜索计算机上的文件。</value>
+    </data>
+    <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
+        <value>确认模型服务的可用性。</value>
+    </data>
+    <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>创建一个新的 AI 助手。</value>
+    </data>
+    <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>永久删除选中的 AI 助手。</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_CopyMenuItem_Header" xml:space="preserve">
+        <value>复制</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+        <value>剪切</value>
+    </data>
+    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+        <value>粘贴</value>
+    </data>
+    <data name="Common_OK" xml:space="preserve">
+        <value>确定</value>
+    </data>
+    <data name="Common_Cancel" xml:space="preserve">
+        <value>取消</value>
+    </data>
+    <data name="Common_Abort" xml:space="preserve">
+        <value>终止</value>
+    </data>
+    <data name="Common_Retry" xml:space="preserve">
+        <value>重试</value>
+    </data>
+    <data name="Common_Ignore" xml:space="preserve">
+        <value>忽略</value>
+    </data>
+    <data name="ConsentDecision_Deny" xml:space="preserve">
+        <value>拒绝</value>
+    </data>
+    <data name="ConsentDecision_AllowOnce" xml:space="preserve">
+        <value>允许一次</value>
+    </data>
+    <data name="ConsentDecision_AllowSession" xml:space="preserve">
+        <value>当前对话中允许</value>
+    </data>
+    <data name="ConsentDecision_AlwaysAllow" xml:space="preserve">
+        <value>总是允许</value>
+    </data>
+    <data name="TextDifferenceEditor_AcceptButton_Content" xml:space="preserve">
+        <value>接受</value>
+    </data>
+    <data name="TextDifferenceEditor_RevertButton_Content" xml:space="preserve">
+        <value>重置</value>
+    </data>
+    <data name="TextDifferenceSummaryView_AddedLineCountTextRun_Text" xml:space="preserve">
+        <value> 行添加</value>
+    </data>
+    <data name="TextDifferenceSummaryView_RemovedLineCountTextRun_Text" xml:space="preserve">
+        <value> 行删除</value>
+    </data>
+    <data name="TextDifferenceSummaryView_AcceptAllButton_Content" xml:space="preserve">
+        <value>接受所有</value>
+    </data>
+    <data name="TextDifferenceSummaryView_EditButton_Content" xml:space="preserve">
+        <value>编辑</value>
+    </data>
+    <data name="TextDifferenceSummaryView_DiscardAllButton_Content" xml:space="preserve">
+        <value>拒绝所有</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
+        <value>即将删除 {0} 个文件或文件夹</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
+        <value>即将删除系统文件或文件夹</value>
+    </data>
+    <data name="TextDifferenceEditor_DiscardButton_Content" xml:space="preserve">
+        <value>拒绝</value>
+    </data>
+    <data name="ChatPluginConsentRequest_Common_Header" xml:space="preserve">
+        <value>是否允许“{0}”访问 {1} 权限？</value>
+    </data>
+    <data name="Common_Comma" xml:space="preserve">
+        <value>，</value>
+    </data>
+    <data name="ChatWindow_ScrollToBottom_ToolTip" xml:space="preserve">
+        <value>滚动到底部</value>
+    </data>
+    <data name="ChatContext_Temporary" xml:space="preserve">
+        <value>临时聊天</value>
+    </data>
+    <data name="TemporaryChatMode_Never" xml:space="preserve">
+        <value>从不</value>
+    </data>
+    <data name="TemporaryChatMode_RememberLast" xml:space="preserve">
+        <value>记住上次</value>
+    </data>
+    <data name="TemporaryChatMode_Always" xml:space="preserve">
+        <value>总是</value>
+    </data>
+    <data name="Settings_ChatWindow_TemporaryChatMode_Header" xml:space="preserve">
+        <value>临时聊天模式</value>
+    </data>
+    <data name="Settings_ChatWindow_TemporaryChatMode_Description" xml:space="preserve">
+        <value>新建聊天时是否使用临时聊天。</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
+        <value>查找文件</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
+        <value>获取文件信息</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
+        <value>搜索文件内容</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
+        <value>读取文件</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
+        <value>移动或重命名文件</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
+        <value>删除一个或多个文件</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
+        <value>创建文件夹</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
+        <value>写到文件</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
+        <value>修改文件内容</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
+        <value>搜索: {0}</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
+        <value>网络搜索</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_FileReferences_TotalCountTextBlock_Text" xml:space="preserve">
+        <value>{0} 个文件或文件夹</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_FileReferences_HasMoreReferencesTextBlock_Text" xml:space="preserve">
+        <value>其余略</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
+        <value>访问网页</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
+        <value>前往: {0}</value>
+    </data>
+    <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
+        <value>{0} 个链接</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
+        <value>即将执行下列终端脚本</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
+        <value>UI 元素截图</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
+        <value>全屏截图</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
+        <value>操作 UI 元素</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
+        <value>使用 Everything 搜索文件</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
+        <value>执行脚本</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
+        <value>文档</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles" xml:space="preserve">
+        <value>支持的文件</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
+        <value>图片</value>
+    </data>
+    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
+        <value>所有文件</value>
+    </data>
+    <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
+        <value>话题</value>
+    </data>
+    <data name="ChatContext_Metadata_DateModified_Header" xml:space="preserve">
+        <value>日期</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_RenameMenuItem_Header" xml:space="preserve">
+        <value>重命名对话</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
+        <value>删除对话</value>
+    </data>
+    <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
+        <value>Türkçe</value>
+    </data>
+    <data name="ChatContextManager_LoadChatContextFailedToast_Content" xml:space="preserve">
+        <value>加载对话失败: {0}</value>
+    </data>
+    <data name="ChatWindow_ViewAllHistoryButton_Content" xml:space="preserve">
+        <value>查看全部</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_DeleteSelectedMenuItem_Header" xml:space="preserve">
+        <value>删除选中的对话</value>
+    </data>
+    <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
+        <value>返回</value>
+    </data>
+    <data name="Settings_Common_Proxy_Header" xml:space="preserve">
+        <value>代理</value>
+    </data>
+    <data name="Settings_Common_Proxy_Description" xml:space="preserve">
+        <value>设置网络代理。</value>
     </data>
 </root>

@@ -94,9 +94,9 @@ Every moment, Every place. Your AI - `Everywhere`
 <table>
   <thead>
     <tr>
-      <th style="width:28%">Category</th>
-      <th style="width:35%">✅ Currently Supported</th>
-      <th style="width:41%">🚧 Work in Progress</th>
+      <th style="width:30%">Category</th>
+      <th style="width:45%">✅ Currently Supported</th>
+      <th style="width:25%">🚧 Work in Progress</th>
     </tr>
   </thead>
   <tbody>
@@ -153,9 +153,7 @@ Every moment, Every place. Your AI - `Everywhere`
       <td><b>🌐 Language Support</b></td>
       <td>
         • 简体中文<br>
-        • English
-      </td>
-      <td>
+        • English<br>
         • Deutsch<br>
         • Español<br>
         • Français<br>
@@ -163,10 +161,13 @@ Every moment, Every place. Your AI - `Everywhere`
         • 日本語<br>
         • 한국어<br>
         • Русский<br>
+        • Türkçe (Thanks @complex-cgn)<br>
         • 中文 (繁體)<br>
         • 中文 (繁體 香港特別行政區)<br><br>
-        <b>Contributions Welcome</b><br>
-        <a href="https://crowdin.com/project/everywhere" rel="nofollow" target="_blank"><img style="width:140px;height:40px" src="https://badges.crowdin.net/badge/dark/crowdin-on-light.png" srcset="https://badges.crowdin.net/badge/dark/crowdin-on-light.png 1x,https://badges.crowdin.net/badge/dark/crowdin-on-light@2x.png 2x" alt="Crowdin | Everywhere" /></a>
+      </td>
+      <td>
+        Some translations were AI-assisted.<br>
+        Feedback and corrections are welcome!<br><br>
       </td>
     </tr>
   </tbody>
@@ -223,6 +224,12 @@ We welcome issues, feature ideas, and PRs! See [CONTRIBUTING.md](CONTRIBUTING.md
 Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for more information.
 
 Third-Party Licenses: See [ThirdPartyNotices.txt](ThirdPartyNotices.txt) for details.
+
+## 💖 Sponsor
+
+[![302.ai](https://raw.githubusercontent.com/DearVa/Everywhere/refs/heads/main/img/Sponsors/302-ai-en.jpg)](https://share.302.ai/5rzmPr)
+
+[302.AI](https://share.302.ai/5rzmPr) is a pay-as-you-go enterprise AI resource hub that offers the latest and most comprehensive AI models and APIs on the market, along with a variety of ready-to-use online AI applications.
 
 ## 🤩 Special Thanks
 

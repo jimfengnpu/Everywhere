@@ -2,13 +2,16 @@
   x:Class="Everywhere.Views.Pages.ChatPluginPage" xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
-  xmlns:p="clr-namespace:Everywhere.Chat.Plugins" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
-  xmlns:v="clr-namespace:Everywhere.Views" xmlns:vc="clr-namespace:Everywhere.ValueConverters"
-  xmlns:vm="clr-namespace:Everywhere.ViewModels" d:DesignHeight="450"
-  d:DesignWidth="800" x:DataType="vm:ChatPluginPageViewModel"
-  mc:Ignorable="d">
+  xmlns:p="clr-namespace:Everywhere.Chat.Plugins" xmlns:permissions="clr-namespace:Everywhere.Chat.Permissions"
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views"
+  xmlns:vc="clr-namespace:Everywhere.ValueConverters" xmlns:vm="clr-namespace:Everywhere.ViewModels"
+  d:DesignHeight="450" d:DesignWidth="800"
+  x:DataType="vm:ChatPluginPageViewModel" mc:Ignorable="d">
   <UserControl.Styles>
     <Style Selector="ListBox.PluginListBox">
+      <Style Selector="^ &gt; Border">
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
+      </Style>
       <Style Selector="^ ListBoxItem">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -60,11 +63,18 @@
         </ItemsPanelTemplate>
       </Setter>
       <Setter Property="ItemTemplate">
-        <DataTemplate DataType="p:ChatFunctionPermissions">
-          <shadui:Badge
-            Background="{Binding Converter={x:Static vc:ChatFunctionPermissionsConverters.ToBrush}}"
-            Opacity="0.7">
-            <TextBlock>
+        <DataTemplate DataType="permissions:ChatFunctionPermissions">
+          <shadui:Badge>
+            <shadui:Badge.Background>
+              <MultiBinding Converter="{x:Static vc:ChatFunctionPermissionsConverters.ToBrush}">
+                <Binding/>
+                <DynamicResource ResourceKey="SuccessColor"/>
+                <DynamicResource ResourceKey="InfoColor"/>
+                <DynamicResource ResourceKey="WarningColor"/>
+                <DynamicResource ResourceKey="ErrorColor"/>
+              </MultiBinding>
+            </shadui:Badge.Background>
+            <TextBlock Foreground="{DynamicResource BadgeForegroundColor}">
               <TextBlock.Text>
                 <I18N Key="{Binding Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
               </TextBlock.Text>
@@ -76,14 +86,13 @@
   </UserControl.Styles>
 
   <Grid
-    Margin="32,24" ColumnDefinitions="*,1,4*"
-    RowDefinitions="Auto,*">
+    ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*">
     <TabControl
       Grid.Row="0" Grid.RowSpan="2"
       Grid.Column="0" ClipToBounds="False">
       <TabItem Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_BuiltIn_Header}}">
         <ListBox
-          Classes="PluginListBox" Margin="0,0,10,0"
+          Classes="PluginListBox"
           ItemsSource="{Binding Manager.BuiltInPlugins}"
           SelectedItem="{Binding SelectedPlugin}"/>
       </TabItem>
@@ -108,8 +117,8 @@
 
     <GridSplitter
       Grid.Row="0" Grid.RowSpan="2"
-      Grid.Column="1" Margin="4,0"
-      VerticalAlignment="Stretch" Background="Transparent"/>
+      Grid.Column="1" VerticalAlignment="Stretch"
+      Background="Transparent"/>
 
     <TextBlock
       Classes="h4" Grid.Row="0"
@@ -160,19 +169,20 @@
         Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Settings_Header}}"
         IsVisible="{Binding !!SelectedPlugin.SettingsItems.Count, FallbackValue=false}">
         <ScrollViewer
-          Margin="0,0,-12,0" Padding="0,0,12,0"
           CornerRadius="8" HorizontalScrollBarVisibility="Disabled">
-          <v:SettingsItemsControl ItemsSource="{Binding SelectedPlugin.SettingsItems, FallbackValue={x:Null}}"/>
+          <v:SettingsItemsControl
+            Margin="0,0,12,0"
+            ItemsSource="{Binding SelectedPlugin.SettingsItems, FallbackValue={x:Null}}"/>
         </ScrollViewer>
       </TabItem>
 
       <TabItem Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Functions_Header}}">
         <Border
+          Margin="0,0,12,0"
+          Background="{DynamicResource CardBackgroundColor}"
           BorderBrush="{DynamicResource BorderColor}"
           BorderThickness="1" CornerRadius="8">
-          <ScrollViewer
-            Background="{DynamicResource CardBackgroundColor}"
-            HorizontalScrollBarVisibility="Disabled">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
             <ItemsControl
               Classes="FunctionItemsControl" Padding="12,8"
               ItemsSource="{Binding SelectedPlugin.Functions, FallbackValue={x:Null}}">
@@ -189,19 +199,19 @@
                       Grid.Row="0" Grid.RowSpan="2"
                       Grid.Column="1" Margin="0,0,12,0"
                       VerticalAlignment="Center"
-                      IsVisible="{Binding !!Icon}"
+                      IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
                       Kind="{Binding Icon}"
                       Size="22"/>
 
                     <TextBlock
                       Classes="p" Grid.Row="0"
                       Grid.Column="2" Margin="0,-4,0,0"
-                      Text="{Binding KernelFunction.Name}"
+                      Text="{Binding HeaderKey^}"
                       TextWrapping="Wrap"/>
                     <TextBlock
                       Classes="Muted" Grid.Row="1"
                       Grid.Column="2" Margin="0,0,0,4"
-                      Text="{Binding KernelFunction.Description}"
+                      Text="{Binding DescriptionKey^}"
                       TextWrapping="Wrap"/>
 
                     <ItemsControl
