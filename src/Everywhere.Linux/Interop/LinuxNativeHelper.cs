@@ -26,7 +26,7 @@ public class LinuxNativeHelper : INativeHelper
 
     public void SetWindowNoFocus(Window window)
     {
-        _backend?.SetWindowNoFocus(window);
+        _backend?.SetWindowFocus(window, false);
     }
 
     public void SetWindowHitTestInvisible(Window window)

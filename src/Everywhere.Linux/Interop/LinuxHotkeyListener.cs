@@ -18,7 +18,7 @@ public class LinuxHotkeyListener : IHotkeyListener
         ArgumentNullException.ThrowIfNull(handler);
         var id = _backend?.GrabKey(hotkey, handler)??0;
         return id != 0
-            ? new AnonymousDisposable(() => _backend?.UngrabKey(id))
+            ? new AnonymousDisposable(() => _backend?.Ungrab(id))
             : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
@@ -35,7 +35,7 @@ public class LinuxHotkeyListener : IHotkeyListener
     /// <returns></returns>
     public IKeyboardHotkeyScope StartCaptureKeyboardHotkey()
     {
-        return new LinuxKeyboardHotkeyScopeImpl(_backend ?? throw new InvalidOperationException("Display backend is not available."));
+        return new LinuxKeyboardHotkeyScopeImpl(_backend ?? throw new InvalidOperationException("Display _backend is not available."));
     }
 }
 
@@ -56,9 +56,9 @@ public class LinuxKeyboardHotkeyScopeImpl : IKeyboardHotkeyScope
     {
         _backend = backend;
         IsDisposed = false;
-        _backend.GrabAll((hotkey, keydown) =>
+        _backend.GrabKeyHook((hotkey, eventType) =>
         {
-            if (keydown)
+            if (eventType == EventType.KeyDown)
             {
                 if (hotkey.Modifiers != KeyModifiers.None)
                 {
@@ -89,7 +89,7 @@ public class LinuxKeyboardHotkeyScopeImpl : IKeyboardHotkeyScope
     public void Dispose()
     {
         if (IsDisposed) return;
-        _backend.UngrabAll();
+        _backend.UngrabKeyHook();
         IsDisposed = true;
     }
 }

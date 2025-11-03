@@ -8,7 +8,7 @@ using Avalonia.Media.Imaging;
 namespace Everywhere.Linux.Interop;
 
 // Wrapper class for LinuxDisplayBackend
-public class LinuxDisplayBackend : ILinuxDisplayBackend
+public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
 {
     private readonly ILinuxDisplayBackend _impl;
     public IVisualElementContext? Context { get; set; }
@@ -54,21 +54,41 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend
         return _impl.GrabKey(hotkey, handler);
     }
 
-    public void UngrabKey(int id)
+    public void Ungrab(int id)
     {
-        _impl.UngrabKey(id);
+        _impl.Ungrab(id);
     }
 
-    public void GrabAll(Action<KeyboardHotkey, bool> hook)
+    public void GrabKeyHook(Action<KeyboardHotkey, EventType> hook)
     {
-        _impl.GrabAll(hook);
+        _impl.GrabKeyHook(hook);
     }
 
-    public void UngrabAll()
+    public void UngrabKeyHook()
     {
-        _impl.UngrabAll();
+        _impl.UngrabKeyHook();
     }
-    
+
+    public void GrabMouse(MouseHotkey hotkey, Action handler)
+    {
+        _impl.GrabMouse(hotkey, handler);
+    }
+
+    public void UngrabMouse(int id)
+    {
+        _impl.UngrabMouse(id);
+    }
+
+    public void GrabMouseHook(Action<PixelPoint, EventType> hook)
+    {
+        _impl.GrabMouseHook(hook);
+    }
+
+    public void UngrabMouseHook()
+    {
+        _impl.UngrabMouseHook();
+    }
+
     public Key KeycodeToAvaloniaKey(uint keycode)
     {
         return _impl.KeycodeToAvaloniaKey(keycode);
@@ -77,6 +97,11 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend
     public PixelPoint GetPointer()
     {
         return _impl.GetPointer();
+    }
+
+    public void WindowPickerHook(Func<PixelPoint, PixelRect> hook)
+    {
+        _impl.WindowPickerHook(hook);
     }
 
     public IVisualElement? GetFocusedWindowElement()
@@ -99,14 +124,19 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend
         _impl.SetWindowCornerRadius(window, cornerRadius);
     }
 
-    public void SetWindowNoFocus(Window window)
+    public void SetWindowFocus(Window window, bool focusable)
     {
-        _impl.SetWindowNoFocus(window);
+        _impl.SetWindowFocus(window, focusable);
     }
 
     public void SetWindowHitTestInvisible(Window window)
     {
         _impl.SetWindowHitTestInvisible(window);
+    }
+
+    public void SetWindowAsOverlay(Window window)
+    {
+        _impl.SetWindowAsOverlay(window);
     }
 
     public void RegisterFocusChanged(Action handler)

@@ -19,10 +19,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
     private Thread? _xThread;
     private volatile bool _running;
-    private Action<KeyboardHotkey, bool>? _inputHook;
+    private Action<KeyboardHotkey, EventType>? _keyboardHook;
+    private Action<PixelPoint, EventType>? _mouseHook;
     private Action? _focusChangedHook;
     private int _wakePipeR = -1;
     private int _wakePipeW = -1;
+    private readonly ConcurrentDictionary<IntPtr, IVisualElement> _windowCache = new();
 
     public bool IsAvailable => _display != IntPtr.Zero;
     public IVisualElementContext? Context { get; set; }
@@ -35,7 +37,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         if (_display == IntPtr.Zero) return false;
         _rootWindow = XDefaultRootWindow(_display);
         // select key events on root window so we receive KeyPress/KeyRelease
-        XSelectInput(_display, _rootWindow, KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | FocusChangeMask);
+        XSelectInput(_display, _rootWindow,
+            KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | FocusChangeMask);
         // create wake pipe
         try
         {
@@ -143,7 +146,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         return tcs.Task.GetAwaiter().GetResult();
     }
 
-    public void UngrabKey(int id)
+    public void Ungrab(int id)
     {
         if (_display == IntPtr.Zero) return;
         XThreadAction(() =>
@@ -156,9 +159,9 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
     }
 
-    public void GrabAll(Action<KeyboardHotkey, bool> hook)
+    public void GrabKeyHook(Action<KeyboardHotkey, EventType> hook)
     {
-        _inputHook = hook;
+        _keyboardHook = hook;
         XThreadAction(() =>
         {
             XGrabKeyboard(_display, _rootWindow,
@@ -167,14 +170,46 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
     }
 
-    public void UngrabAll()
+    public void UngrabKeyHook()
     {
-        _inputHook = null;
+        _keyboardHook = null;
         XThreadAction(() =>
         {
             XUngrabKeyboard(_display, _rootWindow);
-            // In X11 UngrabKey do not remove focus, set focus to root
+            // In X11 Ungrab do not remove focus, set focus to root
             XSetInputFocus(_display, _rootWindow, RevertToParent, CurrentTime);
+            XFlush(_display);
+        });
+    }
+
+    public void GrabMouse(MouseHotkey hotkey, Action handler)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UngrabMouse(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void GrabMouseHook(Action<PixelPoint, EventType> hook)
+    {
+        _mouseHook = hook;
+        XThreadAction(() =>
+        {
+            XGrabPointer(_display, _rootWindow,
+                0, ButtonPressMask | ButtonReleaseMask | ButtonMotionMask,
+                GrabModeAsync, GrabModeAsync, IntPtr.Zero, IntPtr.Zero, CurrentTime);
+            XFlush(_display);
+        });
+    }
+
+    public void UngrabMouseHook()
+    {
+        _mouseHook = null;
+        XThreadAction(() =>
+        {
+            XUngrabPointer(_display, CurrentTime);
             XFlush(_display);
         });
     }
@@ -191,6 +226,22 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         return Key.None;
     }
 
+    private IVisualElement GetWindowElement(IntPtr window, Func<IVisualElement> maker)
+    {
+        // 检查缓存
+        if (_windowCache.TryGetValue(window, out var cachedElement))
+        {
+            Log.Logger.Debug("Using cached window element for {window}", window.ToString("X"));
+            return cachedElement;
+        }
+
+        // 创建新对象并缓存
+        var element = maker();
+        Log.Logger.Information("Creating window element for {window}", window.ToString("X"));
+        _windowCache[window] = element;
+        return element;
+    }
+
     public IVisualElement? GetFocusedWindowElement()
     {
         try
@@ -198,7 +249,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             if (_display == IntPtr.Zero) return null;
             XGetInputFocus(_display, out var focusWindow, out _);
             if (focusWindow == IntPtr.Zero) return null;
-            return new X11WindowVisualElement(this, focusWindow);
+            return GetWindowElement(focusWindow, () => new X11WindowVisualElement(this, focusWindow));
         }
         catch (Exception ex)
         {
@@ -211,12 +262,24 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     {
         XQueryPointer(_display, _rootWindow,
             out _, out var child, out _, out _, out _, out _, out _);
-        return new X11WindowVisualElement(this, child);
+
+        // 如果child为0，说明指向的是root window本身
+        if (child == IntPtr.Zero)
+        {
+            Log.Logger.Debug("XQueryPointer returned child=0, using root window");
+            child = _rootWindow;
+        }
+
+        Log.Logger.Debug("GetWindowElementAt at ({x},{y}) -> window {window}",
+            point.X, point.Y, child.ToString("X"));
+
+        return GetWindowElement(child, () => new X11WindowVisualElement(this, child));
     }
     public IVisualElement GetScreenElement()
     {
         var screenIdx = XDefaultScreen(_display);
-        return new X11ScreenVisualElement(this, screenIdx);
+        var screenWindow = XRootWindow(_display, screenIdx);
+        return GetWindowElement(screenWindow, () => new X11ScreenVisualElement(this, screenIdx));
     }
 
     public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius)
@@ -275,7 +338,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
     }
 
-    public void SetWindowNoFocus(Window window)
+    public void SetWindowFocus(Window window, bool focusable)
     {
         try
         {
@@ -285,18 +348,48 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
             if (_display == IntPtr.Zero) return;
 
-            // Skip Task Bar
+            // 设置窗口类型为工具窗口，避免在任务栏显示和获得焦点
+            IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
+            IntPtr atomUtility = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
+            if (atomType != IntPtr.Zero && atomUtility != IntPtr.Zero)
+            {
+                ulong[] data = { (ulong)atomUtility };
+                XChangeProperty(_display, wnd, atomType, XInternAtom(_display, "ATOM", 0), 32, PropModeReplace, data, 1);
+            }
+
+            // 跳过任务栏
             IntPtr atomState = XInternAtom(_display, "_NET_WM_STATE", 0);
             IntPtr atomSkip = XInternAtom(_display, "_NET_WM_STATE_SKIP_TASKBAR", 0);
-            if (atomState != IntPtr.Zero && atomSkip != IntPtr.Zero)
+            IntPtr atomSkipPager = XInternAtom(_display, "_NET_WM_STATE_SKIP_PAGER", 0);
+            if (atomState != IntPtr.Zero)
             {
-                ulong[] data = { (ulong)atomSkip };
-                XChangeProperty(_display, wnd, atomState, XInternAtom(_display, "ATOM", 0), 32, PropModeReplace, data, 1);
+                var stateData = new List<ulong>();
+                if (atomSkip != IntPtr.Zero) stateData.Add((ulong)atomSkip);
+                if (atomSkipPager != IntPtr.Zero) stateData.Add((ulong)atomSkipPager);
+
+                if (stateData.Count > 0)
+                {
+                    XChangeProperty(_display, wnd, atomState, XInternAtom(_display, "ATOM", 0), 32, PropModeReplace, stateData.ToArray(), stateData.Count);
+                }
             }
+
+            // 设置窗口不接受输入焦点
+            IntPtr atomHints = XInternAtom(_display, "WM_HINTS", 0);
+            if (atomHints != IntPtr.Zero)
+            {
+                // WM_HINTS结构：flags(32位) + input(32位) + 其他字段...
+                // 我们只设置flags和input字段
+                var hints = new ulong[2];
+                hints[0] = 1u << 0; // InputHint flag
+                hints[1] = (focusable) ? 1u : 0u;      // Input = False (不接受输入)
+                XChangeProperty(_display, wnd, atomHints, XInternAtom(_display, "WM_HINTS", 0), 32, PropModeReplace, hints, 2);
+            }
+
+            XFlush(_display);
         }
-        catch
+        catch (Exception ex)
         {
-            Log.Logger.Error("X11 SetWindowNoFocus failed");
+            Log.Logger.Error(ex, "X11 SetWindowNoFocus failed");
         }
     }
 
@@ -318,12 +411,164 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch { }
     }
+
+    public void SetWindowAsOverlay(Window window)
+    {
+        try
+        {
+            var ph = window.TryGetPlatformHandle();
+            if (ph is null) return;
+            IntPtr wnd = ph.Handle;
+
+            // 1. override_redirect
+            XWindowAttributes attrs = new();
+            attrs.override_redirect = 1;
+            XChangeWindowAttributes(_display, wnd, (int)CW.OverrideRedirect, ref attrs);
+
+            // 2. 设置窗口类型为 DOCK（关键！）
+            IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
+            IntPtr atomDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
+            if (atomType != IntPtr.Zero && atomDock != IntPtr.Zero)
+            {
+                ulong[] data = { (ulong)atomDock };
+                XChangeProperty(_display, wnd, atomType, XA_ATOM, 32, PropModeReplace, data, 1);
+            }
+
+            // 3. 确保输入区域为空
+            if (XFixesQueryExtension(_display, out _, out _) != 0)
+            {
+                XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, IntPtr.Zero);
+            }
+
+            XFlush(_display);
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(ex, "SetWindowAsOverlay failed");
+        }
+    }
+
     public PixelPoint GetPointer()
     {
         XQueryPointer(_display, _rootWindow, out _, out _,
-                out var rootX, out var rootY, out _, out _, out _);
+                out var rootX, out var rootY, out _, out _, out var mask);
+        var state = 0;
+        if ((mask & Button1Mask) != 0) state |= (1 << (int)MouseButton.Left);
+        if ((mask & Button2Mask) != 0) state |= (1 << (int)MouseButton.Middle);
+        if ((mask & Button3Mask) != 0) state |= (1 << (int)MouseButton.Right);
         return new PixelPoint(rootX, rootY);
     }
+
+    public void WindowPickerHook(Func<PixelPoint, PixelRect> hook)
+    {
+        // create overlay
+        var root = XDefaultRootWindow(_display);
+        int hovn;
+        XQueryTree(_display, root, out var r_ret, out var p_ret, out var wins, out var nwins);
+        XGetWindowAttributes(_display, root, out var rootAttr);
+        XMatchVisualInfo(_display, XDefaultScreen(_display), 32, TrueColor, out var vinfo);
+        var cmap = XCreateColormap(_display, root, vinfo.visual, 0);
+        var swa = new XSetWindowAttributes
+        {
+            colormap = cmap,
+            background_pixel = 0,
+            border_pixel = 0,
+            override_redirect = 1
+        };
+        var overlay = XCreateWindow(
+            _display, root,
+            0, 0, (uint)rootAttr.width, (uint)rootAttr.height,
+            0, vinfo.depth, (int)CreateWindowArgs.InputOutput,
+            vinfo.visual,
+            (int)(CW.Colormap | CW.BackPixel | CW.BorderPixel | CW.OverrideRedirect),
+            ref swa
+        );
+    
+        // 设置为 DOCK 类型（关键！）
+        var netWmType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
+        var netWmDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
+        if (netWmType != IntPtr.Zero && netWmDock != IntPtr.Zero)
+        {
+            var data = new ulong[] { (ulong)netWmDock };
+            XChangeProperty(_display, overlay, netWmType, (IntPtr)4, 32, 0, data, 1);
+        }
+        
+        // 清空输入区域（穿透）
+        if (XFixesQueryExtension(_display, out _, out _) != 0)
+        {
+            XFixesSetWindowShapeRegion(_display, overlay, ShapeInput, 0, 0, IntPtr.Zero);
+        }
+        // 创建用于绘制高亮边框的 GC（XOR 模式）
+        var gcval = new XGCValues
+        {
+            foreground = XWhitePixel(_display, 0),
+            function = GCFunction.GXxor,
+            background = XBlackPixel(_display, 0),
+            plane_mask = XWhitePixel(_display, 0) ^ XBlackPixel(_display, 0),
+            subwindow_mode = IncludeInferiors
+        };
+        var gcvalPtr = Marshal.AllocHGlobal(Marshal.SizeOf<XGCValues>());
+        Marshal.StructureToPtr(gcval, gcvalPtr, false);
+    
+        var gc = XCreateGC(_display, overlay,
+            GCMask.GCFunction | GCMask.GCForeground | GCMask.GCBackground | GCMask.GCSubwindowMode,
+            gcvalPtr);
+    
+        // 映射窗口
+        XMapWindow(_display, overlay);
+        XFlush(_display);
+    
+        try
+        {
+            IVisualElement? selected = null;
+            Rect maskRect = default;
+    
+            bool done = false;
+            bool leftPressed = false;
+    
+            while (!done)
+            {
+                // 获取鼠标位置
+                XQueryPointer(_display, root, out _, out var child,
+                    out var rootX, out var rootY, out _, out _, out var mask);
+    
+                // 关键：如果 child 是 overlay，说明穿透失败！
+                // 但因为我们设置了 ShapeInput=null + override_redirect，
+                // child 应该是底层窗口
+                var pixelPoint = new PixelPoint(rootX, rootY);
+                var rect = hook(pixelPoint);
+    
+                // 检测鼠标点击
+                bool isLeftPressed = (mask & 0x100) != 0; // Button1Mask
+                if (isLeftPressed && !leftPressed)
+                {
+                    leftPressed = true;
+                }
+                else if (!isLeftPressed && leftPressed)
+                {
+                    leftPressed = false;
+                    done = true; // 鼠标释放时结束
+                }
+                if (isLeftPressed)
+                {
+                    XClearArea(_display, overlay, 0, 0,
+                        (uint)rootAttr.width, (uint)rootAttr.height, 0);
+                    XDrawRectangle(_display, overlay, gc,
+                        rect.X, rect.Y, (uint)rect.Width, (uint)rect.Height);
+                }
+    
+                Thread.Sleep(16);
+            }
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(gcvalPtr);
+            XUnmapWindow(_display, overlay);
+            XDestroyWindow(_display, overlay);
+            XFlush(_display);
+        }
+    }
+
 
     public void RegisterFocusChanged(Action handler)
     {
@@ -334,39 +579,209 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     {
         try
         {
-            IntPtr wnd = window?.NativeWindowHandle?? _rootWindow;
-            if (wnd == IntPtr.Zero) throw new InvalidOperationException("Invalid window handle");
-            var image = XGetImage(_display, wnd, rect.X, rect.Y,
-                (uint)rect.Width, (uint)rect.Height, AllPlanes, ZPixmap);
-            if (image == IntPtr.Zero)
-                throw new InvalidOperationException("XGetImage failed");
-            try
+
+            IntPtr wnd = _rootWindow;
+            PixelRect captureRect = rect;
+            if (window != null)
             {
-                var ximage = Marshal.PtrToStructure<XImage>(image);
-                var stride = ximage.bytes_per_line;
-                int bufferSize = ximage.bytes_per_line * ximage.height;
-                byte[] pixelData = new byte[bufferSize];
-                Marshal.Copy(ximage.data, pixelData, 0, bufferSize);
-                unsafe
-                {
-                    fixed (byte* p = pixelData)
-                    {
-                        return new Bitmap(
-                            Avalonia.Platform.PixelFormat.Bgra8888,
-                            Avalonia.Platform.AlphaFormat.Unpremul,
-                            new nint(p),
-                            new PixelSize(rect.Width, rect.Height),
-                            new Vector(96, 96),
-                            stride);
-                    }
-                }
+                wnd = window.NativeWindowHandle;
+                captureRect = window.BoundingRectangle.WithX(0).WithY(0);
             }
-            finally { XDestroyImage(image); }
+            if (wnd == IntPtr.Zero)
+            {
+                throw new ArgumentException("Invalid visual element: window handle is zero", nameof(window));
+            }
+            if (captureRect.Width <= 0 || captureRect.Height <= 0)
+            {
+                throw new ArgumentException($"Invalid visual element bounding rectangle: {captureRect}", nameof(window));
+            }
+            return StandardXGetImageCapture(wnd, captureRect);
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "Capture(window) failed");
+            Log.Logger.Error(ex, "Capture(element) failed for element {elementType} {elementId}",
+                window?.Type.ToString() ?? "null", window?.Id ?? "null");
             throw;
+        }
+    }
+
+    private Bitmap StandardXGetImageCapture(IntPtr drawable, PixelRect rect)
+    {
+        // 验证drawable是否有效
+        if (!IsValidDrawable(drawable))
+        {
+            Log.Logger.Error("Invalid drawable: {drawable}", drawable.ToString("X"));
+            throw new InvalidOperationException("Invalid drawable");
+        }
+
+        Log.Logger.Debug("Calling XGetImage with drawable={drawable}, x={x}, y={y}, w={w}, h={h}",
+            drawable.ToString("X"), rect.X, rect.Y, rect.Width, rect.Height);
+
+        var image = XGetImage(_display, drawable, rect.X, rect.Y,
+            (uint)rect.Width, (uint)rect.Height, AllPlanes, ZPixmap);
+        if (image == IntPtr.Zero)
+        {
+            Log.Logger.Error("XGetImage returned null for drawable {drawable} at ({x},{y}) size {width}x{height}",
+                drawable.ToString("X"), rect.X, rect.Y, rect.Width, rect.Height);
+            throw new InvalidOperationException($"XGetImage failed for drawable {drawable}");
+        }
+
+        try
+        {
+            var ximage = Marshal.PtrToStructure<XImage>(image);
+
+            // 检查像素格式
+            Log.Logger.Debug("XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
+                ximage.depth, ximage.bits_per_pixel, ximage.bytes_per_line);
+
+            var stride = ximage.bytes_per_line;
+            int bufferSize = stride * ximage.height;
+            byte[] pixelData = new byte[bufferSize];
+            Marshal.Copy(ximage.data, pixelData, 0, bufferSize);
+
+            // 根据像素格式进行转换
+            ConvertPixelFormat(pixelData, ximage, rect.Width, rect.Height, stride);
+
+            unsafe
+            {
+                fixed (byte* p = pixelData)
+                {
+                    return new Bitmap(
+                        Avalonia.Platform.PixelFormat.Bgra8888,
+                        Avalonia.Platform.AlphaFormat.Unpremul,
+                        new nint(p),
+                        new PixelSize(rect.Width, rect.Height),
+                        new Vector(96, 96),
+                        stride);
+                }
+            }
+        }
+        finally
+        {
+            XDestroyImage(image);
+        }
+    }
+
+    private void ConvertPixelFormat(byte[] pixelData, XImage ximage, int width, int height, int stride)
+    {
+        // 检查是否需要转换像素格式
+        bool needsConversion = false;
+
+        // 常见的X11像素格式
+        if (ximage.bits_per_pixel == 24 && ximage.depth == 24)
+        {
+            // RGB 24位 -> BGRA 32位
+            ConvertRGB24ToBGRA32(pixelData, width, height, stride);
+            needsConversion = true;
+        }
+        else if (ximage.bits_per_pixel == 32 && ximage.depth == 24)
+        {
+            // 32位格式，假设是RGBA或BGRA
+            // 由于没有颜色掩码信息，我们暂时不进行转换
+            Log.Logger.Debug("Using 32-bit format as-is");
+            return;
+        }
+        else if (ximage.bits_per_pixel == 16 && ximage.depth == 16)
+        {
+            // RGB16 565格式
+            ConvertRGB16ToBGRA32(pixelData, width, height, stride);
+            needsConversion = true;
+        }
+
+        if (!needsConversion)
+        {
+            Log.Logger.Debug("No pixel format conversion needed for {bpp} bits per pixel", ximage.bits_per_pixel);
+        }
+    }
+
+    private void ConvertRGB24ToBGRA32(byte[] rgbData, int width, int height, int stride)
+    {
+        // 创建新的BGRA缓冲区
+        byte[] bgraData = new byte[height * stride];
+
+        for (int y = 0; y < height; y++)
+        {
+            int srcRowStart = y * (width * 3); // RGB24每行3字节
+            int dstRowStart = y * stride;
+
+            for (int x = 0; x < width; x++)
+            {
+                int srcPixel = srcRowStart + x * 3;
+                int dstPixel = dstRowStart + x * 4;
+
+                if (srcPixel + 2 < rgbData.Length && dstPixel + 3 < bgraData.Length)
+                {
+                    byte r = rgbData[srcPixel];
+                    byte g = rgbData[srcPixel + 1];
+                    byte b = rgbData[srcPixel + 2];
+
+                    bgraData[dstPixel] = b;     // B
+                    bgraData[dstPixel + 1] = g; // G
+                    bgraData[dstPixel + 2] = r; // R
+                    bgraData[dstPixel + 3] = 255; // A
+                }
+            }
+        }
+
+        // 复制回原数组
+        Array.Copy(bgraData, 0, rgbData, 0, Math.Min(bgraData.Length, rgbData.Length));
+        Log.Logger.Debug("Converted RGB24 to BGRA32");
+    }
+
+    private void ConvertRGB16ToBGRA32(byte[] rgb16Data, int width, int height, int stride)
+    {
+        // 创建新的BGRA缓冲区
+        byte[] bgraData = new byte[height * stride];
+
+        for (int y = 0; y < height; y++)
+        {
+            int srcRowStart = y * (width * 2); // RGB16每行2字节
+            int dstRowStart = y * stride;
+
+            for (int x = 0; x < width; x++)
+            {
+                int srcPixel = srcRowStart + x * 2;
+                int dstPixel = dstRowStart + x * 4;
+
+                if (srcPixel + 1 < rgb16Data.Length && dstPixel + 3 < bgraData.Length)
+                {
+                    // RGB16 565格式
+                    ushort pixel = (ushort)(rgb16Data[srcPixel] | (rgb16Data[srcPixel + 1] << 8));
+
+                    byte r = (byte)((pixel >> 11) & 0x1F);
+                    byte g = (byte)((pixel >> 5) & 0x3F);
+                    byte b = (byte)(pixel & 0x1F);
+
+                    // 扩展到8位
+                    r = (byte)(r << 3 | r >> 2);
+                    g = (byte)(g << 2 | g >> 4);
+                    b = (byte)(b << 3 | b >> 2);
+
+                    bgraData[dstPixel] = b;     // B
+                    bgraData[dstPixel + 1] = g; // G
+                    bgraData[dstPixel + 2] = r; // R
+                    bgraData[dstPixel + 3] = 255; // A
+                }
+            }
+        }
+
+        // 复制回原数组
+        Array.Copy(bgraData, 0, rgb16Data, 0, Math.Min(bgraData.Length, rgb16Data.Length));
+        Log.Logger.Debug("Converted RGB16 to BGRA32");
+    }
+
+    private bool IsValidDrawable(IntPtr drawable)
+    {
+        try
+        {
+            // 尝试获取drawable的几何信息来验证其有效性
+            var result = XGetGeometry(_display, drawable,
+                out _, out _, out _, out _, out _, out _, out _);
+            return result != 0;
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -382,10 +797,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             get
             {
                 XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out _);
-                if (parentHandle != IntPtr.Zero &&
-                    parentHandle != backend._rootWindow)
+                if (parentHandle != IntPtr.Zero
+                    && parentHandle != backend._rootWindow)
                 {
-                    return new X11WindowVisualElement(backend, parentHandle);
+                    return backend.GetWindowElement(parentHandle,
+                        () => new X11WindowVisualElement(backend, parentHandle));
                 }
                 return null;
             }
@@ -400,7 +816,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
                     if (child != IntPtr.Zero)
                     {
-                        yield return new X11WindowVisualElement(backend, child);
+                        yield return backend.GetWindowElement(child,
+                            () => new X11WindowVisualElement(backend, child));
                     }
                 }
             }
@@ -409,10 +826,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             get
             {
-                XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out var _);
+                XQueryTree(backend._display, windowHandle, out _,
+                    out var parentHandle, out _, out var _);
                 if (parentHandle != IntPtr.Zero)
                 {
-                    var parent = new X11WindowVisualElement(backend, parentHandle);
+                    var parent = backend.GetWindowElement(parentHandle,
+                        () => new X11WindowVisualElement(backend, parentHandle));
                     var siblings = parent.Children.ToList();
                     var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
                     if (index > 0 && index < siblings.Count)
@@ -430,7 +849,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out var _);
                 if (parentHandle != IntPtr.Zero)
                 {
-                    var parent = new X11WindowVisualElement(backend, parentHandle);
+                    var parent = backend.GetWindowElement(parentHandle, () => new X11WindowVisualElement(backend, parentHandle));
                     var siblings = parent.Children.ToList();
                     var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
                     if (index >= 0 && index < siblings.Count - 1)
@@ -465,26 +884,55 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             get
             {
-                var display = backend._display;
-                XGetGeometry(display, windowHandle, out _, out var x, out var y, out var w, out var h, out _, out _);
-                XTranslateCoordinates(
-                    display,
-                    windowHandle,
-                    backend._rootWindow,
-                    0, 0,
-                    out var absX, out var absY,
-                    out _);
-                return new PixelRect(absX, absY, (int)w, (int)h);
+                try
+                {
+                    var display = backend._display;
+
+                    // 验证窗口句柄是否有效
+                    if (windowHandle == IntPtr.Zero)
+                    {
+                        Log.Logger.Warning("BoundingRectangle called with zero window handle");
+                        return default(PixelRect);
+                    }
+
+                    var result = XGetGeometry(display, windowHandle, out _, out var x, out var y, out var w, out var h, out _, out _);
+                    if (result == 0)
+                    {
+                        Log.Logger.Warning("XGetGeometry failed for window {window}", windowHandle.ToString("X"));
+                        return default(PixelRect);
+                    }
+
+                    result = XTranslateCoordinates(
+                        display,
+                        windowHandle,
+                        backend._rootWindow,
+                        0, 0,
+                        out var absX, out var absY,
+                        out _);
+
+                    if (result == 0)
+                    {
+                        Log.Logger.Warning("XTranslateCoordinates failed for window {window}", windowHandle.ToString("X"));
+                        return new PixelRect(x, y, (int)w, (int)h);
+                    }
+
+                    return new PixelRect(absX, absY, (int)w, (int)h);
+                }
+                catch (Exception ex)
+                {
+                    Log.Logger.Error(ex, "BoundingRectangle failed for window {window}", windowHandle.ToString("X"));
+                    return default(PixelRect);
+                }
             }
         }
         public int ProcessId
         {
             get
             {
-                IntPtr atomPID = XInternAtom(backend._display, "_NET_WM_PID", 1);
-                if (atomPID == IntPtr.Zero) return 0;
+                IntPtr atomPid = XInternAtom(backend._display, "_NET_WM_PID", 1);
+                if (atomPid == IntPtr.Zero) return 0;
 
-                XGetWindowProperty(backend._display, windowHandle, atomPID,
+                XGetWindowProperty(backend._display, windowHandle, atomPid,
                     0, 1, 0, (IntPtr)XA_CARDINAL,
                     out var actualType, out var actualFormat,
                     out var nItems, out var bytesAfter, out var prop);
@@ -526,7 +974,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
                     if (child != IntPtr.Zero)
                     {
-                        yield return new X11WindowVisualElement(backend, child);
+                        yield return backend.GetWindowElement(child, () => new X11WindowVisualElement(backend, child));
                     }
                 }
             }
@@ -535,7 +983,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         public IVisualElement? NextSibling => (index >= 0 && index < ScreenCount - 1) ? new X11ScreenVisualElement(backend, index + 1) : null;
         public VisualElementType Type => VisualElementType.Screen;
         public VisualElementStates States => VisualElementStates.None;
-        public string? Name => null;
+        public string? Name => Id;
         public PixelRect BoundingRectangle
         {
             get
@@ -547,9 +995,79 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             }
         }
         public int ProcessId => 0;
-        public IntPtr NativeWindowHandle => IntPtr.Zero;
+        public IntPtr NativeWindowHandle => XRootWindow(backend._display, index);
         public string? GetText(int maxLength = -1) => Name;
         public Task<Bitmap> CaptureAsync() => Task.FromResult(backend.Capture(this, BoundingRectangle));
+    }
+
+    private void XThreadProcessEvent(IntPtr eventPtr)
+    {
+        var type = GetEventType(eventPtr);
+
+        switch (type)
+        {
+            case EventType.KeyDown:
+            case EventType.KeyUp:
+                {
+                    var evKey = Marshal.PtrToStructure<XKeyEvent>(eventPtr);
+                    var state = evKey.state;
+                    var norm = state & ~(LockMask | Mod2Mask);
+                    var key = KeycodeToAvaloniaKey(evKey.keycode);
+                    var modifiers = KeyStateToModifier(norm);
+                    if (_keyboardHook != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ =>
+                        {
+                            _keyboardHook?.Invoke(new KeyboardHotkey(key, modifiers), type);
+                        });
+                    }
+                    if (type == EventType.KeyDown)
+                    {
+                        var keycode = (int)evKey.keycode;
+                        // iterate over a snapshot to avoid concurrent-enumeration / ToString recursion issues
+                        foreach (var kv in _regs)
+                        {
+                            var info = kv.Value;
+                            if (info.Keycode == keycode && info.Mods == norm)
+                            {
+                                ThreadPool.QueueUserWorkItem(_ =>
+                                {
+                                    info.Handler();
+                                });
+                            }
+                        }
+                    }
+                }
+                break;
+            case EventType.MouseDown:
+            case EventType.MouseUp:
+            case EventType.MouseDrag:
+                {
+                    var buttonEvent = Marshal.PtrToStructure<XButtonEvent>(eventPtr);
+                    if (_mouseHook != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ =>
+                        {
+                            _mouseHook?.Invoke(
+                                new PixelPoint(buttonEvent.x_root, buttonEvent.y_root),
+                                type
+                            );
+                        });
+                    }
+                }
+                break;
+            case EventType.FocusChange:
+                {
+                    if (_focusChangedHook != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ =>
+                        {
+                            _focusChangedHook?.Invoke();
+                        });
+                    }
+                }
+                break;
+        }
     }
 
     private void XThreadMain()
@@ -562,7 +1080,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         try
         {
             int xfd = XConnectionNumber(_display);
-            var fds = new pollfd[2];
+            var fds = new PollFd[2];
             fds[0].fd = xfd; fds[0].events = POLLIN;
             fds[1].fd = _wakePipeR; fds[1].events = POLLIN;
 
@@ -626,55 +1144,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     {
                         while (XPending(_display) > 0)
                         {
-                            XAnyEvent e;
-                            XKeyEvent evKey;
                             lock (evLock)
                             {
                                 XNextEvent(_display, evPtr);
-                                e = Marshal.PtrToStructure<XAnyEvent>(evPtr);
-                                evKey = Marshal.PtrToStructure<XKeyEvent>(evPtr);
-                            }
-                            if (e.type is KeyPress or KeyRelease)
-                            {
-                                // Log.Logger.Information("X recv key={key},mod={mod},press={press}",
-                                //     evKey.keycode, evKey.state, evKey.type == KeyPress);
-                                var state = evKey.state;
-                                var norm = state & ~(LockMask | Mod2Mask);
-                                var key = KeycodeToAvaloniaKey(evKey.keycode);
-                                var modifiers = KeyStateToModifier(norm);
-                                if (_inputHook != null)
-                                {
-                                    ThreadPool.QueueUserWorkItem(_ =>
-                                    {
-                                        _inputHook?.Invoke(new KeyboardHotkey(key, modifiers), evKey.type == KeyPress);
-                                    });
-                                }
-                                if (evKey.type == KeyPress)
-                                {
-                                    var keycode = (int)evKey.keycode;
-                                    // iterate over a snapshot to avoid concurrent-enumeration / ToString recursion issues
-                                    foreach (var kv in _regs)
-                                    {
-                                        var info = kv.Value;
-                                        if (info.Keycode == keycode && info.Mods == norm)
-                                        {
-                                            ThreadPool.QueueUserWorkItem(_ =>
-                                            {
-                                                info.Handler();
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                            else if (e.type is FocusIn or FocusOut)
-                            {
-                                if (_focusChangedHook != null)
-                                {
-                                    ThreadPool.QueueUserWorkItem(_ =>
-                                    {
-                                        _focusChangedHook?.Invoke();
-                                    });
-                                }
+                                XThreadProcessEvent(evPtr);
                             }
                         }
                     }
@@ -694,7 +1167,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             if (_wakePipeW != -1)
             {
                 var b = new byte[1] { 1 };
-                var wr = write(_wakePipeW, b, (IntPtr)1);
+                var wr = write(_wakePipeW, b, 1);
                 Log.Logger.Debug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
             }
         }
@@ -704,272 +1177,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
     }
 
-    private int OnXError(IntPtr d, IntPtr errorEventPtr)
-    {
-        try
-        {
-            var ev = Marshal.PtrToStructure<XErrorEvent>(errorEventPtr);
-            string text = string.Empty;
-            try
-            {
-                // XGetErrorText returns a pointer to a static buffer; call and marshal
-                var bufPtr = XGetErrorText(d, ev.errorCode);
-                if (bufPtr != IntPtr.Zero) text = Marshal.PtrToStringAnsi(bufPtr) ?? string.Empty;
-            }
-            catch { }
-
-            Log.Logger.Error(
-                "X Error: code={code} request={req} minor={minor} resource={res} text={text}",
-                ev.errorCode,
-                ev.request_code,
-                ev.minor_code,
-                ev.resourceid,
-                text);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(ex, "Failed to marshal XErrorEvent");
-        }
-        return 0;
-    }
-
-
-    private static string KeysymToString(UIntPtr ks)
-    {
-        try
-        {
-            var p = XKeysymToString(ks);
-            if (p == IntPtr.Zero) return string.Empty;
-            return Marshal.PtrToStringAnsi(p) ?? string.Empty;
-        }
-        catch { return string.Empty; }
-    }
-    private static KeyModifiers KeyStateToModifier(uint state)
-    {
-        KeyModifiers mod = KeyModifiers.None;
-        if ((state & ShiftMask) != 0) mod |= KeyModifiers.Shift;
-        if ((state & ControlMask) != 0) mod |= KeyModifiers.Control;
-        if ((state & Mod1Mask) != 0) mod |= KeyModifiers.Alt;
-        if ((state & Mod4Mask) != 0) mod |= KeyModifiers.Meta;
-        return mod;
-    }
-
     private class RegInfo
     {
         public int Keycode { get; set; }
         public uint Mods { get; set; }
         public Action Handler { get; set; } = () => { };
     }
-
-    #region x11 p/invoke + helpers
-    // Macros from X11 headers
-    // Key Mask
-    private const int AnyKey = 0;
-    // Modifiers Mask
-    private const uint ShiftMask = 1u << 0;
-    private const uint LockMask = 1u << 1;
-    private const uint ControlMask = 1u << 2;
-    private const uint Mod1Mask = 1u << 3;
-    private const uint Mod2Mask = 1u << 4;
-    private const uint Mod4Mask = 1u << 6;
-    private const uint AnyModifiers = 1u << 15;
-    // Event Mask
-    private const uint KeyPressMask = 1u << 0;
-    private const uint KeyReleaseMask = 1u << 1;
-    private const uint ButtonPressMask = 1u << 2;
-    private const uint ButtonReleaseMask = 1u << 3;
-    private const uint FocusChangeMask = 1u << 21;
-    // Event Type
-    private const int KeyPress = 2;
-    private const int KeyRelease = 3;
-    private const int ButtonPress = 4;
-    private const int ButtonRelease = 5;
-    private const int FocusIn = 9;
-    private const int FocusOut = 10;
-    // Others
-    private const int GrabModeAsync = 1;
-    private const uint CurrentTime = 0;
-    private const string LibX11 = "libX11.so.6";
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XAnyEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XKeyEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-        public IntPtr root;
-        public IntPtr subwindow;
-        public ulong time;
-        public int x, y;
-        public int x_root, y_root;
-        public uint state;
-        public uint keycode;
-        public bool sameScreen;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XErrorEvent
-    {
-        public int type;
-        public IntPtr display;
-        public ulong resourceid;
-        public ulong serial;
-        public byte errorCode;
-        public byte request_code;
-        public byte minor_code;
-        public byte pad;
-    }
-    private delegate int XErrorHandlerFunc(IntPtr display, IntPtr errorEventPtr);
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XImage
-    {
-        public int width;
-        public int height;
-        public int xoffset;
-        public int format;
-        public IntPtr data;
-        public int byte_order;
-        public int bitmap_unit;
-        public int bitmap_bit_order;
-        public int bitmap_pad;
-        public int depth;
-        public int bytes_per_line;
-        public int bits_per_pixel;
-    }
-
-    [LibraryImport(LibX11)] private static partial IntPtr XOpenDisplay(IntPtr displayName);
-    [LibraryImport(LibX11)] private static partial int XInitThreads();
-    [LibraryImport(LibX11)] private static partial int XCloseDisplay(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XDefaultScreen(IntPtr display);
-    [LibraryImport(LibX11)] private static partial IntPtr XDefaultRootWindow(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XRootWindow(IntPtr display, int screenNumber);
-    [LibraryImport(LibX11)] private static partial int XScreenCount(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XDisplayWidth(IntPtr display, int screenNumber);
-    [LibraryImport(LibX11)] private static partial int XDisplayHeight(IntPtr display, int screenNumber);
-    [LibraryImport(LibX11)] private static partial UIntPtr XStringToKeysym([MarshalAs(UnmanagedType.LPStr)] string s);
-    [LibraryImport(LibX11)] private static partial int XKeysymToKeycode(IntPtr display, UIntPtr keysym);
-    [LibraryImport(LibX11)] private static partial int XSelectInput(IntPtr display, IntPtr window, uint eventMask);
-    [LibraryImport(LibX11)] private static partial int XFlush(IntPtr display);
-    [LibraryImport(LibX11)]
-    private static partial int XGrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow,
-        int ownerEvents, int pointerMode, int keyboardMode);
-    [LibraryImport(LibX11)] private static partial int XUngrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow);
-    [LibraryImport(LibX11)]
-    private static partial int XGrabKeyboard(IntPtr display, IntPtr grabWindow, int ownerEvents,
-        int pointerMode, int keyboardMode, uint time);
-    [LibraryImport(LibX11)] private static partial int XUngrabKeyboard(IntPtr display, IntPtr grabWindow);
-    [LibraryImport(LibX11)] private static partial int XNextEvent(IntPtr display, IntPtr ev);
-    [LibraryImport(LibX11)] private static partial IntPtr XSetErrorHandler(XErrorHandlerFunc handler);
-    [LibraryImport(LibX11)] private static partial IntPtr XGetErrorText(IntPtr display, int code);
-    [LibraryImport(LibX11)] private static partial int XPending(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XConnectionNumber(IntPtr display);
-    [LibraryImport(LibX11)] private static partial UIntPtr XKeycodeToKeysym(IntPtr display, int keycode, int index);
-    [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(UIntPtr keysym);
-
-    [LibraryImport(LibX11)]
-    private static partial int XTranslateCoordinates(IntPtr display,
-        IntPtr srcWindow, IntPtr destWindow,
-        int srcX, int srcY,
-        out int destXReturn, out int destYReturn,
-        out IntPtr childReturn);
-    // 截图相关
-    private const int ZPixmap = 2;
-    private const ulong AllPlanes = ~0UL;
-    [LibraryImport(LibX11)]
-    private static partial IntPtr XGetImage(IntPtr display, IntPtr drawable,
-        int x, int y, uint width, uint height, ulong planeMask, int format);
-    [LibraryImport(LibX11)] private static partial void XDestroyImage(IntPtr ximage);
-    // Xlib函数声明
-    [LibraryImport(LibX11)]
-    private static partial void XGetInputFocus(IntPtr display, out IntPtr focusReturn, out int revertToReturn);
-
-    [LibraryImport(LibX11)]
-    private static partial int XQueryPointer(IntPtr display, IntPtr window,
-        out IntPtr rootReturn, out IntPtr childReturn,
-        out int rootXReturn, out int rootYReturn,
-        out int winXReturn, out int winYReturn,
-        out uint maskReturn);
-    [LibraryImport(LibX11)]
-    private static partial int XQueryTree(IntPtr display, IntPtr window,
-        out IntPtr rootReturn, out IntPtr parentReturn,
-        out IntPtr childrenReturn, out int nchildrenReturn);
-    // 其他
-    [LibraryImport(LibX11)]
-    private static partial int XGetGeometry(IntPtr display, IntPtr drawable,
-        out IntPtr rootReturn, out int x, out int y, out uint width, out uint height,
-        out uint borderWidth, out uint depth);
-    [LibraryImport(LibX11)] private static partial int XFetchName(IntPtr display, IntPtr window, out IntPtr windowName);
-    [LibraryImport(LibX11)] private static partial void XFree(IntPtr data);
-    [LibraryImport(LibX11)] private static partial IntPtr XInternAtom(IntPtr display, [MarshalAs(UnmanagedType.LPStr)] string atomName, int onlyIfExists);
-    private const int XA_CARDINAL = 6;
-    [LibraryImport(LibX11)]
-    private static partial int XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property,
-        long offset, long length, int delete, IntPtr reqType,
-        out IntPtr actualTypeReturn, out int actualFormatReturn, out ulong nitemsReturn, out ulong bytesAfterReturn, out IntPtr propReturn);
-    private const int RevertToPointerRoot = 1;
-    private const int RevertToParent = 2;
-    [LibraryImport(LibX11)]
-    private static partial void XSetInputFocus(IntPtr display, IntPtr window, int revert_to, uint time);
-
-    // XChangeProperty 
-    private const int PropModeReplace = 0;
-
-    [LibraryImport(LibX11)]
-    private static partial void XChangeProperty(IntPtr display, IntPtr window, IntPtr property,
-        IntPtr type, int format, int mode, ulong[] data, int nelements);
-    // XFixes/XShape
-    // XShape Extension
-    private const int ShapeBounding = 0;
-    private const int ShapeClip = 1;
-    private const int ShapeInput = 2;
-    private const int ShapeSet = 0;
-    private const int ShapeUnion = 1;
-
-    [LibraryImport("libXfixes.so.3")]
-    private static partial void XFixesSetWindowShapeRegion(IntPtr display, IntPtr window, int shapeKind, int xOffset, int yOffset, IntPtr region);
-
-    [LibraryImport("libXfixes.so.3")]
-    private static partial int XFixesQueryExtension(IntPtr display, out int eventBase, out int errorBase);
-
-
-    [LibraryImport("libXext.so.6")] private static partial int XShapeQueryExtension(IntPtr display, out int eventBase, out int errorBase);
-    [LibraryImport("libXext.so.6")] private static partial void XShapeCombineMask(IntPtr display, IntPtr window, int shapeKind, int xOff, int yOff, IntPtr mask, int operation);
-
-    [LibraryImport(LibX11)] private static partial IntPtr XCreatePixmap(IntPtr display, IntPtr drawable, uint width, uint height, uint depth);
-    [LibraryImport(LibX11)] private static partial IntPtr XCreateGC(IntPtr display, IntPtr drawable, ulong valuemask, IntPtr values);
-    [LibraryImport(LibX11)] private static partial void XFreeGC(IntPtr display, IntPtr gc);
-    [LibraryImport(LibX11)] private static partial void XSetForeground(IntPtr display, IntPtr gc, ulong color);
-    [LibraryImport(LibX11)] private static partial void XFillRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height);
-    [LibraryImport(LibX11)] private static partial void XFillArc(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height, int angle1, int angle2);
-    [LibraryImport(LibX11)] private static partial void XFreePixmap(IntPtr display, IntPtr pixmap);
-    // libc / polling / pipe
-    [LibraryImport("libc", SetLastError = true)] private static partial int pipe([MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] int[] fds);
-    [LibraryImport("libc", SetLastError = true)] private static partial int write(int fd, byte[] buf, IntPtr count);
-    [LibraryImport("libc", SetLastError = true)] private static partial int read(int fd, byte[] buf, IntPtr count);
-    [LibraryImport("libc", SetLastError = true)] private static partial int close(int fd);
-
-    [LibraryImport("libc", SetLastError = true)] private static partial int fcntl(int fd, int cmd, int arg);
-    // fcntl and flags (used to make pipe non-blocking / close-on-exec)
-    private const int F_GETFL = 3;
-    private const int F_SETFL = 4;
-    private const int F_SETFD = 2;
-    private const int FD_CLOEXEC = 1;
-    private const int O_NONBLOCK = 0x800;
-    [StructLayout(LayoutKind.Sequential)]
-    private struct pollfd { public int fd; public short events; public short revents; }
-    private const short POLLIN = 0x0001;
-    [LibraryImport("libc", SetLastError = true)]
-    private static partial int poll([In, Out] pollfd[] fds, uint nfds, int timeout);
-
-    #endregion
 }
