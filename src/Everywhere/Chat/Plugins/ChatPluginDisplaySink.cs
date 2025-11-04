@@ -69,6 +69,11 @@ public sealed class ChatPluginDisplaySink : ObservableCollection<ChatPluginDispl
     {
         Add(new ChatPluginSeparatorDisplayBlock(thickness));
     }
+
+    public void AppendCodeBlock(string code, string? language = null)
+    {
+        Add(new ChatPluginCodeBlockDisplayBlock(code, language));
+    }
 }
 
 public sealed class ChatPluginDisplaySinkFormatter : IMessagePackFormatter<ChatPluginDisplaySink?>

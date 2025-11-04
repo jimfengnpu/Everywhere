@@ -38,7 +38,7 @@
         <DataTemplate DataType="plugins:ChatPluginTextDisplayBlock">
           <ScrollViewer MaxHeight="300">
             <SelectableTextBlock
-              FontFamily="{Binding FontFamily}"
+              FontFamily="{Binding FontFamily, Converter={x:Static shadui:StringConverters.ToFontFamily}}"
               Text="{Binding Text}"
               TextWrapping="Wrap"/>
           </ScrollViewer>
@@ -128,6 +128,11 @@
           <Border
             Height="{Binding Thickness}"
             Background="{DynamicResource BorderColor}"/>
+        </DataTemplate>
+        <DataTemplate DataType="plugins:ChatPluginCodeBlockDisplayBlock">
+          <md:CodeBlock
+            Code="{Binding Code}"
+            Language="{Binding Language}"/>
         </DataTemplate>
       </DataTemplates>
     </Setter>

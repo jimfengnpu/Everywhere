@@ -24,6 +24,7 @@ namespace Everywhere.Chat.Plugins;
 [Union(6, typeof(ChatPluginFileDifferenceDisplayBlock))]
 [Union(7, typeof(ChatPluginUrlsDisplayBlock))]
 [Union(8, typeof(ChatPluginSeparatorDisplayBlock))]
+[Union(9, typeof(ChatPluginCodeBlockDisplayBlock))]
 public abstract partial class ChatPluginDisplayBlock : ObservableObject
 {
     /// <summary>
@@ -188,6 +189,10 @@ public sealed partial class ChatPluginUrl(string url, DynamicResourceKeyBase dis
     public int Index { get; set; }
 }
 
+/// <summary>
+/// Represents a display block containing multiple URLs.
+/// </summary>
+/// <param name="urls"></param>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
 public sealed partial class ChatPluginUrlsDisplayBlock(params IReadOnlyList<ChatPluginUrl> urls) : ChatPluginDisplayBlock
 {
@@ -195,9 +200,28 @@ public sealed partial class ChatPluginUrlsDisplayBlock(params IReadOnlyList<Chat
     public IReadOnlyList<ChatPluginUrl> Urls { get; } = urls;
 }
 
+/// <summary>
+/// Represents a separator display block.
+/// </summary>
+/// <param name="thickness"></param>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
 public sealed partial class ChatPluginSeparatorDisplayBlock(double thickness = 1.0d) : ChatPluginDisplayBlock
 {
     [Key(0)]
     public double Thickness { get; } = thickness;
+}
+
+/// <summary>
+/// Represents a code display block with syntax highlighting.
+/// </summary>
+/// <param name="code"></param>
+/// <param name="language"></param>
+[MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
+public sealed partial class ChatPluginCodeBlockDisplayBlock(string code, string? language = null) : ChatPluginDisplayBlock
+{
+    [Key(0)]
+    public string Code { get; } = code;
+
+    [Key(1)]
+    public string? Language { get; } = language;
 }

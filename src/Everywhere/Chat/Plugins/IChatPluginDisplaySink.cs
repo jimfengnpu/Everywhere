@@ -73,4 +73,11 @@ public interface IChatPluginDisplaySink
     /// Appends a separator to the display sink.
     /// </summary>
     void AppendSeparator(double thickness = 1.0d);
+
+    /// <summary>
+    /// Appends a code block to the display sink.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <param name="language"></param>
+    void AppendCodeBlock(string code, string? language = null);
 }

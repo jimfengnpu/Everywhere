@@ -85,8 +85,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
             Children =
             {
                 new ChatPluginTextDisplayBlock(description),
-                new ChatPluginSeparatorDisplayBlock(),
-                new ChatPluginTextDisplayBlock(script, "Consolas, 'Courier New', monospace"),
+                new ChatPluginCodeBlockDisplayBlock(script, "powershell"),
             }
         };
 
@@ -136,8 +135,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
         }
 
         var result = string.Join(Environment.NewLine, results.Select(r => r.ToString()));
-        userInterface.DisplaySink.AppendSeparator();
-        userInterface.DisplaySink.AppendText(result, "Consolas, 'Courier New', monospace");
+        userInterface.DisplaySink.AppendCodeBlock(result, "powershell");
 
         return result;
     }
