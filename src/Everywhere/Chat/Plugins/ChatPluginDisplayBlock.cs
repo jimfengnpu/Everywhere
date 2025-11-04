@@ -7,7 +7,6 @@ using Everywhere.Interop;
 using LiveMarkdown.Avalonia;
 using Lucide.Avalonia;
 using MessagePack;
-using ObservableCollections;
 using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
@@ -24,6 +23,7 @@ namespace Everywhere.Chat.Plugins;
 [Union(5, typeof(ChatPluginFileReferencesDisplayBlock))]
 [Union(6, typeof(ChatPluginFileDifferenceDisplayBlock))]
 [Union(7, typeof(ChatPluginUrlsDisplayBlock))]
+[Union(8, typeof(ChatPluginSeparatorDisplayBlock))]
 public abstract partial class ChatPluginDisplayBlock : ObservableObject
 {
     /// <summary>
@@ -40,14 +40,17 @@ public abstract partial class ChatPluginDisplayBlock : ObservableObject
 public sealed partial class ChatPluginContainerDisplayBlock : ChatPluginDisplayBlock
 {
     [Key(0)]
-    public ObservableList<ChatPluginDisplayBlock> Children { get; private set; } = [];
+    public ChatPluginDisplaySink Children { get; private set; } = [];
 }
 
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
-public sealed partial class ChatPluginTextDisplayBlock(string text) : ChatPluginDisplayBlock
+public sealed partial class ChatPluginTextDisplayBlock(string text, string? fontFamily = null) : ChatPluginDisplayBlock
 {
     [Key(0)]
     public string Text { get; } = text;
+
+    [Key(1)]
+    public string? FontFamily { get; } = fontFamily;
 }
 
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
@@ -190,4 +193,11 @@ public sealed partial class ChatPluginUrlsDisplayBlock(params IReadOnlyList<Chat
 {
     [Key(0)]
     public IReadOnlyList<ChatPluginUrl> Urls { get; } = urls;
+}
+
+[MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
+public sealed partial class ChatPluginSeparatorDisplayBlock(double thickness = 1.0d) : ChatPluginDisplayBlock
+{
+    [Key(0)]
+    public double Thickness { get; } = thickness;
 }

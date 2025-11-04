@@ -1021,6 +1021,9 @@ public class ChatService(
         }
     }
 
+    public IChatPluginDisplaySink DisplaySink =>
+        _currentFunctionCallContext?.ChatMessage.DisplayBlocks ?? throw new InvalidOperationException("No active function call to display sink for");
+
     public async Task<bool> RequestConsentAsync(
         string id,
         DynamicResourceKeyBase headerKey,
@@ -1097,7 +1100,4 @@ public class ChatService(
     {
         throw new NotImplementedException();
     }
-
-    public IChatPluginDisplaySink RequestDisplaySink() =>
-        _currentFunctionCallContext?.ChatMessage ?? throw new InvalidOperationException("No active function call to display sink for");
 }

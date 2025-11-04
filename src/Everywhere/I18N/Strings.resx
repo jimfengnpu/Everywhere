@@ -1375,4 +1375,12 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="Settings_Common_Proxy_Description" xml:space="preserve">
         <value>Setting the network proxy.</value>
     </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
+        <value>Description: {0}
+Content:
+{1}</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
+        <value>PowerShell script execution failed: {0}</value>
+    </data>
 </root>

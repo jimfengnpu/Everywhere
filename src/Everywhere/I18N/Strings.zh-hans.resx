@@ -1360,4 +1360,12 @@
     <data name="Settings_Common_Proxy_Description" xml:space="preserve">
         <value>设置网络代理。</value>
     </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
+        <value>描述: {0}
+内容:
+{1}</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
+        <value>PowerShell 脚本执行失败: {0}</value>
+    </data>
 </root>

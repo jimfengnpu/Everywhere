@@ -546,7 +546,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         var difference = new TextDifference(path);
         TextDifferenceBuilder.BuildLineDiff(difference, fileContent, replacedContent);
 
-        userInterface.RequestDisplaySink().AppendFileDifference(difference, fileContent);
+        userInterface.DisplaySink.AppendFileDifference(difference, fileContent);
         await difference.WaitForAcceptanceAsync(cancellationToken);
 
         // Apply all accepted changes

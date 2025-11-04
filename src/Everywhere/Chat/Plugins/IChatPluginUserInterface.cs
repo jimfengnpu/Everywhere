@@ -15,6 +15,12 @@ public record ChatPluginConsentRequest(
 public interface IChatPluginUserInterface
 {
     /// <summary>
+    /// Gets a display sink for the plugin to output content to the user interface.
+    /// </summary>
+    /// <returns></returns>
+    IChatPluginDisplaySink DisplaySink { get; }
+
+    /// <summary>
     /// Requests user consent for a permission request.
     /// </summary>
     /// <remarks>
@@ -38,10 +44,4 @@ public interface IChatPluginUserInterface
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<string> RequestInputAsync(DynamicResourceKeyBase message, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Requests a display sink for the plugin to output content to the user interface.
-    /// </summary>
-    /// <returns></returns>
-    IChatPluginDisplaySink RequestDisplaySink();
 }

@@ -4,6 +4,7 @@ using System.Management.Automation.Runspaces;
 using System.Reflection;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
+using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Lucide.Avalonia;
@@ -79,19 +80,24 @@ public class PowerShellPlugin : BuiltInChatPlugin
             consentKey = "multi";
         }
 
+        var detailBlock = new ChatPluginContainerDisplayBlock
+        {
+            Children =
+            {
+                new ChatPluginTextDisplayBlock(description),
+                new ChatPluginSeparatorDisplayBlock(),
+                new ChatPluginTextDisplayBlock(script, "Consolas, 'Courier New', monospace"),
+            }
+        };
+
         var consent = await userInterface.RequestConsentAsync(
             consentKey,
             new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
-            new ChatPluginContainerDisplayBlock
-            {
-                Children =
-                {
-                    new ChatPluginTextDisplayBlock(description),
-                    new ChatPluginTextDisplayBlock(script),
-                }
-            },
+            detailBlock,
             cancellationToken);
         if (!consent) return "User denied execution of the script.";
+
+        userInterface.DisplaySink.AppendBlocks(detailBlock.Children);
 
         // Use PowerShell to execute the script and return the output
         var iss = InitialSessionState.CreateDefault2();
@@ -100,14 +106,34 @@ public class PowerShellPlugin : BuiltInChatPlugin
         iss.LanguageMode = PSLanguageMode.ConstrainedLanguage;
         using var powerShell = PowerShell.Create(iss);
         powerShell.AddScript(script);
+        await using var registration = cancellationToken.Register(() =>
+        {
+            try
+            {
+                // ReSharper disable once AccessToDisposedClosure
+                powerShell.Stop();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore
+            }
+        });
 
         var results = await powerShell.InvokeAsync();
         if (powerShell.HadErrors)
         {
-            var errorMessages = powerShell.Streams.Error.Select(e => e.ToString());
-            throw new InvalidOperationException($"PowerShell script execution failed: {string.Join(Environment.NewLine, errorMessages)}");
+            var errorMessage = string.Join(Environment.NewLine, powerShell.Streams.Error.Select(e => e.ToString()));
+            throw new HandledException(
+                new SystemException($"PowerShell script execution failed: {errorMessage}"),
+                new FormattedDynamicResourceKey(
+                    LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
+                    new DirectResourceKey(errorMessage)));
         }
 
-        return string.Join(Environment.NewLine, results.Select(r => r.ToString()));
+        var result = string.Join(Environment.NewLine, results.Select(r => r.ToString()));
+        userInterface.DisplaySink.AppendSeparator();
+        userInterface.DisplaySink.AppendText(result, "Consolas, 'Courier New', monospace");
+
+        return result;
     }
 }

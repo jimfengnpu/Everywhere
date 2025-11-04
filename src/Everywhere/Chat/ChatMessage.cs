@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -272,7 +271,7 @@ public partial class ActionChatMessage : ChatMessage
 /// Represents a function call action message in the chat.
 /// </summary>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
-public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAttachments, IChatPluginDisplaySink
+public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAttachments
 {
     [Key(0)]
     public override AuthorRole Role => AuthorRole.Tool;
@@ -336,7 +335,7 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
     /// to the full details of the function calls and results they are meant to represent.
     /// </remarks>
     [Key(10)]
-    public ObservableCollection<ChatPluginDisplayBlock> DisplayBlocks { get; set; } = [];
+    public ChatPluginDisplaySink DisplayBlocks { get; set; } = [];
 
     [Key(11)]
     [ObservableProperty]
@@ -385,44 +384,5 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
         {
             if (args.PropertyName == nameof(ChatPluginDisplayBlock.IsWaitingForUserInput)) OnPropertyChanged(nameof(IsWaitingForUserInput));
         }
-    }
-
-    public void AppendText(string text)
-    {
-        DisplayBlocks.Add(new ChatPluginTextDisplayBlock(text));
-    }
-
-    public void AppendDynamicResourceKey(DynamicResourceKeyBase resourceKey)
-    {
-        DisplayBlocks.Add(new ChatPluginDynamicResourceKeyDisplayBlock(resourceKey));
-    }
-
-    public ObservableStringBuilder AppendMarkdown()
-    {
-        var markdownBlock = new ChatPluginMarkdownDisplayBlock();
-        DisplayBlocks.Add(markdownBlock);
-        return markdownBlock.MarkdownBuilder;
-    }
-
-    public IProgress<double> AppendProgress(DynamicResourceKeyBase headerKey)
-    {
-        var progressBlock = new ChatPluginProgressDisplayBlock(headerKey);
-        DisplayBlocks.Add(progressBlock);
-        return progressBlock.ProgressReporter;
-    }
-
-    public void AppendFileReferences(params IReadOnlyList<ChatPluginFileReference> references)
-    {
-        DisplayBlocks.Add(new ChatPluginFileReferencesDisplayBlock(references));
-    }
-
-    public void AppendFileDifference(TextDifference difference, string originalText)
-    {
-        DisplayBlocks.Add(new ChatPluginFileDifferenceDisplayBlock(difference, originalText));
-    }
-
-    public void AppendUrls(IReadOnlyList<ChatPluginUrl> urls)
-    {
-        DisplayBlocks.Add(new ChatPluginUrlsDisplayBlock(urls));
     }
 }

@@ -190,7 +190,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
     {
         _logger.LogDebug("Performing web search with query: {Query}, count: {Count}", query, count);
 
-        userInterface.RequestDisplaySink().AppendDynamicResourceKey(
+        userInterface.DisplaySink.AppendDynamicResourceKey(
             new FormattedDynamicResourceKey(
                 LocaleKey.NativeChatPlugin_WebBrowser_WebSearch_Searching,
                 new DirectResourceKey(query)));
@@ -207,7 +207,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
                 Url: r.Url,
                 Snippet: r.Snippet))
             .ToList();
-        userInterface.RequestDisplaySink().AppendUrls(
+        userInterface.DisplaySink.AppendUrls(
             indexedResults.Select(r => new ChatPluginUrl(
                 r.Url,
                 new DirectResourceKey(r.Name))
@@ -326,7 +326,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
 #endif
                 );
 
-                userInterface.RequestDisplaySink().AppendDynamicResourceKey(
+                userInterface.DisplaySink.AppendDynamicResourceKey(
                     new FormattedDynamicResourceKey(
                         LocaleKey.NativeChatPlugin_WebBrowser_WebSnapshot_Visiting,
                         new DirectResourceKey(url)));

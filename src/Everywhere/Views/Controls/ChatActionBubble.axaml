@@ -84,15 +84,8 @@
           <Border
             Margin="0,4"
             BorderBrush="{DynamicResource PrimaryColor}"
-            BorderThickness="3,0,0,0" CornerRadius="3">
-            <Border.IsVisible>
-              <MultiBinding Converter="{x:Static BoolConverters.And}">
-                <TemplateBinding Property="IsEffectivelyExpanded"/>
-                <TemplateBinding
-                  Converter="{x:Static BoolConverters.Not}"
-                  Property="IsError"/>
-              </MultiBinding>
-            </Border.IsVisible>
+            BorderThickness="3,0,0,0" CornerRadius="3"
+            IsVisible="{TemplateBinding IsEffectivelyExpanded}">
             <ContentPresenter
               Margin="4,0,0,0"
               Content="{TemplateBinding Content}"/>

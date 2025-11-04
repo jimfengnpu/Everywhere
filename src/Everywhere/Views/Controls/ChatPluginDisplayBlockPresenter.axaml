@@ -38,6 +38,7 @@
         <DataTemplate DataType="plugins:ChatPluginTextDisplayBlock">
           <ScrollViewer MaxHeight="300">
             <SelectableTextBlock
+              FontFamily="{Binding FontFamily}"
               Text="{Binding Text}"
               TextWrapping="Wrap"/>
           </ScrollViewer>
@@ -122,6 +123,11 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="plugins:ChatPluginSeparatorDisplayBlock">
+          <Border
+            Height="{Binding Thickness}"
+            Background="{DynamicResource BorderColor}"/>
         </DataTemplate>
       </DataTemplates>
     </Setter>
