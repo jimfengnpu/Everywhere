@@ -15,14 +15,17 @@ public class PluginSettings : SettingsCategory
     /// Plugins are disabled if the key is not present.
     /// But Functions are enabled by default if the plugin is enabled.
     /// </remarks>
+    [HiddenSettingsItem]
     public ObservableDictionary<string, bool> IsEnabled { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the granted permissions for each plugin function.
     /// The key is in the format of "PluginKey.FunctionName.[Id]".
     /// </summary>
+    [HiddenSettingsItem]
     public ObservableDictionary<string, ChatFunctionPermissions> GrantedPermissions { get; set; } = new();
 
+    [HiddenSettingsItem]
     public WebSearchEngineSettings WebSearchEngine { get; set; } = new();
 
     public PluginSettings()

@@ -46,10 +46,10 @@ public class EmptyDynamicResourceKey : DynamicResourceKeyBase
 /// </summary>
 /// <param name="key"></param>
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
-public partial class DynamicResourceKey(object key) : DynamicResourceKeyBase
+public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase
 {
     [Key(0)]
-    public object Key { get; } = key;
+    public object Key { get; } = key ?? string.Empty; // avoid null key (especially for MessagePack)
 
     protected IObservable<object?> GetObservable() => LocaleManager.Shared.GetResourceObservable(Key, NotFoundConverter);
 
@@ -75,8 +75,15 @@ public partial class DynamicResourceKey(object key) : DynamicResourceKeyBase
         return false;
     }
 
-    public static string Resolve(object key) =>
-        (LocaleManager.Shared.TryGetResource(key, null, out var resource) ? resource?.ToString() : key.ToString()) ?? string.Empty;
+    public static string Resolve(object? key)
+    {
+        if (key is not null && LocaleManager.Shared.TryGetResource(key, null, out var resource))
+        {
+            return resource?.ToString() ?? string.Empty;
+        }
+
+        return key?.ToString() ?? string.Empty;
+    }
 
     public override string? ToString() => Resolve(Key);
 }
@@ -97,6 +104,10 @@ public partial class DirectResourceKey(object key) : DynamicResourceKey(key)
         return NullDisposable;
     }
 
+    /// <summary>
+    /// For direct resource key, just return the key itself (even if it's null).
+    /// </summary>
+    /// <returns></returns>
     public override string? ToString() => Key.ToString();
 }
 

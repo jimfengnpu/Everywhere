@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
+using Everywhere.Common;
 using Everywhere.Interop;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ public class RestartAsAdministratorControl : ContentControl
                 }
                 catch (Exception ex)
                 {
+                    ex = HandledSystemException.Handle(ex); // maybe blocked by UAC or antivirus, handle it gracefully
                     logger.LogInformation(ex, "Failed to restart as administrator.");
                     toastManager
                         .CreateToast(LocaleKey.Common_Error.I18N())
