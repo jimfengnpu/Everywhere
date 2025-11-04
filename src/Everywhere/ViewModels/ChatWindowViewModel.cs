@@ -536,6 +536,7 @@ public partial class ChatWindowViewModel :
             {
                 Header = message.HeaderKey.ToTextBlock(),
                 Content = message.Content,
+                CanRemember = message.CanRemember
             };
             card.ConsentSelected += (_, args) =>
             {

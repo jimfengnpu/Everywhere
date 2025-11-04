@@ -12,9 +12,30 @@ public class ConsentDecisionEventArgs(ConsentDecision decision) : RoutedEventArg
 
 public partial class ConsentDecisionCard : Card
 {
+    /// <summary>
+    /// Defines the <see cref="CanRemember"/> property.
+    /// </summary>
+    public static readonly StyledProperty<bool> CanRememberProperty =
+        AvaloniaProperty.Register<ConsentDecisionCard, bool>(nameof(CanRemember), true);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the user can choose to remember their decision.
+    /// </summary>
+    public bool CanRemember
+    {
+        get => GetValue(CanRememberProperty);
+        set => SetValue(CanRememberProperty, value);
+    }
+
+    /// <summary>
+    /// Defines the <see cref="ConsentSelected"/> routed event.
+    /// </summary>
     public static readonly RoutedEvent<ConsentDecisionEventArgs> ConsentSelectedEvent =
         RoutedEvent.Register<ConsentDecisionCard, ConsentDecisionEventArgs>(nameof(ConsentSelected), RoutingStrategies.Bubble);
 
+    /// <summary>
+    /// Occurs when the user selects a consent decision.
+    /// </summary>
     public event EventHandler<ConsentDecisionEventArgs>? ConsentSelected
     {
         add => AddHandler(ConsentSelectedEvent, value);
