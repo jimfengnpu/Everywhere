@@ -1,3 +1,24 @@
+## [v0.4.4](https://github.com/DearVa/Everywhere/releases/tag/v0.4.4) - 2025-11-5
+
+- 📢 The macOS version is on the way and is expected to be released in v0.5.0. Good things take time, so please be patient!
+
+### ✨ Features
+- Added network proxy settings, which can be configured manually. **A restart is required for changes to take effect!**
+- Added language support for Spanish, Russian, French, Italian, Japanese, Korean, Turkish, and Traditional Chinese (translated by GPT-4o).
+
+### 🚀 Improvements
+- Optimized chat plugins:
+  - Chat plugin features now display user-friendly descriptions.
+  - PowerShell now shows detailed explanations, specific commands, and the final output.
+  - For security reasons, the "Allow for this session" and "Always allow" options are not available for multi-line PowerShell script execution.
+
+### 🐛 Bug Fixes
+- Fixed an issue where PowerShell execution could not be interrupted (#104).
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.3...v0.4.4
+
+
+
 ## [v0.4.3](https://github.com/DearVa/Everywhere/releases/tag/v0.4.3) - 2025-11-2
 
 ### ✨ Features
