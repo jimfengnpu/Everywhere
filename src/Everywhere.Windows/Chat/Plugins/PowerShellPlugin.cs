@@ -105,7 +105,12 @@ public class PowerShellPlugin : BuiltInChatPlugin
         // Set to ConstrainedLanguage to enhance security
         iss.LanguageMode = PSLanguageMode.ConstrainedLanguage;
         using var powerShell = PowerShell.Create(iss);
+
+        powerShell.AddScript(script)
+            .AddCommand("Out-String")
+            .AddParameter("Stream"); // Ensure multiple objects are returned as individual strings
         powerShell.AddScript(script);
+
         await using var registration = cancellationToken.Register(() =>
         {
             try
