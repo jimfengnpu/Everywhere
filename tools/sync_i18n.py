@@ -3,8 +3,9 @@ import argparse
 import json
 import os
 import re
-# Use the defusedxml library to prevent XML vulnerabilities
-import defusedxml.ElementTree as ET
+# Use the standard library for XML generation and defusedxml for parsing
+import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as DefusedET
 from typing import Dict, List, Optional, Tuple
 
 # You need to install this dependency: pip install openai
@@ -70,7 +71,8 @@ class I18nSync:
         if not os.path.exists(file_path):
             return {}
         try:
-            tree = ET.parse(file_path)
+            # Use the safe parser from defusedxml
+            tree = DefusedET.parse(file_path)
             root = tree.getroot()
             resources = {}
             for data_node in root.findall("./data"):
@@ -79,7 +81,7 @@ class I18nSync:
                 if name and value_node is not None:
                     resources[name] = value_node.text or ""
             return resources
-        except ET.ParseError as e:
+        except DefusedET.ParseError as e:
             log(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
             return {}
 
@@ -88,7 +90,8 @@ class I18nSync:
         if not os.path.exists(file_path):
             return []
         try:
-            tree = ET.parse(file_path)
+            # Use the safe parser from defusedxml
+            tree = DefusedET.parse(file_path)
             root = tree.getroot()
             ordered_resources = []
             for data_node in root.findall("./data"):
@@ -97,7 +100,7 @@ class I18nSync:
                 if name and value_node is not None:
                     ordered_resources.append((name, value_node.text or ""))
             return ordered_resources
-        except ET.ParseError as e:
+        except DefusedET.ParseError as e:
             log(f"  [x] Error parsing XML file {os.path.basename(file_path)}: {e}")
             return []
 
@@ -112,6 +115,7 @@ class I18nSync:
 
     def _write_resx(self, file_path: str, resources: Dict[str, str], base_order: List[str], lang_comment: Optional[str]):
         """Writes resources to a .resx file, maintaining the order of the base file."""
+        # Use the standard ElementTree for generation
         root = ET.Element('root')
         headers = {
             "resmimetype": "text/microsoft-resx",
@@ -129,7 +133,6 @@ class I18nSync:
                 ET.SubElement(data_node, 'value').text = resources[name]
 
         import xml.dom.minidom
-        # FIX: Use the 'root' element directly instead of the undefined 'tree'
         xml_string = ET.tostring(root, encoding='unicode', method='xml')
         dom = xml.dom.minidom.parseString(xml_string)
         pretty_xml = dom.toprettyxml(indent="    ", encoding="utf-8").decode('utf-8')
