@@ -216,9 +216,6 @@
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
         <value>Çevir</value>
     </data>
-    <data name="ChatWindowViewModel_QuickActions_Verify" xml:space="preserve">
-        <value>Önemli Noktalar</value>
-    </data>
     <data name="ChatWindowViewModel_QuickActions_Summarize" xml:space="preserve">
         <value>Özetle</value>
     </data>

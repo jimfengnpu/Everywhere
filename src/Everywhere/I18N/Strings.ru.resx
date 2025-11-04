@@ -217,9 +217,6 @@
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
         <value>Перевести</value>
     </data>
-    <data name="ChatWindowViewModel_QuickActions_Verify" xml:space="preserve">
-        <value>Ключевые моменты</value>
-    </data>
     <data name="ChatWindowViewModel_QuickActions_Summarize" xml:space="preserve">
         <value>Резюме</value>
     </data>

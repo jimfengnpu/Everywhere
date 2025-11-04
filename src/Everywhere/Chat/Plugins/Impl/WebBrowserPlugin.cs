@@ -41,11 +41,13 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<WebBrowserPlugin> _logger;
     private readonly DebounceExecutor<WebBrowserPlugin, ThreadingTimerImpl> _browserDisposer;
+
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         TypeInfoResolver = GeneratedJsonSerializationContext.Default
     };
+
     private readonly SemaphoreSlim _browserLock = new(1, 1);
 
     private IWebSearchEngineConnector? _connector;
@@ -131,13 +133,17 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
 
         if (_webSearchEngineSettings.SelectedWebSearchEngineProvider is not { } provider)
         {
-            throw new InvalidOperationException("Web search engine provider is not selected.");
+            throw new HandledException(
+                new ArgumentException("Web search engine provider is not selected."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage));
         }
 
         if (!Uri.TryCreate(provider.EndPoint.ActualValue, UriKind.Absolute, out var uri) ||
             uri.Scheme is not "http" and not "https")
         {
-            throw new InvalidOperationException("EndPoint is not a valid absolute URI.");
+            throw new HandledException(
+                new ArgumentException("Endpoint is not a valid absolute URI."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage));
         }
 
         // Extract only the base URI without query parameters
@@ -151,18 +157,27 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
                     ApiKey = EnsureApiKey(provider.ApiKey),
                     BaseUri = uri.AbsoluteUri,
                 },
-                provider.SearchEngineId ?? throw new UnauthorizedAccessException("Search Engine ID is not set."),
+                provider.SearchEngineId ??
+                throw new HandledException(
+                    new UnauthorizedAccessException("Search Engine ID is not set."),
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage)),
                 _loggerFactory) as IWebSearchEngineConnector, 10),
             "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), uri, _loggerFactory), 20),
             "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), new Uri(uri, "?q"), _loggerFactory), 20),
             "bocha" => (new BoChaConnector(EnsureApiKey(provider.ApiKey), uri, _loggerFactory), 50),
             "jina" => (new JinaConnector(EnsureApiKey(provider.ApiKey), new Uri(uri, "?q"), _loggerFactory), 50),
             "searxng" => (new SearxngConnector(uri, _loggerFactory), 50),
-            _ => throw new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported.")
+            _ => throw new HandledException(
+                new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage))
         };
 
         string EnsureApiKey(string? apiKey) =>
-            string.IsNullOrWhiteSpace(apiKey) ? throw new UnauthorizedAccessException("API key is not set.") : apiKey;
+            string.IsNullOrWhiteSpace(apiKey) ?
+                throw new HandledException(
+                    new UnauthorizedAccessException("API key is not set."),
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage)) :
+                apiKey;
     }
 
     /// <summary>
@@ -181,7 +196,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
     [Description(
         "Perform a web search and return the results as a json array of web pages. " +
         "You can use the results to answer user questions with up-to-date information.")] // TODO: index (chat scope)
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSearch_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSearch_Header, LocaleKey.NativeChatPlugin_WebBrowser_WebSearch_Description)]
     private async Task<string> WebSearchAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("Search query")] string query,
@@ -249,7 +264,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
                 browserFetcher.BaseUrl =
                     await TestUrlConnectionAsync("https://storage.googleapis.com/chromium-browser-snapshots") ??
                     await TestUrlConnectionAsync("https://cdn.npmmirror.com/binaries/chromium-browser-snapshots") ??
-                    throw new HttpRequestException("Failed to connect to Puppeteer browser download URL.");
+                    throw new HandledException(
+                        new HttpRequestException("Failed to connect to the Puppeteer browser download URL."),
+                        new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage));
                 await browserFetcher.DownloadAsync(buildId);
             }
 
@@ -270,7 +287,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         }
         catch (Exception e)
         {
-            throw new InvalidOperationException("Failed to download or launch Puppeteer browser.", e);
+            throw new HandledException(
+                new InvalidOperationException("Failed to download or launch Puppeteer browser.", e),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage));
         }
 
         async ValueTask<string?> TestUrlConnectionAsync(string testUrl)
@@ -298,7 +317,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
 
     [KernelFunction("web_snapshot")]
     [Description("Snapshot accessibility of a web page via Puppeteer, returning a json of the page content and metadata.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSnapshot_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSnapshot_Header, LocaleKey.NativeChatPlugin_WebBrowser_WebSnapshot_Description)]
     private async Task<string> WebSnapshotAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("Web page URL to snapshot")] string url,

@@ -217,9 +217,6 @@
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
         <value>翻譯</value>
     </data>
-    <data name="ChatWindowViewModel_QuickActions_Verify" xml:space="preserve">
-        <value>重點</value>
-    </data>
     <data name="ChatWindowViewModel_QuickActions_Summarize" xml:space="preserve">
         <value>摘要</value>
     </data>
