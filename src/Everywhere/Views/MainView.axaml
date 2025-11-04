@@ -6,8 +6,8 @@
   <Grid ColumnDefinitions="Auto,*">
     <shadui:Sidebar
       x:Name="Sidebar" Grid.Column="0"
-      Width="180" MinWidth="68"
-      Padding="8"
+      Width="220" MinWidth="68"
+      Padding="8" ExpandPaneWidth="220"
       Expanded="{Binding Settings.Internal.IsMainViewSidebarExpanded}"
       IsVisible="{Binding !!#NavigationItemsControl.ItemCount}"
       SelectedSidebarItem="{Binding SelectedPage, Mode=TwoWay}">
