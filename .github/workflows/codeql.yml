@@ -21,13 +21,13 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: windows-latest
     permissions:
       # required for all workflows
       security-events: write
@@ -45,21 +45,32 @@ jobs:
         include:
         - language: csharp
           build-mode: manual
+
     steps:
+    - name: Enable long paths in git
+      run: git config --global core.longpaths true
+
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: true
+        lfs: true
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        global-json-file: ./global.json
+        dotnet-version: 10.0.x
         dotnet-quality: 'preview'
 
-    # Initializes the CodeQL tools for scanning.
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+      # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
-        languages: ${{ matrix.language }}
+        languages: csharp
         build-mode: ${{ matrix.build-mode }}
         queries: security-extended,security-and-quality
 
@@ -70,13 +81,13 @@ jobs:
 
     - name: Run manual build steps
       if: matrix.build-mode == 'manual'
-      shell: bash
+      shell: pwsh
       run: |
         dotnet --info
-        dotnet restore ./Everywhere.sln
-        dotnet build ./Everywhere.sln -c Release -p:ContinuousIntegrationBuild=true -v minimal
+        dotnet restore ./Everywhere.Windows.slnf
+        dotnet build ./Everywhere.Windows.slnf -c Release -p:ContinuousIntegrationBuild=true -v minimal
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
       with:
-        category: "/language:${{matrix.language}}"
+        category: "/language:csharp"
