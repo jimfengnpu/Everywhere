@@ -212,7 +212,10 @@ Translation Guidelines:
         base_resource_keys = [key for key, _ in base_resources_ordered]
         log(f"Found {len(base_resources)} base resources.\n")
 
-        localized_files = [f for f in os.listdir(self.i18n_path) if f.startswith('Strings.') and f.endswith('.resx')]
+        # Explicitly exclude the base resx file from the list of files to process
+        all_files = os.listdir(self.i18n_path)
+        base_filename = os.path.basename(self.base_resx_path)
+        localized_files = [f for f in all_files if f.startswith('Strings.') and f.endswith('.resx') and f != base_filename]
 
         for filename in localized_files:
             file_path = os.path.join(self.i18n_path, filename)
