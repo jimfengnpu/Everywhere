@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install openai
+          pip install openai defusedxml
 
       - name: Run i18n Sync Script
         run: |
