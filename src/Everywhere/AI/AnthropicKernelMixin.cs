@@ -24,9 +24,9 @@ public sealed class AnthropicKernelMixin : KernelMixinBase
     /// <summary>
     /// Initializes a new instance of the <see cref="AnthropicKernelMixin"/> class.
     /// </summary>
-    public AnthropicKernelMixin(CustomAssistant customAssistant) : base(customAssistant)
+    public AnthropicKernelMixin(CustomAssistant customAssistant, HttpClient httpClient) : base(customAssistant)
     {
-        var messagesEndpoint = new AnthropicClient(new APIAuthentication(ApiKey))
+        var messagesEndpoint = new AnthropicClient(new APIAuthentication(ApiKey), httpClient)
         {
             ApiUrlFormat = Endpoint + "/{0}/{1}"
         }.Messages;

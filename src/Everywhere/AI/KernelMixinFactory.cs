@@ -2,6 +2,7 @@
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.AI;
 
@@ -10,12 +11,17 @@ namespace Everywhere.AI;
 /// </summary>
 public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyChangedMessage>
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly Lock _syncLock = new();
 
     private KernelMixinBase? _cachedKernelMixin;
 
-    public KernelMixinFactory()
+    public KernelMixinFactory(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
     {
+        _httpClientFactory = httpClientFactory;
+        _loggerFactory = loggerFactory;
+
         WeakReferenceMessenger.Default.Register(this);
     }
 
@@ -55,11 +61,15 @@ public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyCh
         }
 
         _cachedKernelMixin?.Dispose();
+
+        // Create an HttpClient instance using the factory.
+        // It will have the configured settings (timeout and proxy).
+        var httpClient = _httpClientFactory.CreateClient();
         return _cachedKernelMixin = customAssistant.Schema.ActualValue switch
         {
-            ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant),
-            ModelProviderSchema.Anthropic => new AnthropicKernelMixin(customAssistant),
-            ModelProviderSchema.Ollama => new OllamaKernelMixin(customAssistant),
+            ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant, httpClient, _loggerFactory),
+            ModelProviderSchema.Anthropic => new AnthropicKernelMixin(customAssistant, httpClient),
+            ModelProviderSchema.Ollama => new OllamaKernelMixin(customAssistant, httpClient),
             _ => throw new HandledChatException(
                 new NotSupportedException($"Model provider schema '{customAssistant.Schema}' is not supported."),
                 HandledChatExceptionType.InvalidConfiguration,

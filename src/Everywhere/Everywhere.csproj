@@ -19,7 +19,7 @@
     <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
     <PackageReference Include="Lucide.Avalonia"/>
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="JetBrains.Profiler.Api"/>
-    <PackageReference Include="MessageBox.Avalonia" />
+    <PackageReference Include="MessageBox.Avalonia"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Microsoft.EntityFrameworkCore.Tools">
@@ -27,6 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration"/>
+    <PackageReference Include="Microsoft.Extensions.Http"/>
     <PackageReference Include="Microsoft.SemanticKernel"/>
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama"/>
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI"/>

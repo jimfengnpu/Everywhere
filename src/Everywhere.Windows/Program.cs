@@ -41,12 +41,12 @@ public static class Program
                 .AddSingleton<ISoftwareUpdater, SoftwareUpdater>()
                 .AddSettings()
                 .AddWatchdogManager()
-
-                #endregion
-
+                .ConfigureNetwork()
                 .AddAvaloniaBasicServices()
                 .AddViewsAndViewModels()
                 .AddDatabaseAndStorage()
+
+                #endregion
 
                 #region Chat Plugins
 
