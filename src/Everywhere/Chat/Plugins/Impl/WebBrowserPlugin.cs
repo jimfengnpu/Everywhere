@@ -1,18 +1,19 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Chat.Permissions;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Utilities;
+using Google.Apis.Http;
 using Google.Apis.Services;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
@@ -24,10 +25,11 @@ using Microsoft.SemanticKernel.Plugins.Web.Google;
 using PuppeteerSharp;
 using Tavily;
 using ZLinq;
+using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace Everywhere.Chat.Plugins;
 
-public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkProxyChangedMessage>
+public partial class WebBrowserPlugin : BuiltInChatPlugin
 {
     public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Header);
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Description);
@@ -38,6 +40,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
     private readonly WebSearchEngineSettings _webSearchEngineSettings;
     private readonly IRuntimeConstantProvider _runtimeConstantProvider;
     private readonly IWatchdogManager _watchdogManager;
+    private readonly IWebProxy _webProxy;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<WebBrowserPlugin> _logger;
     private readonly DebounceExecutor<WebBrowserPlugin, ThreadingTimerImpl> _browserDisposer;
@@ -59,11 +63,15 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         Settings settings,
         IRuntimeConstantProvider runtimeConstantProvider,
         IWatchdogManager watchdogManager,
+        IWebProxy webProxy,
+        IHttpClientFactory httpClientFactory,
         ILoggerFactory loggerFactory) : base("web_browser")
     {
         _webSearchEngineSettings = settings.Plugin.WebSearchEngine;
         _runtimeConstantProvider = runtimeConstantProvider;
         _watchdogManager = watchdogManager;
+        _webProxy = webProxy;
+        _httpClientFactory = httpClientFactory;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<WebBrowserPlugin>();
         _browserDisposer = new DebounceExecutor<WebBrowserPlugin, ThreadingTimerImpl>(
@@ -95,8 +103,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
             },
             TimeSpan.FromMinutes(5)); // Dispose browser after 5 minutes of inactivity
 
-        WeakReferenceMessenger.Default.Register(this);
-
         _functions.Add(
             new NativeChatFunction(
                 WebSearchAsync,
@@ -109,13 +115,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         SettingsItems = Configuration.SettingsItems.CreateForObject(_webSearchEngineSettings, "Plugin_WebSearchEngine");
 
         new ObjectObserver(HandleSettingsChanged).Observe(_webSearchEngineSettings);
-    }
-
-    public void Receive(NetworkProxyChangedMessage message)
-    {
-        // Invalidate the connector when the network proxy changes.
-        _connector = null;
-        _maxSearchCount = 0;
     }
 
     private void HandleSettingsChanged(in ObjectObserverChangedEventArgs e)
@@ -156,17 +155,18 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
                 {
                     ApiKey = EnsureApiKey(provider.ApiKey),
                     BaseUri = uri.AbsoluteUri,
+                    HttpClientFactory = new ProxiedGoogleHttpClientFactory(_webProxy)
                 },
                 provider.SearchEngineId ??
                 throw new HandledException(
                     new UnauthorizedAccessException("Search Engine ID is not set."),
                     new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage)),
                 _loggerFactory) as IWebSearchEngineConnector, 10),
-            "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), uri, _loggerFactory), 20),
-            "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), new Uri(uri, "?q"), _loggerFactory), 20),
-            "bocha" => (new BoChaConnector(EnsureApiKey(provider.ApiKey), uri, _loggerFactory), 50),
-            "jina" => (new JinaConnector(EnsureApiKey(provider.ApiKey), new Uri(uri, "?q"), _loggerFactory), 50),
-            "searxng" => (new SearxngConnector(uri, _loggerFactory), 50),
+            "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
+            "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
+            "bocha" => (new BoChaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
+            "jina" => (new JinaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 50),
+            "searxng" => (new SearxngConnector(_httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             _ => throw new HandledException(
                 new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported."),
                 new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage))
@@ -376,6 +376,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         }
     }
 
+    private sealed class ProxiedGoogleHttpClientFactory(IWebProxy proxy) : HttpClientFactory(proxy);
+
     private sealed record IndexedWebPage(
         [property: JsonPropertyName("index")] int Index,
         [property: JsonPropertyName("name")] string Name,
@@ -398,9 +400,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
     [JsonSerializable(typeof(WebSnapshotResult))]
     private partial class GeneratedJsonSerializationContext : JsonSerializerContext;
 
-    private class TavilyConnector(string apiKey, Uri? uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
+    private class TavilyConnector(string apiKey, HttpClient httpClient, Uri? uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
     {
-        private readonly TavilyClient _tavilyClient = new(baseUri: uri);
+        private readonly TavilyClient _tavilyClient = new(httpClient, uri);
         private readonly ILogger _logger = loggerFactory?.CreateLogger(typeof(TavilyConnector)) ?? NullLogger.Instance;
 
         public async Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default)
@@ -447,9 +449,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         }
     }
 
-    private partial class SearxngConnector(Uri uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
+    private partial class SearxngConnector(HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
     {
-        private readonly HttpClient _httpClient = new();
         private readonly ILogger _logger = loggerFactory?.CreateLogger(typeof(SearxngConnector)) ?? NullLogger.Instance;
 
         public async Task<IEnumerable<T>> SearchAsync<T>(
@@ -465,7 +466,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
 
             _logger.LogDebug("Sending request: {Uri}", uri);
 
-            using var responseMessage = await _httpClient.GetAsync(
+            using var responseMessage = await httpClient.GetAsync(
                 new UriBuilder(uri)
                 {
                     Query = $"q={HttpUtility.UrlEncode(query)}&format=json"
@@ -577,12 +578,13 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         /// Initializes a new instance of the <see cref="BoChaConnector"/> class.
         /// </summary>
         /// <param name="apiKey">The API key to authenticate the connector.</param>
+        /// <param name="httpClient"></param>
         /// <param name="uri">The URI of the Bing Search instance. Defaults to "https://api.bing.microsoft.com/v7.0/search?q".</param>
         /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
-        public BoChaConnector(string apiKey, Uri uri, ILoggerFactory? loggerFactory)
+        public BoChaConnector(string apiKey, HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory)
         {
+            _httpClient = httpClient;
             _logger = loggerFactory?.CreateLogger(typeof(BoChaConnector)) ?? NullLogger.Instance;
-            _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             _uri = uri;
         }
@@ -721,12 +723,13 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin, IRecipient<NetworkPro
         /// Initializes a new instance of the <see cref="JinaConnector"/> class.
         /// </summary>
         /// <param name="apiKey">The API key to authenticate the connector.</param>
+        /// <param name="httpClient"></param>
         /// <param name="uri">The URI of the Jina Search instance. Defaults to "https://s.jina.ai/".</param>
         /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
-        public JinaConnector(string apiKey, Uri uri, ILoggerFactory? loggerFactory)
+        public JinaConnector(string apiKey, HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory)
         {
+            _httpClient = httpClient;
             _logger = loggerFactory?.CreateLogger(typeof(JinaConnector)) ?? NullLogger.Instance;
-            _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _uri = uri;

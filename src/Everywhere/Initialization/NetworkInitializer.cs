@@ -1,3 +1,4 @@
+using System.Net;
 using Avalonia.Threading;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -89,6 +90,7 @@ public static class NetworkExtension
     /// <returns></returns>
     public static IServiceCollection ConfigureNetwork(this IServiceCollection services) => services
         .AddSingleton<DynamicWebProxy>()
+        .AddSingleton<IWebProxy>(x => x.GetRequiredService<DynamicWebProxy>())
         .AddHttpClient(
             Options.DefaultName,
             client =>
@@ -100,7 +102,7 @@ public static class NetworkExtension
             new HttpClientHandler
             {
                 // Resolve the singleton instance of DynamicWebProxy.
-                Proxy = serviceProvider.GetRequiredService<DynamicWebProxy>(),
+                Proxy = serviceProvider.GetRequiredService<IWebProxy>(),
                 UseProxy = true
             })
         .Services

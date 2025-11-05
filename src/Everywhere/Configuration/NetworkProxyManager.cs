@@ -1,14 +1,7 @@
 using System.Net;
-using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Common;
 
 namespace Everywhere.Configuration;
-
-/// <summary>
-/// Message indicating that the network proxy has changed.
-/// </summary>
-/// <param name="Proxy"></param>
-public record NetworkProxyChangedMessage(IWebProxy Proxy);
 
 /// <summary>
 /// An IWebProxy implementation that can be updated at runtime.
@@ -74,7 +67,6 @@ public sealed class DynamicWebProxy : IWebProxy
         }
 
         _currentProxy = newProxy;
-        WeakReferenceMessenger.Default.Send(new NetworkProxyChangedMessage(_currentProxy));
     }
 
     private static WebProxy CreateProxy(ProxySettings settings, string address)
