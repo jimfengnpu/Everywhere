@@ -1,25 +1,39 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Everywhere.AI;
-using ObservableCollections;
+using ModelContextProtocol.Client;
 
 namespace Everywhere.Chat.Plugins;
 
 /// <summary>
-/// Manages chat plugins, both built-in and MCP (Modular Chat Plugin) plugins.
+/// Manages chat plugins, both built-in and MCP plugins.
 /// </summary>
 public interface IChatPluginManager
 {
     /// <summary>
     /// Gets the list of built-in chat plugins for Binding use in the UI.
     /// </summary>
-    INotifyCollectionChangedSynchronizedViewList<BuiltInChatPlugin> BuiltInPlugins { get; }
+    IReadOnlyList<BuiltInChatPlugin> BuiltInPlugins { get; }
 
     /// <summary>
     /// Gets the list of MCP chat plugins for Binding use in the UI.
     /// </summary>
-    INotifyCollectionChangedSynchronizedViewList<McpChatPlugin> McpPlugins { get; }
+    IReadOnlyList<McpChatPlugin> McpPlugins { get; }
 
+    /// <summary>
+    /// Adds a new MCP plugin based on the provided configuration.
+    /// </summary>
+    /// <param name="configuration"></param>
     void AddMcpPlugin(McpTransportConfiguration configuration);
+
+    /// <summary>
+    /// Creates a new MCP client based on the provided configuration. If it's a local client, it will start the local server process.
+    /// </summary>
+    /// <param name="configuration"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task CreateMcpClientAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ChatFunction>> ListMcpFunctionsAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new scope for available chat plugins and their functions.

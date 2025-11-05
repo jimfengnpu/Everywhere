@@ -1479,4 +1479,7 @@ Content:
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Failed to download or launch the Puppeteer browser.</value>
     </data>
+    <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
+        <value>MCP Server</value>
+    </data>
 </root>

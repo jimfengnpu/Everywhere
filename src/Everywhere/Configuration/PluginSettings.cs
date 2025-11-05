@@ -1,4 +1,6 @@
-﻿using Everywhere.Chat.Permissions;
+﻿using System.Collections.ObjectModel;
+using Everywhere.Chat.Permissions;
+using Everywhere.Chat.Plugins;
 using ObservableCollections;
 
 namespace Everywhere.Configuration;
@@ -24,6 +26,9 @@ public class PluginSettings : SettingsCategory
     /// </summary>
     [HiddenSettingsItem]
     public ObservableDictionary<string, ChatFunctionPermissions> GrantedPermissions { get; set; } = new();
+
+    [HiddenSettingsItem]
+    public ObservableCollection<McpChatPlugin> McpPlugins { get; set; } = [];
 
     [HiddenSettingsItem]
     public WebSearchEngineSettings WebSearchEngine { get; set; } = new();

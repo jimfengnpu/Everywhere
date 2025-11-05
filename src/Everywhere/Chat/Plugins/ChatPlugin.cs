@@ -97,7 +97,9 @@ public partial class McpChatPlugin(string name) : ChatPlugin(name)
 
     public override DynamicResourceKey DescriptionKey => new DirectResourceKey(Name);
 
-    public override LucideIconKind? Icon { get; }
+    public override LucideIconKind? Icon => LucideIconKind.Hammer;
+
+    public McpTransportConfiguration TransportConfiguration { get; set; }
 
     /// <summary>
     /// For MCP plugins, we cannot get the permission of each function. So we use a default permission for all functions.
