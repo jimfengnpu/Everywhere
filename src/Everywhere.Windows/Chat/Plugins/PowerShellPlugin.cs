@@ -2,6 +2,7 @@
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
+using DynamicData;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -48,7 +49,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
             $"{modulesPath};" + // Import application auto-contained modules
             Environment.GetEnvironmentVariable("PSModulePath"));
 
-        _functions.Add(
+        _functionsSource.Add(
             new NativeChatFunction(
                 ExecuteScriptAsync,
                 ChatFunctionPermissions.ShellExecute));
@@ -86,11 +87,8 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
         var detailBlock = new ChatPluginContainerDisplayBlock
         {
-            Children =
-            {
-                new ChatPluginTextDisplayBlock(description),
-                new ChatPluginCodeBlockDisplayBlock(script, "powershell"),
-            }
+            new ChatPluginTextDisplayBlock(description),
+            new ChatPluginCodeBlockDisplayBlock(script, "powershell"),
         };
 
         var consent = await userInterface.RequestConsentAsync(

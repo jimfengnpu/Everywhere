@@ -26,18 +26,21 @@ public class VisualTreePlugin : BuiltInChatPlugin
     {
         _blobStorage = blobStorage;
         _visualElementContext = visualElementContext;
-        _functions.Add(
-            new NativeChatFunction(
-                CaptureVisualElementByIdAsync,
-                ChatFunctionPermissions.ScreenRead));
-        _functions.Add(
-            new NativeChatFunction(
-                CaptureFullScreenAsync,
-                ChatFunctionPermissions.ScreenRead));
-        _functions.Add(
-            new NativeChatFunction(
-                ExecuteVisualActionQueueAsync,
-                ChatFunctionPermissions.ScreenAccess));
+        _functionsSource.Edit(list =>
+        {
+            list.Add(
+                new NativeChatFunction(
+                    CaptureVisualElementByIdAsync,
+                    ChatFunctionPermissions.ScreenRead));
+            list.Add(
+                new NativeChatFunction(
+                    CaptureFullScreenAsync,
+                    ChatFunctionPermissions.ScreenRead));
+            list.Add(
+                new NativeChatFunction(
+                    ExecuteVisualActionQueueAsync,
+                    ChatFunctionPermissions.ScreenAccess));
+        });
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Reactive.Disposables;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MessagePack;
@@ -18,7 +19,7 @@ public class TrackableObject<TScope>(bool isTrackingEnabled = false) : Observabl
             ScopeHandlers.Add(handler);
         }
 
-        return new AnonymousDisposable(() =>
+        return Disposable.Create(() =>
         {
             lock (ScopeHandlers)
             {

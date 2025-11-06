@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
 using Everywhere.Common;
 using Everywhere.Interop;
 using LiveMarkdown.Avalonia;
@@ -38,10 +40,46 @@ public abstract partial class ChatPluginDisplayBlock : ObservableObject
 /// Represents a container block that can hold other display blocks.
 /// </summary>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
-public sealed partial class ChatPluginContainerDisplayBlock : ChatPluginDisplayBlock
+public sealed partial class ChatPluginContainerDisplayBlock : ChatPluginDisplayBlock, IEnumerable<ChatPluginDisplayBlock>, IDisposable
 {
-    [Key(0)]
-    public ChatPluginDisplaySink Children { get; private set; } = [];
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<ChatPluginDisplayBlock> Children { get; }
+
+    [IgnoreMember]
+    public IChatPluginDisplaySink DisplaySink => _displaySink;
+
+    [Key(0)] private readonly ChatPluginDisplaySink _displaySink;
+    [IgnoreMember] private readonly IDisposable _displaySinkConnection;
+
+    [SerializationConstructor]
+    private ChatPluginContainerDisplayBlock(ChatPluginDisplaySink displaySink)
+    {
+        _displaySink = displaySink;
+        Children = _displaySink
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(out _displaySinkConnection);
+    }
+
+    public ChatPluginContainerDisplayBlock() : this(new ChatPluginDisplaySink()) { }
+
+    public void Add(ChatPluginDisplayBlock block) => _displaySink.Add(block);
+
+    public IEnumerator<ChatPluginDisplayBlock> GetEnumerator()
+    {
+        return _displaySink.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable)_displaySink).GetEnumerator();
+    }
+
+    public void Dispose()
+    {
+        _displaySink.Dispose();
+        _displaySinkConnection.Dispose();
+    }
 }
 
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]

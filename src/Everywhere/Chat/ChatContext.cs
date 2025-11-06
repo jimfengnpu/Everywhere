@@ -1,35 +1,47 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using DynamicData;
 using Everywhere.Chat.Permissions;
 using Everywhere.Interop;
 using Everywhere.Utilities;
 using MessagePack;
-using ObservableCollections;
 
 namespace Everywhere.Chat;
 
 /// <summary>
 /// Message sent when chat context metadata changes.
 /// </summary>
-/// <param name="Context"></param>
+/// <param name="Context">The chat context whose metadata has changed. Null if the context has been released.</param>
+/// <param name="Metadata">The metadata that has changed.</param>
 /// <param name="PropertyName">
 /// DateModified -> indicates the context has been modified. Need to save.
 /// Topic -> indicates the topic has changed. Need to save.
 /// IsSelected -> indicates selection state has changed.
 /// </param>
-public record ChatContextMetadataChangedMessage(ChatContext Context, string? PropertyName);
+public record ChatContextMetadataChangedMessage(ChatContext? Context, ChatContextMetadata Metadata, string? PropertyName);
 
 /// <summary>
 /// Maintains the context of the chat, including a tree of <see cref="ChatMessageNode"/> and other metadata.
 /// The current branch is derived by following each node's <see cref="ChatMessageNode.ChoiceIndex"/>.
 /// </summary>
 [MessagePackObject(AllowPrivate = true)]
-public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNode>
+public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNode>, IObservableList<ChatMessageNode>
 {
     [Key(0)]
     public ChatContextMetadata Metadata { get; }
+
+    [IgnoreMember]
+    public string SystemPrompt
+    {
+        get => _rootNode.Message.To<SystemChatMessage>().SystemPrompt;
+        set => _rootNode.Message.To<SystemChatMessage>().SystemPrompt = value;
+    }
+
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<ChatMessageNode> BranchNodesWithoutSystem { get; }
 
     /// <summary>
     /// Messages in the current branch.
@@ -38,11 +50,10 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
     public int Count => _branchNodes.Count;
 
     [IgnoreMember]
-    public string SystemPrompt
-    {
-        get => _rootNode.Message.To<SystemChatMessage>().SystemPrompt;
-        set => _rootNode.Message.To<SystemChatMessage>().SystemPrompt = value;
-    }
+    public IObservable<int> CountChanged => _branchNodes.CountChanged;
+
+    [IgnoreMember]
+    public IReadOnlyList<ChatMessageNode> Items => _branchNodes.Items;
 
     /// <summary>
     /// Key: VisualElement.Id
@@ -61,7 +72,7 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
     [IgnoreMember]
     public Dictionary<string, ChatFunctionPermissions> GrantedPermissions { get; } = new();
 
-    public ChatMessageNode this[int index] => _branchNodes[index];
+    public ChatMessageNode this[int index] => _branchNodes.Items[index];
 
     /// <summary>
     /// Backing store for MessagePack (de)serialization: nodes are persisted as a collection, and linked by Ids.
@@ -84,7 +95,9 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
     /// <summary>
     /// Nodes on the currently selected branch. [0] is always the root node.
     /// </summary>
-    [IgnoreMember] private readonly ObservableList<ChatMessageNode> _branchNodes = [];
+    [IgnoreMember] private readonly SourceList<ChatMessageNode> _branchNodes = new();
+
+    [IgnoreMember] private readonly IDisposable _branchNodesWithoutSystemSubscription;
 
     /// <summary>
     /// Constructor for MessagePack deserialization and for creating a new chat context with existing nodes.
@@ -111,7 +124,10 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
 
         UpdateBranchAfter(0, rootNode);
 
-        metadata.PropertyChanged += HandleMetadataPropertyChanged;
+        BranchNodesWithoutSystem = _branchNodes
+            .Connect()
+            .Filter(node => node != _rootNode)
+            .BindEx(out _branchNodesWithoutSystemSubscription);
     }
 
     /// <summary>
@@ -129,27 +145,25 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
         _rootNode.PropertyChanged += HandleNodePropertyChanged;
         _branchNodes.Add(_rootNode);
 
-        Metadata.PropertyChanged += HandleMetadataPropertyChanged;
+        _branchNodesWithoutSystemSubscription = _branchNodes
+            .Connect()
+            .Filter(node => node != _rootNode)
+            .Bind(out var branchNodesWithoutSystem)
+            .Subscribe();
+        BranchNodesWithoutSystem = branchNodesWithoutSystem;
     }
-
-    public NotifyCollectionChangedSynchronizedViewList<ChatMessageNode> ToNotifyCollectionChanged(
-        Action<ISynchronizedView<ChatMessageNode, ChatMessageNode>>? transform,
-        ICollectionEventDispatcher? collectionEventDispatcher) =>
-        transform is not null ?
-            _branchNodes.CreateView(x => x).With(transform).ToNotifyCollectionChanged(collectionEventDispatcher) :
-            _branchNodes.ToWritableNotifyCollectionChanged(collectionEventDispatcher);
 
     /// <summary>
     /// Create a new branch on the specified sibling node by inserting a new message at that position.
     /// </summary>
     public void CreateBranchOn(ChatMessageNode siblingNode, ChatMessage chatMessage)
     {
-        var index = _branchNodes.IndexOf(siblingNode);
+        var index = _branchNodes.Items.IndexOf(siblingNode);
         var afterNode = index switch
         {
             < 0 => throw new ArgumentException("The specified node is not in the current branch.", nameof(siblingNode)),
             0 => _rootNode,
-            _ => _branchNodes[index - 1]
+            _ => _branchNodes.Items[index - 1]
         };
 
         var newNode = new ChatMessageNode(chatMessage)
@@ -160,7 +174,7 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
         newNode.PropertyChanged += HandleNodePropertyChanged;
         _messageNodeMap[newNode.Id] = newNode;
 
-        afterNode.Children.Add(newNode.Id);
+        afterNode.Add(newNode.Id);
         afterNode.ChoiceIndex = afterNode.Children.Count - 1;
 
         UpdateBranchAfter(index - 1, afterNode);
@@ -189,20 +203,13 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
         }
     }
 
-    public IEnumerator<ChatMessageNode> GetEnumerator() => _branchNodes.GetEnumerator();
+    public IObservable<IChangeSet<ChatMessageNode>> Connect(Func<ChatMessageNode, bool>? predicate = null) => _branchNodes.Connect(predicate);
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_branchNodes).GetEnumerator();
+    public IObservable<IChangeSet<ChatMessageNode>> Preview(Func<ChatMessageNode, bool>? predicate = null) => _branchNodes.Preview(predicate);
 
-    /// <summary>
-    /// Handles changes to the metadata properties.
-    /// When any property changes, the Changed event is raised to notify subscribers.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void HandleMetadataPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(this, e.PropertyName));
-    }
+    public IEnumerator<ChatMessageNode> GetEnumerator() => _branchNodes.Items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_branchNodes.Items).GetEnumerator();
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -211,14 +218,14 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
             UpdateBranchAfterNode(sender.NotNull<ChatMessageNode>());
         }
 
-        // This will trigger saving the context metadata.
         Metadata.DateModified = DateTimeOffset.UtcNow;
+        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(this, Metadata, e.PropertyName));
     }
 
     /// <summary>
     /// Rebuilds the current branch from the specified node forward.
     /// </summary>
-    private void UpdateBranchAfterNode(ChatMessageNode node) => UpdateBranchAfter(_branchNodes.IndexOf(node), node);
+    private void UpdateBranchAfterNode(ChatMessageNode node) => UpdateBranchAfter(_branchNodes.Items.IndexOf(node), node);
 
     private void UpdateBranchAfter(int index, ChatMessageNode node)
     {
@@ -246,25 +253,36 @@ public partial class ChatContext : ObservableObject, IReadOnlyList<ChatMessageNo
         var afterNode = index switch
         {
             0 => _rootNode,
-            _ => _branchNodes[index - 1]
+            _ => _branchNodes.Items[index - 1]
         };
 
         if (afterNode.Children.Count > 0)
         {
-            newNode.Children.AddRange(afterNode.Children);
+            newNode.AddRange(afterNode.Children);
             newNode.ChoiceIndex = afterNode.ChoiceIndex;
             foreach (var afterNodeChildId in afterNode.Children)
             {
                 _messageNodeMap[afterNodeChildId].Parent = newNode;
             }
 
-            afterNode.Children.Clear();
+            afterNode.Clear();
         }
 
         newNode.Parent = afterNode;
-        afterNode.Children.Add(newNode.Id);
+        afterNode.Add(newNode.Id);
 
         UpdateBranchAfter(index - 1, afterNode);
+    }
+
+    public void Dispose()
+    {
+        foreach (var node in _messageNodeMap.Values)
+        {
+            node.PropertyChanged -= HandleNodePropertyChanged;
+        }
+
+        _branchNodesWithoutSystemSubscription.Dispose();
+        _branchNodes.Dispose();
     }
 }
 
@@ -323,6 +341,14 @@ public partial class ChatContextMetadata : ObservableObject
 
     public void StartRenaming() => IsRenaming = true;
 
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        // Notify listeners that metadata has changed.
+        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(null, this, e.PropertyName));
+    }
+
     public override bool Equals(object? obj) => obj is ChatContextMetadata other && Id == other.Id;
 
     public override int GetHashCode() => Id.GetHashCode();
@@ -330,7 +356,7 @@ public partial class ChatContextMetadata : ObservableObject
 
 /// <summary>Tree node in the chat history. The current branch is resolved by ChoiceIndex per node.</summary>
 [MessagePackObject(AllowPrivate = true)]
-public partial class ChatMessageNode : ObservableObject
+public sealed partial class ChatMessageNode : ObservableObject, IDisposable
 {
     [Key(0)]
     public Guid Id { get; }
@@ -339,7 +365,7 @@ public partial class ChatMessageNode : ObservableObject
     public ChatMessage Message { get; }
 
     [Key(2)]
-    public ObservableList<Guid> Children { get; }
+    public IReadOnlyList<Guid> Children => _children.Items;
 
     /// <summary>
     /// Index of the chosen child in <see cref="Children"/> (-1 when none).
@@ -366,23 +392,36 @@ public partial class ChatMessageNode : ObservableObject
         internal set;
     }
 
-    /// <summary>
-    /// Constructor for MessagePack deserialization and for creating new nodes with existing children.
-    /// </summary>
-    public ChatMessageNode(Guid id, ChatMessage message, ObservableList<Guid> children)
+    [IgnoreMember] private readonly SourceList<Guid> _children = new();
+    [IgnoreMember] private readonly IDisposable _childrenCountChangedSubscription;
+
+    public ChatMessageNode(Guid id, ChatMessage message)
     {
         Id = id;
         Message = message ?? throw new ArgumentNullException(nameof(message)); // messagepack may pass null here so we guard against it
-        message.PropertyChanged += OnMessagePropertyChanged;
-        Children = children ?? throw new ArgumentNullException(nameof(children));
-        children.CollectionChanged += OnChildrenChanged;
+        message.PropertyChanged += HandleMessagePropertyChanged;
+        _childrenCountChangedSubscription = _children.CountChanged.Subscribe(_ => OnPropertyChanged(nameof(ChoiceCount)));
     }
 
-    public ChatMessageNode(ChatMessage message) : this(Guid.CreateVersion7(), message, []) { }
+    private void HandleMessagePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(Message));
+    }
 
-    private void OnMessagePropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Message));
+    public ChatMessageNode(ChatMessage message) : this(Guid.CreateVersion7(), message) { }
 
-    private void OnChildrenChanged(in NotifyCollectionChangedEventArgs<Guid> e) => OnPropertyChanged(nameof(ChoiceCount));
+    public void Add(Guid childId) => _children.Add(childId);
 
-    internal static ChatMessageNode CreateRootNode(string systemPrompt) => new(Guid.Empty, new SystemChatMessage(systemPrompt), []);
+    public void AddRange(IEnumerable<Guid> childIds) => _children.AddRange(childIds);
+
+    public void Clear() => _children.Clear();
+
+    internal static ChatMessageNode CreateRootNode(string systemPrompt) => new(Guid.Empty, new SystemChatMessage(systemPrompt));
+
+    public void Dispose()
+    {
+        Message.PropertyChanged -= HandleMessagePropertyChanged;
+        _childrenCountChangedSubscription.Dispose();
+        _children.Dispose();
+    }
 }

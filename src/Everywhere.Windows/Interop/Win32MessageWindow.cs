@@ -1,4 +1,5 @@
-﻿using Windows.Win32;
+﻿using System.Reactive.Disposables;
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Everywhere.Extensions;
@@ -43,7 +44,7 @@ internal sealed class Win32MessageWindow
             }
             list.Add(handler);
         }
-        return new AnonymousDisposable(() => RemoveHandler(message, handler));
+        return Disposable.Create(() => RemoveHandler(message, handler));
     }
 
     private void RemoveHandler(uint message, MessageHandler handler)

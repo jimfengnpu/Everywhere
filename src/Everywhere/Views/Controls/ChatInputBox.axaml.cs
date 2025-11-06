@@ -27,8 +27,11 @@ public partial class ChatInputBox : TextBox
     public static readonly StyledProperty<IRelayCommand?> CancelCommandProperty =
         AvaloniaProperty.Register<ChatInputBox, IRelayCommand?>(nameof(CancelCommand));
 
-    public static readonly StyledProperty<IList<ChatAttachment>?> ChatAttachmentItemsSourceProperty =
-        AvaloniaProperty.Register<ChatInputBox, IList<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
+    public static readonly StyledProperty<ICollection<ChatAttachment>?> ChatAttachmentItemsSourceProperty =
+        AvaloniaProperty.Register<ChatInputBox, ICollection<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
+
+    public static readonly StyledProperty<IRelayCommand<ChatAttachment>?> RemoveAttachmentCommandProperty =
+        AvaloniaProperty.Register<ChatInputBox, IRelayCommand<ChatAttachment>?>(nameof(RemoveAttachmentCommand));
 
     public static readonly StyledProperty<int> MaxChatAttachmentCountProperty =
         AvaloniaProperty.Register<ChatInputBox, int>(nameof(MaxChatAttachmentCount));
@@ -88,10 +91,16 @@ public partial class ChatInputBox : TextBox
         set => SetValue(CancelCommandProperty, value);
     }
 
-    public IList<ChatAttachment>? ChatAttachmentItemsSource
+    public ICollection<ChatAttachment>? ChatAttachmentItemsSource
     {
         get => GetValue(ChatAttachmentItemsSourceProperty);
         set => SetValue(ChatAttachmentItemsSourceProperty, value);
+    }
+
+    public IRelayCommand<ChatAttachment>? RemoveAttachmentCommand
+    {
+        get => GetValue(RemoveAttachmentCommandProperty);
+        set => SetValue(RemoveAttachmentCommandProperty, value);
     }
 
     public int MaxChatAttachmentCount
@@ -280,12 +289,6 @@ public partial class ChatInputBox : TextBox
     private void SetSelectedCustomAssistant(MenuItem? sender)
     {
         SelectedCustomAssistant = sender?.DataContext as CustomAssistant;
-    }
-
-    [RelayCommand]
-    private void RemoveAttachment(ChatAttachment attachment)
-    {
-        ChatAttachmentItemsSource?.Remove(attachment);
     }
 
     private void HandleTextBoxKeyDown(object? sender, KeyEventArgs e)

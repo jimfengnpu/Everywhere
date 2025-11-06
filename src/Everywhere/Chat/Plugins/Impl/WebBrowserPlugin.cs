@@ -103,14 +103,17 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             },
             TimeSpan.FromMinutes(5)); // Dispose browser after 5 minutes of inactivity
 
-        _functions.Add(
-            new NativeChatFunction(
-                WebSearchAsync,
-                ChatFunctionPermissions.NetworkAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                WebSnapshotAsync,
-                ChatFunctionPermissions.NetworkAccess));
+        _functionsSource.Edit(list =>
+        {
+            list.Add(
+                new NativeChatFunction(
+                    WebSearchAsync,
+                    ChatFunctionPermissions.NetworkAccess));
+            list.Add(
+                new NativeChatFunction(
+                    WebSnapshotAsync,
+                    ChatFunctionPermissions.NetworkAccess));
+        });
 
         SettingsItems = Configuration.SettingsItems.CreateForObject(_webSearchEngineSettings, "Plugin_WebSearchEngine");
 

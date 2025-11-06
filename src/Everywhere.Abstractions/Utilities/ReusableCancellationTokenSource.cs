@@ -1,10 +1,10 @@
 ﻿namespace Everywhere.Utilities;
 
 /// <summary>
-/// A CancellationTokenSource that can be reused after being cancelled.
+/// A CancellationTokenSource that can be reused after being canceled.
 /// Thread-safe.
 /// </summary>
-public class ReusableCancellationTokenSource
+public sealed class ReusableCancellationTokenSource : IDisposable
 {
     private readonly Lock _lockObject = new();
     private CancellationTokenSource? _cancellationTokenSource;
@@ -26,5 +26,10 @@ public class ReusableCancellationTokenSource
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
         _cancellationTokenSource = null;
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource?.Dispose();
     }
 }

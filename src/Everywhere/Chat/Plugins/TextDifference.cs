@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
+using Everywhere.Common;
 using MessagePack;
-using ObservableCollections;
 using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
@@ -118,27 +120,34 @@ public sealed partial class TextChange : ObservableObject
 /// <remarks>
 /// This record is not used for serialization; use ToString() for text representation.
 /// </remarks>
-[MessagePackObject(OnlyIncludeKeyedMembers = true)]
-public partial class TextDifference : ObservableObject
+[MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
+public sealed partial class TextDifference : ObservableObject, IDisposable
 {
     [Key(0)]
     public string FilePath { get; }
 
+    /// <summary>
+    /// A read-only, thread-safe collection of changes for UI binding.
+    /// </summary>
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<TextChange> Changes { get; }
+
+    /// <summary>
+    /// For serialization purposes only.
+    /// </summary>
     [Key(1)]
-    [field: AllowNull, MaybeNull]
-    public ObservableList<TextChange> Changes
+    private IEnumerable<TextChange> SerializableChanges
     {
-        get;
+        get => _changesSource.Items;
         set
         {
-            if (field == value) return;
-            if (field != null) field.CollectionChanged -= HandleChangesCollectionChanged;
-            field = value;
-            if (field != null) field.CollectionChanged += HandleChangesCollectionChanged;
-            OnPropertyChanged();
-            NotifyChangesPropertiesChanged();
+            _changesSource.Edit(list =>
+            {
+                list.Clear();
+                list.AddRange(value);
+            });
         }
-    } = [];
+    }
 
     /// <summary>
     /// Indicates whether any changes are accepted (true), all discarded (false), or some pending (null).
@@ -165,33 +174,29 @@ public partial class TextDifference : ObservableObject
     /// </summary>
     public int NotPendingChangesCount => Changes.Count(c => c.Accepted.HasValue);
 
-    private TaskCompletionSource<bool>? _acceptanceTcs;
+    [IgnoreMember] private readonly CompositeDisposable _disposables = new(3);
+    [IgnoreMember] private readonly SourceList<TextChange> _changesSource = new();
+
+    [IgnoreMember] private TaskCompletionSource<bool>? _acceptanceTcs;
 
     public TextDifference(string filePath)
     {
         FilePath = filePath;
-        Changes.CollectionChanged += HandleChangesCollectionChanged;
-    }
 
-    private void HandleChangesCollectionChanged(in NotifyCollectionChangedEventArgs<TextChange> e)
-    {
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        e.NewItem?.PropertyChanged += HandleChangePropertyChanged;
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        e.OldItem?.PropertyChanged -= HandleChangePropertyChanged;
-        foreach (var item in e.NewItems)
-        {
-            item.PropertyChanged += HandleChangePropertyChanged;
-        }
-        foreach (var item in e.OldItems)
-        {
-            item.PropertyChanged -= HandleChangePropertyChanged;
-        }
-    }
+        _changesSource.Connect()
+            .WhenPropertyChanged(x => x.Accepted)
+            .Subscribe(_ =>
+            {
+                NotifyChangesPropertiesChanged();
+                TrySetAcceptanceResult();
+            })
+            .AddTo(_disposables);
 
-    private void HandleChangePropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(TextChange.Accepted)) NotifyChangesPropertiesChanged();
+        Changes = _changesSource.Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+
+        _disposables.Add(_changesSource);
     }
 
     private void NotifyChangesPropertiesChanged()
@@ -203,7 +208,7 @@ public partial class TextDifference : ObservableObject
 
     public void Add(params TextChange[] changes)
     {
-        foreach (var c in changes) Changes.Add(c);
+        _changesSource.AddRange(changes);
     }
 
     public void AcceptAll() => SetAll(true);
@@ -219,6 +224,7 @@ public partial class TextDifference : ObservableObject
     {
         _acceptanceTcs ??= new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         cancellationToken.Register(() => _acceptanceTcs?.TrySetCanceled());
+        TrySetAcceptanceResult(); // Check once in case already decided
         return _acceptanceTcs.Task;
     }
 
@@ -237,7 +243,7 @@ public partial class TextDifference : ObservableObject
     /// <returns></returns>
     public IEnumerable<TextChange> GetFilteredChanges(in TextDifferenceRenderOptions options)
     {
-        IEnumerable<TextChange> q = Changes;
+        IEnumerable<TextChange> q = _changesSource.Items;
         if (options.OnlyAccepted) q = q.Where(c => c.Accepted == true);
         else if (!options.IncludePending) q = q.Where(c => c.Accepted.HasValue);
         return q.OrderBy(c => c.Range.Start);
@@ -245,8 +251,8 @@ public partial class TextDifference : ObservableObject
 
     public void ValidateAgainst(string original)
     {
-        foreach (var c in Changes) c.Range.EnsureInside(original);
-        var ordered = Changes.OrderBy(c => c.Range.Start).ToList();
+        foreach (var c in _changesSource.Items) c.Range.EnsureInside(original);
+        var ordered = _changesSource.Items.OrderBy(c => c.Range.Start).ToList();
         for (var i = 1; i < ordered.Count; i++)
         {
             var prev = ordered[i - 1];
@@ -259,7 +265,7 @@ public partial class TextDifference : ObservableObject
     public string Apply(string original, Func<TextChange, bool>? selector = null, bool validate = true)
     {
         if (validate) ValidateAgainst(original);
-        var selected = Changes
+        var selected = _changesSource.Items
             .Where(c => selector?.Invoke(c) ?? c.Accepted == true)
             .OrderBy(c => c.Range.Start)
             .ToList();
@@ -284,7 +290,15 @@ public partial class TextDifference : ObservableObject
 
     private void SetAll(bool accepted)
     {
-        foreach (var c in Changes) c.Accepted = accepted;
+        _changesSource.Edit(list =>
+        {
+            foreach (var c in list) c.Accepted = accepted;
+        });
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }
 
@@ -316,7 +330,7 @@ public static class TextDifferenceRenderer
             var before = ch.GetOriginalSlice(original);
             var after = ch.NewText ?? string.Empty;
 
-            var (startLine, _) = OffsetToLineCol(original, ch.Range.Start);
+            var startLine = OffsetToLine(original, ch.Range.Start);
             var origLines = CountLines(before);
             var newLines = CountLines(after);
 
@@ -358,21 +372,12 @@ public static class TextDifferenceRenderer
         return sb.ToString();
     }
 
-    private static (int line, int col) OffsetToLineCol(string text, int offset)
+    private static int OffsetToLine(string text, int offset)
     {
-        if (offset < 0 || offset > text.Length)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-        int line = 1, col = 1;
-        for (var i = 0; i < offset; i++)
-        {
-            if (text[i] == '\n')
-            {
-                line++;
-                col = 1;
-            }
-            else col++;
-        }
-        return (line, col);
+        if (offset < 0 || offset > text.Length) throw new ArgumentOutOfRangeException(nameof(offset));
+
+        var lineBreakChar = Environment.NewLine.Contains('\n') ? '\n' : '\r';
+        return 1 + text.AsSpan(0, offset).Count(lineBreakChar);
     }
 
     public static int CountLines(string? s) =>

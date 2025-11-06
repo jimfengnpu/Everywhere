@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Everywhere.AI;
-using ObservableCollections;
 
 namespace Everywhere.Chat.Plugins;
 
@@ -12,12 +12,12 @@ public interface IChatPluginManager
     /// <summary>
     /// Gets the list of built-in chat plugins for Binding use in the UI.
     /// </summary>
-    INotifyCollectionChangedSynchronizedViewList<BuiltInChatPlugin> BuiltInPlugins { get; }
+    ReadOnlyObservableCollection<BuiltInChatPlugin> BuiltInPlugins { get; }
 
     /// <summary>
     /// Gets the list of MCP chat plugins for Binding use in the UI.
     /// </summary>
-    INotifyCollectionChangedSynchronizedViewList<McpChatPlugin> McpPlugins { get; }
+    ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
 
     void AddMcpPlugin(McpTransportConfiguration configuration);
 

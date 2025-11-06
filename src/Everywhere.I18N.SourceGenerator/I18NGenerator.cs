@@ -245,8 +245,11 @@ public class I18NSourceGenerator : IIncrementalGenerator
               using global::System.Reflection;
               using global::Avalonia.Controls;
               using global::Avalonia.Styling;
+              using global::CommunityToolkit.Mvvm.Messaging;
 
               namespace Everywhere.I18N;
+              
+              public record LocaleChangedMessage(string? OldLocale, string NewLocale);
 
               public class LocaleManager : ResourceDictionary
               {
@@ -294,10 +297,6 @@ public class I18NSourceGenerator : IIncrementalGenerator
                                   
                     CurrentLocale = currentLocale ?? "default";
                 }
-                
-                public delegate void LocaleChangedEventHandler(string? oldLocale, string newLocale);
-                
-                public static event LocaleChangedEventHandler? LocaleChanged;
 
                 [field: AllowNull, MaybeNull]
                 public static string CurrentLocale
@@ -326,12 +325,9 @@ public class I18NSourceGenerator : IIncrementalGenerator
                             }
                             
                             field = value;
-                            foreach (var (key, val) in newLocale)
-                            {
-                                Shared[key] = val;
-                            }
+                            Shared.SetItems(newLocale);
                         
-                            LocaleChanged?.Invoke(oldLocaleName, field);
+                            WeakReferenceMessenger.Default.Send(new LocaleChangedMessage(oldLocaleName, value));
                         }
                     }
                 }

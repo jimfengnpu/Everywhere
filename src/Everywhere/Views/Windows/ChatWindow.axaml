@@ -255,7 +255,7 @@
 
             <StackPanel
               Margin="0,0,0,8"
-              IsVisible="{Binding ChatContextManager.ChatMessageNodes.Count, Converter={x:Static vc:Int32Converters.NotGreaterThan}, ConverterParameter=1}"
+              IsVisible="{Binding ChatContextManager.Current.BranchNodesWithoutSystem.Count, Converter={x:Static vc:Int32Converters.NotGreaterThan}, ConverterParameter=1}"
               Spacing="8">
               <ToggleSwitch
                 HorizontalAlignment="Center" shadui:ToggleSwitchAssist.RightAlignedContent="True"
@@ -311,7 +311,7 @@
               x:Name="ItemsControl" Margin="0,0,0,8"
               Padding="8,0"
               IsVisible="{Binding $self.ItemCount, Converter={x:Static vc:Int32Converters.GreaterThan}, ConverterParameter=0}"
-              ItemsSource="{Binding ChatContextManager.ChatMessageNodes}">
+              ItemsSource="{Binding ChatContextManager.Current.BranchNodesWithoutSystem}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                   <StackPanel
@@ -413,7 +413,7 @@
                         <StackPanel
                           Classes="ChatMessage Assistant" Background="Transparent"
                           Orientation="Vertical" Spacing="4">
-                          <ItemsControl ItemsSource="{Binding Spans, Converter={x:Static vc:ObservableListConverters.ObservableOnDispatcher}}">
+                          <ItemsControl ItemsSource="{Binding Spans}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
                                 <StackPanel Spacing="8"/>
@@ -446,7 +446,7 @@
                                   <ItemsControl
                                     ClipToBounds="False"
                                     IsVisible="{Binding !!$self.ItemCount}"
-                                    ItemsSource="{Binding FunctionCalls, Converter={x:Static vc:ObservableListConverters.ObservableOnDispatcher}}">
+                                    ItemsSource="{Binding FunctionCalls}">
                                     <ItemsControl.ItemsPanel>
                                       <ItemsPanelTemplate>
                                         <StackPanel Spacing="8"/>
@@ -772,6 +772,7 @@
             IsToolCallEnabled="{Binding Settings.Internal.IsToolCallEnabled, Mode=TwoWay}"
             IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported, FallbackValue=false}"
             MaxChatAttachmentCount="{Binding Settings.Internal.MaxChatAttachmentCount}"
+            RemoveAttachmentCommand="{Binding RemoveAttachmentCommand}"
             SelectedCustomAssistant="{Binding Settings.Model.SelectedCustomAssistant, Mode=TwoWay}"
             Text="{Binding Settings.Internal.ChatInputBoxText, Mode=TwoWay}"
             TextWrapping="Wrap">
