@@ -1,23 +1,16 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using Everywhere.Common;
-using Everywhere.Configuration;
-using Everywhere.Utilities;
+﻿using Everywhere.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.AI;
 
 /// <summary>
 /// A factory for creating instances of <see cref="IKernelMixin"/>.
 /// </summary>
-public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyChangedMessage>
+public class KernelMixinFactory(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory) : IKernelMixinFactory
 {
     private readonly Lock _syncLock = new();
 
     private KernelMixinBase? _cachedKernelMixin;
-
-    public KernelMixinFactory()
-    {
-        WeakReferenceMessenger.Default.Register(this);
-    }
 
     /// <summary>
     /// Gets an existing <see cref="IKernelMixin"/> instance from the cache or creates a new one.
@@ -55,23 +48,19 @@ public class KernelMixinFactory : IKernelMixinFactory, IRecipient<NetworkProxyCh
         }
 
         _cachedKernelMixin?.Dispose();
+
+        // Create an HttpClient instance using the factory.
+        // It will have the configured settings (timeout and proxy).
+        var httpClient = httpClientFactory.CreateClient();
         return _cachedKernelMixin = customAssistant.Schema.ActualValue switch
         {
-            ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant),
-            ModelProviderSchema.Anthropic => new AnthropicKernelMixin(customAssistant),
-            ModelProviderSchema.Ollama => new OllamaKernelMixin(customAssistant),
+            ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant, httpClient, loggerFactory),
+            ModelProviderSchema.Anthropic => new AnthropicKernelMixin(customAssistant, httpClient),
+            ModelProviderSchema.Ollama => new OllamaKernelMixin(customAssistant, httpClient),
             _ => throw new HandledChatException(
                 new NotSupportedException($"Model provider schema '{customAssistant.Schema}' is not supported."),
                 HandledChatExceptionType.InvalidConfiguration,
                 new DynamicResourceKey(LocaleKey.KernelMixinFactory_UnsupportedModelProviderSchema))
         };
-    }
-
-    public void Receive(NetworkProxyChangedMessage message)
-    {
-        using var _ = _syncLock.EnterScope();
-
-        // Invalidate the cached kernel mixin when the network proxy changes.
-        DisposeCollector.DisposeToDefault(ref _cachedKernelMixin);
     }
 }

@@ -731,6 +731,7 @@ public class ChatService(
                             context.Function.HeaderKey,
                             new DirectResourceKey(context.Function.Permissions.I18N(LocaleKey.Common_Comma.I18N(), true))),
                         friendlyContent,
+                        true,
                         cancellationToken));
 
                 var consentDecision = await promise.Task;
@@ -1021,36 +1022,38 @@ public class ChatService(
         }
     }
 
+    public IChatPluginDisplaySink DisplaySink =>
+        _currentFunctionCallContext?.ChatMessage.DisplayBlocks ?? throw new InvalidOperationException("No active function call to display sink for");
+
     public async Task<bool> RequestConsentAsync(
-        string id,
+        string? id,
         DynamicResourceKeyBase headerKey,
         ChatPluginDisplayBlock? content = null,
         CancellationToken cancellationToken = default)
     {
-        if (id.IsNullOrWhiteSpace())
-        {
-            throw new ArgumentException("Consent request ID cannot be null or whitespace", nameof(id));
-        }
-
         if (_currentFunctionCallContext is null)
         {
             throw new InvalidOperationException("No active function call to request consent for");
         }
 
-        // Check if the permission is already granted
-        var grantedPermissions = ChatFunctionPermissions.None;
-        var permissionKey = $"{_currentFunctionCallContext.PermissionKey}.{id}";
-        if (settings.Plugin.GrantedPermissions.TryGetValue(permissionKey, out var extra))
+        string? permissionKey = null;
+        if (!id.IsNullOrWhiteSpace())
         {
-            grantedPermissions |= extra;
-        }
-        if (_currentFunctionCallContext.ChatContext.GrantedPermissions.TryGetValue(permissionKey, out var session))
-        {
-            grantedPermissions |= session;
-        }
-        if ((grantedPermissions & _currentFunctionCallContext.Function.Permissions) == _currentFunctionCallContext.Function.Permissions)
-        {
-            return true;
+            // Check if the permission is already granted
+            var grantedPermissions = ChatFunctionPermissions.None;
+            permissionKey = $"{_currentFunctionCallContext.PermissionKey}.{id}";
+            if (settings.Plugin.GrantedPermissions.TryGetValue(permissionKey, out var extra))
+            {
+                grantedPermissions |= extra;
+            }
+            if (_currentFunctionCallContext.ChatContext.GrantedPermissions.TryGetValue(permissionKey, out var session))
+            {
+                grantedPermissions |= session;
+            }
+            if ((grantedPermissions & _currentFunctionCallContext.Function.Permissions) == _currentFunctionCallContext.Function.Permissions)
+            {
+                return true;
+            }
         }
 
         var promise = new TaskCompletionSource<ConsentDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -1059,9 +1062,21 @@ public class ChatService(
                 promise,
                 headerKey,
                 content,
+                permissionKey is not null,
                 cancellationToken));
 
         var consentDecision = await promise.Task;
+
+        if (permissionKey is null)
+        {
+            // no id provided, so we cannot remember the decision
+            return consentDecision switch
+            {
+                ConsentDecision.AllowOnce => true,
+                _ => false,
+            };
+        }
+
         switch (consentDecision)
         {
             case ConsentDecision.AlwaysAllow:
@@ -1097,7 +1112,4 @@ public class ChatService(
     {
         throw new NotImplementedException();
     }
-
-    public IChatPluginDisplaySink RequestDisplaySink() =>
-        _currentFunctionCallContext?.ChatMessage ?? throw new InvalidOperationException("No active function call to display sink for");
 }

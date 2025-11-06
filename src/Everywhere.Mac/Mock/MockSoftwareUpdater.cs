@@ -14,6 +14,4 @@ public class MockSoftwareUpdater : ISoftwareUpdater
 
     public Task CheckForUpdatesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task PerformUpdateAsync(IProgress<double> progress, CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-    public Task PerformUpdateAsync(IProgress<double> progress) => Task.CompletedTask;
 }

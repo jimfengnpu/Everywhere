@@ -10,6 +10,7 @@
         <NoWarn>$(NoWarn),CA1826,SKEXP0001,SKEXP0010,SKEXP0050,SKEXP0110,KMEXP00,OPENAI001,AVLN3001</NoWarn>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <CETCompat>false</CETCompat>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <PropertyGroup Condition="$([System.String]::Copy($(RuntimeIdentifier)).StartsWith('win')) OR $([MSBuild]::IsOSPlatform('Windows'))">

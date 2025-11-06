@@ -4,6 +4,7 @@ using System.IO.Enumeration;
 using System.Text;
 using System.Text.RegularExpressions;
 using Everywhere.Chat.Permissions;
+using Everywhere.Common;
 using Everywhere.Utilities;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
@@ -68,7 +69,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         "Search for files and directories in a specified path matching the given search pattern. " +
         "This tool may slow; avoid using it to enumerate large numbers of files. " +
         "DO NOT specify the value of `orderBy` when dealing with a large number of files.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_SearchFiles_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_SearchFiles_Header, LocaleKey.NativeChatPlugin_FileSystem_SearchFiles_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private string SearchFiles(
         string path,
@@ -116,7 +117,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("get_file_info")]
     [Description("Get information about a file or directory at the specified path.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_GetFileInformation_Header)]
+    [DynamicResourceKey(
+        LocaleKey.NativeChatPlugin_FileSystem_GetFileInformation_Header,
+        LocaleKey.NativeChatPlugin_FileSystem_GetFileInformation_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private string GetFileInformation(string path)
     {
@@ -136,7 +139,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("search_file_content")]
     [Description("Searches for a specific text pattern within file(s) and returns matching lines.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_SearchFileContent_Header)]
+    [DynamicResourceKey(
+        LocaleKey.NativeChatPlugin_FileSystem_SearchFileContent_Header,
+        LocaleKey.NativeChatPlugin_FileSystem_SearchFileContent_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> SearchFileContentAsync(
         [Description("File or directory path to search.")] string path,
@@ -226,7 +231,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
     [Description(
         "Reads lines from a text file at the specified path. Supports reading from a specific line and limiting the number of lines." +
         "Binary files will read as hex string, 32 bytes per line.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReadFile_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReadFile_Header, LocaleKey.NativeChatPlugin_FileSystem_ReadFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> ReadFileAsync(
         string path,
@@ -244,7 +249,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
         var fileInfo = EnsureFileInfo(path);
         if (fileInfo.Length > 10 * 1024 * 1024)
         {
-            throw new NotSupportedException("File size is larger than 10 MB, read operation is not supported.");
+            throw new HandledException(
+                new NotSupportedException("File size is larger than 10 MB, read operation is not supported."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage));
         }
 
         await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -307,7 +314,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("move_file")]
     [Description("Moves or renames a file or directory.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_MoveFile_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_MoveFile_Header, LocaleKey.NativeChatPlugin_FileSystem_MoveFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private bool MoveFile(
         [Description("Source file or directory path.")] string source,
@@ -321,13 +328,13 @@ public class FileSystemPlugin : BuiltInChatPlugin
         var isFile = File.Exists(source);
         if (!isFile && !Directory.Exists(source))
         {
-            throw new FileNotFoundException($"{nameof(source)} does not exist.");
+            throw new HandledSystemException(new FileNotFoundException($"{nameof(source)} does not exist."), HandledSystemExceptionType.FileNotFound);
         }
 
         var destinationDirectory = Path.GetDirectoryName(destination);
         if (string.IsNullOrWhiteSpace(destinationDirectory))
         {
-            throw new DirectoryNotFoundException($"{destination} directory is invalid.");
+            throw new HandledSystemException(new DirectoryNotFoundException($"{nameof(destination)} directory is invalid."), HandledSystemExceptionType.DirectoryNotFound);
         }
 
         try
@@ -336,7 +343,10 @@ public class FileSystemPlugin : BuiltInChatPlugin
         }
         catch (Exception ex)
         {
-            throw new IOException("Failed to create destination directory.", ex);
+            throw new HandledSystemException(
+                new IOException("Failed to create destination directory.", ex),
+                HandledSystemExceptionType.IOException,
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage));
         }
 
         if (isFile)
@@ -354,7 +364,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
     [KernelFunction("delete_files")]
     [Description(
         "Delete files and directories at the specified path matching the given pattern.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_DeleteFiles_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_DeleteFiles_Header, LocaleKey.NativeChatPlugin_FileSystem_DeleteFiles_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> DeleteFilesAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
@@ -372,13 +382,17 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
         if (Path.GetDirectoryName(path) is null)
         {
-            throw new UnauthorizedAccessException("Cannot delete root directory.");
+            throw new HandledException(
+                new UnauthorizedAccessException("Cannot delete root directory."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage));
         }
 
         var fileSystemInfo = EnsureFileSystemInfo(path);
         if (fileSystemInfo.Attributes.HasFlag(FileAttributes.System))
         {
-            throw new UnauthorizedAccessException("Cannot delete system files or directories.");
+            throw new HandledException(
+                new UnauthorizedAccessException("Cannot delete system files or directories."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage));
         }
 
         IEnumerable<FileSystemInfo> infosToDelete;
@@ -449,7 +463,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("create_directory")]
     [Description("Creates a new directory at the specified path.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_CreateDirectory_Header)]
+    [DynamicResourceKey(
+        LocaleKey.NativeChatPlugin_FileSystem_CreateDirectory_Header,
+        LocaleKey.NativeChatPlugin_FileSystem_CreateDirectory_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private void CreateDirectory(string path)
     {
@@ -461,7 +477,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("write_to_file")]
     [Description("Writes content to a text file at the specified path. Binary files are not supported.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_WriteToFile_Header)]
+    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_WriteToFile_Header, LocaleKey.NativeChatPlugin_FileSystem_WriteToFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task WriteToFileAsync(
         string path,
@@ -474,7 +490,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
         await using var stream = new FileStream(path, append ? FileMode.Append : FileMode.Create, FileAccess.ReadWrite, FileShare.None);
         if (await EncodingDetector.DetectEncodingAsync(stream) is not { } encoding)
         {
-            throw new InvalidOperationException("Cannot write to a binary file.");
+            throw new HandledException(
+                new UnauthorizedAccessException("Cannot write to a binary file."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage));
         }
 
         await using var writer = new StreamWriter(stream, encoding);
@@ -484,7 +502,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
     [KernelFunction("replace_file_content")]
     [Description("Replaces content in a single text file at the specified path with regex. Binary files are not supported.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReplaceFileContent_Header)]
+    [DynamicResourceKey(
+        LocaleKey.NativeChatPlugin_FileSystem_ReplaceFileContent_Header,
+        LocaleKey.NativeChatPlugin_FileSystem_ReplaceFileContent_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> ReplaceFileContentAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
@@ -503,25 +523,33 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
         if (patterns.Count == 0)
         {
-            throw new ArgumentException("At least one pattern must be provided.", nameof(patterns));
+            throw new HandledException(
+                new ArgumentException("At least one pattern must be provided.", nameof(patterns)),
+                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
         }
 
         if (replacements.Count != patterns.Count)
         {
-            throw new ArgumentException("Replacements count must match patterns count.", nameof(replacements));
+            throw new HandledException(
+                new ArgumentException("Replacements count must match patterns count.", nameof(replacements)),
+                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
         }
 
         ExpandFullPath(ref path);
         var fileInfo = EnsureFileInfo(path);
         if (fileInfo.Length > 10 * 1024 * 1024)
         {
-            throw new NotSupportedException("File size is larger than 10 MB, replace operation is not supported.");
+            throw new HandledException(
+                new NotSupportedException("File size is larger than 10 MB, replace operation is not supported."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage));
         }
 
         await using var stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         if (await EncodingDetector.DetectEncodingAsync(stream, cancellationToken: cancellationToken) is not { } encoding)
         {
-            throw new InvalidOperationException("Cannot replace content in a binary file.");
+            throw new HandledException(
+                new InvalidOperationException("Cannot replace content in a binary file."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage));
         }
 
         stream.Seek(0, SeekOrigin.Begin);
@@ -546,7 +574,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         var difference = new TextDifference(path);
         TextDifferenceBuilder.BuildLineDiff(difference, fileContent, replacedContent);
 
-        userInterface.RequestDisplaySink().AppendFileDifference(difference, fileContent);
+        userInterface.DisplaySink.AppendFileDifference(difference, fileContent);
         await difference.WaitForAcceptanceAsync(cancellationToken);
 
         // Apply all accepted changes
@@ -569,7 +597,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+            throw new HandledException(
+                new ArgumentException("Path cannot be null or empty.", nameof(path)),
+                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
         }
 
         path = Environment.ExpandEnvironmentVariables(path);
@@ -590,10 +620,14 @@ public class FileSystemPlugin : BuiltInChatPlugin
         {
             if (File.Exists(path))
             {
-                throw new InvalidOperationException("The specified path is a file, not a directory.");
+                throw new HandledException(
+                    new InvalidOperationException("The specified path is a file, not a directory."),
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage));
             }
 
-            throw new DirectoryNotFoundException("The specified path is not a directory or a file.");
+            throw new HandledException(
+                new DirectoryNotFoundException("The specified path is not a directory or a file."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage));
         }
 
         return directoryInfo;
@@ -613,10 +647,14 @@ public class FileSystemPlugin : BuiltInChatPlugin
         {
             if (Directory.Exists(path))
             {
-                throw new InvalidOperationException("The specified path is a directory, not a file.");
+                throw new HandledException(
+                    new InvalidOperationException("The specified path is a directory, not a file."),
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage));
             }
 
-            throw new FileNotFoundException("The specified path is not a file or a directory.");
+            throw new HandledException(
+                new FileNotFoundException("The specified path is not a file or a directory."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage));
         }
 
         return fileInfo;
@@ -634,7 +672,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
             return new DirectoryInfo(path);
         }
 
-        throw new FileNotFoundException("The specified path does not exist as a file or directory.");
+        throw new HandledException(
+            new FileNotFoundException("The specified path does not exist as a file or directory."),
+            new DynamicResourceKey(LocaleKey.NativeChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage));
     }
 
     /// <summary>

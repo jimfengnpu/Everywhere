@@ -4,6 +4,7 @@ using System.Management.Automation.Runspaces;
 using System.Reflection;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
+using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Lucide.Avalonia;
@@ -24,10 +25,14 @@ public class PowerShellPlugin : BuiltInChatPlugin
     public override string BeautifulIcon => "avares://Everywhere.Windows/Assets/Icons/PowerShell.svg";
 
     private readonly ILogger<PowerShellPlugin> _logger;
+    private readonly InitialSessionState _initialSessionState;
 
     public PowerShellPlugin(ILogger<PowerShellPlugin> logger) : base("powershell")
     {
         _logger = logger;
+
+        _initialSessionState = InitialSessionState.CreateDefault2();
+        _initialSessionState.ExecutionPolicy = ExecutionPolicy.Bypass;
 
         // Load powershell module
         // from: https://github.com/PowerShell/PowerShell/issues/25793
@@ -65,7 +70,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
             throw new ArgumentException("Script cannot be null or empty.", nameof(script));
         }
 
-        string consentKey;
+        string? consentKey;
         var trimmedScript = script.AsSpan().Trim();
         if (trimmedScript.Count('\n') == 0)
         {
@@ -75,39 +80,67 @@ public class PowerShellPlugin : BuiltInChatPlugin
         }
         else
         {
-            // multi-line script, show full script to user
-            consentKey = "multi";
+            // multi-line script, ask every time
+            consentKey = null;
         }
+
+        var detailBlock = new ChatPluginContainerDisplayBlock
+        {
+            Children =
+            {
+                new ChatPluginTextDisplayBlock(description),
+                new ChatPluginCodeBlockDisplayBlock(script, "powershell"),
+            }
+        };
 
         var consent = await userInterface.RequestConsentAsync(
             consentKey,
             new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
-            new ChatPluginContainerDisplayBlock
-            {
-                Children =
-                {
-                    new ChatPluginTextDisplayBlock(description),
-                    new ChatPluginTextDisplayBlock(script),
-                }
-            },
+            detailBlock,
             cancellationToken);
         if (!consent) return "User denied execution of the script.";
 
-        // Use PowerShell to execute the script and return the output
-        var iss = InitialSessionState.CreateDefault2();
-        iss.ExecutionPolicy = ExecutionPolicy.Bypass;
-        // Set to ConstrainedLanguage to enhance security
-        iss.LanguageMode = PSLanguageMode.ConstrainedLanguage;
-        using var powerShell = PowerShell.Create(iss);
-        powerShell.AddScript(script);
+        userInterface.DisplaySink.AppendBlocks(detailBlock.Children);
 
-        var results = await powerShell.InvokeAsync();
+        // Create a new runspace and PowerShell instance for each execution
+        // using the cached InitialSessionState. This ensures context isolation.
+        using var runspace = RunspaceFactory.CreateRunspace(_initialSessionState);
+        // Disable ReSharper warning as OpenAsync() cannot be awaited
+        // ReSharper disable once MethodHasAsyncOverload
+        runspace.Open();
+
+        using var powerShell = PowerShell.Create(runspace);
+        powerShell.AddScript($"& {{ {script} }} | Out-String"); // Ensure results are returned as string
+        var invokeTask = powerShell.InvokeAsync();
+
+        await using var registration = cancellationToken.Register(() =>
+        {
+            try
+            {
+                // ReSharper disable once AccessToDisposedClosure
+                powerShell.Stop();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore
+            }
+        });
+
+        var results = await invokeTask;
         if (powerShell.HadErrors)
         {
-            var errorMessages = powerShell.Streams.Error.Select(e => e.ToString());
-            throw new InvalidOperationException($"PowerShell script execution failed: {string.Join(Environment.NewLine, errorMessages)}");
+            var errorMessage = string.Join(Environment.NewLine, powerShell.Streams.Error.Select(e => e.ToString()));
+            throw new HandledException(
+                new SystemException($"PowerShell script execution failed: {errorMessage}"),
+                new FormattedDynamicResourceKey(
+                    LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
+                    new DirectResourceKey(errorMessage)));
         }
 
-        return string.Join(Environment.NewLine, results.Select(r => r.ToString()));
+        var result = results.FirstOrDefault()?.ToString() ?? string.Empty;
+        if (result.EndsWith(Environment.NewLine)) result = result[..^Environment.NewLine.Length]; // Trim trailing new line
+        userInterface.DisplaySink.AppendCodeBlock(result, "log");
+
+        return result;
     }
 }

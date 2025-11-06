@@ -174,6 +174,7 @@ public partial class CustomAssistant : ObservableObject
     public partial Customizable<double> FrequencyPenalty { get; set; } = 0.0;
 
     [JsonIgnore]
+    [HiddenSettingsItem]
     public SettingsItems SettingsItems
     {
         get

@@ -95,6 +95,7 @@ public partial class CommonSettings : SettingsCategory
             }
             catch (Exception ex)
             {
+                ex = HandledSystemException.Handle(ex); // maybe blocked by UAC or antivirus, handle it gracefully
                 Logger.LogError(ex, "Failed to set user startup enabled.");
                 ShowErrorToast(ex);
             }
@@ -118,6 +119,7 @@ public partial class CommonSettings : SettingsCategory
             }
             catch (Exception ex)
             {
+                ex = HandledSystemException.Handle(ex); // maybe blocked by UAC or antivirus, handle it gracefully
                 Logger.LogError(ex, "Failed to set administrator startup enabled.");
                 ShowErrorToast(ex);
             }

@@ -7,6 +7,7 @@ namespace Everywhere.Configuration;
 
 public partial class WebSearchEngineSettings : SettingsCategory
 {
+    [HiddenSettingsItem]
     [ObservableProperty]
     public partial ObservableCollection<WebSearchEngineProvider> WebSearchEngineProviders { get; set; } = [];
 

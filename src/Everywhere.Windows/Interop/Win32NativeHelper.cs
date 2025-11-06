@@ -1,15 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
 using Windows.Data.Xml.Dom;
-using Windows.UI.Composition;
 using Windows.UI.Notifications;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Dwm;
 using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Everywhere.Common;
@@ -17,7 +13,6 @@ using Everywhere.Extensions;
 using Everywhere.Interop;
 using Microsoft.Win32;
 using Vector = Avalonia.Vector;
-using Visual = Windows.UI.Composition.Visual;
 
 namespace Everywhere.Windows.Interop;
 
@@ -109,7 +104,7 @@ public class Win32NativeHelper : INativeHelper
     {
         if (IsAdministrator)
         {
-            throw new InvalidOperationException("The application is already running as an administrator.");
+            return;
         }
 
         var startInfo = new ProcessStartInfo
@@ -120,40 +115,9 @@ public class Win32NativeHelper : INativeHelper
             Verb = "runas" // This will prompt for elevation
         };
 
-        try
-        {
-            Entrance.ReleaseMutex();
-            Process.Start(startInfo);
-            Environment.Exit(0); // Exit the current process
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to restart as administrator.", ex);
-        }
-    }
-
-    public unsafe void HideWindowWithoutAnimation(Window window)
-    {
-        BOOL disableTransitions = true;
-        var hWnd = window.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
-        if (hWnd != 0)
-        {
-            PInvoke.DwmSetWindowAttribute(
-                (HWND)hWnd,
-                DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED,
-                &disableTransitions,
-                (uint)sizeof(BOOL));
-        }
-        window.Hide();
-        if (hWnd != 0)
-        {
-            disableTransitions = false;
-            PInvoke.DwmSetWindowAttribute(
-                (HWND)hWnd,
-                DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED,
-                &disableTransitions,
-                (uint)sizeof(BOOL));
-        }
+        Entrance.ReleaseMutex();
+        Process.Start(startInfo);
+        Environment.Exit(0); // Exit the current process
     }
 
     private readonly Lock _clipboardLock = new();

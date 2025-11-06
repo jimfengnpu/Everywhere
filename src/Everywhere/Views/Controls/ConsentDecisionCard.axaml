@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:permissions="clr-namespace:Everywhere.Chat.Permissions" xmlns:v="using:Everywhere.Views">
+  xmlns:permissions="clr-namespace:Everywhere.Chat.Permissions" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  xmlns:v="using:Everywhere.Views">
   <Design.PreviewWith>
     <v:ConsentDecisionCard/>
   </Design.PreviewWith>
@@ -52,6 +53,12 @@
 
                 <StackPanel
                   Grid.Row="2" Spacing="4">
+                  <StackPanel.Styles>
+                    <Style Selector="Button.Ghost">
+                      <Setter Property="shadui:ButtonAssist.HoverBackground" Value="{DynamicResource DestructiveColor75}"/>
+                    </Style>
+                  </StackPanel.Styles>
+
                   <Button
                     Classes="Primary"
                     Command="{Binding SelectConsentCommand, RelativeSource={RelativeSource TemplatedParent}}"
@@ -66,12 +73,14 @@
                     Classes="Secondary"
                     Command="{Binding SelectConsentCommand, RelativeSource={RelativeSource TemplatedParent}}"
                     CommandParameter="{x:Static permissions:ConsentDecision.AllowSession}"
-                    Content="{I18N {x:Static LocaleKey.ConsentDecision_AllowSession}}"/>
+                    Content="{I18N {x:Static LocaleKey.ConsentDecision_AllowSession}}"
+                    IsVisible="{TemplateBinding CanRemember}"/>
                   <Button
                     Classes="Ghost Compact"
                     Command="{Binding SelectConsentCommand, RelativeSource={RelativeSource TemplatedParent}}"
                     CommandParameter="{x:Static permissions:ConsentDecision.AlwaysAllow}"
-                    Content="{I18N {x:Static LocaleKey.ConsentDecision_AlwaysAllow}}"/>
+                    Content="{I18N {x:Static LocaleKey.ConsentDecision_AlwaysAllow}}"
+                    IsVisible="{TemplateBinding CanRemember}"/>
                 </StackPanel>
               </Grid>
             </ExperimentalAcrylicBorder>

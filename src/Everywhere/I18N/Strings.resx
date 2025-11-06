@@ -146,7 +146,7 @@
         <value>API Url</value>
     </data>
     <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
-        <value>Leaving this to default if you dont't know what to do. Must starts with "http(s)://".</value>
+        <value>Leaving this to default if you don't know what to do. Must starts with "http(s)://".</value>
     </data>
     <data name="ChatInputBox_Watermark" xml:space="preserve">
         <value>Ask Everywhere, or just chat</value>
@@ -174,12 +174,6 @@
     </data>
     <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
         <value>Cancel</value>
-    </data>
-    <data name="AssistantCommand_Translate_Description" xml:space="preserve">
-        <value>Translate into the target language</value>
-    </data>
-    <data name="AssistantCommand_Rewrite_Description" xml:space="preserve">
-        <value>Rewrite as required</value>
     </data>
     <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
         <value>Analyze Context</value>
@@ -234,13 +228,10 @@
         <value>Translate</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Verify" xml:space="preserve">
-        <value>Key Points</value>
+        <value>Verify Authenticity</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Summarize" xml:space="preserve">
         <value>Summary</value>
-    </data>
-    <data name="ChatWindow_Title" xml:space="preserve">
-        <value>How can I assist you?</value>
     </data>
     <data name="KeyboardShortcutInputBox_Watermark" xml:space="preserve">
         <value>Click to set a shortcut</value>
@@ -580,16 +571,16 @@
         <value>Support Image Input</value>
     </data>
     <data name="Settings_CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>You can upload images in chat context. If you're not sure what you're doing, keep the default value. If the model doesn’t support image inputs, enabling this may cause failures.</value>
+        <value>You can upload images in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support image inputs, enabling this may cause failures.</value>
     </data>
     <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Support Tools Usage</value>
     </data>
     <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>Model can use tools you configured in chat context. If you're not sure what you're doing, keep the default value. If the model doesn’t support function calling, enabling this may cause failures.</value>
+        <value>Model can use tools you configured in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support function calling, enabling this may cause failures.</value>
     </data>
     <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>Model can think before replies. If you're not sure what you're doing, keep the default value. If the model doesn’t support deep thinking, enabling this may cause failures.</value>
+        <value>Model can think before replies. If you're not sure what you're doing, keep the default value. If the model doesn't support deep thinking, enabling this may cause failures.</value>
     </data>
     <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Support Deep Thinking</value>
@@ -607,7 +598,7 @@
         <value>API Schema</value>
     </data>
     <data name="Settings_CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>Select API schema. Leaving this to default if you dont't know what to do.</value>
+        <value>Select API schema. Leaving this to default if you don't know what to do.</value>
     </data>
     <data name="Settings_Common_IsStartupEnabled_Header" xml:space="preserve">
         <value>Run at Startup</value>
@@ -1319,7 +1310,7 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
         <value>Capture UI Element</value>
     </data>
     <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
-        <value>Caoture Full Screen</value>
+        <value>Capture Full Screen</value>
     </data>
     <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
         <value>Operate UI elements</value>
@@ -1374,5 +1365,118 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     </data>
     <data name="Settings_Common_Proxy_Description" xml:space="preserve">
         <value>Setting the network proxy.</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
+        <value>Description: {0}
+Content:
+{1}</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
+        <value>PowerShell script execution failed: {0}</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFiles_Description" xml:space="preserve">
+        <value>Search for files or directories in a specified path matching the given pattern.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Description" xml:space="preserve">
+        <value>Get information about a file or directory at the specified path.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Description" xml:space="preserve">
+        <value>Search for a specific text within file(s) and return matching lines.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReadFile_Description" xml:space="preserve">
+        <value>Read the content of a file at the specified path.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_MoveFile_Description" xml:space="preserve">
+        <value>Move or rename a file or directory.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Description" xml:space="preserve">
+        <value>Delete files or directories at the specified path.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Description" xml:space="preserve">
+        <value>Create a new directory at the specified path.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_WriteToFile_Description" xml:space="preserve">
+        <value>Write content to a text file at the specified path.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Description" xml:space="preserve">
+        <value>Replace content in a text file.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage" xml:space="preserve">
+        <value>File size exceeds 10 MB; read operation is not supported.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage" xml:space="preserve">
+        <value>Failed to create the directory.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage" xml:space="preserve">
+        <value>Cannot delete the root directory.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage" xml:space="preserve">
+        <value>Cannot delete system files or directories.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
+        <value>Cannot write to a binary file.</value>
+    </data>
+    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
+        <value>Invalid parameters were provided when calling the tool.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
+        <value>File size is larger than 10 MB, replace operation is not supported.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage" xml:space="preserve">
+        <value>Cannot replace content in a binary file.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage" xml:space="preserve">
+        <value>Specified path is a file, not a directory.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+        <value>Specified path is not a valid file or directory.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage" xml:space="preserve">
+        <value>Specified path is a directory, not a file.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+        <value>Specified file or directory was not found.</value>
+    </data>
+    <data name="NativeChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+        <value>Specified path does not exist.</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Description" xml:space="preserve">
+        <value>Capture a screenshot of a visual element.</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Description" xml:space="preserve">
+        <value>Capture a screenshot of the entire screen.</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Description" xml:space="preserve">
+        <value>Execute a set of UI automation actions such as clicking, typing, or sending shortcuts.</value>
+    </data>
+    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage" xml:space="preserve">
+        <value>No screen is available to capture.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearch_Description" xml:space="preserve">
+        <value>Perform a web search.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Description" xml:space="preserve">
+        <value>Capture a snapshot of a web page’s content and basic info.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage" xml:space="preserve">
+        <value>Web search engine provider is not selected. Please configure it in the web browser of plugin settings.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage" xml:space="preserve">
+        <value>Provided endpoint is invalid; please ensure it is a valid absolute URI.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage" xml:space="preserve">
+        <value>Google Search Engine ID is not set. Please configure it in the plugin settings.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage" xml:space="preserve">
+        <value>Web search engine provider is not supported. Please switch it in the plugin settings.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage" xml:space="preserve">
+        <value>API key is not set. Please configure it in the plugin settings.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
+        <value>Failed to connect to the Puppeteer browser download URL.</value>
+    </data>
+    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
+        <value>Failed to download or launch the Puppeteer browser.</value>
     </data>
 </root>

@@ -48,8 +48,6 @@ public enum VisualElementStates
 
 public interface IVisualElement
 {
-    IVisualElementContext Context { get; }
-
     /// <summary>
     /// Unique identifier in one Visual Tree.
     /// </summary>
@@ -87,6 +85,12 @@ public interface IVisualElement
     /// set maxLength to 1 can check if the text is null or empty, with minimal performance impact.
     /// </remarks>
     string? GetText(int maxLength = -1);
+
+    /// <summary>
+    /// Get the selected text of the visual element.
+    /// </summary>
+    /// <returns></returns>
+    string? GetSelectionText();
 
     /// <summary>
     /// Invokes the default action on the visual element using UI Automation patterns.

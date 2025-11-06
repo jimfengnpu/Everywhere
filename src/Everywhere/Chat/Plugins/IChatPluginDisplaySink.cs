@@ -8,10 +8,29 @@ namespace Everywhere.Chat.Plugins;
 public interface IChatPluginDisplaySink
 {
     /// <summary>
+    /// Appends a display block to the display sink.
+    /// </summary>
+    /// <param name="block"></param>
+    void AppendBlock(ChatPluginDisplayBlock block);
+
+    /// <summary>
+    /// Appends multiple display blocks to the display sink.
+    /// </summary>
+    /// <param name="blocks"></param>
+    void AppendBlocks(IEnumerable<ChatPluginDisplayBlock> blocks);
+
+    /// <summary>
+    /// Appends a group block to the display sink. The caller can use the returned sink to append content to the group.
+    /// </summary>
+    /// <returns></returns>
+    IChatPluginDisplaySink AppendContainer();
+
+    /// <summary>
     /// Appends plain text to the display sink.
     /// </summary>
     /// <param name="text"></param>
-    void AppendText(string text);
+    /// <param name="fontFamily"></param>
+    void AppendText(string text, string? fontFamily = null);
 
     /// <summary>
     /// Appends a dynamic resource key to the display sink.
@@ -44,5 +63,21 @@ public interface IChatPluginDisplaySink
     /// <param name="originalText"></param>
     void AppendFileDifference(TextDifference difference, string originalText);
 
+    /// <summary>
+    /// Appends a list of URLs to the display sink.
+    /// </summary>
+    /// <param name="urls"></param>
     void AppendUrls(IReadOnlyList<ChatPluginUrl> urls);
+
+    /// <summary>
+    /// Appends a separator to the display sink.
+    /// </summary>
+    void AppendSeparator(double thickness = 1.0d);
+
+    /// <summary>
+    /// Appends a code block to the display sink.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <param name="language"></param>
+    void AppendCodeBlock(string code, string? language = null);
 }
