@@ -120,13 +120,7 @@ public sealed class ChatContextStorage(
             var metadata = GetOrAddAlive(
                 _metadataCache,
                 entity.Id,
-                () => new ChatContextMetadata
-                {
-                    Id = entity.Id,
-                    DateCreated = entity.CreatedAt,
-                    DateModified = entity.UpdatedAt,
-                    Topic = entity.Topic
-                });
+                () => new ChatContextMetadata(entity.Id, entity.CreatedAt, entity.UpdatedAt, entity.Topic));
 
             yield return metadata;
         }
@@ -276,13 +270,7 @@ public sealed class ChatContextStorage(
         var metadata = GetOrAddAlive(
             _metadataCache,
             ctxRow.Id,
-            () => new ChatContextMetadata
-            {
-                Id = ctxRow.Id,
-                DateCreated = ctxRow.CreatedAt,
-                DateModified = ctxRow.UpdatedAt,
-                Topic = ctxRow.Topic
-            });
+            () => new ChatContextMetadata(ctxRow.Id, ctxRow.CreatedAt, ctxRow.UpdatedAt, ctxRow.Topic));
 
         var built = new ChatContext(metadata, nodesById.Values, rootNode);
 

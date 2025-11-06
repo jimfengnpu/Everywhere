@@ -14,14 +14,21 @@ namespace Everywhere.Chat;
 /// <summary>
 /// Message sent when chat context metadata changes.
 /// </summary>
-/// <param name="Context">The chat context whose metadata has changed. Null if the context has been released.</param>
-/// <param name="Metadata">The metadata that has changed.</param>
-/// <param name="PropertyName">
+/// <param name="context">The chat context whose metadata has changed. Null if the context has been released.</param>
+/// <param name="metadata">The metadata that has changed.</param>
+/// <param name="propertyName">
 /// DateModified -> indicates the context has been modified. Need to save.
 /// Topic -> indicates the topic has changed. Need to save.
 /// IsSelected -> indicates selection state has changed.
 /// </param>
-public record ChatContextMetadataChangedMessage(ChatContext? Context, ChatContextMetadata Metadata, string? PropertyName);
+public class ChatContextMetadataChangedMessage(ChatContext? context, ChatContextMetadata metadata, string? propertyName)
+{
+    public ChatContext? Context { get; set; } = context;
+
+    public ChatContextMetadata Metadata { get; set; } = metadata;
+
+    public string? PropertyName { get; set; } = propertyName;
+}
 
 /// <summary>
 /// Maintains the context of the chat, including a tree of <see cref="ChatMessageNode"/> and other metadata.
@@ -135,12 +142,7 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
     /// </summary>
     public ChatContext(string systemPrompt)
     {
-        Metadata = new ChatContextMetadata
-        {
-            Id = Guid.CreateVersion7(),
-            DateCreated = DateTimeOffset.UtcNow,
-            DateModified = DateTimeOffset.UtcNow,
-        };
+        Metadata = new ChatContextMetadata(Guid.CreateVersion7(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null);
         _rootNode = ChatMessageNode.CreateRootNode(systemPrompt);
         _rootNode.PropertyChanged += HandleNodePropertyChanged;
         _branchNodes.Add(_rootNode);
@@ -219,7 +221,7 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
         }
 
         Metadata.DateModified = DateTimeOffset.UtcNow;
-        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(this, Metadata, e.PropertyName));
+        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(this, Metadata, nameof(Metadata.DateModified)));
     }
 
     /// <summary>
@@ -288,29 +290,41 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
 
 /// <summary>Chat context metadata persisted along with the object graph.</summary>
 [MessagePackObject(AllowPrivate = true)]
-public partial class ChatContextMetadata : ObservableObject
+public partial class ChatContextMetadata(Guid id, DateTimeOffset dateCreated, DateTimeOffset dateModified, string? topic) : ObservableObject
 {
     /// <summary>
     /// Stable ID (Guid v7) to align with database primary key.
     /// </summary>
     [Key(0)]
-    public Guid Id { get; init; }
+    public Guid Id { get; } = id;
 
     [Key(1)]
-    public DateTimeOffset DateCreated { get; set; }
+    public DateTimeOffset DateCreated { get; } = dateCreated;
 
     [Key(2)]
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LocalDateModified))]
-    public partial DateTimeOffset DateModified { get; set; }
+    [field: IgnoreMember]
+    public DateTimeOffset DateModified
+    {
+        get;
+        set
+        {
+            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(LocalDateModified));
+        }
+    } = dateModified;
 
     [IgnoreMember]
     public DateTime LocalDateModified => DateModified.ToLocalTime().DateTime;
 
     [Key(3)]
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActualTopic))]
-    public partial string? Topic { get; set; }
+    [field: IgnoreMember]
+    public string? Topic
+    {
+        get;
+        set
+        {
+            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(ActualTopic));
+        }
+    } = topic;
 
     [IgnoreMember]
     public string? ActualTopic

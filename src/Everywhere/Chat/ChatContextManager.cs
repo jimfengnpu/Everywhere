@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Threading;
@@ -127,7 +126,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
     /// A buffer for chat contexts and their metadata to be saved.
     /// Sometimes only metadata needs to be saved (e.g., when only the topic is changed), in which case the context can be null.
     /// </summary>
-    private readonly ConcurrentDictionary<Guid, (ChatContext?, ChatContextMetadata)> _saveBuffer = [];
+    private readonly Dictionary<Guid, ChatContextMetadataChangedMessage> _saveBuffer = [];
 
     private readonly Settings _settings;
     private readonly IChatContextStorage _chatContextStorage;
@@ -149,7 +148,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             () => this,
             static that =>
             {
-                List<(ChatContext?, ChatContextMetadata)> toSave;
+                List<ChatContextMetadataChangedMessage> toSave;
                 lock (that._saveBuffer)
                 {
                     toSave = that._saveBuffer.Values.ToList(); // ToList is better than ToArray (less allocation)
@@ -157,10 +156,10 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
                 }
                 Task.WhenAll(
                         toSave.AsValueEnumerable()
-                            .Where(p => !IsEmptyContext(p.Item1) && !p.Item2.IsTemporary)
-                            .Select(p => p.Item1 is not null ?
-                                that._chatContextStorage.SaveChatContextAsync(p.Item1) :
-                                that._chatContextStorage.SaveChatContextMetadataAsync(p.Item2)) // only save metadata if context is null
+                            .Where(p => !IsEmptyContext(p.Context) && !p.Metadata.IsTemporary)
+                            .Select(p => p.Context is not null ?
+                                that._chatContextStorage.SaveChatContextAsync(p.Context) :
+                                that._chatContextStorage.SaveChatContextMetadataAsync(p.Metadata)) // only save metadata if context is null
                             .ToList())
                     .Detach(that._logger.ToExceptionHandler());
             },
@@ -179,11 +178,16 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         if (message.PropertyName is not nameof(ChatContextMetadata.DateModified) and not nameof(ChatContextMetadata.Topic))
             return; // Only care about these two properties
 
-        _saveBuffer.AddOrUpdate(
-            message.Metadata.Id,
-            static (_, msg) => (msg.Context, msg.Metadata),
-            static (_, old, msg) => (old.Item1 ?? msg.Context, msg.Metadata),
-            message);
+        lock (_saveBuffer)
+        {
+            ref var valueRef = ref CollectionsMarshal.GetValueRefOrAddDefault(_saveBuffer, message.Metadata.Id, out _);
+            if (valueRef is null) valueRef = message;
+            else
+            {
+                valueRef.Context ??= message.Context;
+                valueRef.Metadata = message.Metadata;
+            }
+        }
         _saveDebounceExecutor.Trigger();
 
         Dispatcher.UIThread.InvokeOnDemand(CreateNewCommand.NotifyCanExecuteChanged);
