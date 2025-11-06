@@ -26,13 +26,6 @@ public record ModelProviderTemplate
     public string? IconUrl { get; set; }
 
     /// <summary>
-    /// A dynamic resource key for the description of the model provider.
-    /// This allows for localized descriptions that can be updated without
-    /// requiring a new application build.
-    /// </summary>
-    public JsonDynamicResourceKey? DescriptionKey { get; set; }
-
-    /// <summary>
     /// Endpoint URL for the model provider's API.
     /// e.g., "https://api.example.com/v1/models".
     /// This URL is used to send requests to the model provider's servers.
