@@ -49,7 +49,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         return _impl.Open();
     }
 
-    public int GrabKey(KeyboardHotkey hotkey, Action handler)
+    public int GrabKey(KeyboardShortcut hotkey, Action handler)
     {
         return _impl.GrabKey(hotkey, handler);
     }
@@ -59,7 +59,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         _impl.Ungrab(id);
     }
 
-    public void GrabKeyHook(Action<KeyboardHotkey, EventType> hook)
+    public void GrabKeyHook(Action<KeyboardShortcut, EventType> hook)
     {
         _impl.GrabKeyHook(hook);
     }
@@ -69,7 +69,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         _impl.UngrabKeyHook();
     }
 
-    public void GrabMouse(MouseHotkey hotkey, Action handler)
+    public void GrabMouse(MouseShortcut hotkey, Action handler)
     {
         _impl.GrabMouse(hotkey, handler);
     }

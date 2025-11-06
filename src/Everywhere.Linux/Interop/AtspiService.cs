@@ -88,6 +88,7 @@ public partial class AtspiService
     ) : IVisualElement
     {
         public IVisualElementContext Context => atspi._context;
+        private readonly List<IntPtr> _cachedAccessibleChildren = [];
 
         public string Id
         {
@@ -104,6 +105,11 @@ public partial class AtspiService
         {
             g_object_unref(element);
         }
+
+        private bool ElementVisible(IntPtr element)
+        {
+            return false;
+        }
         
 
         public IVisualElement? Parent
@@ -116,8 +122,8 @@ public partial class AtspiService
                 return atspi.GetAtspiVisualElement(() => parent);
             }
         }
-        
-        private int ChildCount =>  atspi_accessible_get_child_count(element, IntPtr.Zero);
+
+        private int ChildCount => _cachedAccessibleChildren.Count;
         private int IndexInParent => element == IntPtr.Zero ? 0 
                             : atspi_accessible_get_index_in_parent(element, IntPtr.Zero);
 
@@ -127,12 +133,17 @@ public partial class AtspiService
             {
                 if (element == IntPtr.Zero)
                     yield break;
+                var count = atspi_accessible_get_child_count(element, IntPtr.Zero);
                 var i = 0;
-                while (i < ChildCount)
+                while (i < count)
                 {
                     var child = atspi_accessible_get_child_at_index(element, i, IntPtr.Zero);
-                    if (child != IntPtr.Zero)
+                    if (child != IntPtr.Zero && ElementVisible(child))
                     {
+                        if (!_cachedAccessibleChildren.Contains(child))
+                        {
+                            _cachedAccessibleChildren.Add(child);
+                        }
                         var childElem = atspi.GetAtspiVisualElement(() => child);
                         if (childElem is not null)
                         {
@@ -163,6 +174,8 @@ public partial class AtspiService
                     null : Parent?.Children.ElementAt(IndexInParent + 1);
             }
         }
+        
+        
 
         public VisualElementType Type
         {
@@ -214,6 +227,26 @@ public partial class AtspiService
             return "";
         }
 
+        public string? GetSelectionText()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Invoke()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetText(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendShortcut(KeyboardShortcut shortcut)
+        {
+            throw new NotImplementedException();
+        }
+
         public PixelRect BoundingRectangle
         {
             get
@@ -260,6 +293,80 @@ public partial class AtspiService
         public int width;
         public int height;
     }
+    // Accessible Impl Type
+    
+    // Role
+    private const int ROLE_INVALID = 0;
+    private const int ROLE_LABEL = 29;
+    private const int ROLE_BUTTON = 43;
+    // TextEdit
+    private const int ROLE_ENTRY = 79; // ATSPI_STATE_EDITABLE else Text Role
+    private const int ROLE_PASSWORD_TEXT = 40;
+    // Document
+    private const int ROLE_DOCUMENT_FRAME = 82;
+    private const int ROLE_DOCUMENT_SPREADSHEET = 92;
+    private const int ROLE_DOCUMENT_PRESENTATION = 93;
+    private const int ROLE_DOCUMENT_TEXT = 94;
+    private const int ROLE_DOCUMENT_WEB = 95;
+    private const int ROLE_DOCUMENT_EMAIL = 96;
+    
+    // Hyperlink
+    private const int ROLE_LINK = 88;
+    // Image
+    private const int ROLE_IMAGE = 27;
+    // CheckBox
+    private const int ROLE_CHECK_BOX = 7;
+    // RadioButtion
+    private const int ROLE_RADIO_BUTTON = 44;
+    // ComboBox
+    private const int ROLE_COMBO_BOX = 11;
+    // ListView
+    private const int ROLE_LIST = 31;
+    // ListViewItem
+    private const int ROLE_LIST_ITEM = 32;
+    // TreeView
+    private const int ROLE_TREE_TABLE = 66;
+    // TreeViewItem
+    private const int ROLE_TREE = 65;
+    // DataGrid
+    // DataGridItem
+    // TabControl
+    
+    // TabItem
+    private const int ROLE_PAGE_TAB = 37;
+    // Table
+    private const int ROLE_TABLE = 55;
+    // TableRow
+    private const int ROLE_TABLE_ROW = 90;
+    // Menu
+    private const int ROLE_MENU = 33;
+    // MenuItem
+    private const int ROLE_MENU_ITEM = 35;
+    // Slider
+    private const int ROLE_SLIDER = 51;
+    // ScrollBar
+    private const int ROLE_SCROLL_BAR = 48;
+    // ProgressBar
+    private const int ROLE_PROGRESS_BAR = 42;
+    // Panel
+    private const int ROLE_PANEL = 39;
+    // TopLevel
+    private const int ROLE_APPLICATION = 75;
+    // Screen
+    
+    // States
+    // Offscreen
+    private const int STATE_VISIBLE = 30;
+    // Disabled
+    private const int STATE_ENABLE = 8;
+    // Focused
+    private const int STATE_FOCUSED = 12;
+    // Selected
+    private const int STATE_SELECTED = 23;
+    // ReadOnly
+    private const int STATE_EDITABLE = 7;
+    // Password
+    // refer to Role
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_init();

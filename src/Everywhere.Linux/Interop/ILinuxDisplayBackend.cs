@@ -43,16 +43,16 @@ public interface ILinuxDisplayBackend
     /// Grab a global key. Returns an id (>0) on success, or 0 on failure.
     /// The _backend must handle common modifier permutations (Lock/NumLock).
     /// </summary>
-    int GrabKey(KeyboardHotkey hotkey, Action handler);
+    int GrabKey(KeyboardShortcut hotkey, Action handler);
 
     /// <summary>Ungrab a previously grabbed key by id.</summary>
     void Ungrab(int id);
 
-    void GrabKeyHook(Action<KeyboardHotkey, EventType> hook);
+    void GrabKeyHook(Action<KeyboardShortcut, EventType> hook);
 
     void UngrabKeyHook();
     
-    void GrabMouse(MouseHotkey hotkey, Action handler);
+    void GrabMouse(MouseShortcut hotkey, Action handler);
     
     void UngrabMouse(int id);
     

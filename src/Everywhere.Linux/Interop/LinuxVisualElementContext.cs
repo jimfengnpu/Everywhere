@@ -24,7 +24,6 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         {
             try
             {
-
                 return _atspi.ElementFocused();
             }
             catch (Exception ex)
@@ -35,23 +34,15 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         }
     }
 
-    // public LinuxVisualElementContext Context => this;
-
     public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
 
     public LinuxVisualElementContext(INativeHelper nativeHelper, ILinuxDisplayBackend backend, ILogger<LinuxVisualElementContext> logger)
     {
         _nativeHelper = nativeHelper;
-        this._backend = backend;
+        _backend = backend;
         backend.Context = this;
         _atspi = new AtspiService(this);
         _logger = logger;
-
-        // _backend.RegisterFocusChanged(() =>
-        // {
-        //     if (KeyboardFocusedElementChanged is not { } handler) return;
-        //     handler(KeyboardFocusedElement);
-        // });
     }
     
 
@@ -95,7 +86,7 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         }
 
         var windows = desktopLifetime.Windows.AsValueEnumerable().Where(w => w.IsVisible).ToList();
-        foreach (var window in windows) _nativeHelper.HideWindowWithoutAnimation(window);
+        foreach (var window in windows) window.Hide();
         var result = await ElementPicker.PickAsync(this, _backend, mode);
         foreach (var window in windows) window.IsVisible = true;
         return result;

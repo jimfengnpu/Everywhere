@@ -1,7 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input.Platform;
-using Avalonia.Platform.Storage;
 using Everywhere.AI;
 using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
@@ -10,13 +8,11 @@ using Everywhere.Configuration;
 using Everywhere.Extensions;
 using Everywhere.Initialization;
 using Everywhere.Interop;
-using Everywhere.ViewModels;
-using Everywhere.Views;
-using Everywhere.Views.Pages;
 using Everywhere.Linux.Configuration;
 using Everywhere.Linux.Interop;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.Plugins.Web;
 using Serilog;
 using Serilog.Extensions.Logging;
 using SoftwareUpdater = Everywhere.Linux.Common.SoftwareUpdater;
@@ -40,7 +36,7 @@ public static class Program
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
                 .AddSingleton<ILinuxDisplayBackend, LinuxDisplayBackend>()
                 .AddSingleton<IVisualElementContext, LinuxVisualElementContext>()
-                .AddSingleton<IHotkeyListener, LinuxHotkeyListener>()
+                .AddSingleton<IShortcutListener, LinuxShortcutListener>()
                 .AddSingleton<INativeHelper, LinuxNativeHelper>()
                 .AddSingleton<ISoftwareUpdater, SoftwareUpdater>()
                 .AddSettings()
@@ -55,7 +51,7 @@ public static class Program
                 #region Chat Plugins
 
                 .AddTransient<BuiltInChatPlugin, VisualTreePlugin>()
-                .AddTransient<BuiltInChatPlugin, WebSearchEnginePlugin>()
+                .AddTransient<BuiltInChatPlugin, WebBrowserPlugin>()
                 .AddTransient<BuiltInChatPlugin, FileSystemPlugin>()
                 // PowerShell plugin is Windows-specific; do not register it on Linux.
 
@@ -72,7 +68,7 @@ public static class Program
 
                 #region Initialize
 
-                .AddTransient<IAsyncInitializer, HotkeyInitializer>()
+                .AddTransient<IAsyncInitializer, ChatWindowInitializer>()
                 .AddTransient<IAsyncInitializer, UpdaterInitializer>()
 
             #endregion

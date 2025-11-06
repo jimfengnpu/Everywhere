@@ -8,7 +8,7 @@ using Serilog;
 namespace Everywhere.Linux.Interop;
 
 /// <summary>
-/// X11底层函数声明和错误处理
+/// X11 Backend Impl
 /// </summary>
 public partial class X11DisplayBackend
 {
@@ -450,8 +450,8 @@ private const int IncludeInferiors = 1;
             string text = string.Empty;
             try
             {
-                // XGetErrorText需要我们提供缓冲区
-                var buffer = new byte[256]; // X11错误文本通常不会超过256字节
+                // XGetErrorText Buffer
+                var buffer = new byte[256]; // X11 Error Text Give 256 Bytes
                 XGetErrorText(d, ev.errorCode, buffer, buffer.Length);
                 text = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
             }
@@ -475,7 +475,7 @@ private const int IncludeInferiors = 1;
         {
             Log.Logger.Error(ex, "Failed to handle X error");
         }
-        return 0; // 返回0表示错误已处理
+        return 0;
     }
 
     #region X11 Code Conversion Functions
@@ -505,7 +505,7 @@ private const int IncludeInferiors = 1;
     }
 
     /// <summary>
-    /// 将X11错误代码转换为可读描述
+    /// X11 Error Discription
     /// </summary>
     private static string GetErrorDescription(int code)
     {
@@ -673,11 +673,7 @@ private const int IncludeInferiors = 1;
             _ => $"UnknownRequest{requestCode}"
         };
     }
-
-
-    /// <summary>
-    /// 将X11 keysym转换为字符串表示
-    /// </summary>
+    
     internal static string KeysymToString(UIntPtr ks)
     {
         try
@@ -689,9 +685,6 @@ private const int IncludeInferiors = 1;
         catch { return string.Empty; }
     }
 
-    /// <summary>
-    /// 将X11键盘状态转换为KeyModifiers枚举
-    /// </summary>
     internal static KeyModifiers KeyStateToModifier(uint state)
     {
         KeyModifiers mod = KeyModifiers.None;

@@ -19,7 +19,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
     private Thread? _xThread;
     private volatile bool _running;
-    private Action<KeyboardHotkey, EventType>? _keyboardHook;
+    private Action<KeyboardShortcut, EventType>? _keyboardHook;
     private Action<PixelPoint, EventType>? _mouseHook;
     private Action? _focusChangedHook;
     private int _wakePipeR = -1;
@@ -101,7 +101,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
     }
 
-    public int GrabKey(KeyboardHotkey hotkey, Action handler)
+    public int GrabKey(KeyboardShortcut hotkey, Action handler)
     {
         if (_display == IntPtr.Zero) return 0;
         var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -159,7 +159,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
     }
 
-    public void GrabKeyHook(Action<KeyboardHotkey, EventType> hook)
+    public void GrabKeyHook(Action<KeyboardShortcut, EventType> hook)
     {
         _keyboardHook = hook;
         XThreadAction(() =>
@@ -182,7 +182,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
     }
 
-    public void GrabMouse(MouseHotkey hotkey, Action handler)
+    public void GrabMouse(MouseShortcut hotkey, Action handler)
     {
         throw new NotImplementedException();
     }
@@ -464,7 +464,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         // create overlay
         var root = XDefaultRootWindow(_display);
         int hovn;
-        XQueryTree(_display, root, out var r_ret, out var p_ret, out var wins, out var nwins);
+        XQueryTree(_display, root, out _, out _, out var wins, out var nwins);
         XGetWindowAttributes(_display, root, out var rootAttr);
         XMatchVisualInfo(_display, XDefaultScreen(_display), 32, TrueColor, out var vinfo);
         var cmap = XCreateColormap(_display, root, vinfo.visual, 0);
@@ -951,6 +951,26 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         public IntPtr NativeWindowHandle => windowHandle;
         public string? GetText(int maxLength = -1) => Name;
+        public string? GetSelectionText()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Invoke()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetText(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendShortcut(KeyboardShortcut shortcut)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<Bitmap> CaptureAsync() => Task.FromResult(backend.Capture(this, BoundingRectangle));
     }
 
@@ -997,6 +1017,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         public int ProcessId => 0;
         public IntPtr NativeWindowHandle => XRootWindow(backend._display, index);
         public string? GetText(int maxLength = -1) => Name;
+        public string? GetSelectionText() => null;
+
+        public void Invoke() { }
+
+        public void SetText(string text) { } // no op
+
+        public void SendShortcut(KeyboardShortcut shortcut) { } // no op
+
         public Task<Bitmap> CaptureAsync() => Task.FromResult(backend.Capture(this, BoundingRectangle));
     }
 
@@ -1018,7 +1046,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     {
                         ThreadPool.QueueUserWorkItem(_ =>
                         {
-                            _keyboardHook?.Invoke(new KeyboardHotkey(key, modifiers), type);
+                            _keyboardHook?.Invoke(new KeyboardShortcut(key, modifiers), type);
                         });
                     }
                     if (type == EventType.KeyDown)
@@ -1140,18 +1168,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 // X fd signaled -> handle pending X events
                 if ((fds[0].revents & POLLIN) != 0)
                 {
-                    try
+                    while (XPending(_display) > 0)
                     {
-                        while (XPending(_display) > 0)
+                        lock (evLock)
                         {
-                            lock (evLock)
-                            {
                                 XNextEvent(_display, evPtr);
                                 XThreadProcessEvent(evPtr);
-                            }
                         }
                     }
-                    catch { }
                 }
             }
         }

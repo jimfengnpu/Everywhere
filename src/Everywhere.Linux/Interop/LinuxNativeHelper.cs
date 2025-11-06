@@ -1,7 +1,6 @@
-using Avalonia;
-using Avalonia.Controls;
+using System.Diagnostics;
 using Avalonia.Media.Imaging;
-using Everywhere.Common;
+using Everywhere.Extensions;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
@@ -16,33 +15,10 @@ public class LinuxNativeHelper : INativeHelper
 
     public bool IsAdministratorStartupEnabled { get; set; }
 
-    private readonly ILinuxDisplayBackend? _backend = ServiceLocator.Resolve<ILinuxDisplayBackend>();
-
     public void RestartAsAdministrator()
     {
         // No-op on Linux by default. Could re-exec with sudo if desired.
         ShowDesktopNotification("if Administrator needed on Linux, Please re-exec with sudo.");
-    }
-
-    public void SetWindowNoFocus(Window window)
-    {
-        _backend?.SetWindowFocus(window, false);
-    }
-
-    public void SetWindowHitTestInvisible(Window window)
-    {
-        _backend?.SetWindowHitTestInvisible(window);
-    }
-
-    public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius)
-    {
-        // Currently not implemented for Linux
-        _backend?.SetWindowCornerRadius(window, cornerRadius);
-    }
-
-    public void HideWindowWithoutAnimation(Window window)
-    {
-        window.Hide();
     }
 
     public Task<WriteableBitmap?> GetClipboardBitmapAsync()
@@ -56,11 +32,18 @@ public class LinuxNativeHelper : INativeHelper
         try
         {
             var args = $"-u normal \"{title ?? "Everywhere"}\" \"{message}\"";
-            System.Diagnostics.Process.Start("notify-send", args);
+            Process.Start("notify-send", args);
         }
         catch
         {
             // swallow
         }
+    }
+
+    public void OpenFileLocation(string fullPath)
+    {
+        if (fullPath.IsNullOrWhiteSpace()) return;
+        var args = $"\"{fullPath}\"";
+        Process.Start(new ProcessStartInfo("xdg-open", args) { UseShellExecute = true });
     }
 }

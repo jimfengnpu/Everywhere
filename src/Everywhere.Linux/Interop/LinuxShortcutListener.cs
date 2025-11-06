@@ -5,13 +5,13 @@ using Everywhere.Utilities;
 
 namespace Everywhere.Linux.Interop;
 
-public class LinuxHotkeyListener : IHotkeyListener
+public class LinuxShortcutListener : IShortcutListener
 {
     private readonly ILinuxDisplayBackend? _backend = ServiceLocator.Resolve<ILinuxDisplayBackend>();
 
     // Register a keyboard hotkey. Multiple handlers for the same hotkey are supported.
     // Returns an IDisposable that unregisters this handler only.
-    public IDisposable Register(KeyboardHotkey hotkey, Action handler)
+    public IDisposable Register(KeyboardShortcut hotkey, Action handler)
     {
         if (hotkey.Key == Key.None || hotkey.Modifiers == KeyModifiers.None)
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
@@ -24,7 +24,7 @@ public class LinuxHotkeyListener : IHotkeyListener
 
     // Register a mouse hotkey. Multiple handlers for the same MouseKey (with different delays) are supported.
     // Returns an IDisposable that unregisters this handler only.
-    public IDisposable Register(MouseHotkey hotkey, Action handler)
+    public IDisposable Register(MouseShortcut hotkey, Action handler)
     {
         throw new NotImplementedException();
     }
@@ -33,26 +33,26 @@ public class LinuxHotkeyListener : IHotkeyListener
     /// Starts capturing the keyboard hotkey
     /// </summary>
     /// <returns></returns>
-    public IKeyboardHotkeyScope StartCaptureKeyboardHotkey()
+    public IKeyboardShortcutScope StartCaptureKeyboardShortcut()
     {
-        return new LinuxKeyboardHotkeyScopeImpl(_backend ?? throw new InvalidOperationException("Display _backend is not available."));
+        return new LinuxKeyboardShortcutScopeImpl(_backend ?? throw new InvalidOperationException("Display _backend is not available."));
     }
 }
 
-public class LinuxKeyboardHotkeyScopeImpl : IKeyboardHotkeyScope
+public class LinuxKeyboardShortcutScopeImpl : IKeyboardShortcutScope
 {
     private readonly ILinuxDisplayBackend _backend;
-    public KeyboardHotkey PressingHotkey { get; private set; }
+    public KeyboardShortcut PressingShortcut { get; private set; }
 
     public bool IsDisposed { get; private set; }
 
-    public event IKeyboardHotkeyScope.PressingHotkeyChangedHandler? PressingHotkeyChanged;
+    public event IKeyboardShortcutScope.PressingShortcutChangedHandler? PressingShortcutChanged;
 
-    public event IKeyboardHotkeyScope.HotkeyFinishedHandler? HotkeyFinished;
+    public event IKeyboardShortcutScope.ShortcutFinishedHandler? ShortcutFinished;
     
     private KeyModifiers _pressedKeyModifiers = KeyModifiers.None;
-    
-    public LinuxKeyboardHotkeyScopeImpl(ILinuxDisplayBackend backend)
+
+    public LinuxKeyboardShortcutScopeImpl(ILinuxDisplayBackend backend)
     {
         _backend = backend;
         IsDisposed = false;
@@ -63,24 +63,24 @@ public class LinuxKeyboardHotkeyScopeImpl : IKeyboardHotkeyScope
                 if (hotkey.Modifiers != KeyModifiers.None)
                 {
                     _pressedKeyModifiers |= hotkey.Modifiers;
-                    PressingHotkey = PressingHotkey with { Modifiers = _pressedKeyModifiers };
+                    PressingShortcut = PressingShortcut with { Modifiers = _pressedKeyModifiers };
                 }
-                PressingHotkey = PressingHotkey with { Key = hotkey.Key };
-                PressingHotkeyChanged?.Invoke(this, PressingHotkey);
+                PressingShortcut = PressingShortcut with { Key = hotkey.Key };
+                PressingShortcutChanged?.Invoke(this, PressingShortcut);
             }
             else
             {
                 _pressedKeyModifiers &= ~hotkey.Modifiers;
                 if (_pressedKeyModifiers == KeyModifiers.None)
                 {
-                    if (PressingHotkey.Modifiers != KeyModifiers.None && PressingHotkey.Key == Key.None)
+                    if (PressingShortcut.Modifiers != KeyModifiers.None && PressingShortcut.Key == Key.None)
                     {
-                        PressingHotkey = default; // modifiers only hotkey, reset it
+                        PressingShortcut = default; // modifiers only hotkey, reset it
                     }
 
                     // system key is all released, capture is done
-                    PressingHotkeyChanged?.Invoke(this, PressingHotkey);
-                    HotkeyFinished?.Invoke(this, PressingHotkey);
+                    PressingShortcutChanged?.Invoke(this, PressingShortcut);
+                    ShortcutFinished?.Invoke(this, PressingShortcut);
                 }
             }
         });
