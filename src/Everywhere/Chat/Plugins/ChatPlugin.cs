@@ -107,6 +107,11 @@ public abstract class BuiltInChatPlugin(string name) : ChatPlugin(name)
 /// <param name="name"></param>
 public partial class McpChatPlugin(string name) : ChatPlugin(name)
 {
+    /// <summary>
+    /// Gets or sets the unique identifier of this MCP plugin.
+    /// </summary>
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+
     public override string Key => $"mcp.{Name}";
 
     public override DynamicResourceKey HeaderKey => new DirectResourceKey(Name);
@@ -115,7 +120,15 @@ public partial class McpChatPlugin(string name) : ChatPlugin(name)
 
     public override LucideIconKind? Icon => LucideIconKind.Hammer;
 
-    public McpTransportConfiguration TransportConfiguration { get; set; }
+    /// <summary>
+    /// IConfiguration do not support polymorphic deserialization well, so we need to use concrete types here.
+    /// </summary>
+    public StdioMcpTransportConfiguration? StdioTransportConfiguration { get; set; }
+
+    /// <summary>
+    /// IConfiguration do not support polymorphic deserialization well, so we need to use concrete types here.
+    /// </summary>
+    public SseMcpTransportConfiguration? SseTransportConfiguration { get; set; }
 
     /// <summary>
     /// For MCP plugins, we cannot get the permission of each function. So we use a default permission for all functions.

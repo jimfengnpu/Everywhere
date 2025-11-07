@@ -9,8 +9,6 @@ namespace Everywhere.Chat.Plugins;
 [JsonDerivedType(typeof(SseMcpTransportConfiguration), "sse")]
 public abstract partial class McpTransportConfiguration : ObservableObject
 {
-    public Guid Id { get; set; } = Guid.CreateVersion7();
-
     [ObservableProperty]
     public partial string Name { get; set; } = string.Empty;
 
@@ -35,9 +33,6 @@ public partial class StdioMcpTransportConfiguration : McpTransportConfiguration
     public partial ObservableDictionary<string, string?> EnvironmentVariables { get; set; } = new();
 
     public override bool IsValid => base.IsValid && !string.IsNullOrWhiteSpace(Command);
-
-    [JsonIgnore]
-    public IList<string> ArgumentsList =>
 }
 
 public partial class SseMcpTransportConfiguration : McpTransportConfiguration

@@ -27,12 +27,12 @@ public interface IChatPluginManager
     /// <summary>
     /// Creates a new MCP client based on the provided configuration. If it's a local client, it will start the local server process.
     /// </summary>
-    /// <param name="configuration"></param>
+    /// <param name="mcpChatPlugin"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task CreateMcpClientAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken);
+    Task CreateMcpClientAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ChatFunction>> ListMcpFunctionsAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken);
+    IAsyncEnumerable<McpChatFunction> ListMcpFunctionsAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new scope for available chat plugins and their functions.

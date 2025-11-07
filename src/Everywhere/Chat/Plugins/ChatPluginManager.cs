@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -23,7 +24,9 @@ public class ChatPluginManager : IChatPluginManager
 
     public IReadOnlyList<McpChatPlugin> McpPlugins { get; }
 
+    private readonly ObservableCollection<McpChatPlugin> _mcpPlugins;
     private readonly IWatchdogManager _watchdogManager;
+    private readonly INativeHelper _nativeHelper;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<ChatPluginManager> _logger;
 
@@ -34,22 +37,25 @@ public class ChatPluginManager : IChatPluginManager
     public ChatPluginManager(
         IEnumerable<BuiltInChatPlugin> builtInPlugins,
         IWatchdogManager watchdogManager,
+        INativeHelper nativeHelper,
         ILoggerFactory loggerFactory,
         Settings settings)
     {
         _builtInPluginsSource.AddRange(builtInPlugins);
         _watchdogManager = watchdogManager;
+        _nativeHelper = nativeHelper;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<ChatPluginManager>();
-        McpPlugins = settings.Plugin.McpPlugins;
+        McpPlugins = _mcpPlugins = settings.Plugin.McpPlugins;
 
-        var isEnabledRecords = settings.Plugin.IsEnabled;
-        foreach (var builtInPlugin in _builtInPluginsSource.Items)
+        // Apply the enabled state from settings.
+        var isEnabledRecords = settings.Plugin.IsEnabledRecords;
+        foreach (var plugin in _builtInPluginsSource.Items.OfType<ChatPlugin>().Concat(_mcpPlugins))
         {
-            builtInPlugin.IsEnabled = GetIsEnabled(builtInPlugin.Key, false);
-            foreach (var function in builtInPlugin.Functions)
+            plugin.IsEnabled = GetIsEnabled(plugin.Key, false);
+            foreach (var function in plugin.Functions)
             {
-                function.IsEnabled = GetIsEnabled($"{builtInPlugin.Key}.{function.KernelFunction.Name}", true);
+                function.IsEnabled = GetIsEnabled($"{plugin.Key}.{function.KernelFunction.Name}", true);
             }
         }
 
@@ -59,15 +65,17 @@ public class ChatPluginManager : IChatPluginManager
             .BindEx(_disposables);
         _disposables.Add(_builtInPluginsSource);
 
-        new ObjectObserver(HandleBuiltInPluginsChange).Observe((INotifyPropertyChanged)BuiltInPlugins);
+        new ObjectObserver((in e) => HandleChatPluginChanged(_builtInPluginsSource.Items, e)).Observe((INotifyPropertyChanged)BuiltInPlugins);
+        new ObjectObserver((in e) => HandleChatPluginChanged(_mcpPlugins, e)).Observe(_mcpPlugins);
 
-
+        // Helper method to get the enabled state from settings.
         bool GetIsEnabled(string path, bool defaultValue)
         {
             return isEnabledRecords.TryGetValue(path, out var isEnabled) ? isEnabled : defaultValue;
         }
 
-        void HandleBuiltInPluginsChange(in ObjectObserverChangedEventArgs e)
+        // Handle changes to plugins and update settings accordingly.
+        void HandleChatPluginChanged<TPlugin>(IReadOnlyList<TPlugin> plugins, in ObjectObserverChangedEventArgs e) where TPlugin : ChatPlugin
         {
             if (!e.Path.EndsWith(nameof(ChatFunction.IsEnabled), StringComparison.Ordinal))
             {
@@ -75,17 +83,17 @@ public class ChatPluginManager : IChatPluginManager
             }
 
             var parts = e.Path.Split(':');
-            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= _builtInPluginsSource.Count)
+            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= plugins.Count)
             {
                 return;
             }
 
-            var plugin = _builtInPluginsSource.Items[pluginIndex];
+            var plugin = plugins[pluginIndex];
             switch (parts.Length)
             {
                 case 2:
                 {
-                    settings.Plugin.IsEnabled[plugin.Key] = plugin.IsEnabled;
+                    isEnabledRecords[plugin.Key] = plugin.IsEnabled;
                     break;
                 }
                 case 4 when
@@ -94,7 +102,7 @@ public class ChatPluginManager : IChatPluginManager
                     functionIndex < plugin.Functions.Count:
                 {
                     var function = plugin.Functions[functionIndex];
-                    settings.Plugin.IsEnabled[$"{plugin.Key}.{function.KernelFunction.Name}"] = function.IsEnabled;
+                    isEnabledRecords[$"{plugin.Key}.{function.KernelFunction.Name}"] = function.IsEnabled;
                     break;
                 }
             }
@@ -103,17 +111,32 @@ public class ChatPluginManager : IChatPluginManager
 
     public void AddMcpPlugin(McpTransportConfiguration configuration)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task CreateMcpClientAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken)
-    {
         if (!configuration.IsValid)
         {
             throw new InvalidOperationException("MCP transport configuration is not valid.");
         }
 
-        if (_runningMcpClients.ContainsKey(configuration.Id)) return; // Just return without error if already running.
+        var mcpChatPlugin = new McpChatPlugin(configuration.Name)
+        {
+            StdioTransportConfiguration = configuration as StdioMcpTransportConfiguration,
+            SseTransportConfiguration = configuration as SseMcpTransportConfiguration,
+        };
+        _mcpPlugins.Add(mcpChatPlugin);
+    }
+
+    public async Task CreateMcpClientAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken)
+    {
+        var configuration =
+            mcpChatPlugin.StdioTransportConfiguration as McpTransportConfiguration ??
+            mcpChatPlugin.SseTransportConfiguration ??
+            throw new InvalidOperationException("MCP transport configuration is not set.");
+
+        if (!configuration.IsValid)
+        {
+            throw new InvalidOperationException("MCP transport configuration is not valid.");
+        }
+
+        if (_runningMcpClients.ContainsKey(mcpChatPlugin.Id)) return; // Just return without error if already running.
 
         IClientTransport clientTransport = configuration switch
         {
@@ -122,7 +145,7 @@ public class ChatPluginManager : IChatPluginManager
                 {
                     Name = stdio.Name,
                     Command = stdio.Command,
-                    Arguments = stdio.ArgumentsList,
+                    Arguments = _nativeHelper.ParseArguments(stdio.Arguments),
                     WorkingDirectory = stdio.WorkingDirectory,
                     EnvironmentVariables = stdio.EnvironmentVariables,
                 },
@@ -147,6 +170,9 @@ public class ChatPluginManager : IChatPluginManager
             _loggerFactory,
             cancellationToken);
 
+        // Store the running client.
+        _runningMcpClients[mcpChatPlugin.Id] = new RunningMcpClient(mcpChatPlugin, client);
+
         var processId = -1;
         try
         {
@@ -167,8 +193,6 @@ public class ChatPluginManager : IChatPluginManager
         }
         finally
         {
-            _runningMcpClients[configuration.Id] = new RunningMcpClient(configuration, client, processId);
-
             if (processId == -1 && configuration is StdioMcpTransportConfiguration stdio)
             {
                 _logger.LogWarning(
@@ -180,18 +204,20 @@ public class ChatPluginManager : IChatPluginManager
         }
     }
 
-    public async Task<IReadOnlyList<ChatFunction>> ListMcpFunctionsAsync(McpTransportConfiguration configuration, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<McpChatFunction> ListMcpFunctionsAsync(
+        McpChatPlugin mcpChatPlugin,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await CreateMcpClientAsync(configuration, cancellationToken);
+        await CreateMcpClientAsync(mcpChatPlugin, cancellationToken);
 
-        if (!_runningMcpClients.TryGetValue(configuration.Id, out var runningClient))
+        if (!_runningMcpClients.TryGetValue(mcpChatPlugin.Id, out var runningClient))
         {
             throw new InvalidOperationException("MCP client is not running.");
         }
 
         await foreach (var tool in runningClient.Client.EnumerateToolsAsync(cancellationToken: cancellationToken))
         {
-
+            yield return new McpChatFunction(tool);
         }
     }
 
@@ -235,7 +261,12 @@ public class ChatPluginManager : IChatPluginManager
         }
     }
 
-    private readonly record struct RunningMcpClient(McpTransportConfiguration Configuration, McpClient Client, int ProcessId);
+    /// <summary>
+    /// Represents a running MCP client along with its configuration and process ID.
+    /// </summary>
+    /// <param name="Plugin"></param>
+    /// <param name="Client"></param>
+    private readonly record struct RunningMcpClient(McpChatPlugin Plugin, McpClient Client);
 
     private class ChatPluginSnapshot : ChatPlugin
     {

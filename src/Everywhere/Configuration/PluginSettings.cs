@@ -18,7 +18,7 @@ public class PluginSettings : SettingsCategory
     /// But Functions are enabled by default if the plugin is enabled.
     /// </remarks>
     [HiddenSettingsItem]
-    public ObservableDictionary<string, bool> IsEnabled { get; set; } = new();
+    public ObservableDictionary<string, bool> IsEnabledRecords { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the granted permissions for each plugin function.
@@ -35,7 +35,7 @@ public class PluginSettings : SettingsCategory
 
     public PluginSettings()
     {
-        IsEnabled.CollectionChanged += delegate { OnPropertyChanged(nameof(IsEnabled)); };
+        IsEnabledRecords.CollectionChanged += delegate { OnPropertyChanged(nameof(IsEnabledRecords)); };
         GrantedPermissions.CollectionChanged += delegate { OnPropertyChanged(nameof(GrantedPermissions)); };
     }
 }
