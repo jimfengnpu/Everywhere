@@ -1,57 +1,60 @@
 using System.Net;
-using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Common;
 
 namespace Everywhere.Configuration;
 
 /// <summary>
-/// Message indicating that the network proxy has changed.
+/// An IWebProxy implementation that can be updated at runtime.
+/// It should be registered as a singleton in the dependency injection container.
+/// This class dynamically delegates proxy requests to an internal proxy instance,
+/// which can be changed by calling ApplyProxySettings.
 /// </summary>
-/// <param name="Proxy"></param>
-public record NetworkProxyChangedMessage(IWebProxy Proxy);
-
-public static class NetworkProxyManager
+public sealed class DynamicWebProxy : IWebProxy
 {
-    private static readonly Lock SyncRoot = new();
-    private static readonly IWebProxy SystemHttpProxy = HttpClient.DefaultProxy;
-    private static readonly IWebProxy? SystemWebRequestProxy = WebRequest.DefaultWebProxy;
-
-    public static IWebProxy CurrentProxy
-    {
-        get;
-        private set
-        {
-            field = value;
-            WeakReferenceMessenger.Default.Send(new NetworkProxyChangedMessage(CurrentProxy));
-        }
-    } = HttpClient.DefaultProxy;
+    private readonly IWebProxy _systemHttpProxy = HttpClient.DefaultProxy;
 
     private static readonly string[] BypassSeparators =
     [
-        "\r\n",
-        "\n",
-        "\r",
-        ";",
-        ","
+        "\r\n", "\n", "\r", ";", ","
     ];
 
-    /// <summary>
-    /// Applies the given proxy settings to global HTTP handlers.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <exception cref="HandledException"></exception>
-    public static void ApplyProxySettings(ProxySettings settings)
-    {
-        lock (SyncRoot)
-        {
-            if (!settings.IsEnabled)
-            {
-                HttpClient.DefaultProxy = SystemHttpProxy;
-                WebRequest.DefaultWebProxy = SystemWebRequestProxy;
-                CurrentProxy = SystemHttpProxy;
-                return ;
-            }
+    private IWebProxy _currentProxy;
 
+    public DynamicWebProxy()
+    {
+        _currentProxy = _systemHttpProxy;
+    }
+
+    public ICredentials? Credentials
+    {
+        get => _currentProxy.Credentials;
+        set
+        {
+            if (_currentProxy.Credentials != value)
+            {
+                _currentProxy.Credentials = value;
+            }
+        }
+    }
+
+    public Uri? GetProxy(Uri destination) => _currentProxy.GetProxy(destination);
+
+    public bool IsBypassed(Uri host) => _currentProxy.IsBypassed(host);
+
+    /// <summary>
+    /// Applies the given proxy settings.
+    /// </summary>
+    /// <param name="settings">The proxy settings to apply.</param>
+    /// <exception cref="HandledException"></exception>
+    public void ApplyProxySettings(ProxySettings settings)
+    {
+        IWebProxy newProxy;
+        if (!settings.IsEnabled)
+        {
+            newProxy = _systemHttpProxy;
+        }
+        else
+        {
             var addressToUse = settings.Endpoint.ActualValue.Trim();
             if (string.IsNullOrWhiteSpace(addressToUse))
             {
@@ -60,19 +63,12 @@ public static class NetworkProxyManager
                     new DirectResourceKey("Proxy server address is required.")); // TODO: I18N
             }
 
-            var proxy = CreateProxy(settings, addressToUse);
-            HttpClient.DefaultProxy = proxy;
-            WebRequest.DefaultWebProxy = proxy;
-            CurrentProxy = proxy;
+            newProxy = CreateProxy(settings, addressToUse);
         }
+
+        _currentProxy = newProxy;
     }
 
-    /// <summary>
-    /// Creates a <see cref="WebProxy"/> instance from the given settings and address. Throws an exception if the settings are invalid.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="address"></param>
-    /// <returns></returns>
     private static WebProxy CreateProxy(ProxySettings settings, string address)
     {
         var normalizedAddress = NormalizeAddress(address);
@@ -104,20 +100,15 @@ public static class NetworkProxyManager
             BypassList = ParseBypassList(settings.BypassList),
         };
 
-        if (!settings.UseAuthentication)
+        if (settings.UseAuthentication && !string.IsNullOrWhiteSpace(settings.Username))
+        {
+            proxy.Credentials = new NetworkCredential(settings.Username.Trim(), settings.Password ?? string.Empty);
+        }
+        else
         {
             proxy.Credentials = null;
-            return proxy;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.Username))
-        {
-            throw new HandledException(
-                new InvalidOperationException("Proxy username is required when authentication is enabled."),
-                new DirectResourceKey("Proxy username is required when authentication is enabled.")); // TODO: I18N
-        }
-
-        proxy.Credentials = new NetworkCredential(settings.Username.Trim(), settings.Password ?? string.Empty);
         return proxy;
     }
 

@@ -1,7 +1,7 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
-using ObservableCollections;
+using Everywhere.Collections;
 
 namespace Everywhere.Configuration;
 

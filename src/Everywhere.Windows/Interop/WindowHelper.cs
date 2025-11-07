@@ -10,7 +10,7 @@ namespace Everywhere.Windows.Interop;
 /// <summary>
 /// Reference: Powertoys
 /// </summary>
-public class Win32WindowHelper : IWindowHelper
+public class WindowHelper : IWindowHelper
 {
     public void SetFocusable(Window window, bool focusable)
     {

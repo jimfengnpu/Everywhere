@@ -3,6 +3,7 @@ using System.ClientModel.Primitives;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -22,7 +23,11 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
 {
     public override IChatCompletionService ChatCompletionService { get; }
 
-    public OpenAIKernelMixin(CustomAssistant customAssistant) : base(customAssistant)
+    public OpenAIKernelMixin(
+        CustomAssistant customAssistant,
+        HttpClient httpClient,
+        ILoggerFactory loggerFactory
+    ) : base(customAssistant)
     {
         ChatCompletionService = new OptimizedOpenAIApiClient(
             new OptimizedChatClient(
@@ -31,7 +36,8 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
                 new ApiKeyCredential(ApiKey.IsNullOrWhiteSpace() ? "NO_API_KEY" : ApiKey),
                 new OpenAIClientOptions
                 {
-                    Endpoint = new Uri(Endpoint, UriKind.Absolute)
+                    Endpoint = new Uri(Endpoint, UriKind.Absolute),
+                    Transport = new HttpClientPipelineTransport(httpClient, true, loggerFactory)
                 }
             ).AsIChatClient(),
             this

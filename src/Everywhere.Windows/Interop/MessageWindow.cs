@@ -1,4 +1,5 @@
-﻿using Windows.Win32;
+﻿using System.Reactive.Disposables;
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Everywhere.Extensions;
@@ -8,9 +9,9 @@ namespace Everywhere.Windows.Interop;
 
 // Shared message-only window host on a dedicated STA thread.
 // Consumers can add message handlers and reuse HWND for OS APIs (e.g., RegisterHotKey, AddClipboardFormatListener).
-internal sealed class Win32MessageWindow
+internal sealed class MessageWindow
 {
-    public static Win32MessageWindow Shared { get; } = new();
+    public static MessageWindow Shared { get; } = new();
 
     public HWND HWnd { get; private set; }
 
@@ -19,7 +20,7 @@ internal sealed class Win32MessageWindow
     private readonly Lock _lock = new();
     private readonly Dictionary<uint, List<MessageHandler>> _handlers = new();
 
-    private Win32MessageWindow()
+    private MessageWindow()
     {
         var thread = new Thread(WindowLoop)
         {
@@ -43,7 +44,7 @@ internal sealed class Win32MessageWindow
             }
             list.Add(handler);
         }
-        return new AnonymousDisposable(() => RemoveHandler(message, handler));
+        return Disposable.Create(() => RemoveHandler(message, handler));
     }
 
     private void RemoveHandler(uint message, MessageHandler handler)

@@ -9,11 +9,6 @@ namespace Everywhere.Chat;
 public interface IChatContextManager : INotifyPropertyChanged
 {
     /// <summary>
-    /// Gets chat message nodes on the current branch.
-    /// </summary>
-    IReadOnlyList<ChatMessageNode> ChatMessageNodes { get; }
-
-    /// <summary>
     /// Gets the current chat context.
     /// </summary>
     ChatContext Current { get; }

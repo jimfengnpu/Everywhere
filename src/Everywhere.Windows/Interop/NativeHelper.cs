@@ -16,7 +16,7 @@ using Vector = Avalonia.Vector;
 
 namespace Everywhere.Windows.Interop;
 
-public class Win32NativeHelper : INativeHelper
+public class NativeHelper : INativeHelper
 {
     private const string AppName = nameof(Everywhere);
     private const string RegistryInstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\{D66EA41B-8DEB-4E5A-9D32-AB4F8305F664}}_is1";

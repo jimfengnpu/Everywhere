@@ -3,16 +3,13 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Views;
-using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia.Enums;
 using Serilog;
-using ShadUI;
 using Window = Avalonia.Controls.Window;
 
 namespace Everywhere;
@@ -39,42 +36,6 @@ public class App : Application
 
             e.Handled = true;
         };
-
-#if DEBUG
-        if (Design.IsDesignMode)
-        {
-            ServiceLocator.Build(x => x
-
-                    #region Basic
-
-                    .AddSingleton<IRuntimeConstantProvider, DesignTimeRuntimeConstantProvider>()
-                    .AddSingleton<IVisualElementContext, DesignTimeVisualElementContext>()
-                    .AddSingleton<IShortcutListener, DesignTimeShortcutListener>()
-                    .AddSingleton<INativeHelper, DesignTimeNativeHelper>()
-                    .AddSingleton<Settings>()
-
-                    #endregion
-
-                    #region Avalonia Basic
-
-                    .AddSingleton<DialogManager>()
-                    .AddSingleton<ToastManager>()
-
-                    #endregion
-
-                    #region View & ViewModel
-
-                    .AddSingleton<VisualTreeDebugger>()
-                    .AddSingleton<ChatWindowViewModel>()
-                    .AddSingleton<ChatWindow>()
-                    .AddSingleton<MainViewModel>()
-                    .AddSingleton<MainView>()
-
-                #endregion
-
-            );
-        }
-#endif
 
         try
         {
@@ -197,41 +158,3 @@ public class App : Application
         Environment.Exit(0);
     }
 }
-
-#if DEBUG
-#pragma warning disable CS0067 // The event is for design-time only.
-file class DesignTimeRuntimeConstantProvider : IRuntimeConstantProvider
-{
-    public object? this[RuntimeConstantType type] => null;
-}
-
-file class DesignTimeVisualElementContext : IVisualElementContext
-{
-    public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
-    public IVisualElement? KeyboardFocusedElement => null;
-    public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element) => null;
-    public IVisualElement? ElementFromPointer(PickElementMode mode = PickElementMode.Element) => null;
-    public Task<IVisualElement?> PickElementAsync(PickElementMode mode) => Task.FromResult<IVisualElement?>(null);
-}
-
-file class DesignTimeShortcutListener : IShortcutListener
-{
-    public IDisposable Register(KeyboardShortcut shortcut, Action handler) => throw new NotSupportedException();
-    public IDisposable Register(MouseShortcut shortcut, Action handler) => throw new NotSupportedException();
-    public IKeyboardShortcutScope StartCaptureKeyboardShortcut() => throw new NotSupportedException();
-}
-
-file class DesignTimeNativeHelper : INativeHelper
-{
-    public bool IsInstalled => false;
-    public bool IsAdministrator => false;
-    public bool IsUserStartupEnabled { get; set; }
-    public bool IsAdministratorStartupEnabled { get; set; }
-    public void RestartAsAdministrator() { }
-    public Task<WriteableBitmap?> GetClipboardBitmapAsync() => Task.FromResult<WriteableBitmap?>(null);
-    public void ShowDesktopNotification(string message, string? title) { }
-    public void OpenFileLocation(string fullPath) { }
-}
-
-#pragma warning restore CS0067 // The event is for design-time only.
-#endif

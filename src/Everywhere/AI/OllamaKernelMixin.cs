@@ -28,9 +28,10 @@ public sealed partial class OllamaKernelMixin : KernelMixinBase
     /// <summary>
     /// Initializes a new instance of the <see cref="OllamaKernelMixin"/> class.
     /// </summary>
-    public OllamaKernelMixin(CustomAssistant customAssistant) : base(customAssistant)
+    public OllamaKernelMixin(CustomAssistant customAssistant, HttpClient httpClient) : base(customAssistant)
     {
-        _client = new OllamaApiClient(Endpoint, ModelId);
+        httpClient.BaseAddress = new Uri(Endpoint, UriKind.Absolute);
+        _client = new OllamaApiClient(httpClient, ModelId);
         ChatCompletionService = new OptimizedOllamaApiClient(_client, this).AsChatCompletionService();
     }
 

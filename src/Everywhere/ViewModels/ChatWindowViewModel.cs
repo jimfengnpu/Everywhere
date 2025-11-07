@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reactive.Disposables;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
@@ -9,6 +11,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using DynamicData;
 using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -19,16 +22,16 @@ using Everywhere.Utilities;
 using Everywhere.Views;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
-using ObservableCollections;
 using ShadUI;
 using ZLinq;
 
 namespace Everywhere.ViewModels;
 
-public partial class ChatWindowViewModel :
+public sealed partial class ChatWindowViewModel :
     BusyViewModelBase,
     IRecipient<ChatPluginConsentRequest>,
-    IRecipient<ChatContextMetadataChangedMessage>
+    IRecipient<ChatContextMetadataChangedMessage>,
+    IDisposable
 {
     public Settings Settings { get; }
 
@@ -94,9 +97,7 @@ public partial class ChatWindowViewModel :
     /// </summary>
     public bool IsPickingFiles { get; set; }
 
-    [field: AllowNull, MaybeNull]
-    public NotifyCollectionChangedSynchronizedViewList<ChatAttachment> ChatAttachments =>
-        field ??= _chatAttachments.ToNotifyCollectionChangedSlim(SynchronizationContextCollectionEventDispatcher.Current);
+    public ReadOnlyObservableCollection<ChatAttachment> ChatAttachments { get; }
 
     [ObservableProperty]
     public partial IReadOnlyList<DynamicNamedCommand>? QuickActions { get; private set; }
@@ -109,7 +110,8 @@ public partial class ChatWindowViewModel :
     private readonly IBlobStorage _blobStorage;
     private readonly ILogger<ChatWindowViewModel> _logger;
 
-    private readonly ObservableList<ChatAttachment> _chatAttachments = [];
+    private readonly CompositeDisposable _disposables = new(2);
+    private readonly SourceList<ChatAttachment> _chatAttachmentsSource = new();
     private readonly ReusableCancellationTokenSource _cancellationTokenSource = new();
     private readonly ActivitySource _activitySource = new(typeof(ChatWindowViewModel).FullName.NotNull());
 
@@ -137,13 +139,23 @@ public partial class ChatWindowViewModel :
         _blobStorage = blobStorage;
         _logger = logger;
 
+        ChatAttachments = _chatAttachmentsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+
+        _disposables.Add(_chatAttachmentsSource);
+
         WeakReferenceMessenger.Default.RegisterAll(this);
 
         InitializeCommands();
     }
 
-    ~ChatWindowViewModel()
+    public void Dispose()
     {
+        _disposables.Dispose();
+        _cancellationTokenSource.Dispose();
+        _targetElementChangedTokenSource?.Dispose();
         ChatContextManager.PropertyChanged -= HandleChatContextManagerPropertyChanged;
     }
 
@@ -221,12 +233,18 @@ public partial class ChatWindowViewModel :
             IsOpened = true;
 
             // Avoid adding duplicate attachments
-            if (_chatAttachments.Any(a => a is ChatVisualElementAttachment vea && Equals(vea.Element?.Target, targetElement))) return;
+            if (_chatAttachmentsSource.Items.Any(a => a is ChatVisualElementAttachment vea && Equals(vea.Element?.Target, targetElement))) return;
 
             TargetBoundingRect = default;
             if (targetElement == null)
             {
-                if (_chatAttachments is [ChatVisualElementAttachment { IsFocusedElement: true }, ..]) _chatAttachments.RemoveAt(0);
+                _chatAttachmentsSource.Edit(list =>
+                {
+                    if (list is [ChatVisualElementAttachment { IsFocusedElement: true }, ..])
+                    {
+                        list.RemoveAt(0);
+                    }
+                });
                 return;
             }
 
@@ -237,14 +255,17 @@ public partial class ChatWindowViewModel :
             TargetBoundingRect = boundingRect;
             if (attachment is not null)
             {
-                if (_chatAttachments is [ChatVisualElementAttachment { IsFocusedElement: true }, ..])
+                _chatAttachmentsSource.Edit(list =>
                 {
-                    _chatAttachments[0] = attachment.With(a => a.IsFocusedElement = true);
-                }
-                else
-                {
-                    _chatAttachments.Insert(0, attachment.With(a => a.IsFocusedElement = true));
-                }
+                    if (list is [ChatVisualElementAttachment { IsFocusedElement: true }, ..])
+                    {
+                        list[0] = attachment.With(a => a.IsFocusedElement = true);
+                    }
+                    else
+                    {
+                        list.Insert(0, attachment.With(a => a.IsFocusedElement = true));
+                    }
+                });
             }
         }
         catch (Exception ex)
@@ -257,7 +278,7 @@ public partial class ChatWindowViewModel :
     private Task PickElementAsync(PickElementMode mode) => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
-            if (_chatAttachments.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+            if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
 
             // Hide the chat window to avoid picking itself
             var chatWindow = ServiceLocator.Resolve<ChatWindow>();
@@ -267,8 +288,8 @@ public partial class ChatWindowViewModel :
             windowHelper.SetCloaked(chatWindow, false);
 
             if (element is null) return;
-            if (_chatAttachments.OfType<ChatVisualElementAttachment>().Any(a => Equals(a.Element?.Target, element))) return;
-            _chatAttachments.Add(await Task.Run(() => CreateFromVisualElement(element), cancellationToken));
+            if (_chatAttachmentsSource.Items.OfType<ChatVisualElementAttachment>().Any(a => Equals(a.Element?.Target, element))) return;
+            _chatAttachmentsSource.Add(await Task.Run(() => CreateFromVisualElement(element), cancellationToken));
         },
         _logger.ToExceptionHandler());
 
@@ -276,7 +297,7 @@ public partial class ChatWindowViewModel :
     private Task AddClipboardAsync() => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
-            if (_chatAttachments.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+            if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
 
             var formats = await Clipboard.GetDataFormatsAsync();
             if (formats.Count == 0)
@@ -295,7 +316,7 @@ public partial class ChatWindowViewModel :
                         var uri = storageItem.Path;
                         if (!uri.IsFile) break;
                         await AddFileUncheckAsync(uri.AbsolutePath);
-                        if (_chatAttachments.Count >= Settings.Internal.MaxChatAttachmentCount) break;
+                        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) break;
                     }
                 }
             }
@@ -316,7 +337,7 @@ public partial class ChatWindowViewModel :
                             blob.LocalPath,
                             blob.Sha256,
                             blob.MimeType);
-                        _chatAttachments.Add(attachment);
+                        _chatAttachmentsSource.Add(attachment);
                     },
                     cancellationToken);
             }
@@ -335,7 +356,7 @@ public partial class ChatWindowViewModel :
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
     private async Task AddFileAsync()
     {
-        if (_chatAttachments.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
 
         IReadOnlyList<IStorageFile> files;
         IsPickingFiles = true;
@@ -401,7 +422,7 @@ public partial class ChatWindowViewModel :
 
         try
         {
-            _chatAttachments.Add(await ChatFileAttachment.CreateAsync(filePath));
+            _chatAttachmentsSource.Add(await ChatFileAttachment.CreateAsync(filePath));
         }
         catch (Exception ex)
         {
@@ -457,6 +478,12 @@ public partial class ChatWindowViewModel :
             element);
     }
 
+    [RelayCommand]
+    private void RemoveAttachment(ChatAttachment attachment)
+    {
+        _chatAttachmentsSource.Remove(attachment);
+    }
+
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
     private Task SendMessage(string? message) => ExecuteBusyTaskAsync(
         cancellationToken =>
@@ -464,11 +491,16 @@ public partial class ChatWindowViewModel :
             message = message?.Trim();
             if (message?.Length is not > 0) return Task.CompletedTask;
 
-            var userMessage = new UserChatMessage(message, _chatAttachments.AsValueEnumerable().ToImmutableArray())
+            ImmutableArray<ChatAttachment> attachments = [];
+            _chatAttachmentsSource.Edit(list =>
+            {
+                attachments = [..list];
+                list.Clear();
+            });
+            var userMessage = new UserChatMessage(message, attachments)
             {
                 Inlines = { message }
             };
-            _chatAttachments.Clear();
 
             return Task.Run(() => _chatService.SendMessageAsync(userMessage, cancellationToken), cancellationToken);
         },

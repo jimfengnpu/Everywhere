@@ -1,18 +1,20 @@
 ﻿using System.Collections.Immutable;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Text.Json.Serialization;
 using Avalonia.Controls.Documents;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
 using Everywhere.Chat.Plugins;
+using Everywhere.Common;
 using Everywhere.Serialization;
 using LiveMarkdown.Avalonia;
 using Lucide.Avalonia;
 using MessagePack;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using ObservableCollections;
 using ZLinq;
 
 namespace Everywhere.Chat;
@@ -51,7 +53,7 @@ public partial class SystemChatMessage(string systemPrompt) : ChatMessage
 }
 
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
-public partial class AssistantChatMessage : ChatMessage
+public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
 {
     public override AuthorRole Role => AuthorRole.Assistant;
 
@@ -84,7 +86,7 @@ public partial class AssistantChatMessage : ChatMessage
     public double ElapsedSeconds => Math.Max((FinishedAt - CreatedAt).TotalSeconds, 0);
 
     [Key(4)]
-    private ObservableList<FunctionCallChatMessage>? FunctionCalls
+    private IList<FunctionCallChatMessage>? FunctionCalls
     {
         get => null; // for forward compatibility
         init
@@ -93,11 +95,22 @@ public partial class AssistantChatMessage : ChatMessage
         }
     }
 
+    [Key(5)]
+    private IEnumerable<AssistantChatMessageSpan> SerializableSpans
+    {
+        get => _spansSource.Items;
+        set => _spansSource.Edit(list =>
+        {
+            list.Clear();
+            list.AddRange(value);
+        });
+    }
+
     /// <summary>
     /// Each span represents a part of the message content and function calls.
     /// </summary>
-    [Key(5)]
-    public ObservableList<AssistantChatMessageSpan> Spans { get; set; } = [];
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<AssistantChatMessageSpan> Spans { get; }
 
     [Key(6)]
     [ObservableProperty]
@@ -111,10 +124,33 @@ public partial class AssistantChatMessage : ChatMessage
     [ObservableProperty]
     public partial double TotalTokenCount { get; set; }
 
+    /// <summary>
+    /// The private source for function calls.
+    /// </summary>
+    [IgnoreMember] private readonly SourceList<AssistantChatMessageSpan> _spansSource = new();
+    [IgnoreMember] private readonly IDisposable _spansConnection;
+
+    public AssistantChatMessage()
+    {
+        Spans = _spansSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .DisposeMany()
+            .BindEx(out _spansConnection);
+    }
+
     private AssistantChatMessageSpan EnsureInitialSpan()
     {
-        if (Spans.Count == 0) Spans.Add(new AssistantChatMessageSpan());
-        return Spans[^1];
+        _spansSource.Edit(list =>
+        {
+            if (list.Count == 0) list.Add(new AssistantChatMessageSpan());
+        });
+        return _spansSource.Items[^1];
+    }
+
+    public void AddSpan(AssistantChatMessageSpan span)
+    {
+        _spansSource.Add(span);
     }
 
     public override string ToString()
@@ -127,6 +163,12 @@ public partial class AssistantChatMessage : ChatMessage
 
         return builder.TrimEnd().ToString();
     }
+
+    public void Dispose()
+    {
+        _spansSource.Dispose();
+        _spansConnection.Dispose();
+    }
 }
 
 /// <summary>
@@ -134,7 +176,7 @@ public partial class AssistantChatMessage : ChatMessage
 /// A span can contain markdown content and associated function calls.
 /// </summary>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
-public partial class AssistantChatMessageSpan : ObservableObject
+public sealed partial class AssistantChatMessageSpan : ObservableObject, IDisposable
 {
     public ObservableStringBuilder MarkdownBuilder { get; }
 
@@ -146,7 +188,18 @@ public partial class AssistantChatMessageSpan : ObservableObject
     }
 
     [Key(1)]
-    public ObservableList<FunctionCallChatMessage> FunctionCalls { get; set; } = [];
+    private IEnumerable<FunctionCallChatMessage> SerializableFunctionCalls
+    {
+        get => _functionCallsSource.Items;
+        set => _functionCallsSource.Edit(list =>
+        {
+            list.Clear();
+            list.AddRange(value);
+        });
+    }
+
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<FunctionCallChatMessage> FunctionCalls { get; }
 
     [Key(2)]
     [ObservableProperty]
@@ -175,13 +228,36 @@ public partial class AssistantChatMessageSpan : ObservableObject
     [JsonIgnore]
     public double ReasoningElapsedSeconds => Math.Max((ReasoningFinishedAt.GetValueOrDefault() - CreatedAt).TotalSeconds, 0);
 
+    [IgnoreMember] private readonly SourceList<FunctionCallChatMessage> _functionCallsSource = new();
+    [IgnoreMember] private readonly IDisposable _functionCallsConnection;
+
     public AssistantChatMessageSpan()
     {
         MarkdownBuilder = new ObservableStringBuilder();
-        MarkdownBuilder.Changed += delegate
-        {
-            OnPropertyChanged(nameof(Content));
-        };
+        MarkdownBuilder.Changed += HandleMarkdownBuilderChanged;
+
+        FunctionCalls = _functionCallsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .DisposeMany()
+            .BindEx(out _functionCallsConnection);
+    }
+
+    public void AddFunctionCall(FunctionCallChatMessage functionCall)
+    {
+        _functionCallsSource.Add(functionCall);
+    }
+
+    private void HandleMarkdownBuilderChanged(in ObservableStringBuilderChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(Content));
+    }
+
+    public void Dispose()
+    {
+        MarkdownBuilder.Changed -= HandleMarkdownBuilderChanged;
+        _functionCallsSource.Dispose();
+        _functionCallsConnection.Dispose();
     }
 }
 
@@ -257,7 +333,7 @@ public partial class ActionChatMessage : ChatMessage
     public double ElapsedSeconds => Math.Max((FinishedAt - CreatedAt).TotalSeconds, 0);
 
     [SerializationConstructor]
-    protected ActionChatMessage() { }
+    private ActionChatMessage() { }
 
     public ActionChatMessage(AuthorRole role, LucideIconKind icon, DynamicResourceKey? headerKey)
     {
@@ -271,7 +347,7 @@ public partial class ActionChatMessage : ChatMessage
 /// Represents a function call action message in the chat.
 /// </summary>
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
-public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAttachments
+public sealed partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAttachments, IDisposable
 {
     [Key(0)]
     public override AuthorRole Role => AuthorRole.Tool;
@@ -321,6 +397,17 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
     [ObservableProperty]
     public partial DynamicResourceKeyBase? HeaderKey { get; set; }
 
+    [Key(10)]
+    private IEnumerable<ChatPluginDisplayBlock> SerializableDisplayBlocks
+    {
+        get => _displaySink.Items;
+        set => _displaySink.Edit(list =>
+        {
+            list.Clear();
+            list.AddRange(value);
+        });
+    }
+
     /// <summary>
     /// The display blocks that make up the content of this function call message,
     /// which can include text, markdown, progress indicators, file references, and function call/result displays.
@@ -334,8 +421,14 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
     /// based on their IDs after deserialization. This ensures that the display blocks have access
     /// to the full details of the function calls and results they are meant to represent.
     /// </remarks>
-    [Key(10)]
-    public ChatPluginDisplaySink DisplayBlocks { get; set; } = [];
+    [IgnoreMember]
+    public ReadOnlyObservableCollection<ChatPluginDisplayBlock> DisplayBlocks { get; }
+
+    /// <summary>
+    /// The display sink that holds the display blocks for this function call message.
+    /// </summary>
+    [IgnoreMember]
+    public IChatPluginDisplaySink DisplaySink => _displaySink;
 
     [Key(11)]
     [ObservableProperty]
@@ -343,7 +436,7 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
 
     [IgnoreMember]
     [JsonIgnore]
-    public bool IsWaitingForUserInput => DisplayBlocks.Any(db => db.IsWaitingForUserInput);
+    public bool IsWaitingForUserInput => _displaySink.Any(db => db.IsWaitingForUserInput);
 
     /// <summary>
     /// Attachments associated with this action message. Used to provide additional context of a tool call result.
@@ -351,38 +444,39 @@ public partial class FunctionCallChatMessage : ChatMessage, IChatMessageWithAtta
     [IgnoreMember]
     public IEnumerable<ChatAttachment> Attachments => Results.Select(r => r.Result).OfType<ChatAttachment>();
 
+    [IgnoreMember] private readonly ChatPluginDisplaySink _displaySink = new();
+    [IgnoreMember] private readonly CompositeDisposable _disposables = new(3);
+
     [SerializationConstructor]
-    private FunctionCallChatMessage() { }
+    private FunctionCallChatMessage() : this(default, null)
+    {
+        // This constructor is for the deserializer.
+        // The pipeline is set up in the primary constructor.
+    }
 
     public FunctionCallChatMessage(LucideIconKind icon, DynamicResourceKeyBase? headerKey)
     {
         Icon = icon;
         HeaderKey = headerKey;
 
-        DisplayBlocks.CollectionChanged += (_, e) =>
-        {
-            OnPropertyChanged(nameof(IsWaitingForUserInput));
+        // Set up the DynamicData pipeline
+        DisplayBlocks = _displaySink
+            .Connect()
+            .ObserveOnDispatcher()
+            .DisposeMany()
+            .BindEx(_disposables);
 
-            if (e.NewItems is { } newItems)
-            {
-                foreach (var item in newItems.OfType<ChatPluginDisplayBlock>())
-                {
-                    item.PropertyChanged += HandleDisplayBlockPropertyChanged;
-                }
-            }
+        // Monitor IsWaitingForUserInput changes
+        _disposables.Add(_displaySink
+            .Connect()
+            .WhenAnyPropertyChanged(nameof(ChatPluginDisplayBlock.IsWaitingForUserInput))
+            .Subscribe(_ => OnPropertyChanged(nameof(IsWaitingForUserInput))));
 
-            if (e.OldItems is { } oldItems)
-            {
-                foreach (var item in oldItems.OfType<ChatPluginDisplayBlock>())
-                {
-                    item.PropertyChanged -= HandleDisplayBlockPropertyChanged;
-                }
-            }
-        };
+        _disposables.Add(_displaySink);
+    }
 
-        void HandleDisplayBlockPropertyChanged(object? sender, PropertyChangedEventArgs args)
-        {
-            if (args.PropertyName == nameof(ChatPluginDisplayBlock.IsWaitingForUserInput)) OnPropertyChanged(nameof(IsWaitingForUserInput));
-        }
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

@@ -1,12 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
 using Everywhere.AI;
 using Everywhere.Chat.Permissions;
+using Everywhere.Common;
 using Everywhere.Configuration;
 using Lucide.Avalonia;
 using Microsoft.SemanticKernel;
-using ObservableCollections;
 using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
@@ -15,7 +17,7 @@ namespace Everywhere.Chat.Plugins;
 [JsonDerivedType(typeof(BuiltInChatPlugin), "builtin")]
 [JsonDerivedType(typeof(McpChatPlugin), "mcp")]
 [ObservableObject]
-public abstract partial class ChatPlugin(string name) : KernelPlugin(name)
+public abstract partial class ChatPlugin : KernelPlugin, IDisposable
 {
     public abstract string Key { get; }
 
@@ -50,29 +52,43 @@ public abstract partial class ChatPlugin(string name) : KernelPlugin(name)
     /// <summary>
     /// Gets the list of functions provided by this plugin for Binding use in the UI.
     /// </summary>
-    [field: AllowNull, MaybeNull]
-    public NotifyCollectionChangedSynchronizedViewList<ChatFunction> Functions =>
-        field ??= _functions.ToNotifyCollectionChangedSlim(SynchronizationContextCollectionEventDispatcher.Current);
+    public ReadOnlyObservableCollection<ChatFunction> Functions { get; }
 
     /// <summary>
     /// Gets the SettingsItems for this chat function.
     /// </summary>
     public virtual IReadOnlyList<SettingsItem>? SettingsItems => null;
 
-    public override int FunctionCount => _functions.Count(f => f.IsEnabled);
+    public override int FunctionCount => _functionsSource.Items.Count(f => f.IsEnabled);
 
-    protected readonly ObservableList<ChatFunction> _functions = [];
+    protected readonly SourceList<ChatFunction> _functionsSource = new();
+    private readonly IDisposable _functionsConnection;
+
+    protected ChatPlugin(string name) : base(name)
+    {
+        Functions = _functionsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(out _functionsConnection);
+    }
 
     public virtual IEnumerable<ChatFunction> SnapshotFunctions(ChatContext chatContext, CustomAssistant customAssistant) =>
-        _functions.Where(f => f.IsEnabled);
+        _functionsSource.Items.Where(f => f.IsEnabled);
 
     public override IEnumerator<KernelFunction> GetEnumerator() =>
-        _functions.Where(f => f.IsEnabled).Select(f => f.KernelFunction).GetEnumerator();
+        _functionsSource.Items.Where(f => f.IsEnabled).Select(f => f.KernelFunction).GetEnumerator();
 
     public override bool TryGetFunction(string name, [NotNullWhen(true)] out KernelFunction? function)
     {
-        function = _functions.AsValueEnumerable().Where(f => f.IsEnabled).Select(f => f.KernelFunction).FirstOrDefault(f => f.Name == name);
+        function = _functionsSource.Items.AsValueEnumerable().Where(f => f.IsEnabled).Select(f => f.KernelFunction).FirstOrDefault(f => f.Name == name);
         return function is not null;
+    }
+
+    public void Dispose()
+    {
+        _functionsSource.Dispose();
+        _functionsConnection.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

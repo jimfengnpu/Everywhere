@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Disposables;
 using System.Text.Json.Serialization;
-using Avalonia.Controls;
 using Avalonia.Reactive;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using Everywhere.Utilities;
 using MessagePack;
 using ZLinq;
@@ -35,7 +37,7 @@ public class EmptyDynamicResourceKey : DynamicResourceKeyBase
     public override IDisposable Subscribe(IObserver<object?> observer)
     {
         observer.OnNext(null);
-        return new AnonymousDisposable(() => { });
+        return Disposable.Empty;
     }
 
     public override string ToString() => string.Empty;
@@ -46,17 +48,47 @@ public class EmptyDynamicResourceKey : DynamicResourceKeyBase
 /// </summary>
 /// <param name="key"></param>
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
-public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase
+public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, IRecipient<LocaleChangedMessage>
 {
     [Key(0)]
     public object Key { get; } = key ?? string.Empty; // avoid null key (especially for MessagePack)
 
-    protected IObservable<object?> GetObservable() => LocaleManager.Shared.GetResourceObservable(Key, NotFoundConverter);
+    [IgnoreMember] private readonly Dictionary<int, WeakReference<IObserver<object?>>> _observers = new(1); // usually only one subscriber
 
-    private object? NotFoundConverter(object? value) => value is UnsetValueType ? Key : value;
+    /// <summary>
+    /// Subscribes an observer to receive updates when the locale changes.
+    /// </summary>
+    /// <remarks>
+    /// The Avalonia's implementation of IObservable (GetResourceObservable) has issues which can cause memory leaks.
+    /// It holds strong references to observers, preventing them from being garbage collected.
+    /// This implementation uses weak references to avoid memory leaks.
+    /// Also brings better performance by avoiding unnecessary resource lookups when there are no subscribers.
+    /// </remarks>
+    /// <param name="observer"></param>
+    /// <returns></returns>
+    public override IDisposable Subscribe(IObserver<object?> observer)
+    {
+        // Only allow subscription on UI thread
+        Dispatcher.UIThread.VerifyAccess();
 
-    public override IDisposable Subscribe(IObserver<object?> observer) =>
-        GetObservable().Subscribe(observer);
+        var id = _observers.Count;
+        if (id == 0)
+        {
+            WeakReferenceMessenger.Default.Register(this); // register for locale change messages
+        }
+
+        _observers.Add(id, new WeakReference<IObserver<object?>>(observer));
+        observer.OnNext(ToString());
+
+        return Disposable.Create(() =>
+        {
+            _observers.Remove(id);
+            if (_observers.Count == 0)
+            {
+                WeakReferenceMessenger.Default.Unregister<LocaleChangedMessage>(this);
+            }
+        });
+    }
 
     [return: NotNullIfNotNull(nameof(key))]
     public static implicit operator DynamicResourceKey?(string? key) => key == null ? null : new DynamicResourceKey(key);
@@ -85,6 +117,14 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase
         return key?.ToString() ?? string.Empty;
     }
 
+    public void Receive(LocaleChangedMessage message)
+    {
+        foreach (var observerRef in _observers.Values.AsValueEnumerable())
+        {
+            if (observerRef.TryGetTarget(out var observer)) observer.OnNext(ToString());
+        }
+    }
+
     public override string? ToString() => Resolve(Key);
 }
 
@@ -96,7 +136,7 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
 public partial class DirectResourceKey(object key) : DynamicResourceKey(key)
 {
-    private static readonly IDisposable NullDisposable = new AnonymousDisposable(() => { });
+    private static readonly IDisposable NullDisposable = Disposable.Empty;
 
     public override IDisposable Subscribe(IObserver<object?> observer)
     {
@@ -128,7 +168,7 @@ public partial class FormattedDynamicResourceKey(object key, params IReadOnlyLis
     {
         var formatter = new AnonymousObserver<object?>(_ => observer.OnNext(ToString()));
         var disposeCollector = new DisposeCollector();
-        disposeCollector.Add(GetObservable().Subscribe(formatter));
+        disposeCollector.Add(base.Subscribe(formatter));
         Args.ForEach(arg => disposeCollector.Add(arg.Subscribe(formatter)));
         return disposeCollector;
     }
@@ -178,53 +218,6 @@ public partial class AggregateDynamicResourceKey(IReadOnlyList<DynamicResourceKe
         }
 
         return string.Join(Separator, resolvedKeys);
-    }
-}
-
-/// <summary>
-/// This can be deserialized from JSON and used as a dynamic resource key.
-/// </summary>
-/// <remarks>
-/// JSON example:
-/// "Key": {
-///     "default": "Hello, World!",
-///     "zh-hans": "你好，世界！",
-///     "jp": "こんにちは、世界！"
-/// }
-/// </remarks>
-[Serializable]
-public class JsonDynamicResourceKey : Dictionary<string, string>, IObservable<object?>
-{
-    public IDisposable Subscribe(IObserver<object?> observer)
-    {
-        LocaleManager.LocaleChanged += HandleLocaleChanged;
-        PostValue(LocaleManager.CurrentLocale);
-
-        return new AnonymousDisposable(() =>
-        {
-            LocaleManager.LocaleChanged -= HandleLocaleChanged;
-        });
-
-        void PostValue(string locale)
-        {
-            if (TryGetValue(locale, out var value))
-            {
-                observer.OnNext(value);
-            }
-            else if (TryGetValue("default", out var defaultValue))
-            {
-                observer.OnNext(defaultValue);
-            }
-            else
-            {
-                observer.OnNext(Values.FirstOrDefault());
-            }
-        }
-
-        void HandleLocaleChanged(string? oldLocale, string newLocale)
-        {
-            PostValue(newLocale);
-        }
     }
 }
 

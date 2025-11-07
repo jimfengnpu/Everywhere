@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+using DynamicData;
 using Everywhere.Chat;
 using Everywhere.Database;
 using MessagePack;
@@ -119,13 +120,7 @@ public sealed class ChatContextStorage(
             var metadata = GetOrAddAlive(
                 _metadataCache,
                 entity.Id,
-                () => new ChatContextMetadata
-                {
-                    Id = entity.Id,
-                    DateCreated = entity.CreatedAt,
-                    DateModified = entity.UpdatedAt,
-                    Topic = entity.Topic
-                });
+                () => new ChatContextMetadata(entity.Id, entity.CreatedAt, entity.UpdatedAt, entity.Topic));
 
             yield return metadata;
         }
@@ -203,7 +198,7 @@ public sealed class ChatContextStorage(
         if (rootRow is null || DeserializeMessage(rootRow.Payload) is not SystemChatMessage rootMessage)
             throw new InvalidOperationException("Root node (System Prompt) is missing or invalid.");
 
-        var rootNode = new ChatMessageNode(Guid.Empty, rootMessage, []);
+        var rootNode = new ChatMessageNode(Guid.Empty, rootMessage);
 
         // Build node instances
         var nodesById = new Dictionary<Guid, ChatMessageNode>();
@@ -229,7 +224,7 @@ public sealed class ChatContextStorage(
                 }
             }
 
-            var node = new ChatMessageNode(row.Id, msg, []);
+            var node = new ChatMessageNode(row.Id, msg);
             nodesById[row.Id] = node;
 
             if (row.ParentId is { } parentId)
@@ -249,7 +244,7 @@ public sealed class ChatContextStorage(
 
             foreach (var childId in list.OrderBy(GetOrderKey))
             {
-                parentNode.Children.Add(childId);
+                parentNode.Add(childId);
                 nodesById[childId].Parent = parentNode;
             }
 
@@ -275,13 +270,7 @@ public sealed class ChatContextStorage(
         var metadata = GetOrAddAlive(
             _metadataCache,
             ctxRow.Id,
-            () => new ChatContextMetadata
-            {
-                Id = ctxRow.Id,
-                DateCreated = ctxRow.CreatedAt,
-                DateModified = ctxRow.UpdatedAt,
-                Topic = ctxRow.Topic
-            });
+            () => new ChatContextMetadata(ctxRow.Id, ctxRow.CreatedAt, ctxRow.UpdatedAt, ctxRow.Topic));
 
         var built = new ChatContext(metadata, nodesById.Values, rootNode);
 
@@ -420,23 +409,7 @@ public sealed class ChatContextStorage(
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
 
         var ctxRow = await db.Chats.FirstOrDefaultAsync(x => x.Id == metadata.Id, cancellationToken);
-        if (ctxRow is null)
-        {
-            ctxRow = new ChatContextEntity
-            {
-                Id = metadata.Id,
-                CreatedAt = metadata.DateCreated,
-                UpdatedAt = metadata.DateModified,
-                Topic = metadata.Topic,
-                IsDeleted = false
-            };
-            db.Chats.Add(ctxRow);
-            await db.SaveChangesAsync(cancellationToken);
-
-            SetAlive(_metadataCache, metadata.Id, metadata);
-            _contextCache.TryRemove(metadata.Id, out _); // context stale -> force reload path
-            return;
-        }
+        if (ctxRow is null) return;
 
         ctxRow.Topic = metadata.Topic;
         ctxRow.UpdatedAt = metadata.DateModified;

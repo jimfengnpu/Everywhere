@@ -193,14 +193,8 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Chiudi (Esc)</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen" xml:space="preserve">
-        <value>Seleziona Schermo</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow" xml:space="preserve">
-        <value>Seleziona Finestra</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
-        <value>Seleziona Elemento</value>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>Seleziona Elemento Visivo</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Incolla dagli Appunti</value>
@@ -1462,5 +1456,24 @@ Contenuto:
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Impossibile scaricare o avviare il browser Puppeteer.</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>Clic sinistro per selezionare, clic destro o Esc per annullare
+Rotellina o tasti numerici per cambiare modalità di selezione</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: Schermo</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: Finestra</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: Elemento</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>Nessuno</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>Nessuno</value>
     </data>
 </root>

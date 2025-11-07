@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿using DynamicData;
 using LiveMarkdown.Avalonia;
 using MessagePack;
 using MessagePack.Formatters;
@@ -7,72 +7,106 @@ namespace Everywhere.Chat.Plugins;
 
 [MessagePackObject(SuppressSourceGeneration = true)]
 [MessagePackFormatter(typeof(ChatPluginDisplaySinkFormatter))]
-public sealed class ChatPluginDisplaySink : ObservableCollection<ChatPluginDisplayBlock>, IChatPluginDisplaySink
+public sealed class ChatPluginDisplaySink : IReadOnlyList<ChatPluginDisplayBlock>, ISourceList<ChatPluginDisplayBlock>, IChatPluginDisplaySink
 {
+    public int Count => _itemsSource.Count;
+
+    public IObservable<int> CountChanged => _itemsSource.CountChanged;
+
+    public IReadOnlyList<ChatPluginDisplayBlock> Items => _itemsSource.Items;
+
+    public ChatPluginDisplayBlock this[int index] => _itemsSource.Items[index];
+
+    private readonly SourceList<ChatPluginDisplayBlock> _itemsSource = new();
+
     public void AppendBlock(ChatPluginDisplayBlock block)
     {
-        Add(block);
+        _itemsSource.Add(block);
     }
 
     public void AppendBlocks(IEnumerable<ChatPluginDisplayBlock> blocks)
     {
-        this.AddRange(blocks);
+        _itemsSource.AddRange(blocks);
     }
 
     public IChatPluginDisplaySink AppendContainer()
     {
         var groupBlock = new ChatPluginContainerDisplayBlock();
-        Add(groupBlock);
-        return groupBlock.Children;
+        _itemsSource.Add(groupBlock);
+        return groupBlock.DisplaySink;
     }
 
     public void AppendText(string text, string? fontFamily = null)
     {
-        Add(new ChatPluginTextDisplayBlock(text));
+        _itemsSource.Add(new ChatPluginTextDisplayBlock(text));
     }
 
     public void AppendDynamicResourceKey(DynamicResourceKeyBase resourceKey)
     {
-        Add(new ChatPluginDynamicResourceKeyDisplayBlock(resourceKey));
+        _itemsSource.Add(new ChatPluginDynamicResourceKeyDisplayBlock(resourceKey));
     }
 
     public ObservableStringBuilder AppendMarkdown()
     {
         var markdownBlock = new ChatPluginMarkdownDisplayBlock();
-        Add(markdownBlock);
+        _itemsSource.Add(markdownBlock);
         return markdownBlock.MarkdownBuilder;
     }
 
     public IProgress<double> AppendProgress(DynamicResourceKeyBase headerKey)
     {
         var progressBlock = new ChatPluginProgressDisplayBlock(headerKey);
-        Add(progressBlock);
+        _itemsSource.Add(progressBlock);
         return progressBlock.ProgressReporter;
     }
 
     public void AppendFileReferences(params IReadOnlyList<ChatPluginFileReference> references)
     {
-        Add(new ChatPluginFileReferencesDisplayBlock(references));
+        _itemsSource.Add(new ChatPluginFileReferencesDisplayBlock(references));
     }
 
     public void AppendFileDifference(TextDifference difference, string originalText)
     {
-        Add(new ChatPluginFileDifferenceDisplayBlock(difference, originalText));
+        _itemsSource.Add(new ChatPluginFileDifferenceDisplayBlock(difference, originalText));
     }
 
     public void AppendUrls(IReadOnlyList<ChatPluginUrl> urls)
     {
-        Add(new ChatPluginUrlsDisplayBlock(urls));
+        _itemsSource.Add(new ChatPluginUrlsDisplayBlock(urls));
     }
 
     public void AppendSeparator(double thickness = 1)
     {
-        Add(new ChatPluginSeparatorDisplayBlock(thickness));
+        _itemsSource.Add(new ChatPluginSeparatorDisplayBlock(thickness));
     }
 
     public void AppendCodeBlock(string code, string? language = null)
     {
-        Add(new ChatPluginCodeBlockDisplayBlock(code, language));
+        _itemsSource.Add(new ChatPluginCodeBlockDisplayBlock(code, language));
+    }
+
+    public IEnumerator<ChatPluginDisplayBlock> GetEnumerator() => _itemsSource.Items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IObservable<IChangeSet<ChatPluginDisplayBlock>> Connect(Func<ChatPluginDisplayBlock, bool>? predicate = null)
+    {
+        return _itemsSource.Connect(predicate);
+    }
+
+    public IObservable<IChangeSet<ChatPluginDisplayBlock>> Preview(Func<ChatPluginDisplayBlock, bool>? predicate = null)
+    {
+        return _itemsSource.Preview(predicate);
+    }
+
+    public void Edit(Action<IExtendedList<ChatPluginDisplayBlock>> updateAction)
+    {
+        _itemsSource.Edit(updateAction);
+    }
+
+    public void Dispose()
+    {
+        _itemsSource.Dispose();
     }
 }
 
@@ -114,7 +148,7 @@ public sealed class ChatPluginDisplaySinkFormatter : IMessagePackFormatter<ChatP
             {
                 reader.CancellationToken.ThrowIfCancellationRequested();
                 if (formatter.Deserialize(ref reader, options) is not { } item) continue;
-                result.Add(item);
+                result.AppendBlock(item);
             }
         }
         finally

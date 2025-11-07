@@ -193,14 +193,8 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Cerrar (Esc)</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen" xml:space="preserve">
-        <value>Seleccionar pantalla</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow" xml:space="preserve">
-        <value>Seleccionar ventana</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
-        <value>Seleccionar elemento</value>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>Seleccionar Elemento Visual</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Pegar desde el portapapeles</value>
@@ -1462,5 +1456,24 @@ Contenido:
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Error al descargar o iniciar el navegador Puppeteer.</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>Clic izquierdo para seleccionar, clic derecho o Esc para cancelar
+Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: Pantalla</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: Ventana</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: Elemento</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>Ninguno</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>Ninguno</value>
     </data>
 </root>

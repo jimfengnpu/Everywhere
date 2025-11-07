@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using DynamicData;
 using EverythingNet.Core;
 using EverythingNet.Interfaces;
 using Everywhere.Chat.Permissions;
@@ -28,7 +29,7 @@ public class EverythingPlugin : BuiltInChatPlugin
         _nativeHelper = nativeHelper;
         _watchdogManager = watchdogManager;
 
-        _functions.Add(
+        _functionsSource.Add(
             new NativeChatFunction(
                 SearchFilesAsync,
                 ChatFunctionPermissions.FileRead));

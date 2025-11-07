@@ -26,42 +26,45 @@ public class FileSystemPlugin : BuiltInChatPlugin
     {
         _logger = logger;
 
-        _functions.Add(
-            new NativeChatFunction(
-                SearchFiles,
-                ChatFunctionPermissions.FileRead));
-        _functions.Add(
-            new NativeChatFunction(
-                GetFileInformation,
-                ChatFunctionPermissions.FileRead));
-        _functions.Add(
-            new NativeChatFunction(
-                SearchFileContentAsync,
-                ChatFunctionPermissions.FileRead));
-        _functions.Add(
-            new NativeChatFunction(
-                ReadFileAsync,
-                ChatFunctionPermissions.FileRead));
-        _functions.Add(
-            new NativeChatFunction(
-                MoveFile,
-                ChatFunctionPermissions.FileAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                DeleteFilesAsync,
-                ChatFunctionPermissions.FileAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                CreateDirectory,
-                ChatFunctionPermissions.FileAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                WriteToFileAsync,
-                ChatFunctionPermissions.FileAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                ReplaceFileContentAsync,
-                ChatFunctionPermissions.FileAccess));
+        _functionsSource.Edit(list =>
+        {
+            list.Add(
+                new NativeChatFunction(
+                    SearchFiles,
+                    ChatFunctionPermissions.FileRead));
+            list.Add(
+                new NativeChatFunction(
+                    GetFileInformation,
+                    ChatFunctionPermissions.FileRead));
+            list.Add(
+                new NativeChatFunction(
+                    SearchFileContentAsync,
+                    ChatFunctionPermissions.FileRead));
+            list.Add(
+                new NativeChatFunction(
+                    ReadFileAsync,
+                    ChatFunctionPermissions.FileRead));
+            list.Add(
+                new NativeChatFunction(
+                    MoveFile,
+                    ChatFunctionPermissions.FileAccess));
+            list.Add(
+                new NativeChatFunction(
+                    DeleteFilesAsync,
+                    ChatFunctionPermissions.FileAccess));
+            list.Add(
+                new NativeChatFunction(
+                    CreateDirectory,
+                    ChatFunctionPermissions.FileAccess));
+            list.Add(
+                new NativeChatFunction(
+                    WriteToFileAsync,
+                    ChatFunctionPermissions.FileAccess));
+            list.Add(
+                new NativeChatFunction(
+                    ReplaceFileContentAsync,
+                    ChatFunctionPermissions.FileAccess));
+        });
     }
 
     [KernelFunction("search_files")]

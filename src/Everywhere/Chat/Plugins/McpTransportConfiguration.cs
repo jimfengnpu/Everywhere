@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
-using ObservableCollections;
+using Everywhere.Collections;
 
 namespace Everywhere.Chat.Plugins;
 

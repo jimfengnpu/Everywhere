@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Everywhere.AI;
-using ModelContextProtocol.Client;
 
 namespace Everywhere.Chat.Plugins;
 

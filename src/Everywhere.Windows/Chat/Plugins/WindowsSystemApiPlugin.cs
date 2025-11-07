@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using DynamicData;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -26,7 +27,7 @@ public class WindowsSystemApiPlugin : BuiltInChatPlugin
     {
         _logger = logger;
 
-        _functions.Add(new NativeChatFunction(OpenControlPanelAsync, ChatFunctionPermissions.ProcessAccess));
+        _functionsSource.Add(new NativeChatFunction(OpenControlPanelAsync, ChatFunctionPermissions.ProcessAccess));
     }
 
     private static readonly IReadOnlyDictionary<ControlPanelItem, string> ControlPanelArguments = new Dictionary<ControlPanelItem, string>
