@@ -9,9 +9,9 @@ namespace Everywhere.Windows.Interop;
 
 // Shared message-only window host on a dedicated STA thread.
 // Consumers can add message handlers and reuse HWND for OS APIs (e.g., RegisterHotKey, AddClipboardFormatListener).
-internal sealed class Win32MessageWindow
+internal sealed class MessageWindow
 {
-    public static Win32MessageWindow Shared { get; } = new();
+    public static MessageWindow Shared { get; } = new();
 
     public HWND HWnd { get; private set; }
 
@@ -20,7 +20,7 @@ internal sealed class Win32MessageWindow
     private readonly Lock _lock = new();
     private readonly Dictionary<uint, List<MessageHandler>> _handlers = new();
 
-    private Win32MessageWindow()
+    private MessageWindow()
     {
         var thread = new Thread(WindowLoop)
         {

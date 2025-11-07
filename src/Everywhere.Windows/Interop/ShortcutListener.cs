@@ -8,9 +8,9 @@ using Everywhere.Windows.Extensions;
 
 namespace Everywhere.Windows.Interop;
 
-public unsafe class Win32ShortcutListener : IShortcutListener
+public unsafe class ShortcutListener : IShortcutListener
 {
-    private static HWND HWnd => Win32MessageWindow.Shared.HWnd;
+    private static HWND HWnd => MessageWindow.Shared.HWnd;
 
     // Unique id generator for RegisterHotKey
     private static int _nextId = 1;
@@ -44,9 +44,9 @@ public unsafe class Win32ShortcutListener : IShortcutListener
 
     private static IKeyboardShortcutScope? _currentKeyboardShortcutScope;
 
-    static Win32ShortcutListener()
+    static ShortcutListener()
     {
-        Win32MessageWindow.Shared.AddHandler(
+        MessageWindow.Shared.AddHandler(
             (uint)WINDOW_MESSAGE.WM_HOTKEY,
             static (in msg) =>
             {
@@ -180,12 +180,11 @@ public unsafe class Win32ShortcutListener : IShortcutListener
         _keyboardHook = new LowLevelKeyboardHook(KeyboardHookProc);
     }
 
-    private static void KeyboardHookProc(UIntPtr wParam, ref KBDLLHOOKSTRUCT lParam, ref bool blockNext)
+    private static void KeyboardHookProc(WINDOW_MESSAGE msg, ref KBDLLHOOKSTRUCT hookStruct, ref bool blockNext)
     {
         // Ignore self-injected events
-        if (lParam.dwExtraInfo == InjectExtra) return;
+        if (hookStruct.dwExtraInfo == InjectExtra) return;
 
-        var msg = (WINDOW_MESSAGE)wParam;
         if (msg != WINDOW_MESSAGE.WM_KEYDOWN && msg != WINDOW_MESSAGE.WM_SYSKEYDOWN)
             return;
 
@@ -193,7 +192,7 @@ public unsafe class Win32ShortcutListener : IShortcutListener
         var mods = GetAsyncModifiers();
 
         // Resolve main key from vkCode
-        var vk = (VIRTUAL_KEY)lParam.vkCode;
+        var vk = (VIRTUAL_KEY)hookStruct.vkCode;
         var key = vk.ToAvaloniaKey();
 
         // Build shortcut signature and lookup handlers
@@ -283,13 +282,11 @@ public unsafe class Win32ShortcutListener : IShortcutListener
         _mouseHook = new LowLevelMouseHook(MouseHookProc);
     }
 
-    private static void MouseHookProc(nuint wParam, ref MSLLHOOKSTRUCT hs, ref bool blockNext)
+    private static void MouseHookProc(WINDOW_MESSAGE msg, ref MSLLHOOKSTRUCT hookStruct, ref bool blockNext)
     {
-        if (hs.dwExtraInfo == InjectExtra) return;
+        if (hookStruct.dwExtraInfo == InjectExtra) return;
 
-        var msg = (WINDOW_MESSAGE)wParam;
-        var button = (hs.mouseData >> 16) & 0xFFFF;
-
+        var button = (hookStruct.mouseData >> 16) & 0xFFFF;
         switch (msg)
         {
             case WINDOW_MESSAGE.WM_LBUTTONDOWN:
@@ -486,16 +483,16 @@ public unsafe class Win32ShortcutListener : IShortcutListener
             _hook = new LowLevelKeyboardHook(KeyboardHookCallback);
         }
 
-        private void KeyboardHookCallback(UIntPtr wParam, ref KBDLLHOOKSTRUCT lParam, ref bool blockNext)
+        private void KeyboardHookCallback(WINDOW_MESSAGE msg, ref KBDLLHOOKSTRUCT hookStruct, ref bool blockNext)
         {
-            var virtualKey = (VIRTUAL_KEY)lParam.vkCode;
+            var virtualKey = (VIRTUAL_KEY)hookStruct.vkCode;
             var keyModifiers = virtualKey.ToKeyModifiers();
-            bool? isKeyDown = wParam switch
+            bool? isKeyDown = msg switch
             {
-                (UIntPtr)WINDOW_MESSAGE.WM_KEYDOWN => true,
-                (UIntPtr)WINDOW_MESSAGE.WM_SYSKEYDOWN => true,
-                (UIntPtr)WINDOW_MESSAGE.WM_KEYUP => false,
-                (UIntPtr)WINDOW_MESSAGE.WM_SYSKEYUP => false,
+                WINDOW_MESSAGE.WM_KEYDOWN => true,
+                WINDOW_MESSAGE.WM_SYSKEYDOWN => true,
+                WINDOW_MESSAGE.WM_KEYUP => false,
+                WINDOW_MESSAGE.WM_SYSKEYUP => false,
                 _ => null
             };
 

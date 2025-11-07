@@ -193,15 +193,6 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Закрыть (Esc)</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen" xml:space="preserve">
-        <value>Выбрать экран</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow" xml:space="preserve">
-        <value>Выбрать окно</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
-        <value>Выбрать элемент</value>
-    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Вставить из буфера обмена</value>
     </data>

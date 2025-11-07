@@ -192,15 +192,6 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Kapat (Esc)</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen" xml:space="preserve">
-        <value>Ekran seç</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow" xml:space="preserve">
-        <value>Pencere seç</value>
-    </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement" xml:space="preserve">
-        <value>Öğe seç</value>
-    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Panodan Yapıştır</value>
     </data>

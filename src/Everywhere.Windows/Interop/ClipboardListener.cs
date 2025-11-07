@@ -1,4 +1,4 @@
-﻿// Clipboard watcher based on the shared Win32MessageWindow.
+﻿// Clipboard watcher based on the shared MessageWindow.
 // Call BeginWait() then WaitNextUpdate(timeoutMs) to await WM_CLIPBOARDUPDATE without polling.
 
 using Windows.Win32;
@@ -48,7 +48,7 @@ internal sealed class ClipboardListener
     {
         if (_subscribed) return;
 
-        var host = Win32MessageWindow.Shared;
+        var host = MessageWindow.Shared;
         var hwnd = host.HWnd;
 
         // Register as clipboard format listener
