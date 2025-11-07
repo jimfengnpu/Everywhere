@@ -193,6 +193,9 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>關閉 (Esc)</value>
     </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>選擇視覺元素</value>
+    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>從剪貼簿貼上</value>
     </data>
@@ -1453,5 +1456,24 @@
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>無法下載或啟動 Puppeteer 瀏覽器。</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>左鍵點擊以選擇，右鍵點擊或按 Esc 以取消
+滾輪或數字鍵切換選擇模式</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: 螢幕</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: 視窗</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: 元素</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>無</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>無</value>
     </data>
 </root>

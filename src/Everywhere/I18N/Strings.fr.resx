@@ -193,6 +193,9 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Fermer (Échap)</value>
     </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>Sélectionner un élément visuel</value>
+    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Coller depuis le presse-papiers</value>
     </data>
@@ -1453,5 +1456,24 @@ Contenu :
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Échec du téléchargement ou du lancement du navigateur Puppeteer.</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>Clic gauche pour sélectionner, clic droit ou Échap pour annuler
+Molette de défilement ou touches numériques pour changer de mode de sélection</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: Écran</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: Fenêtre</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: Élément</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>Aucun</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>Aucun</value>
     </data>
 </root>
