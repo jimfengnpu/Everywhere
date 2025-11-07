@@ -193,6 +193,9 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>닫기 (Esc)</value>
     </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>시각 요소 선택</value>
+    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>클립보드에서 붙여넣기</value>
     </data>
@@ -1453,5 +1456,24 @@
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Puppeteer 브라우저를 다운로드하거나 실행하는 데 실패했습니다.</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>왼쪽 클릭으로 선택, 오른쪽 클릭 또는 Esc로 취소
+스크롤 휠 또는 숫자 키로 선택 모드 전환</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: 화면</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: 창</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: 요소</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>없음</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>없음</value>
     </data>
 </root>

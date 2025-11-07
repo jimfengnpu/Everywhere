@@ -193,6 +193,9 @@
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>閉じる (Esc)</value>
     </data>
+    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+        <value>ビジュアル要素を選択</value>
+    </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>クリップボードから貼り付け</value>
     </data>
@@ -1453,5 +1456,24 @@
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Puppeteerブラウザのダウンロードまたは起動に失敗しました。</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+        <value>左クリックで選択、右クリックまたはEscでキャンセル
+スクロールホイールまたは数字キーでピックモードを切り替え</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>1: スクリーン</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>2: ウィンドウ</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>3: 要素</value>
+    </data>
+    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+        <value>なし</value>
+    </data>
+    <data name="Common_None" xml:space="preserve">
+        <value>なし</value>
     </data>
 </root>
