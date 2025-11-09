@@ -864,7 +864,7 @@
         <value>経過時間</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>モデルが正しく構成されていません。モデルプロバイダーまたはIDが欠落しているか、間違っている可能性があります。</value>
+        <value>モデル構成が正しくありません。モデルプロバイダーまたはモデルIDが欠落または無効であるか、現在のモデルが画像入力/ツール呼び出しをサポートしていません。</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>APIキーが欠落しているか無効です。</value>
@@ -873,7 +873,7 @@
         <value>API使用量の上限を超えたか、現在のモデルにアクセスする権限がありません。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>レート制限を超えました。後でもう一度お試しください。</value>
+        <value>リクエストが頻繁すぎる、アカウント残高が不足している、またはネットワーク/地域がサポートされていない。</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>サービスエンドポイントに到達できません。ネットワーク接続を確認してください。</value>

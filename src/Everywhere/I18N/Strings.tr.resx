@@ -859,7 +859,7 @@
         <value>Geçen Süre</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Model doğru yapılandırılmamış. Model sağlayıcısı veya kimliği eksik veya hatalı olabilir.</value>
+        <value>Model yapılandırması yanlış, model sağlayıcısı veya model kimliği eksik veya geçersiz, veya mevcut model görüntü girişi/araç çağrılarını desteklemiyor.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>API anahtarı eksik veya geçersiz.</value>
@@ -868,7 +868,7 @@
         <value>API kullanım kotası aşıldı, veya mevcut modele erişim izni yok.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Hız sınırı aşıldı. Lütfen daha sonra tekrar deneyin.</value>
+        <value>İstek çok sık, hesap bakiyesi yetersiz veya ağ/bölge desteklenmiyor.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>Servis uç noktası erişilebilir değil. Ağ bağlantınızı kontrol edin.</value>

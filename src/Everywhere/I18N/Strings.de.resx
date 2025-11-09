@@ -860,7 +860,7 @@
         <value>Verstrichen</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Das Modell ist nicht korrekt konfiguriert. Der Modellanbieter oder die ID fehlen möglicherweise oder sind nicht korrekt.</value>
+        <value>Modellkonfiguration ist falsch, Modellanbieter oder Modell-ID fehlt oder ist ungültig, oder das aktuelle Modell unterstützt keine Bild-Eingabe/Werkzeugaufrufe.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>API-Schlüssel fehlt oder ist ungültig.</value>
@@ -869,7 +869,7 @@
         <value>API-Nutzungslimit überschritten oder fehlende Berechtigung für den Zugriff auf das aktuelle Modell.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Ratenlimit überschritten. Bitte versuchen Sie es später erneut.</value>
+        <value>Anfrage zu häufig, Kontostand unzureichend oder Netzwerk/Region nicht unterstützt.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>Der Dienstendpunkt ist nicht erreichbar. Bitte überprüfen Sie Ihre Netzwerkverbindung.</value>

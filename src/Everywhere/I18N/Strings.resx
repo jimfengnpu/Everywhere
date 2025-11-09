@@ -878,7 +878,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Elapsed</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Model is not configured correctly. The model provider or ID might be missing or incorrect.</value>
+        <value>Model configuration is incorrect, model provider or model ID is missing or invalid, or the current model does not support image input/tool calls.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>API key is missing or invalid.</value>
@@ -887,7 +887,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Exceeded the API usage quota, or lacks permission to access the current model.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Rate limit exceeded. Please try again later.</value>
+        <value>Request too frequent, insufficient account balance, or network/region not supported.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>Service endpoint is not reachable. Please check your network connection.</value>
@@ -900,6 +900,9 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
     </data>
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>Selected model does not support the requested feature.</value>
+    </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>Selected model does not support image input.</value>
     </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>Request to the service timed out. Please try again.</value>

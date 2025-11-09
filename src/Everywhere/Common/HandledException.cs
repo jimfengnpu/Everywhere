@@ -509,6 +509,11 @@ public enum HandledChatExceptionType
     FeatureNotSupport,
 
     /// <summary>
+    /// Selected model does not support image input.
+    /// </summary>
+    ImageNotSupport,
+
+    /// <summary>
     /// Request to the service timed out. Please try again.
     /// </summary>
     Timeout,
@@ -581,6 +586,7 @@ public class HandledChatException : HandledException
                 HandledChatExceptionType.InvalidEndpoint => LocaleKey.HandledChatException_InvalidEndpoint,
                 HandledChatExceptionType.EmptyResponse => LocaleKey.HandledChatException_EmptyResponse,
                 HandledChatExceptionType.FeatureNotSupport => LocaleKey.HandledChatException_FeatureNotSupport,
+                HandledChatExceptionType.ImageNotSupport => LocaleKey.HandledChatException_ImageNotSupport,
                 HandledChatExceptionType.Timeout => LocaleKey.HandledChatException_Timeout,
                 HandledChatExceptionType.NetworkError => LocaleKey.HandledChatException_NetworkError,
                 HandledChatExceptionType.ServiceUnavailable => LocaleKey.HandledChatException_ServiceUnavailable,
@@ -869,6 +875,11 @@ public class HandledChatException : HandledException
                 message.Contains("parameter", StringComparison.OrdinalIgnoreCase))
             {
                 return HandledChatExceptionType.InvalidConfiguration;
+            }
+
+            if (message.Contains("image_url", StringComparison.OrdinalIgnoreCase))
+            {
+                return HandledChatExceptionType.ImageNotSupport;
             }
 
             // Default for 403 Forbidden if no specific keywords are found

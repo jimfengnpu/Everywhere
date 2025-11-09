@@ -864,7 +864,7 @@
         <value>耗時</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>模型配置不正確。模型提供者或ID可能缺失或不正確。</value>
+        <value>模型配置不正確，模型提供商或模型 ID 缺失或無效，或當前模型不支持圖像輸入/工具調用。</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>API密鑰缺失或無效。</value>
@@ -873,7 +873,7 @@
         <value>超出API使用配額，或無權訪問當前模型。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>超出速率限制。請稍後再試。</value>
+        <value>請求過於頻繁、帳戶金額不足或者網路或地區不受支援。</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>服務端點無法訪問。請檢查您的網絡連接。</value>

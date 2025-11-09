@@ -864,7 +864,7 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
         <value>Trascorso</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Il modello non è configurato correttamente. Il provider o l'ID del modello potrebbe mancare o essere errato.</value>
+        <value>La configurazione del modello è errata, il fornitore del modello o l'ID del modello mancano o sono invalidi, oppure il modello corrente non supporta l'input di immagini/chiamate di strumenti.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La chiave API è mancante o non valida.</value>
@@ -873,7 +873,7 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
         <value>Superata la quota di utilizzo dell'API o mancano i permessi per accedere al modello corrente.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Limite di velocità superato. Si prega di riprovare più tardi.</value>
+        <value>Richiesta troppo frequente, saldo insufficiente o rete/regione non supportata.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>L'endpoint del servizio non è raggiungibile. Si prega di controllare la connessione di rete.</value>

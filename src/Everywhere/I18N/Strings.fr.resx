@@ -864,7 +864,7 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
         <value>Écoulé</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Le modèle n'est pas configuré correctement. Le fournisseur ou l'ID du modèle pourrait être manquant ou incorrect.</value>
+        <value>La configuration du modèle est incorrecte, le fournisseur du modèle ou l'ID du modèle sont manquants ou invalides, ou le modèle actuel ne prend pas en charge l'entrée d'image/appels d'outils.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La clé API est manquante ou invalide.</value>
@@ -873,7 +873,7 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
         <value>Quota d'utilisation de l'API dépassé, ou absence de permission pour accéder au modèle actuel.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Limite de débit dépassée. Veuillez réessayer plus tard.</value>
+        <value>Requête trop fréquente, solde insuffisant ou réseau/région non pris en charge.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>Le point de terminaison du service est inaccessible. Veuillez vérifier votre connexion réseau.</value>

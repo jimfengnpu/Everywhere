@@ -864,7 +864,7 @@
         <value>用时</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>模型配置不正确。模型提供商或 ID 可能缺失或无效。</value>
+        <value>模型配置不正确，模型提供商或模型 ID 缺失或无效，或当前模型不支持图像输入/工具调用。</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>API 密钥缺失或无效。</value>
@@ -873,7 +873,7 @@
         <value>超出 API 使用配额，或者没有访问当前模型的权限。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>请求频率过高，请稍后重试。</value>
+        <value>请求过于频繁、账户金额不足或者网络或地区不受支持。</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>无法连接到服务端点，请检查您的网络连接。</value>
@@ -886,6 +886,9 @@
     </data>
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>所选模型不支持所请求的功能。</value>
+    </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>所选模型不支持图像输入。</value>
     </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>请求服务超时，请重试。</value>

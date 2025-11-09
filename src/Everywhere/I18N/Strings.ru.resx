@@ -864,7 +864,7 @@
         <value>Прошло</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>Модель настроена неправильно. Поставщик модели или ID может отсутствовать или быть неверным.</value>
+        <value>Конфигурация модели неверна, поставщик модели или ID модели отсутствует или недействителен, или текущая модель не поддерживает ввод изображений/вызовы инструментов.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>Отсутствует или недействительный API ключ.</value>
@@ -873,7 +873,7 @@
         <value>Превышена квота использования API или отсутствуют права доступа к текущей модели.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Превышен лимит скорости. Пожалуйста, попробуйте позже.</value>
+        <value>Запрос слишком частый, недостаточный баланс счета или сеть/регион не поддерживается.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>Сервисный конечный пункт недоступен. Пожалуйста, проверьте ваше сетевое подключение.</value>

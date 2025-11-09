@@ -864,7 +864,7 @@ Mi inteligencia proviene de poderosos modelos de lenguaje grande (LLMs), que son
         <value>Transcurrido</value>
     </data>
     <data name="HandledChatException_InvalidConfiguration" xml:space="preserve">
-        <value>El modelo no está configurado correctamente. El proveedor del modelo o el ID podrían faltar o ser incorrectos.</value>
+        <value>La configuración del modelo es incorrecta, el proveedor del modelo o el ID del modelo faltan o son inválidos, o el modelo actual no soporta entrada de imagen/llamadas de herramientas.</value>
     </data>
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La clave API falta o es inválida.</value>
@@ -873,7 +873,7 @@ Mi inteligencia proviene de poderosos modelos de lenguaje grande (LLMs), que son
         <value>Se ha excedido la cuota de uso de la API, o no se tiene permiso para acceder al modelo actual.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
-        <value>Se ha excedido el límite de velocidad. Por favor, inténtalo de nuevo más tarde.</value>
+        <value>Solicitud demasiado frecuente, saldo insuficiente o red/región no admitida.</value>
     </data>
     <data name="HandledChatException_EndpointNotReachable" xml:space="preserve">
         <value>El punto de acceso del servicio no es accesible. Por favor, verifica tu conexión de red.</value>
