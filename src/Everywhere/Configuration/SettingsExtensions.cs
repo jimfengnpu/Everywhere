@@ -39,5 +39,6 @@ public static class SettingsExtensions
         })
         .AddTransient<SoftwareUpdateControl>()
         .AddTransient<RestartAsAdministratorControl>()
+        .AddTransient<DebugFeaturesControl>()
         .AddTransient<IAsyncInitializer, SettingsInitializer>();
 }

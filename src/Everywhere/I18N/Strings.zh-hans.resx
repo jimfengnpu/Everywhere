@@ -599,6 +599,18 @@
     <data name="Settings_Common_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>重启</value>
     </data>
+    <data name="Settings_Common_DebugFeatures_Header" xml:space="preserve">
+        <value>调试功能</value>
+    </data>
+    <data name="Settings_Common_DebugFeatures_Description" xml:space="preserve">
+        <value>访问和管理应用程序设置文件和日志。</value>
+    </data>
+    <data name="Settings_Common_EditSettingsFile_Button_Content" xml:space="preserve">
+        <value>编辑设置文件</value>
+    </data>
+    <data name="Settings_Common_OpenLogsFolder_Button_Content" xml:space="preserve">
+        <value>打开日志文件夹</value>
+    </data>
     <data name="Common_Error" xml:space="preserve">
         <value>错误</value>
     </data>

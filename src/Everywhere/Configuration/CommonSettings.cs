@@ -142,6 +142,9 @@ public partial class CommonSettings : SettingsCategory
         }
     }
 
+    [JsonIgnore]
+    public SettingsControl<DebugFeaturesControl> DebugFeatures { get; } = new();
+
     private static void ShowErrorToast(Exception ex) => ServiceLocator.Resolve<ToastManager>()
         .CreateToast(LocaleKey.Common_Error.I18N())
         .WithContent(ex.GetFriendlyMessage())
