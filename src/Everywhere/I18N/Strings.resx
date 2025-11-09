@@ -629,7 +629,7 @@
         <value>Release notes</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Update to </value>
+        <value>Update to</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Unknown</value>

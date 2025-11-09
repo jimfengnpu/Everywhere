@@ -615,7 +615,7 @@
         <value>リリースノート</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>更新する </value>
+        <value>更新する</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>不明</value>

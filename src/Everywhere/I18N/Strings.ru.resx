@@ -615,7 +615,7 @@
         <value>Примечания к выпуску</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Обновить до </value>
+        <value>Обновить до</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Неизвестно</value>

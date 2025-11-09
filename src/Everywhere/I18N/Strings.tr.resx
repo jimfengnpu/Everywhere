@@ -613,7 +613,7 @@
         <value>Sürüm Notları</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Şuna Güncelle: </value>
+        <value>Şuna Güncelle:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Bilinmeyen</value>

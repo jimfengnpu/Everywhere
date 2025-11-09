@@ -615,7 +615,7 @@
         <value>Notas de la versión</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Actualizar a </value>
+        <value>Actualizar a</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Desconocido</value>

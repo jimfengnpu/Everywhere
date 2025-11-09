@@ -615,7 +615,7 @@
         <value>Note di rilascio</value>
     </data>
     <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Aggiorna a </value>
+        <value>Aggiorna a</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Sconosciuto</value>
