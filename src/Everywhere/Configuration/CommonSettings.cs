@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Interop;
@@ -28,9 +29,6 @@ public partial class CommonSettings : SettingsCategory
     [ObservableProperty]
     public partial bool IsAutomaticUpdateCheckEnabled { get; set; } = true;
 
-    [HiddenSettingsItem]
-    public static IEnumerable<string> LanguageSource => LocaleManager.AvailableLocaleNames;
-
     /// <summary>
     /// Gets or sets the current application language.
     /// </summary>
@@ -40,8 +38,11 @@ public partial class CommonSettings : SettingsCategory
     /// <example>
     /// default, zh-hans, ru, de, ja, it, fr, es, ko, zh-hant, zh-hant-hk
     /// </example>
-    [SettingsSelectionItem(ItemsSourceBindingPath = nameof(LanguageSource), I18N = true)]
-    public string Language
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_Language_Header,
+        LocaleKey.CommonSettings_Language_Description)]
+    [TypeConverter(typeof(LocaleNameTypeConverter))]
+    public LocaleName Language
     {
         get => LocaleManager.CurrentLocale;
         set

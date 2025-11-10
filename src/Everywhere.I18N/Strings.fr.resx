@@ -16,7 +16,7 @@
     <data name="SettingsPage_Saved_Toast_Title" xml:space="preserve">
         <value>Paramètres enregistrés</value>
     </data>
-    <data name="Settings_Common_Language_Header" xml:space="preserve">
+    <data name="CommonSettings_Language_Header" xml:space="preserve">
         <value>Langue</value>
     </data>
     <data name="SettingsCategory_Common_Header" xml:space="preserve">
@@ -25,16 +25,16 @@
     <data name="SettingsCategory_Network_Header" xml:space="preserve">
         <value>Paramètres réseau</value>
     </data>
-    <data name="Settings_Common_Language_Description" xml:space="preserve">
+    <data name="CommonSettings_Language_Description" xml:space="preserve">
         <value>Sélectionnez la langue d'affichage du logiciel.</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_zh-hans" xml:space="preserve">
+    <data name="LocaleName_ZhHans" xml:space="preserve">
         <value>中文 (简体)</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_default" xml:space="preserve">
+    <data name="LocaleName_En" xml:space="preserve">
         <value>English (United States)</value>
     </data>
-    <data name="Settings_Common_Theme_Description" xml:space="preserve">
+    <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>Sélectionnez le thème d'affichage du logiciel.</value>
     </data>
     <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
@@ -46,73 +46,73 @@
     <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
         <value>Clair</value>
     </data>
-    <data name="Settings_Common_Proxy_IsEnabled_Header" xml:space="preserve">
+    <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
         <value>Utiliser un proxy personnalisé</value>
     </data>
-    <data name="Settings_Common_Proxy_IsEnabled_Description" xml:space="preserve">
+    <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Remplacez le proxy système par un proxy spécifique à l'application.</value>
     </data>
-    <data name="Settings_Common_Proxy_Endpoint_Header" xml:space="preserve">
+    <data name="ProxySettings_Endpoint_Header" xml:space="preserve">
         <value>Serveur proxy</value>
     </data>
-    <data name="Settings_Common_Proxy_Address_Description" xml:space="preserve">
+    <data name="ProxySettings_Endpoint_Description" xml:space="preserve">
         <value>Entrez l'URI du proxy, par exemple http://127.0.0.1:7890.</value>
     </data>
-    <data name="Settings_Common_Proxy_BypassOnLocal_Header" xml:space="preserve">
+    <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
         <value>Contourner le proxy pour les adresses locales</value>
     </data>
-    <data name="Settings_Common_Proxy_BypassOnLocal_Description" xml:space="preserve">
+    <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>Envoyez directement les requêtes aux adresses intranet et loopback.</value>
     </data>
-    <data name="Settings_Common_Proxy_BypassList_Header" xml:space="preserve">
+    <data name="ProxySettings_BypassList_Header" xml:space="preserve">
         <value>Liste de contournement</value>
     </data>
-    <data name="Settings_Common_Proxy_BypassList_Description" xml:space="preserve">
+    <data name="ProxySettings_BypassList_Description" xml:space="preserve">
         <value>Optionnel. Un modèle par ligne ; les hôtes correspondants contournent le proxy.</value>
     </data>
-    <data name="Settings_Common_Proxy_UseAuthentication_Header" xml:space="preserve">
+    <data name="ProxySettings_UseAuthentication_Header" xml:space="preserve">
         <value>Authentification proxy</value>
     </data>
-    <data name="Settings_Common_Proxy_UseAuthentication_Description" xml:space="preserve">
+    <data name="ProxySettings_UseAuthentication_Description" xml:space="preserve">
         <value>Activez les identifiants lorsque le proxy nécessite une authentification.</value>
     </data>
-    <data name="Settings_Common_Proxy_Username_Header" xml:space="preserve">
+    <data name="ProxySettings_Username_Header" xml:space="preserve">
         <value>Nom d'utilisateur</value>
     </data>
-    <data name="Settings_Common_Proxy_Username_Description" xml:space="preserve">
+    <data name="ProxySettings_Username_Description" xml:space="preserve">
         <value>Nom d'utilisateur pour le serveur proxy.</value>
     </data>
-    <data name="Settings_Common_Proxy_Password_Header" xml:space="preserve">
+    <data name="ProxySettings_Password_Header" xml:space="preserve">
         <value>Mot de passe</value>
     </data>
-    <data name="Settings_Common_Proxy_Password_Description" xml:space="preserve">
+    <data name="ProxySettings_Password_Description" xml:space="preserve">
         <value>Mot de passe pour le serveur proxy.</value>
     </data>
     <data name="SettingsCategory_ChatWindow_Header" xml:space="preserve">
         <value>Paramètres de Chat</value>
     </data>
-    <data name="Settings_ChatWindow_Shortcut_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_Shortcut_Header" xml:space="preserve">
         <value>Raccourci</value>
     </data>
-    <data name="Settings_ChatWindow_Shortcut_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_Shortcut_Description" xml:space="preserve">
         <value>Définissez un raccourci pour invoquer la fenêtre de chat à tout moment.</value>
     </data>
     <data name="SettingsCategory_Model_Header" xml:space="preserve">
         <value>Paramètres de l'IA</value>
     </data>
-    <data name="Settings_CustomAssistant_Temperature_Header" xml:space="preserve">
+    <data name="CustomAssistant_Temperature_Header" xml:space="preserve">
         <value>Créativité (température)</value>
     </data>
-    <data name="Settings_CustomAssistant_Temperature_Description" xml:space="preserve">
+    <data name="CustomAssistant_Temperature_Description" xml:space="preserve">
         <value>Des valeurs plus élevées produisent des réponses plus imaginatives et créatives ; des valeurs plus basses produisent des résultats plus précis et conservateurs ; notez que des températures supérieures à 1.0 peuvent entraîner des résultats incohérents dans certains modèles.</value>
     </data>
-    <data name="Settings_CustomAssistant_TopP_Header" xml:space="preserve">
+    <data name="CustomAssistant_TopP_Header" xml:space="preserve">
         <value>Ouverture d'esprit (top_p)</value>
     </data>
-    <data name="Settings_CustomAssistant_TopP_Description" xml:space="preserve">
+    <data name="CustomAssistant_TopP_Description" xml:space="preserve">
         <value>Des valeurs plus élevées permettent une plus grande variété de réponses possibles ; des valeurs plus basses favorisent les réponses les plus probables ; il n'est pas recommandé de modifier cela en même temps que la température. Ce réglage est uniquement efficace pour certains modèles. Si vous rencontrez une erreur, essayez de rétablir la valeur par défaut.</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_Description" xml:space="preserve">
+    <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>Sélectionnez le fournisseur de service pour les moteurs de recherche web.</value>
     </data>
     <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
@@ -130,10 +130,10 @@
     <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
         <value>Jina</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
+    <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>URL de l'API</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
+    <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>Laissez par défaut si vous ne savez pas quoi faire. Doit commencer par &quot;http(s)://&quot;.</value>
     </data>
     <data name="ChatInputBox_Watermark" xml:space="preserve">
@@ -398,34 +398,34 @@
     <data name="FriendlyExceptionMessage_Argument" xml:space="preserve">
         <value>Erreur d'argument.</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_de" xml:space="preserve">
+    <data name="LocaleName_De" xml:space="preserve">
         <value>Deutsch</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_es" xml:space="preserve">
+    <data name="LocaleName_Es" xml:space="preserve">
         <value>Español</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_fr" xml:space="preserve">
+    <data name="LocaleName_Fr" xml:space="preserve">
         <value>Français</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_it" xml:space="preserve">
+    <data name="LocaleName_It" xml:space="preserve">
         <value>Italiano</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_ja" xml:space="preserve">
+    <data name="LocaleName_Ja" xml:space="preserve">
         <value>日本語</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_ko" xml:space="preserve">
+    <data name="LocaleName_Ko" xml:space="preserve">
         <value>한국어</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_ru" xml:space="preserve">
+    <data name="LocaleName_Ru" xml:space="preserve">
         <value>Русский</value>
     </data>
-    <data name="Settings_Common_Theme_Header" xml:space="preserve">
+    <data name="CommonSettings_Theme_Header" xml:space="preserve">
         <value>Thème</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_zh-hant" xml:space="preserve">
+    <data name="LocaleName_ZhHant" xml:space="preserve">
         <value>中文 (繁體)</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_zh-hant-hk" xml:space="preserve">
+    <data name="LocaleName_ZhHantHk" xml:space="preserve">
         <value>中文 (繁體 香港特別行政區)</value>
     </data>
     <data name="AboutPage_Title" xml:space="preserve">
@@ -506,145 +506,145 @@
     <data name="VisualTreeDetailLevel_Minimal" xml:space="preserve">
         <value>Minimal</value>
     </data>
-    <data name="Settings_ChatWindow_WindowPinMode_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_WindowPinMode_Header" xml:space="preserve">
         <value>Mode d'épinglage de la fenêtre</value>
     </data>
-    <data name="Settings_ChatWindow_WindowPinMode_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_WindowPinMode_Description" xml:space="preserve">
         <value>Spécifie le mode d'épinglage pour la fenêtre de chat lorsqu'elle est ouverte. Lorsque la fenêtre n'est pas fixée, elle sera automatiquement masquée lorsqu'elle perd le focus.</value>
     </data>
-    <data name="Settings_ChatWindow_VisualTreeDetailLevel_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_VisualTreeDetailLevel_Header" xml:space="preserve">
         <value>Niveau de détail de l'arborescence visuelle</value>
     </data>
-    <data name="Settings_ChatWindow_VisualTreeDetailLevel_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_VisualTreeDetailLevel_Description" xml:space="preserve">
         <value>Choisissez la quantité d'informations capturées depuis l'arborescence de l'interface utilisateur lors de l'attachement des éléments.</value>
     </data>
     <data name="FriendlyExceptionMessage_ClientResult" xml:space="preserve">
         <value>Erreur du client.</value>
     </data>
-    <data name="Settings_CustomAssistant_PresencePenalty_Header" xml:space="preserve">
+    <data name="CustomAssistant_PresencePenalty_Header" xml:space="preserve">
         <value>Divergence d'Expression (presence_penalty)</value>
     </data>
-    <data name="Settings_CustomAssistant_PresencePenalty_Description" xml:space="preserve">
+    <data name="CustomAssistant_PresencePenalty_Description" xml:space="preserve">
         <value>Plus la valeur est élevée, plus l'assistant est enclin à utiliser des expressions différentes et à éviter la répétition de concepts ; plus la valeur est basse, plus il est enclin à utiliser des concepts ou des récits répétés, ce qui entraîne une expression plus cohérente. Ce réglage n'est efficace que pour certains modèles. Si vous rencontrez une erreur, essayez de rétablir la valeur par défaut.</value>
     </data>
-    <data name="Settings_CustomAssistant_FrequencyPenalty_Header" xml:space="preserve">
+    <data name="CustomAssistant_FrequencyPenalty_Header" xml:space="preserve">
         <value>Richesse du Vocabulaire (frequency_penalty)</value>
     </data>
-    <data name="Settings_CustomAssistant_FrequencyPenalty_Description" xml:space="preserve">
+    <data name="CustomAssistant_FrequencyPenalty_Description" xml:space="preserve">
         <value>Plus la valeur est élevée, plus le vocabulaire est diversifié et riche ; plus la valeur est basse, plus le langage est simple et direct. Ce réglage n'est efficace que pour certains modèles. Si vous rencontrez une erreur, essayez de rétablir la valeur par défaut.</value>
     </data>
-    <data name="Settings_CustomAssistant_Endpoint_Header" xml:space="preserve">
+    <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
         <value>URL de l'API</value>
     </data>
-    <data name="Settings_CustomAssistant_Endpoint_Description" xml:space="preserve">
+    <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
         <value>Laissez cette valeur par défaut si vous ne savez pas quoi faire. Doit commencer par &quot;http(s)://&quot;.</value>
     </data>
-    <data name="Settings_CustomAssistant_ApiKey_Header" xml:space="preserve">
+    <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>Clé API</value>
     </data>
-    <data name="Settings_CustomAssistant_ApiKey_Description" xml:space="preserve">
+    <data name="CustomAssistant_ApiKey_Description" xml:space="preserve">
         <value>Pour les modèles en ligne, vous devez l'obtenir auprès de l'officiel correspondant, veuillez vous référer au guide pour plus de détails.</value>
     </data>
-    <data name="Settings_CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
+    <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
         <value>Support de l'Entrée d'Image</value>
     </data>
-    <data name="Settings_CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
+    <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
         <value>Vous pouvez télécharger des images dans le contexte de chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas les entrées d'image, activer cette option peut entraîner des échecs.</value>
     </data>
-    <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
+    <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Support de l'Utilisation d'Outils</value>
     </data>
-    <data name="Settings_CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
+    <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>Le modèle peut utiliser les outils que vous avez configurés dans le contexte de chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas l'appel de fonctions, activer cette option peut entraîner des échecs.</value>
     </data>
-    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
+    <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
         <value>Le modèle peut réfléchir avant de répondre. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas la réflexion approfondie, activer cette option peut entraîner des échecs.</value>
     </data>
-    <data name="Settings_CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
+    <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Support de la Réflexion Approfondie</value>
     </data>
-    <data name="Settings_CustomAssistant_MaxTokens_Description" xml:space="preserve">
+    <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>La longueur maximale du contexte d'un seul chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Définir cette valeur plus grande que la valeur par défaut peut entraîner des échecs.</value>
     </data>
-    <data name="Settings_CustomAssistant_MaxTokens_Header" xml:space="preserve">
+    <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>Longueur Maximale du Contexte (max_tokens)</value>
     </data>
     <data name="SettingsPage_Reset_Button_ToolTip" xml:space="preserve">
         <value>Réinitialiser</value>
     </data>
-    <data name="Settings_CustomAssistant_Schema_Header" xml:space="preserve">
+    <data name="CustomAssistant_Schema_Header" xml:space="preserve">
         <value>Schéma de l'API</value>
     </data>
-    <data name="Settings_CustomAssistant_Schema_Description" xml:space="preserve">
+    <data name="CustomAssistant_Schema_Description" xml:space="preserve">
         <value>Sélectionnez le schéma de l'API. Laissez cette valeur par défaut si vous ne savez pas quoi faire.</value>
     </data>
-    <data name="Settings_Common_IsStartupEnabled_Header" xml:space="preserve">
+    <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>Lancer au démarrage</value>
     </data>
-    <data name="Settings_Common_IsStartupEnabled_Description" xml:space="preserve">
+    <data name="CommonSettings_IsStartupEnabled_Description" xml:space="preserve">
         <value>Everywhere se lancera automatiquement après le démarrage. Si « Démarrer en tant qu'administrateur » est activé, cette option ne peut être désactivée qu'en mode administrateur.</value>
     </data>
-    <data name="Settings_Common_IsAdministratorStartupEnabled_Header" xml:space="preserve">
+    <data name="CommonSettings_IsAdministratorStartupEnabled_Header" xml:space="preserve">
         <value>Démarrer en tant qu'administrateur</value>
     </data>
-    <data name="Settings_Common_IsAdministratorStartupEnabled_Description" xml:space="preserve">
+    <data name="CommonSettings_IsAdministratorStartupEnabled_Description" xml:space="preserve">
         <value>Everywhere démarrera automatiquement en tant qu'administrateur. Vous pouvez activer ou désactiver cette option uniquement en mode administrateur.</value>
     </data>
-    <data name="Settings_Common_RestartAsAdministrator_Description" xml:space="preserve">
+    <data name="CommonSettings_RestartAsAdministrator_Description" xml:space="preserve">
         <value>En raison des restrictions du système d'exploitation, lorsque vous exécutez une application en tant qu'administrateur (permissions élevées), Everywhere peut ne pas fonctionner correctement lorsque les applications élevées sont au premier plan ou tentent d'interagir avec une fonctionnalité d'Everywhere comme « Sélectionner un élément ». Cela peut être résolu en exécutant Everywhere en tant qu'administrateur.</value>
     </data>
-    <data name="Settings_Common_RestartAsAdministrator_Header" xml:space="preserve">
+    <data name="CommonSettings_RestartAsAdministrator_Header" xml:space="preserve">
         <value>Redémarrer en tant qu'administrateur</value>
     </data>
-    <data name="Settings_Common_RestartAsAdministrator_Button_Content" xml:space="preserve">
+    <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>Redémarrer</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
         <value>Erreur</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
         <value>Vérifier les mises à jour</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
         <value>Version actuelle : {0}</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
         <value>Dernière vérification : </value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
         <value>Notes de version</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Mettre à jour vers</value>
+    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
+        <value>Mettre à jour vers </value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Inconnu</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
         <value>Everywhere est déjà à la dernière version.</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
         <value>Nouvelle version {0} trouvée.</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Header" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Mise à jour du logiciel</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Description" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Description" xml:space="preserve">
         <value>Si une mise à jour est disponible, cliquez sur Mettre à jour et Everywhere téléchargera et installera automatiquement la dernière version. Vous devrez peut-être sélectionner « Oui » dans la fenêtre pop-up pendant le processus.</value>
     </data>
-    <data name="Settings_Common_IsAutomaticUpdateCheckEnabled_Header" xml:space="preserve">
+    <data name="CommonSettings_IsAutomaticUpdateCheckEnabled_Header" xml:space="preserve">
         <value>Mise à jour automatique</value>
     </data>
-    <data name="Settings_Common_IsAutomaticUpdateCheckEnabled_Description" xml:space="preserve">
+    <data name="CommonSettings_IsAutomaticUpdateCheckEnabled_Description" xml:space="preserve">
         <value>Si activé, Everywhere vérifiera périodiquement les mises à jour (uniquement lorsque Everywhere est en cours d'exécution, sans ajouter de charge supplémentaire au système).</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Toast_DownloadingUpdate" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Toast_DownloadingUpdate" xml:space="preserve">
         <value>Téléchargement de la mise à jour...</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelId_Header" xml:space="preserve">
+    <data name="CustomAssistant_ModelId_Header" xml:space="preserve">
         <value>ID du Modèle</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelId_Description" xml:space="preserve">
+    <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
         <value>Identifiant du modèle utilisé pour les appels API, tel que gpt-4o. Si vous ne savez pas ce que c'est, conservez la valeur par défaut.</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
@@ -653,19 +653,19 @@
     <data name="ChatPluginPage_Description" xml:space="preserve">
         <value>Les plugins de chat incluent des plugins intégrés et des plugins MCP. Les LLMs qui prennent en charge les appels d'outils utiliseront ces plugins au moment opportun (comme la recherche sur le web ou l'accès aux fichiers locaux) pour obtenir des fonctionnalités plus puissantes.</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_Header" xml:space="preserve">
+    <data name="WebSearchEngineProvider_Header" xml:space="preserve">
         <value>Fournisseur de Moteur de Recherche Web</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_ApiKey_Header" xml:space="preserve">
+    <data name="WebSearchEngineProvider_ApiKey_Header" xml:space="preserve">
         <value>Clé API</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_ApiKey_Description" xml:space="preserve">
+    <data name="WebSearchEngineProvider_ApiKey_Description" xml:space="preserve">
         <value>Vous devez l'obtenir auprès de l'officiel correspondant, veuillez vous référer au guide pour plus de détails.</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_SearchEngineId_Header" xml:space="preserve">
+    <data name="WebSearchEngineProvider_SearchEngineId_Header" xml:space="preserve">
         <value>ID du Moteur de Recherche</value>
     </data>
-    <data name="Settings_Plugin_WebSearchEngine_SelectedWebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
+    <data name="WebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
         <value>(Google uniquement) Fournit un ID de moteur de recherche programmable. Pour plus de détails, consultez le guide.</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_Header" xml:space="preserve">
@@ -839,16 +839,16 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Activer la télémétrie</value>
     </data>
-    <data name="Settings_Common_DiagnosticData_Header" xml:space="preserve">
+    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
         <value>Données de diagnostic</value>
     </data>
-    <data name="Settings_Common_DiagnosticData_Description" xml:space="preserve">
+    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>Pour nous aider à nous améliorer, nous avons besoin de la « télémétrie » pour collecter des données anonymes. Ces données sont utilisées uniquement à des fins d'analyse et ne contiennent ni ne permettent d'inférer des informations personnellement identifiables vous concernant. Vous pouvez choisir d'envoyer uniquement les données nécessaires ; cette option n'affectera pas les fonctionnalités principales.</value>
     </data>
-    <data name="Settings_ChatWindow_ShowChatStatistics_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Afficher les statistiques de chat</value>
     </data>
-    <data name="Settings_ChatWindow_ShowChatStatistics_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_ShowChatStatistics_Description" xml:space="preserve">
         <value>Lorsqu'elle est activée, les données d'utilisation seront affichées à la fin de chaque tour de conversation dans la fenêtre de chat.</value>
     </data>
     <data name="ChatWindow_ChatStatisticsTextBlock_InputTokenCountRun" xml:space="preserve">
@@ -905,16 +905,16 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="ChatWindowViewModel_QuickActions_Solve" xml:space="preserve">
         <value>Résoudre</value>
     </data>
-    <data name="Settings_ChatWindow_AutomaticallyAddElement_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_AutomaticallyAddElement_Header" xml:space="preserve">
         <value>Ajouter automatiquement un élément</value>
     </data>
-    <data name="Settings_ChatWindow_AutomaticallyAddElement_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_AutomaticallyAddElement_Description" xml:space="preserve">
         <value>Lorsqu'elle est activée, ajoute automatiquement l'élément focalisé en tant que pièce jointe lors de l'ouverture de la fenêtre de chat.</value>
     </data>
-    <data name="Settings_ChatWindow_AllowRunInBackground_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_AllowRunInBackground_Header" xml:space="preserve">
         <value>Autoriser l'exécution en arrière-plan</value>
     </data>
-    <data name="Settings_ChatWindow_AllowRunInBackground_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_AllowRunInBackground_Description" xml:space="preserve">
         <value>Lorsqu'elle est activée, la fermeture de la fenêtre de chat ne mettra pas fin à la tâche en cours.</value>
     </data>
     <data name="HandledChatException_OperationCancelled" xml:space="preserve">
@@ -923,10 +923,10 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="ChatPluginPage_SelectToViewDetails" xml:space="preserve">
         <value>Sélectionnez un élément à gauche pour voir les détails</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Toast_UpdateFailed_Content" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Toast_UpdateFailed_Content" xml:space="preserve">
         <value>Échec de la mise à jour.</value>
     </data>
-    <data name="Settings_Common_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content" xml:space="preserve">
+    <data name="CommonSettings_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content" xml:space="preserve">
         <value>Échec de la vérification des mises à jour.</value>
     </data>
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
@@ -986,23 +986,23 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_Content" xml:space="preserve">
         <value>Créer</value>
     </data>
-    <data name="Settings_CustomAssistant_Name_Header" xml:space="preserve">
+    <data name="CustomAssistant_Name_Header" xml:space="preserve">
         <value>Nom</value>
     </data>
-    <data name="Settings_CustomAssistant_Name_Description" xml:space="preserve">
+    <data name="CustomAssistant_Name_Description" xml:space="preserve">
         <value>Spécifiez le nom de l'assistant, utilisé uniquement à des fins d'affichage et de différenciation.</value>
     </data>
-    <data name="Settings_CustomAssistant_Description_Header" xml:space="preserve">
+    <data name="CustomAssistant_Description_Header" xml:space="preserve">
         <value>Description</value>
     </data>
-    <data name="Settings_CustomAssistant_Description_Description" xml:space="preserve">
+    <data name="CustomAssistant_Description_Description" xml:space="preserve">
         <value>Spécifiez la description de l'assistant, utilisée uniquement à des fins d'affichage et de différenciation.</value>
     </data>
-    <data name="Settings_CustomAssistant_SystemPrompt_Description" xml:space="preserve">
+    <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
         <value>L'invite système est envoyée au modèle par défaut au début de la conversation. Une invite bien conçue inclut une introduction, une description de la tâche et des informations contextuelles.
 Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, et seront remplacés par le contenu correspondant avant d'être envoyés au modèle.</value>
     </data>
-    <data name="Settings_CustomAssistant_SystemPrompt_Header" xml:space="preserve">
+    <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>Invite du Système</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_Content" xml:space="preserve">
@@ -1020,16 +1020,16 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="Common_No" xml:space="preserve">
         <value>Non</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
+    <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
         <value>Modèle de Fournisseur</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
+    <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
         <value>Modèle de Définition</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
+    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
         <value>Sélectionnez un modèle pour définir automatiquement les valeurs par défaut pour des options telles que l'ID du modèle, le support d'entrée d'image, le support d'utilisation d'outils, et plus encore. Cliquez sur le bouton Réinitialiser pour revenir aux paramètres non définis.</value>
     </data>
-    <data name="Settings_CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
+    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
         <value>Sélectionnez un modèle pour définir automatiquement les valeurs par défaut pour des options telles que l'adresse d'appel API et le mode API. Cliquez sur le bouton Réinitialiser pour revenir aux paramètres non définis.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
@@ -1095,10 +1095,10 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>Sélectionner l'assistant</value>
     </data>
-    <data name="Settings_CustomAssistant_Icon_Description" xml:space="preserve">
+    <data name="CustomAssistant_Icon_Description" xml:space="preserve">
         <value>Cliquez pour personnaliser l'icône de l'assistant.</value>
     </data>
-    <data name="Settings_CustomAssistant_Icon_Header" xml:space="preserve">
+    <data name="CustomAssistant_Icon_Header" xml:space="preserve">
         <value>Icône</value>
     </data>
     <data name="IconEditor_BackgroundTabItem_Header" xml:space="preserve">
@@ -1227,10 +1227,10 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="TemporaryChatMode_Always" xml:space="preserve">
         <value>Toujours</value>
     </data>
-    <data name="Settings_ChatWindow_TemporaryChatMode_Header" xml:space="preserve">
+    <data name="ChatWindowSettings_TemporaryChatMode_Header" xml:space="preserve">
         <value>Mode Chat Temporaire</value>
     </data>
-    <data name="Settings_ChatWindow_TemporaryChatMode_Description" xml:space="preserve">
+    <data name="ChatWindowSettings_TemporaryChatMode_Description" xml:space="preserve">
         <value>Utiliser des chats temporaires lors de la création de nouveaux chats.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
@@ -1323,7 +1323,7 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="ChatWindow_ChatHistory_DeleteMenuItem_Header" xml:space="preserve">
         <value>Supprimer le chat</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Language_tr" xml:space="preserve">
+    <data name="LocaleName_Tr" xml:space="preserve">
         <value>Türkçe</value>
     </data>
     <data name="ChatContextManager_LoadChatContextFailedToast_Content" xml:space="preserve">
@@ -1338,10 +1338,10 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="ChatWindow_BackAllHistoryButton_Content" xml:space="preserve">
         <value>Retour</value>
     </data>
-    <data name="Settings_Common_Proxy_Header" xml:space="preserve">
+    <data name="ProxySettings_Header" xml:space="preserve">
         <value>Proxy</value>
     </data>
-    <data name="Settings_Common_Proxy_Description" xml:space="preserve">
+    <data name="ProxySettings_Description" xml:space="preserve">
         <value>Paramétrage du proxy réseau.</value>
     </data>
     <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
@@ -1475,5 +1475,14 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
     </data>
     <data name="Common_None" xml:space="preserve">
         <value>Aucun</value>
+    </data>
+    <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
+        <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Ollama" xml:space="preserve">
+        <value>Ollama</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
     </data>
 </root>

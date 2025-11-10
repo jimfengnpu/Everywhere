@@ -14,6 +14,7 @@
       "3rd\\WritableJsonConfiguration\\WritableJsonConfiguration.Tests\\WritableJsonConfiguration.Tests.csproj",
       "src\\Everywhere.Abstractions\\Everywhere.Abstractions.csproj",
       "src\\Everywhere.I18N.SourceGenerator\\Everywhere.I18N.SourceGenerator.csproj",
+      "src\\Everywhere.I18N\\Everywhere.I18N.csproj",
       "src\\Everywhere.Watchdog\\Everywhere.Watchdog.csproj",
       "src\\Everywhere.Windows\\Everywhere.Windows.csproj",
       "src\\Everywhere\\Everywhere.csproj",
