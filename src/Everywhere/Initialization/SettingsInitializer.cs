@@ -20,14 +20,14 @@ public class SettingsInitializer : IAsyncInitializer
     public AsyncInitializerPriority Priority => AsyncInitializerPriority.Settings;
 
     private readonly Dictionary<string, object?> _saveBuffer = new();
-    private readonly DebounceExecutor<Dictionary<string, object?>, ThreadingTimerImpl> _saveDebounceExecutor;
+    private readonly DebounceExecutor<Dictionary<string, object?>, DispatcherTimerImpl> _saveDebounceExecutor;
     private readonly Settings _settings;
 
     public SettingsInitializer(Settings settings, [FromKeyedServices(typeof(Settings))] IConfiguration configuration)
     {
         _settings = settings;
 
-        _saveDebounceExecutor = new DebounceExecutor<Dictionary<string, object?>, ThreadingTimerImpl>(
+        _saveDebounceExecutor = new DebounceExecutor<Dictionary<string, object?>, DispatcherTimerImpl>(
             () => _saveBuffer,
             saveBuffer =>
             {

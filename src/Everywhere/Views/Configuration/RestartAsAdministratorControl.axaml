@@ -13,7 +13,7 @@
           shadui:ButtonAssist.Icon="{LucideIconContent Shield}"
           shadui:ButtonAssist.IconSize="18"
           Command="{Binding RestartAsAdministratorCommand, RelativeSource={RelativeSource TemplatedParent}}"
-          Content="{I18N {x:Static LocaleKey.Settings_Common_RestartAsAdministrator_Button_Content}}"/>
+          Content="{I18N {x:Static LocaleKey.CommonSettings_RestartAsAdministrator_Button_Content}}"/>
       </ControlTemplate>
     </Setter>
   </ControlTheme>

@@ -1,11 +1,20 @@
 ﻿namespace Everywhere.Configuration;
 
 /// <summary>
+/// Marks a settings category class for which the source generator will create SettingsItems property.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public sealed class GeneratedSettingsItemsAttribute : Attribute;
+
+/// <summary>
 /// This attribute is used to mark properties that should not be serialized or displayed in the UI.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public class HiddenSettingsItemAttribute : Attribute;
 
+/// <summary>
+/// Additional metadata for a settings item.
+/// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public class SettingsItemAttribute : Attribute
 {
@@ -48,12 +57,12 @@ public class SettingsDoubleItemAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-public class SettingsSelectionItemAttribute : Attribute
+public class SettingsSelectionItemAttribute(string itemsSourceBindingPath) : Attribute
 {
     /// <summary>
     /// A binding path to the property that contains the items to select from.
     /// </summary>
-    public required string ItemsSourceBindingPath { get; set; }
+    public string ItemsSourceBindingPath { get; set; } = itemsSourceBindingPath;
 
     /// <summary>
     /// Should look for i18n keys in the items source

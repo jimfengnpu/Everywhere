@@ -5,7 +5,8 @@ using Everywhere.Chat.Plugins;
 
 namespace Everywhere.Configuration;
 
-public partial class WebSearchEngineSettings : SettingsCategory
+[GeneratedSettingsItems]
+public partial class WebSearchEngineSettings : ObservableObject
 {
     [HiddenSettingsItem]
     [ObservableProperty]
@@ -17,10 +18,11 @@ public partial class WebSearchEngineSettings : SettingsCategory
     public partial string? SelectedWebSearchEngineProviderId { get; set; }
 
     [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.WebSearchEngineProvider_Header,
+        LocaleKey.WebSearchEngineProvider_Description)]
     [SettingsItems(IsExpanded = true)]
-    [SettingsSelectionItem(
-        ItemsSourceBindingPath = nameof(WebSearchEngineProviders),
-        DataTemplateKey = typeof(WebSearchEngineProvider))]
+    [SettingsSelectionItem(nameof(WebSearchEngineProviders), DataTemplateKey = typeof(WebSearchEngineProvider))]
     public WebSearchEngineProvider? SelectedWebSearchEngineProvider
     {
         get => WebSearchEngineProviders.FirstOrDefault(p => p.Id == SelectedWebSearchEngineProviderId);

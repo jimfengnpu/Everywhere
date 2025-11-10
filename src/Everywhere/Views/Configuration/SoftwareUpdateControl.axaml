@@ -24,7 +24,7 @@
           <StackPanel>
             <TextBlock Text="{TemplateBinding CurrentVersion}"/>
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="{I18N {x:Static LocaleKey.Settings_Common_SoftwareUpdate_TextBlock_Run2_Text}}"/>
+              <TextBlock Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_Run2_Text}}"/>
               <TextBlock Text="{Binding Settings.Common.LastUpdateCheckTime, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static conv:CommonConverters.DateTimeOffsetToString}, ConverterParameter=G, Mode=OneWay}"/>
             </StackPanel>
 
@@ -36,7 +36,7 @@
               <TextBlock>
                 <Run
                   Foreground="{DynamicResource InfoColor}"
-                  Text="{I18N {x:Static LocaleKey.Settings_Common_SoftwareUpdate_TextBlock_ReleaseNotes_Text}}"
+                  Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text}}"
                   TextDecorations="Underline"/>
               </TextBlock>
             </Button>
@@ -51,7 +51,7 @@
             <shadui:ButtonAssist.Icon>
               <LucideIcon Kind="RefreshCcw"/>
             </shadui:ButtonAssist.Icon>
-            <ContentControl Content="{I18N {x:Static LocaleKey.Settings_Common_SoftwareUpdate_CheckForUpdatesButton_Content}}"/>
+            <ContentControl Content="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content}}"/>
           </Button>
 
           <Button
@@ -62,7 +62,7 @@
             Command="{TemplateBinding PerformUpdateCommand}"
             IsVisible="{Binding SoftwareUpdater.LatestVersion, Converter={x:Static ObjectConverters.IsNotNull}, RelativeSource={RelativeSource TemplatedParent}}">
             <TextBlock>
-              <Run Text="{I18N {x:Static LocaleKey.Settings_Common_SoftwareUpdate_PerformUpdateButton_Content}}"/>
+              <Run Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_PerformUpdateButton_Content}}"/>
               <Run Text="{Binding SoftwareUpdater.LatestVersion, RelativeSource={RelativeSource TemplatedParent}}"/>
             </TextBlock>
           </Button>

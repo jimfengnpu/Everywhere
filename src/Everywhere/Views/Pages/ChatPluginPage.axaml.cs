@@ -6,7 +6,7 @@ public partial class ChatPluginPage : ReactiveUserControl<ChatPluginPageViewMode
 {
     public int Index => 10;
 
-    public DynamicResourceKey Title => new(LocaleKey.ChatPluginPage_Title);
+    public DynamicResourceKeyBase Title => new DirectResourceKey(LocaleKey.ChatPluginPage_Title);
 
     public LucideIconKind Icon => LucideIconKind.Hammer;
 

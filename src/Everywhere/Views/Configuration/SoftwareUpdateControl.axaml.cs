@@ -1,14 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls.Primitives;
 using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using ShadUI;
 
 namespace Everywhere.Views.Configuration;
@@ -33,7 +28,7 @@ public partial class SoftwareUpdateControl(
             o => o.CurrentVersion);
 
     public FormattedDynamicResourceKey CurrentVersion => new(
-        LocaleKey.Settings_Common_SoftwareUpdate_TextBlock_Run1_Text,
+        LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_Run1_Text,
         new DirectResourceKey(SoftwareUpdater.CurrentVersion.ToString(3)));
 
     [RelayCommand]
@@ -54,9 +49,9 @@ public partial class SoftwareUpdateControl(
             await SoftwareUpdater.CheckForUpdatesAsync();
 
             var toastMessage = SoftwareUpdater.LatestVersion is null ?
-                new DynamicResourceKey(LocaleKey.Settings_Common_SoftwareUpdate_Toast_AlreadyLatestVersion) :
+                new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion) :
                 new FormattedDynamicResourceKey(
-                    LocaleKey.Settings_Common_SoftwareUpdate_Toast_NewVersionFound,
+                    LocaleKey.CommonSettings_SoftwareUpdate_Toast_NewVersionFound,
                     new DirectResourceKey(SoftwareUpdater.LatestVersion));
             ToastManager
                 .CreateToast(LocaleKey.Common_Info.I18N())
@@ -67,7 +62,7 @@ public partial class SoftwareUpdateControl(
         }
         catch (Exception ex)
         {
-            ex = new HandledException(ex, LocaleKey.Settings_Common_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content);
+            ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content);
             Logger.LogError(ex, "Failed to check for updates.");
             ShowErrorToast(ex);
         }
@@ -86,7 +81,7 @@ public partial class SoftwareUpdateControl(
             var cts = new CancellationTokenSource();
             ToastManager
                 .CreateToast(LocaleKey.Common_Info.I18N())
-                .WithContent(LocaleKey.Settings_Common_SoftwareUpdate_Toast_DownloadingUpdate.I18N())
+                .WithContent(LocaleKey.CommonSettings_SoftwareUpdate_Toast_DownloadingUpdate.I18N())
                 .WithProgress(progress)
                 .WithCancellationTokenSource(cts)
                 .WithDelay(0d)
@@ -96,7 +91,7 @@ public partial class SoftwareUpdateControl(
         }
         catch (Exception ex)
         {
-            ex = new HandledException(ex, LocaleKey.Settings_Common_SoftwareUpdate_Toast_UpdateFailed_Content);
+            ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_UpdateFailed_Content);
             Logger.LogError(ex, "Failed to perform update.");
             ShowErrorToast(ex);
         }

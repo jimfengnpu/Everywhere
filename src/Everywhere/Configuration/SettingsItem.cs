@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Media;
@@ -10,12 +9,11 @@ namespace Everywhere.Configuration;
 /// <summary>
 /// Represents a single settings item for View.
 /// </summary>
-/// <param name="name"></param>
-public class SettingsItem(string name) : AvaloniaObject
+public class SettingsItem : AvaloniaObject
 {
-    public DynamicResourceKey HeaderKey => $"Settings_{name}_Header";
+    public DynamicResourceKey? HeaderKey { get; set; }
 
-    public DynamicResourceKey DescriptionKey => $"Settings_{name}_Description";
+    public DynamicResourceKey? DescriptionKey { get; set; }
 
     public static readonly StyledProperty<object?> ValueProperty = AvaloniaProperty.Register<SettingsItem, object?>(nameof(Value));
 
@@ -60,7 +58,7 @@ public class SettingsItem(string name) : AvaloniaObject
     public List<SettingsItem> Items { get; } = [];
 }
 
-public class SettingsBooleanItem(string name) : SettingsItem(name)
+public class SettingsBooleanItem : SettingsItem
 {
     public static readonly StyledProperty<bool> IsNullableProperty = AvaloniaProperty.Register<SettingsBooleanItem, bool>(nameof(IsNullable));
 
@@ -71,7 +69,7 @@ public class SettingsBooleanItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsStringItem(string name) : SettingsItem(name)
+public class SettingsStringItem : SettingsItem
 {
     public static readonly StyledProperty<string?> WatermarkProperty = AvaloniaProperty.Register<SettingsStringItem, string?>(nameof(Watermark));
 
@@ -122,7 +120,7 @@ public class SettingsStringItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsIntegerItem(string name) : SettingsItem(name)
+public class SettingsIntegerItem : SettingsItem
 {
     public static readonly StyledProperty<int> MinValueProperty = AvaloniaProperty.Register<SettingsIntegerItem, int>(nameof(MinValue));
 
@@ -150,7 +148,7 @@ public class SettingsIntegerItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsDoubleItem(string name) : SettingsItem(name)
+public class SettingsDoubleItem : SettingsItem
 {
     public static readonly StyledProperty<double> MinValueProperty = AvaloniaProperty.Register<SettingsDoubleItem, double>(nameof(MinValue));
 
@@ -186,7 +184,7 @@ public class SettingsDoubleItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsSelectionItem(string name) : SettingsItem(name)
+public class SettingsSelectionItem : SettingsItem
 {
     public record Item(DynamicResourceKey Key, object Value, IDataTemplate? ContentTemplate);
 
@@ -227,38 +225,16 @@ public class SettingsSelectionItem(string name) : SettingsItem(name)
         }
         else if (change.Property == ItemsSourceProperty)
         {
-            SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+            SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, Value));
         }
         else if (change.Property == SelectedItemProperty)
         {
             Value = change.NewValue.As<Item>()?.Value;
         }
     }
-
-    public static SettingsSelectionItem FromEnum(Type enumType, string name)
-    {
-        if (!enumType.IsEnum)
-        {
-            throw new ArgumentException("Type is not an enum", nameof(enumType));
-        }
-
-        return new SettingsSelectionItem(name)
-        {
-            ItemsSource = Enum.GetValues(enumType).AsValueEnumerable().Cast<object>().Select(x =>
-            {
-                if (Enum.GetName(enumType, x) is { } enumName &&
-                    enumType.GetField(enumName)?.GetCustomAttribute<DynamicResourceKeyAttribute>() is { } ppAttribute)
-                {
-                    return new Item(new DynamicResourceKey(ppAttribute.HeaderKey), x, null);
-                }
-
-                return new Item(new DirectResourceKey(x), x, null);
-            }).ToList()
-        };
-    }
 }
 
-public class SettingsCustomizableItem(string name, SettingsItem customValueItem) : SettingsItem(name)
+public class SettingsCustomizableItem(SettingsItem customValueItem) : SettingsItem
 {
     public SettingsItem CustomValueItem => customValueItem;
 
@@ -272,11 +248,16 @@ public class SettingsCustomizableItem(string name, SettingsItem customValueItem)
     }
 }
 
-public abstract class SettingsTypedItem(string name, IDataTemplate? dataTemplate) : SettingsItem(name)
+/// <summary>
+/// A settings item that holds a value of a specific type.
+/// TType is used for DataTemplate selection.
+/// </summary>
+/// <param name="dataTemplate"></param>
+public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsItem
 {
     public IDataTemplate? DataTemplate => dataTemplate;
 
-    public static SettingsTypedItem? TryCreate(Type propertyType, string name)
+    public static SettingsTypedItem? TryCreate(Type propertyType)
     {
         if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
             resource is not IDataTemplate dataTemplate)
@@ -286,7 +267,7 @@ public abstract class SettingsTypedItem(string name, IDataTemplate? dataTemplate
 
         var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
         var constructor = typedItem.GetConstructor([typeof(string), typeof(IDataTemplate)]);
-        return (SettingsTypedItem?)constructor?.Invoke([name, dataTemplate]);
+        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]);
     }
 }
 
@@ -294,11 +275,14 @@ public abstract class SettingsTypedItem(string name, IDataTemplate? dataTemplate
 /// A settings item that holds a value of a specific type.
 /// TType is used for DataTemplate selection.
 /// </summary>
-/// <param name="name"></param>
 /// <typeparam name="TType"></typeparam>
-public class SettingsTypedItem<TType>(string name, IDataTemplate? dataTemplate) : SettingsTypedItem(name, dataTemplate);
+public class SettingsTypedItem<TType>(IDataTemplate? dataTemplate) : SettingsTypedItem(dataTemplate);
 
-public class SettingsControlItem(string name, Control control) : SettingsItem(name)
+/// <summary>
+/// A settings item that contains a custom control.
+/// </summary>
+/// <param name="control"></param>
+public class SettingsControlItem(Control control) : SettingsItem
 {
     public Control Control => control;
 }
