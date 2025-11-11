@@ -1,16 +1,8 @@
 using Avalonia.Threading;
-using Everywhere.Extensions;
-using Everywhere.Views;
-using Serilog;
 
 namespace Everywhere.Linux.Interop;
 
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 
 public partial class LinuxVisualElementContext
@@ -47,7 +39,6 @@ public partial class LinuxVisualElementContext
                     _taskCompletionSource.TrySetResult(_selectedElement);
                 });
                 _selectedRect = selected?.BoundingRectangle?? new PixelRect();
-                Log.Logger.Information("{maskRect}",  _selectedRect);
             }
 
             return _selectedRect;

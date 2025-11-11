@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 
@@ -30,7 +29,7 @@ public readonly record struct PointerState(PixelPoint Point, int ButtonMask);
 /// Abstract display _backend contract (X11 / Wayland / other).
 /// Implementations should be thread-safe for public methods.
 /// </summary>
-public interface ILinuxDisplayBackend
+public interface ILinuxDisplayBackend: IWindowHelper
 {
     IVisualElementContext? Context { get; set; }
     /// <summary>Open the display/resources. Return true when successful.</summary>
@@ -72,14 +71,6 @@ public interface ILinuxDisplayBackend
     IVisualElement GetWindowElementAt(PixelPoint point);
 
     IVisualElement GetScreenElement();
-    
-    void SetWindowCornerRadius(Window window, CornerRadius cornerRadius);
-
-    void SetWindowFocus(Window window, bool focusable);
-
-    void SetWindowHitTestInvisible(Window window);
-
-    void SetWindowAsOverlay(Window window);
 
     void RegisterFocusChanged(Action handler);
     

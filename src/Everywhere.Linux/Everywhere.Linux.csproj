@@ -20,10 +20,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <WatchdogProject>..\Everywhere.Watchdog\Everywhere.Watchdog.csproj</WatchdogProject>
     <WatchdogOutDir>$(MSBuildThisFileDirectory)$(WatchdogProject)\..\bin\$(Configuration)\net9.0\linux-x64\publish\</WatchdogOutDir>
     <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog</WatchdogExecutable>
@@ -54,7 +50,5 @@
 
   <Target Name="BuildWatchdog" BeforeTargets="BeforeBuild" Inputs="$(WatchdogProject)" Outputs="$(WatchdogExecutable)">
     <Message Text="Watchdog executable is out-of-date. Building..." Importance="high"/>
-    <Exec Command="dotnet restore &quot;$(WatchdogProject)&quot; -r linux-x64"/>
-    <Exec Command="dotnet publish &quot;$(WatchdogProject)&quot; -c $(Configuration) -r linux-x64 --self-contained --no-restore -o &quot;$(WatchdogOutDir)&quot;"/>
   </Target>
 </Project>

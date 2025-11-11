@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.Linux.Interop;
 
@@ -47,10 +47,10 @@ public partial class X11DisplayBackend
     [LibraryImport(LibX11)]
     private static partial int XDrawRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height);
     [LibraryImport(LibX11)]
-    private static partial ulong XWhitePixel(IntPtr display, int screen_number);
+    private static partial ulong XWhitePixel(IntPtr display, int screenNumber);
 
     [LibraryImport(LibX11)]
-    private static partial ulong XBlackPixel(IntPtr display, int screen_number);
+    private static partial ulong XBlackPixel(IntPtr display, int screenNumber);
 
     // Atoms and Properties
     [LibraryImport(LibX11)] private static partial UIntPtr XStringToKeysym([MarshalAs(UnmanagedType.LPStr)] string s);
@@ -392,52 +392,52 @@ public partial class X11DisplayBackend
         public int arc_mode;          // 弧模式
     }
     private static class GCFunction
-{
-    public const int GXclear = 0x0;        // 0
-    public const int GXand = 0x1;          // src AND dst
-    public const int GXandReverse = 0x2;   // src AND NOT dst
-    public const int GXandInverted = 0x4;  // NOT src AND dst
-    public const int GXnoop = 0x5;         // dst
-    public const int GXxor = 0x6;          // src XOR dst
-    public const int GXor = 0x7;           // src OR dst
-    public const int GXnor = 0x8;          // NOT src AND NOT dst
-    public const int GXequiv = 0x9;        // NOT src XOR dst
-    public const int GXinvert = 0xa;       // NOT dst
-    public const int GXorReverse = 0xb;    // src OR NOT dst
-    public const int GXcopyInverted = 0xc; // NOT src
-    public const int GXorInverted = 0xd;   // NOT src OR dst
-    public const int GXnand = 0xe;         // NOT src OR NOT dst
-    public const int GXset = 0xf;          // 1
-}
+    {
+        public const int GXclear = 0x0;        // 0
+        public const int GXand = 0x1;          // src AND dst
+        public const int GXandReverse = 0x2;   // src AND NOT dst
+        public const int GXandInverted = 0x4;  // NOT src AND dst
+        public const int GXnoop = 0x5;         // dst
+        public const int GXxor = 0x6;          // src XOR dst
+        public const int GXor = 0x7;           // src OR dst
+        public const int GXnor = 0x8;          // NOT src AND NOT dst
+        public const int GXequiv = 0x9;        // NOT src XOR dst
+        public const int GXinvert = 0xa;       // NOT dst
+        public const int GXorReverse = 0xb;    // src OR NOT dst
+        public const int GXcopyInverted = 0xc; // NOT src
+        public const int GXorInverted = 0xd;   // NOT src OR dst
+        public const int GXnand = 0xe;         // NOT src OR NOT dst
+        public const int GXset = 0xf;          // 1
+    }
 
-private static class GCMask
-{
-    public const int GCFunction = 1 << 0;
-    public const int GCPlaneMask = 1 << 1;
-    public const int GCForeground = 1 << 2;
-    public const int GCBackground = 1 << 3;
-    public const int GCLineWidth = 1 << 4;
-    public const int GCLineStyle = 1 << 5;
-    public const int GCCapStyle = 1 << 6;
-    public const int GCJoinStyle = 1 << 7;
-    public const int GCFillStyle = 1 << 8;
-    public const int GCFillRule = 1 << 9;
-    public const int GCTile = 1 << 10;
-    public const int GCStipple = 1 << 11;
-    public const int GCTileStipXOrigin = 1 << 12;
-    public const int GCTileStipYOrigin = 1 << 13;
-    public const int GCFont = 1 << 14;
-    public const int GCSubwindowMode = 1 << 15;
-    public const int GCGraphicsExposures = 1 << 16;
-    public const int GCClipXOrigin = 1 << 17;
-    public const int GCClipYOrigin = 1 << 18;
-    public const int GCClipMask = 1 << 19;
-    public const int GCDashOffset = 1 << 20;
-    public const int GCDashList = 1 << 21;
-    public const int GCArcMode = 1 << 22;
-}
+    private static class GCMask
+    {
+        public const int GCFunction = 1 << 0;
+        public const int GCPlaneMask = 1 << 1;
+        public const int GCForeground = 1 << 2;
+        public const int GCBackground = 1 << 3;
+        public const int GCLineWidth = 1 << 4;
+        public const int GCLineStyle = 1 << 5;
+        public const int GCCapStyle = 1 << 6;
+        public const int GCJoinStyle = 1 << 7;
+        public const int GCFillStyle = 1 << 8;
+        public const int GCFillRule = 1 << 9;
+        public const int GCTile = 1 << 10;
+        public const int GCStipple = 1 << 11;
+        public const int GCTileStipXOrigin = 1 << 12;
+        public const int GCTileStipYOrigin = 1 << 13;
+        public const int GCFont = 1 << 14;
+        public const int GCSubwindowMode = 1 << 15;
+        public const int GCGraphicsExposures = 1 << 16;
+        public const int GCClipXOrigin = 1 << 17;
+        public const int GCClipYOrigin = 1 << 18;
+        public const int GCClipMask = 1 << 19;
+        public const int GCDashOffset = 1 << 20;
+        public const int GCDashList = 1 << 21;
+        public const int GCArcMode = 1 << 22;
+    }
 
-private const int IncludeInferiors = 1;
+    private const int IncludeInferiors = 1;
 
     private delegate int XErrorHandlerFunc(IntPtr display, IntPtr errorEventPtr);
     #endregion
@@ -457,11 +457,11 @@ private const int IncludeInferiors = 1;
             }
             catch (Exception ex)
             {
-                Log.Logger.Warning(ex, "Failed to get X error text for code {code}", ev.errorCode);
+                _logger.LogWarning(ex, "Failed to get X error text for code {code}", ev.errorCode);
                 text = $"Unknown error code {ev.errorCode}";
             }
 
-            Log.Logger.Error(
+            _logger.LogError(
                 "X Error: code={code}({errorName}) request={req}({reqName}) minor={minor} resource={res} text={text}",
                 ev.errorCode,
                 GetErrorCodeName(ev.errorCode),
@@ -473,7 +473,7 @@ private const int IncludeInferiors = 1;
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "Failed to handle X error");
+            _logger.LogError(ex, "Failed to handle X error");
         }
         return 0;
     }
@@ -694,10 +694,10 @@ private const int IncludeInferiors = 1;
         if ((state & Mod4Mask) != 0) mod |= KeyModifiers.Meta;
         return mod;
     }
-    private static EventType GetEventType(IntPtr rawEvent)
+    private EventType GetEventType(IntPtr rawEvent)
     {
         var ev = Marshal.PtrToStructure<XAnyEvent>(rawEvent);
-        Log.Logger.Information("X recv event type={ev}", ev.type);
+        _logger.LogInformation("X recv event type={ev}", ev.type);
         switch (ev.type)
         {
             case KeyPress: return EventType.KeyDown;

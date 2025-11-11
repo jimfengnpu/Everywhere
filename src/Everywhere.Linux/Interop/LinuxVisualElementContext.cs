@@ -4,7 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using ZLinq;
 namespace Everywhere.Linux.Interop;
 
@@ -28,7 +27,7 @@ public partial class LinuxVisualElementContext: IVisualElementContext
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "KeyboardFocusedElement failed");
+                _logger.LogError(ex, "KeyboardFocusedElement failed");
                 return null;
             }
         }
@@ -53,7 +52,8 @@ public partial class LinuxVisualElementContext: IVisualElementContext
             switch (mode)
             {
                 case PickElementMode.Element:
-                    return _atspi.ElementFromPoint(point);
+                    var elem = _atspi.ElementFromPoint(point);
+                    return elem ?? _backend.GetWindowElementAt(point);
                     
                 case PickElementMode.Window:
                     return _backend.GetWindowElementAt(point);
@@ -67,7 +67,7 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "ElementFromPoint failed for point {point}, mode {mode}", point, mode);
+            _logger.LogError(ex, "ElementFromPoint failed for point {point}, mode {mode}", point, mode);
             return null;
         }
     }

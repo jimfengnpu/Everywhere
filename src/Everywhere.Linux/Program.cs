@@ -12,7 +12,6 @@ using Everywhere.Linux.Configuration;
 using Everywhere.Linux.Interop;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.Plugins.Web;
 using Serilog;
 using Serilog.Extensions.Logging;
 using SoftwareUpdater = Everywhere.Linux.Common.SoftwareUpdater;
@@ -34,26 +33,27 @@ public static class Program
                     .AddSerilog(dispose: true)
                     .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Debug))
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
-                .AddSingleton<ILinuxDisplayBackend, LinuxDisplayBackend>()
+                .AddSingleton<LinuxDisplayBackend>()
+                .AddSingleton<ILinuxDisplayBackend>(sp => sp.GetRequiredService<LinuxDisplayBackend>())
+                .AddSingleton<IWindowHelper>(sp => sp.GetRequiredService<LinuxDisplayBackend>())
                 .AddSingleton<IVisualElementContext, LinuxVisualElementContext>()
                 .AddSingleton<IShortcutListener, LinuxShortcutListener>()
                 .AddSingleton<INativeHelper, LinuxNativeHelper>()
                 .AddSingleton<ISoftwareUpdater, SoftwareUpdater>()
                 .AddSettings()
                 .AddWatchdogManager()
-
-                #endregion
-
+                .ConfigureNetwork()
                 .AddAvaloniaBasicServices()
                 .AddViewsAndViewModels()
                 .AddDatabaseAndStorage()
+
+                #endregion
 
                 #region Chat Plugins
 
                 .AddTransient<BuiltInChatPlugin, VisualTreePlugin>()
                 .AddTransient<BuiltInChatPlugin, WebBrowserPlugin>()
                 .AddTransient<BuiltInChatPlugin, FileSystemPlugin>()
-                // PowerShell plugin is Windows-specific; do not register it on Linux.
 
                 #endregion
 

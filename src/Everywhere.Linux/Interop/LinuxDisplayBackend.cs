@@ -119,24 +119,29 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         return _impl.GetScreenElement();
     }
 
-    public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius)
+    public void SetFocusable(Window window, bool focusable)
     {
-        _impl.SetWindowCornerRadius(window, cornerRadius);
+        _impl.SetFocusable(window, focusable);
     }
 
-    public void SetWindowFocus(Window window, bool focusable)
+    public void SetHitTestVisible(Window window, bool visible)
     {
-        _impl.SetWindowFocus(window, focusable);
+        _impl.SetHitTestVisible(window, false);
     }
 
-    public void SetWindowHitTestInvisible(Window window)
+    public bool GetEffectiveVisible(Window window)
     {
-        _impl.SetWindowHitTestInvisible(window);
+        return _impl.GetEffectiveVisible(window);
     }
 
-    public void SetWindowAsOverlay(Window window)
+    public void SetCloaked(Window window, bool cloaked)
     {
-        _impl.SetWindowAsOverlay(window);
+        _impl.SetCloaked(window, cloaked);
+    }
+
+    public bool AnyModelDialogOpened(Window window)
+    {
+        return _impl.AnyModelDialogOpened(window);
     }
 
     public void RegisterFocusChanged(Action handler)

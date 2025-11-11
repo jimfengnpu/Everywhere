@@ -4,8 +4,9 @@ using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Controls;
+using Everywhere.Common;
 using Everywhere.Interop;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.Linux.Interop;
 
@@ -14,6 +15,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 {
     private IntPtr _display;
     private IntPtr _rootWindow;
+    private readonly ILogger<X11DisplayBackend> _logger = ServiceLocator.Resolve<ILogger<X11DisplayBackend>>();
     private readonly ConcurrentDictionary<int, RegInfo> _regs = new();
     private int _nextId = 1;
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
@@ -59,13 +61,13 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
                 catch (Exception ex)
                 {
-                    Log.Logger.Error("XThread fcntl Error: {ex}", ex.Message);
+                    _logger.LogError("XThread fcntl Error: {ex}", ex.Message);
                 }
             }
         }
         catch (Exception ex)
         {
-            Log.Logger.Error("XThread pipe file Error: {ex}", ex.Message);
+            _logger.LogError("XThread pipe file Error: {ex}", ex.Message);
         }
 
         _running = true;
@@ -97,7 +99,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Error("X11 Backend Close Error: {ex}", ex.Message);
+            _logger.LogError("X11 Backend Close Error: {ex}", ex.Message);
         }
     }
 
@@ -138,7 +140,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             }
             catch (Exception ex)
             {
-                Log.Logger.Warning(ex, "GrabKey op failed");
+                _logger.LogWarning(ex, "GrabKey op failed");
                 tcs.SetResult(0);
             }
         });
@@ -154,7 +156,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             if (!_regs.TryRemove(id, out var info)) return;
             var variants = new uint[] { 0u, LockMask, Mod2Mask, LockMask | Mod2Mask };
             foreach (var v in variants) XUngrabKey(_display, info.Keycode, info.Mods | v, _rootWindow);
-            try { XFlush(_display); } catch { }
+            XFlush(_display);
 
         });
     }
@@ -231,13 +233,13 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         // 检查缓存
         if (_windowCache.TryGetValue(window, out var cachedElement))
         {
-            Log.Logger.Debug("Using cached window element for {window}", window.ToString("X"));
+            _logger.LogDebug("Using cached window element for {window}", window.ToString("X"));
             return cachedElement;
         }
 
         // 创建新对象并缓存
         var element = maker();
-        Log.Logger.Information("Creating window element for {window}", window.ToString("X"));
+        _logger.LogInformation("Creating window element for {window}", window.ToString("X"));
         _windowCache[window] = element;
         return element;
     }
@@ -253,24 +255,25 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Warning(ex, "GetFocusedWindowElement failed");
+            _logger.LogWarning(ex, "GetFocusedWindowElement failed");
             return null;
         }
     }
 
     public IVisualElement GetWindowElementAt(PixelPoint point)
     {
+        _logger.LogInformation("Enter Backend");
         XQueryPointer(_display, _rootWindow,
             out _, out var child, out _, out _, out _, out _, out _);
 
         // 如果child为0，说明指向的是root window本身
         if (child == IntPtr.Zero)
         {
-            Log.Logger.Debug("XQueryPointer returned child=0, using root window");
+            _logger.LogDebug("XQueryPointer returned child=0, using root window");
             child = _rootWindow;
         }
 
-        Log.Logger.Debug("GetWindowElementAt at ({x},{y}) -> window {window}",
+        _logger.LogInformation("GetWindowElementAt at ({x},{y}) -> window {window}",
             point.X, point.Y, child.ToString("X"));
 
         return GetWindowElement(child, () => new X11WindowVisualElement(this, child));
@@ -297,7 +300,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
             if (XShapeQueryExtension(_display, out _, out _) == 0)
             {
-                Log.Logger.Warning("XShape extension not available, cannot set window corner radius");
+                _logger.LogWarning("XShape extension not available, cannot set window corner radius");
                 return;
             }
 
@@ -334,11 +337,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "X11 SetWindowCornerRadius failed");
+            _logger.LogError(ex, "X11 SetWindowCornerRadius failed");
         }
     }
 
-    public void SetWindowFocus(Window window, bool focusable)
+    public void SetFocusable(Window window, bool focusable)
     {
         try
         {
@@ -389,11 +392,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "X11 SetWindowNoFocus failed");
+            _logger.LogError(ex, "X11 SetWindowNoFocus failed");
         }
     }
 
-    public void SetWindowHitTestInvisible(Window window)
+    public void SetHitTestVisible(Window window, bool visible)
     {
         try
         {
@@ -410,6 +413,24 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             }
         }
         catch { }
+    }
+
+    public bool GetEffectiveVisible(Window window)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetCloaked(Window window, bool cloaked)
+    {
+        if (cloaked)
+        {
+            SetWindowAsOverlay(window);
+        }
+    }
+
+    public bool AnyModelDialogOpened(Window window)
+    {
+        return false;
     }
 
     public void SetWindowAsOverlay(Window window)
@@ -444,7 +465,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "SetWindowAsOverlay failed");
+            _logger.LogError(ex, "SetWindowAsOverlay failed");
         }
     }
 
@@ -599,7 +620,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(ex, "Capture(element) failed for element {elementType} {elementId}",
+            _logger.LogError(ex, "Capture(element) failed for element {elementType} {elementId}",
                 window?.Type.ToString() ?? "null", window?.Id ?? "null");
             throw;
         }
@@ -610,18 +631,18 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         // 验证drawable是否有效
         if (!IsValidDrawable(drawable))
         {
-            Log.Logger.Error("Invalid drawable: {drawable}", drawable.ToString("X"));
+            _logger.LogError("Invalid drawable: {drawable}", drawable.ToString("X"));
             throw new InvalidOperationException("Invalid drawable");
         }
 
-        Log.Logger.Debug("Calling XGetImage with drawable={drawable}, x={x}, y={y}, w={w}, h={h}",
+        _logger.LogDebug("Calling XGetImage with drawable={drawable}, x={x}, y={y}, w={w}, h={h}",
             drawable.ToString("X"), rect.X, rect.Y, rect.Width, rect.Height);
 
         var image = XGetImage(_display, drawable, rect.X, rect.Y,
             (uint)rect.Width, (uint)rect.Height, AllPlanes, ZPixmap);
         if (image == IntPtr.Zero)
         {
-            Log.Logger.Error("XGetImage returned null for drawable {drawable} at ({x},{y}) size {width}x{height}",
+            _logger.LogError("XGetImage returned null for drawable {drawable} at ({x},{y}) size {width}x{height}",
                 drawable.ToString("X"), rect.X, rect.Y, rect.Width, rect.Height);
             throw new InvalidOperationException($"XGetImage failed for drawable {drawable}");
         }
@@ -631,7 +652,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             var ximage = Marshal.PtrToStructure<XImage>(image);
 
             // 检查像素格式
-            Log.Logger.Debug("XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
+            _logger.LogDebug("XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
                 ximage.depth, ximage.bits_per_pixel, ximage.bytes_per_line);
 
             var stride = ximage.bytes_per_line;
@@ -678,7 +699,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             // 32位格式，假设是RGBA或BGRA
             // 由于没有颜色掩码信息，我们暂时不进行转换
-            Log.Logger.Debug("Using 32-bit format as-is");
+            _logger.LogDebug("Using 32-bit format as-is");
             return;
         }
         else if (ximage.bits_per_pixel == 16 && ximage.depth == 16)
@@ -690,7 +711,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         if (!needsConversion)
         {
-            Log.Logger.Debug("No pixel format conversion needed for {bpp} bits per pixel", ximage.bits_per_pixel);
+            _logger.LogDebug("No pixel format conversion needed for {bpp} bits per pixel", ximage.bits_per_pixel);
         }
     }
 
@@ -725,7 +746,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         // 复制回原数组
         Array.Copy(bgraData, 0, rgbData, 0, Math.Min(bgraData.Length, rgbData.Length));
-        Log.Logger.Debug("Converted RGB24 to BGRA32");
+        _logger.LogDebug("Converted RGB24 to BGRA32");
     }
 
     private void ConvertRGB16ToBGRA32(byte[] rgb16Data, int width, int height, int stride)
@@ -767,7 +788,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         // 复制回原数组
         Array.Copy(bgraData, 0, rgb16Data, 0, Math.Min(bgraData.Length, rgb16Data.Length));
-        Log.Logger.Debug("Converted RGB16 to BGRA32");
+        _logger.LogDebug("Converted RGB16 to BGRA32");
     }
 
     private bool IsValidDrawable(IntPtr drawable)
@@ -891,14 +912,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     // 验证窗口句柄是否有效
                     if (windowHandle == IntPtr.Zero)
                     {
-                        Log.Logger.Warning("BoundingRectangle called with zero window handle");
+                        backend._logger.LogWarning("BoundingRectangle called with zero window handle");
                         return default(PixelRect);
                     }
 
                     var result = XGetGeometry(display, windowHandle, out _, out var x, out var y, out var w, out var h, out _, out _);
                     if (result == 0)
                     {
-                        Log.Logger.Warning("XGetGeometry failed for window {window}", windowHandle.ToString("X"));
+                        backend._logger.LogWarning("XGetGeometry failed for window {window}", windowHandle.ToString("X"));
                         return default(PixelRect);
                     }
 
@@ -912,7 +933,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
                     if (result == 0)
                     {
-                        Log.Logger.Warning("XTranslateCoordinates failed for window {window}", windowHandle.ToString("X"));
+                        backend._logger.LogWarning("XTranslateCoordinates failed for window {window}", windowHandle.ToString("X"));
                         return new PixelRect(x, y, (int)w, (int)h);
                     }
 
@@ -920,7 +941,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
                 catch (Exception ex)
                 {
-                    Log.Logger.Error(ex, "BoundingRectangle failed for window {window}", windowHandle.ToString("X"));
+                    backend._logger.LogError(ex, "BoundingRectangle failed for window {window}", windowHandle.ToString("X"));
                     return default(PixelRect);
                 }
             }
@@ -1121,7 +1142,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     try { op(); }
                     catch (Exception ex)
                     {
-                        Log.Logger.Warning(ex, "X op failed");
+                        _logger.LogWarning(ex, "X op failed");
                     }
                 }
 
@@ -1132,14 +1153,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 // wake pipe signaled -> drain and process ops
                 if ((fds[1].revents & POLLIN) != 0)
                 {
-                    Log.Logger.Debug("Poll: wakePipe readable (fd={fd})", _wakePipeR);
+                    _logger.LogDebug("Poll: wakePipe readable (fd={fd})", _wakePipeR);
                     try
                     {
                         while (true)
                         {
-                            Log.Logger.Debug("About to read from wakePipe fd={fd}", _wakePipeR);
+                            _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
                             int r = read(_wakePipeR, buf, (IntPtr)buf.Length);
-                            Log.Logger.Debug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
+                            _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
                             if (r > 0) continue;
                             if (r == 0) break;
                             // r < 0 -> check errno
@@ -1147,20 +1168,20 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                             // EAGAIN / EWOULDBLOCK
                             const int eagain = 11;
                             if (errno is eagain) break;
-                            Log.Logger.Warning("Unexpected read error from wake pipe: errno={errno}", errno);
+                            _logger.LogWarning("Unexpected read error from wake pipe: errno={errno}", errno);
                             break;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.Logger.Warning(ex, "Error draining wake pipe");
+                        _logger.LogWarning(ex, "Error draining wake pipe");
                     }
                     while (_ops.TryTake(out var op))
                     {
                         try { op(); }
                         catch (Exception ex)
                         {
-                            Log.Logger.Warning(ex, "X op failed");
+                            _logger.LogWarning(ex, "X op failed");
                         }
                     }
                 }
@@ -1192,12 +1213,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             {
                 var b = new byte[1] { 1 };
                 var wr = write(_wakePipeW, b, 1);
-                Log.Logger.Debug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
+                _logger.LogDebug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
             }
         }
         catch (Exception ex)
         {
-            Log.Logger.Warning(ex, "Failed to write wake pipe");
+            _logger.LogWarning(ex, "Failed to write wake pipe");
         }
     }
 
