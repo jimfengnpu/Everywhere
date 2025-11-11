@@ -6,7 +6,7 @@ public partial class AboutPage : ReactiveUserControl<AboutPageViewModel>, IMainV
 {
     public int Index => int.MaxValue;
 
-    public DynamicResourceKeyBase Title => new DirectResourceKey(LocaleKey.AboutPage_Title);
+    public DynamicResourceKeyBase Title => new DynamicResourceKey(LocaleKey.AboutPage_Title);
 
     public LucideIconKind Icon => LucideIconKind.Info;
 

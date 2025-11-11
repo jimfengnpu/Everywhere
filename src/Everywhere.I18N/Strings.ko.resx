@@ -37,13 +37,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>소프트웨어의 표시 테마를 선택하세요.</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
         <value>시스템 따라가기</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Dark" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
         <value>다크</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
         <value>라이트</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
@@ -606,7 +606,7 @@
         <value>업데이트 확인</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>현재 버전: {0}</value>
+        <value>현재 버전: </value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
         <value>마지막 확인 시간: </value>

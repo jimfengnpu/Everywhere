@@ -48,4 +48,8 @@ public partial class WebSearchEngineProvider : ObservableObject
         LocaleKey.WebSearchEngineProvider_SearchEngineId_Description)]
     [SettingsItem(IsVisibleBindingPath = nameof(IsSearchEngineIdVisible))]
     public partial string? SearchEngineId { get; set; }
+
+    public override bool Equals(object? obj) => obj is WebSearchEngineProvider provider && Id == provider.Id;
+
+    public override int GetHashCode() => Id.GetHashCode();
 }

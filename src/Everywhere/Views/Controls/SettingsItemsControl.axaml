@@ -36,7 +36,7 @@
     <Setter Property="ItemTemplate">
       <DataTemplate DataType="c:SettingsItem">
         <Expander
-          Background="Transparent"
+          Classes="LeftIcon" Background="Transparent"
           BorderBrush="{Binding $parent[v:SettingsItemsControl].BorderBrush}"
           BorderThickness="{Binding $parent[v:SettingsItemsControl].BorderThickness}"
           Classes.NotExpandable="{Binding !IsExpandable}"
@@ -148,8 +148,6 @@
                   <DataTemplate DataType="c:SettingsControlItem">
                     <ContentControl Content="{Binding Control}"/>
                   </DataTemplate>
-
-                  <DataTemplate DataType="c:SettingsItem"/>
                 </DataTemplates>
               </Setter>
             </Style>
@@ -168,7 +166,8 @@
                 TextWrapping="Wrap"/>
               <ContentControl
                 x:Name="PART_SettingsItemContentControl" Margin="0,8,0,0"
-                Content="{Binding}"/>
+                Content="{Binding}"
+                IsVisible="{Binding !IsEmpty}"/>
             </StackPanel>
           </Expander.Header>
 

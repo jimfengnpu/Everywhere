@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Specialized;
+using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Media;
@@ -9,7 +10,7 @@ namespace Everywhere.Configuration;
 /// <summary>
 /// Represents a single settings item for View.
 /// </summary>
-public class SettingsItem : AvaloniaObject
+public abstract class SettingsItem : AvaloniaObject
 {
     public DynamicResourceKey? HeaderKey { get; set; }
 
@@ -55,6 +56,11 @@ public class SettingsItem : AvaloniaObject
         set => SetValue(IsExpandableProperty, value);
     }
 
+    /// <summary>
+    /// Indicates whether this settings item contains no content (but may have child items).
+    /// </summary>
+    public virtual bool IsEmpty => false;
+
     public List<SettingsItem> Items { get; } = [];
 }
 
@@ -95,7 +101,8 @@ public class SettingsStringItem : SettingsItem
         set => SetValue(IsMultilineProperty, value);
     }
 
-    public static readonly StyledProperty<TextWrapping> TextWrappingProperty = AvaloniaProperty.Register<SettingsStringItem, TextWrapping>(nameof(TextWrapping));
+    public static readonly StyledProperty<TextWrapping> TextWrappingProperty =
+        AvaloniaProperty.Register<SettingsStringItem, TextWrapping>(nameof(TextWrapping));
 
     public TextWrapping TextWrapping
     {
@@ -215,22 +222,52 @@ public class SettingsSelectionItem : SettingsItem
         }
     }
 
+    private bool _isHandlingPropertyChange;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ValueProperty && ItemsSource.AsValueEnumerable().Count() > 0)
+        if (_isHandlingPropertyChange) return;
+
+        _isHandlingPropertyChange = true;
+        try
         {
-            SelectedItem = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+            if (change.Property == ValueProperty && ItemsSource.AsValueEnumerable().Count() > 0)
+            {
+                SelectedItem = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+            }
+            else if (change.Property == ItemsSourceProperty)
+            {
+                SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, Value));
+
+                if (change.OldValue is INotifyCollectionChanged oldCollection)
+                {
+                    oldCollection.CollectionChanged -= HandleItemsSourceCollectionChanged;
+                }
+
+                if (change.NewValue is INotifyCollectionChanged newCollection)
+                {
+                    newCollection.CollectionChanged += HandleItemsSourceCollectionChanged;
+                }
+            }
+            else if (change.Property == SelectedItemProperty)
+            {
+                Value = change.NewValue.As<Item>()?.Value;
+            }
         }
-        else if (change.Property == ItemsSourceProperty)
+        finally
         {
-            SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, Value));
+            _isHandlingPropertyChange = false;
         }
-        else if (change.Property == SelectedItemProperty)
-        {
-            Value = change.NewValue.As<Item>()?.Value;
-        }
+    }
+
+    private void HandleItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (Value is not { } value ||
+            sender.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, value)) is not { } selectedItem) return;
+
+        SelectedItem = selectedItem;
     }
 }
 
@@ -257,18 +294,35 @@ public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsI
 {
     public IDataTemplate? DataTemplate => dataTemplate;
 
-    public static SettingsTypedItem? TryCreate(Type propertyType)
+    /// <summary>
+    /// Creates a SettingsTypedItem for the given property type. If no DataTemplate is found, returns an EmptySettingsTypedItem.
+    /// </summary>
+    /// <param name="propertyType"></param>
+    /// <returns></returns>
+    public static SettingsTypedItem Create(Type propertyType)
     {
         if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
             resource is not IDataTemplate dataTemplate)
         {
-            return null;
+            return EmptySettingsTypedItem.Shared;
         }
 
         var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
-        var constructor = typedItem.GetConstructor([typeof(string), typeof(IDataTemplate)]);
-        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]);
+        var constructor = typedItem.GetConstructor([typeof(IDataTemplate)]);
+        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]) ?? EmptySettingsTypedItem.Shared;
     }
+}
+
+/// <summary>
+/// Stands for a SettingsTypedItem with no specific type, usually used as a placeholder.
+/// </summary>
+public sealed class EmptySettingsTypedItem : SettingsTypedItem
+{
+    public static EmptySettingsTypedItem Shared { get; } = new();
+
+    public override bool IsEmpty => true;
+
+    private EmptySettingsTypedItem() : base(null) { }
 }
 
 /// <summary>
@@ -276,13 +330,16 @@ public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsI
 /// TType is used for DataTemplate selection.
 /// </summary>
 /// <typeparam name="TType"></typeparam>
-public class SettingsTypedItem<TType>(IDataTemplate? dataTemplate) : SettingsTypedItem(dataTemplate);
+public sealed class SettingsTypedItem<TType>(IDataTemplate? dataTemplate) : SettingsTypedItem(dataTemplate);
 
 /// <summary>
 /// A settings item that contains a custom control.
 /// </summary>
-/// <param name="control"></param>
-public class SettingsControlItem(Control control) : SettingsItem
+/// <param name="controlFactory"></param>
+public sealed class SettingsControlItem(Func<Control> controlFactory) : SettingsItem
 {
-    public Control Control => control;
+    /// <summary>
+    /// Use lazy control creation to avoid unnecessary instantiation and potential UI thread issues.
+    /// </summary>
+    public Control Control => controlFactory();
 }

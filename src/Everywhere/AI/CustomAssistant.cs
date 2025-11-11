@@ -42,13 +42,11 @@ public partial class CustomAssistant : ObservableObject
     [SettingsStringItem(IsMultiline = true, MaxLength = 40960)]
     public partial Customizable<string> SystemPrompt { get; set; } = Prompts.DefaultSystemPrompt;
 
+#pragma warning disable CA1822
     [JsonIgnore]
     [HiddenSettingsItem]
-    public ModelProviderTemplate? ModelProviderTemplate
-    {
-        get => ModelProviderTemplate.SupportedTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId);
-        set => ModelProviderTemplateId = value?.Id;
-    }
+    private ModelProviderTemplate[] ModelProviderTemplates => ModelProviderTemplate.SupportedTemplates;
+#pragma warning restore CA1822
 
     /// <summary>
     /// The ID of the model provider to use for this custom assistant.
@@ -57,9 +55,7 @@ public partial class CustomAssistant : ObservableObject
     /// <remarks>
     /// Setting this will set <see cref="Endpoint"/> and <see cref="Schema"/> to the values from the selected model provider.
     /// </remarks>
-    [DynamicResourceKey(
-        LocaleKey.CustomAssistant_ModelProviderTemplate_Header,
-        LocaleKey.CustomAssistant_ModelProviderTemplate_Description)]
+    [HiddenSettingsItem]
     public string? ModelProviderTemplateId
     {
         get;
@@ -69,7 +65,7 @@ public partial class CustomAssistant : ObservableObject
             field = value;
 
             if (value is not null &&
-                ModelProviderTemplate.SupportedTemplates.FirstOrDefault(t => t.Id == value) is { } template)
+                ModelProviderTemplates.FirstOrDefault(t => t.Id == value) is { } template)
             {
                 Endpoint.DefaultValue = template.Endpoint;
                 Schema.DefaultValue = template.Schema;
@@ -86,7 +82,19 @@ public partial class CustomAssistant : ObservableObject
 
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelProviderTemplate));
+            OnPropertyChanged(nameof(ModelDefinitionTemplates));
         }
+    }
+
+    [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CustomAssistant_ModelProviderTemplate_Header,
+        LocaleKey.CustomAssistant_ModelProviderTemplate_Description)]
+    [SettingsSelectionItem(nameof(ModelProviderTemplates), DataTemplateKey = typeof(ModelProviderTemplate))]
+    public ModelProviderTemplate? ModelProviderTemplate
+    {
+        get => ModelProviderTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId);
+        set => ModelProviderTemplateId = value?.Id;
     }
 
     [ObservableProperty]
@@ -110,16 +118,9 @@ public partial class CustomAssistant : ObservableObject
 
     [JsonIgnore]
     [HiddenSettingsItem]
-    public ModelDefinitionTemplate? ModelDefinitionTemplate
-    {
-        get => ModelProviderTemplate.SupportedTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId)?
-            .ModelDefinitions.FirstOrDefault(m => m.Id == ModelDefinitionTemplateId);
-        set => ModelDefinitionTemplateId = value?.Id;
-    }
+    private IEnumerable<ModelDefinitionTemplate> ModelDefinitionTemplates => ModelProviderTemplate?.ModelDefinitions ?? [];
 
-    [DynamicResourceKey(
-        LocaleKey.CustomAssistant_ModelDefinitionTemplate_Header,
-        LocaleKey.CustomAssistant_ModelDefinitionTemplate_Description)]
+    [HiddenSettingsItem]
     public string? ModelDefinitionTemplateId
     {
         get;
@@ -129,7 +130,7 @@ public partial class CustomAssistant : ObservableObject
             field = value;
 
             if (value is not null &&
-                ModelProviderTemplate.SupportedTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId) is { } template &&
+                ModelProviderTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId) is { } template &&
                 template.ModelDefinitions.FirstOrDefault(m => m.Id == value) is { } modelDefinition)
             {
                 ModelId.DefaultValue = modelDefinition.Id;
@@ -150,6 +151,18 @@ public partial class CustomAssistant : ObservableObject
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelDefinitionTemplate));
         }
+    }
+
+    [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CustomAssistant_ModelDefinitionTemplate_Header,
+        LocaleKey.CustomAssistant_ModelDefinitionTemplate_Description)]
+    [SettingsSelectionItem(nameof(ModelDefinitionTemplates), DataTemplateKey = typeof(ModelDefinitionTemplate))]
+    public ModelDefinitionTemplate? ModelDefinitionTemplate
+    {
+        get => ModelProviderTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId)?
+            .ModelDefinitions.FirstOrDefault(m => m.Id == ModelDefinitionTemplateId);
+        set => ModelDefinitionTemplateId = value?.Id;
     }
 
     [ObservableProperty]

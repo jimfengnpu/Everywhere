@@ -5,7 +5,8 @@
   d:DesignWidth="800" mc:Ignorable="d">
   <TextBox
     x:Name="ShortcutTextBox" CaretBrush="Transparent"
-    IsReadOnly="True" SelectionBrush="Transparent"
+    Cursor="Hand" IsReadOnly="True"
+    SelectionBrush="Transparent"
     SelectionForegroundBrush="{Binding $self.Foreground}"
     Watermark="{I18N {x:Static LocaleKey.KeyboardShortcutInputBox_Watermark}}">
     <TextBox.InnerRightContent>

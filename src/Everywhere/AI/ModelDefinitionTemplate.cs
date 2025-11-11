@@ -59,4 +59,6 @@ public record ModelDefinitionTemplate
     public virtual bool Equals(ModelDefinitionTemplate? other) => Id == other?.Id;
 
     public override int GetHashCode() => Id.GetHashCode();
+
+    public override string ToString() => DisplayName ?? Id;
 }

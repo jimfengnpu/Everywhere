@@ -1,5 +1,4 @@
-﻿using Everywhere.I18N;
-using Lucide.Avalonia;
+﻿using Lucide.Avalonia;
 
 namespace Everywhere.Configuration;
 

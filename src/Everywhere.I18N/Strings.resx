@@ -49,13 +49,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>Select the display theme for the software.</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
         <value>Follow System</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Dark" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
         <value>Dark</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
         <value>Light</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
@@ -126,21 +126,6 @@
     </data>
     <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>Select the service provider for web search engines.</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
-        <value>Bing</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
-        <value>Google</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
-        <value>Brave</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
-        <value>Bocha</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
-        <value>Jina</value>
     </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>API Url</value>
@@ -620,7 +605,7 @@
         <value>Check for updates</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Current version: {0}</value>
+        <value>Current version: </value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
         <value>Last check time: </value>

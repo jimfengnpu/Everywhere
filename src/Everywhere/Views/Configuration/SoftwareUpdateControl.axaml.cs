@@ -16,20 +16,11 @@ public partial class SoftwareUpdateControl(
 )
     : TemplatedControl
 {
-    public Settings Settings { get; set; } = settings;
-    public ISoftwareUpdater SoftwareUpdater { get; set; } = softwareUpdater;
-    public ToastManager ToastManager { get; set; } = toastManager;
-    public ILogger<SoftwareUpdateControl> Logger { get; set; } = logger;
+    public Settings Settings { get; } = settings;
 
+    public ISoftwareUpdater SoftwareUpdater { get; } = softwareUpdater;
 
-    public static readonly DirectProperty<SoftwareUpdateControl, FormattedDynamicResourceKey> CurrentVersionProperty =
-        AvaloniaProperty.RegisterDirect<SoftwareUpdateControl, FormattedDynamicResourceKey>(
-            nameof(CurrentVersion),
-            o => o.CurrentVersion);
-
-    public FormattedDynamicResourceKey CurrentVersion => new(
-        LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_Run1_Text,
-        new DirectResourceKey(SoftwareUpdater.CurrentVersion.ToString(3)));
+    public string CurrentVersion => SoftwareUpdater.CurrentVersion.ToString(3);
 
     [RelayCommand]
     private static async Task ShowReleaseNotesAsync()
@@ -53,7 +44,7 @@ public partial class SoftwareUpdateControl(
                 new FormattedDynamicResourceKey(
                     LocaleKey.CommonSettings_SoftwareUpdate_Toast_NewVersionFound,
                     new DirectResourceKey(SoftwareUpdater.LatestVersion));
-            ToastManager
+            toastManager
                 .CreateToast(LocaleKey.Common_Info.I18N())
                 .WithContent(toastMessage)
                 .DismissOnClick()
@@ -63,7 +54,7 @@ public partial class SoftwareUpdateControl(
         catch (Exception ex)
         {
             ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content);
-            Logger.LogError(ex, "Failed to check for updates.");
+            logger.LogError(ex, "Failed to check for updates.");
             ShowErrorToast(ex);
         }
     }
@@ -79,7 +70,7 @@ public partial class SoftwareUpdateControl(
         {
             var progress = new Progress<double>();
             var cts = new CancellationTokenSource();
-            ToastManager
+            toastManager
                 .CreateToast(LocaleKey.Common_Info.I18N())
                 .WithContent(LocaleKey.CommonSettings_SoftwareUpdate_Toast_DownloadingUpdate.I18N())
                 .WithProgress(progress)
@@ -92,12 +83,12 @@ public partial class SoftwareUpdateControl(
         catch (Exception ex)
         {
             ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_UpdateFailed_Content);
-            Logger.LogError(ex, "Failed to perform update.");
+            logger.LogError(ex, "Failed to perform update.");
             ShowErrorToast(ex);
         }
     });
 
-    private void ShowErrorToast(Exception ex) => ToastManager
+    private void ShowErrorToast(Exception ex) => toastManager
         .CreateToast(LocaleKey.Common_Error.I18N())
         .WithContent(ex.GetFriendlyMessage())
         .DismissOnClick()

@@ -37,13 +37,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>選擇軟體的顯示主題。</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
         <value>跟隨系統</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Dark" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
         <value>深色</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
         <value>淺色</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
@@ -606,7 +606,7 @@
         <value>檢查更新</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>當前版本：{0}</value>
+        <value>當前版本: </value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
         <value>上次檢查時間：</value>

@@ -37,13 +37,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>Sélectionnez le thème d'affichage du logiciel.</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_System" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
         <value>Suivre le système</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Dark" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
         <value>Sombre</value>
     </data>
-    <data name="SettingsSelectionItem_Common_Theme_Light" xml:space="preserve">
+    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
         <value>Clair</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
@@ -114,21 +114,6 @@
     </data>
     <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>Sélectionnez le fournisseur de service pour les moteurs de recherche web.</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
-        <value>Bing</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
-        <value>Google</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
-        <value>Brave</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
-        <value>Bocha</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
-        <value>Jina</value>
     </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>URL de l'API</value>
@@ -606,7 +591,7 @@
         <value>Vérifier les mises à jour</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Version actuelle : {0}</value>
+        <value>Version actuelle : </value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
         <value>Dernière vérification : </value>
