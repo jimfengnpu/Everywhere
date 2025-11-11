@@ -1,0 +1,32 @@
+﻿using Avalonia.Controls.Primitives;
+using CommunityToolkit.Mvvm.Input;
+using Everywhere.Common;
+using Everywhere.Interop;
+using Microsoft.Extensions.Logging;
+using ShadUI;
+
+namespace Everywhere.Views.Configuration;
+
+public partial class RestartAsAdministratorControl(INativeHelper nativeHelper, ToastManager toastManager, ILogger<RestartAsAdministratorControl> logger)
+    : TemplatedControl
+{
+    [RelayCommand]
+    private void RestartAsAdministrator()
+    {
+        try
+        {
+            nativeHelper.RestartAsAdministrator();
+        }
+        catch (Exception ex)
+        {
+            ex = HandledSystemException.Handle(ex); // maybe blocked by UAC or antivirus, handle it gracefully
+            logger.LogInformation(ex, "Failed to restart as administrator.");
+            toastManager
+                .CreateToast(LocaleKey.Common_Error.I18N())
+                .WithContent(ex.GetFriendlyMessage())
+                .DismissOnClick()
+                .OnBottomRight()
+                .ShowError();
+        }
+    }
+}

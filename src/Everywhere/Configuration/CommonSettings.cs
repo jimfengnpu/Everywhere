@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Interop;
@@ -9,27 +10,33 @@ using ShadUI;
 
 namespace Everywhere.Configuration;
 
-public partial class CommonSettings : SettingsCategory
+[GeneratedSettingsItems]
+public partial class CommonSettings : ObservableObject, ISettingsCategory
 {
     private static INativeHelper NativeHelper => ServiceLocator.Resolve<INativeHelper>();
     private static ILogger Logger => ServiceLocator.Resolve<ILogger<CommonSettings>>();
 
-    public override string Header => "Common";
+    [HiddenSettingsItem]
+    public DynamicResourceKeyBase DisplayNameKey => new DynamicResourceKey(LocaleKey.SettingsCategory_Common_Header);
 
-    public override LucideIconKind Icon => LucideIconKind.Box;
+    [HiddenSettingsItem]
+    public LucideIconKind Icon => LucideIconKind.Box;
 
     [ObservableProperty]
     [HiddenSettingsItem]
     public partial DateTimeOffset? LastUpdateCheckTime { get; set; }
 
     [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_SoftwareUpdate_Header,
+        LocaleKey.CommonSettings_SoftwareUpdate_Description)]
     public SettingsControl<SoftwareUpdateControl> SoftwareUpdate { get; } = new();
 
     [ObservableProperty]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_IsAutomaticUpdateCheckEnabled_Header,
+        LocaleKey.CommonSettings_IsAutomaticUpdateCheckEnabled_Description)]
     public partial bool IsAutomaticUpdateCheckEnabled { get; set; } = true;
-
-    [HiddenSettingsItem]
-    public static IEnumerable<string> LanguageSource => LocaleManager.AvailableLocaleNames;
 
     /// <summary>
     /// Gets or sets the current application language.
@@ -40,8 +47,11 @@ public partial class CommonSettings : SettingsCategory
     /// <example>
     /// default, zh-hans, ru, de, ja, it, fr, es, ko, zh-hant, zh-hant-hk
     /// </example>
-    [SettingsSelectionItem(ItemsSourceBindingPath = nameof(LanguageSource), I18N = true)]
-    public string Language
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_Language_Header,
+        LocaleKey.CommonSettings_Language_Description)]
+    [TypeConverter(typeof(LocaleNameTypeConverter))]
+    public LocaleName Language
     {
         get => LocaleManager.CurrentLocale;
         set
@@ -56,7 +66,10 @@ public partial class CommonSettings : SettingsCategory
     public static IEnumerable<string> ThemeSource => ["System", "Dark", "Light"];
 
     [ObservableProperty]
-    [SettingsSelectionItem(ItemsSourceBindingPath = nameof(ThemeSource), I18N = true)]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_Theme_Header,
+        LocaleKey.CommonSettings_Theme_Description)]
+    [SettingsSelectionItem(nameof(ThemeSource), I18N = true)]
     public partial string Theme { get; set; } = ThemeSource.First();
 
     [JsonIgnore]
@@ -64,10 +77,16 @@ public partial class CommonSettings : SettingsCategory
     public static bool IsAdministrator => NativeHelper.IsAdministrator;
 
     [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_RestartAsAdministrator_Header,
+        LocaleKey.CommonSettings_RestartAsAdministrator_Description)]
     [SettingsItem(IsVisibleBindingPath = $"!{nameof(IsAdministrator)}")]
     public SettingsControl<RestartAsAdministratorControl> RestartAsAdministrator { get; } = new();
 
     [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_IsStartupEnabled_Header,
+        LocaleKey.CommonSettings_IsStartupEnabled_Description)]
     [SettingsItem(IsEnabledBindingPath = $"{nameof(IsAdministrator)} || !{nameof(IsAdministratorStartupEnabled)}")]
     public bool IsStartupEnabled
     {
@@ -103,6 +122,9 @@ public partial class CommonSettings : SettingsCategory
     }
 
     [JsonIgnore]
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_IsAdministratorStartupEnabled_Header,
+        LocaleKey.CommonSettings_IsAdministratorStartupEnabled_Description)]
     [SettingsItem(IsVisibleBindingPath = nameof(IsStartupEnabled), IsEnabledBindingPath = nameof(IsAdministrator))]
     public bool IsAdministratorStartupEnabled
     {
@@ -130,8 +152,14 @@ public partial class CommonSettings : SettingsCategory
     }
 
     [SettingsItems]
+    [DynamicResourceKey(
+        LocaleKey.ProxySettings_Header,
+        LocaleKey.ProxySettings_Description)]
     public ProxySettings Proxy { get; set; } = new();
 
+    [DynamicResourceKey(
+        LocaleKey.CommonSettings_DiagnosticData_Header,
+        LocaleKey.CommonSettings_DiagnosticData_Description)]
     public bool DiagnosticData
     {
         get => !Entrance.SendOnlyNecessaryTelemetry;

@@ -45,25 +45,25 @@
         <shadui:Badge
           Background="Chocolate"
           IsVisible="{Binding IsImageInputSupported.ActualValue}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsImageInputSupported_Header}}">
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistant_IsImageInputSupported_Header}}">
           <LucideIcon Kind="Eye"/>
         </shadui:Badge>
         <shadui:Badge
           Background="CadetBlue"
           IsVisible="{Binding IsFunctionCallingSupported.ActualValue}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsFunctionCallingSupported_Header}}">
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistant_IsFunctionCallingSupported_Header}}">
           <LucideIcon Kind="Hammer"/>
         </shadui:Badge>
         <shadui:Badge
           Background="ForestGreen"
           IsVisible="{Binding IsDeepThinkingSupported.ActualValue}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_IsDeepThinkingSupported_Header}}">
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistant_IsDeepThinkingSupported_Header}}">
           <LucideIcon Kind="Brain"/>
         </shadui:Badge>
         <shadui:Badge
           Padding="6,0" Background="MediumSlateBlue"
           IsVisible="{Binding MaxTokens.ActualValue}"
-          ToolTip.Tip="{I18N {x:Static LocaleKey.Settings_CustomAssistant_MaxTokens_Header}}">
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistant_MaxTokens_Header}}">
           <TextBlock
             FontSize="12"
             Text="{Binding MaxTokens.ActualValue, Converter={x:Static vc:TokenCountHumanizationConverter.Shared}}"/>

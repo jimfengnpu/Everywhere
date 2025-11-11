@@ -1,0 +1,77 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:configuration="clr-namespace:Everywhere.Views.Configuration" xmlns:conv="clr-namespace:Everywhere.ValueConverters"
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI">
+
+  <ControlTheme
+    x:Key="{x:Type configuration:SoftwareUpdateControl}"
+    TargetType="configuration:SoftwareUpdateControl">
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel
+          Orientation="Horizontal" Spacing="8">
+          <StackPanel.Styles>
+            <Style Selector="Button.Outline#PerformUpdateButton">
+              <Setter Property="Background" Value="{DynamicResource SuccessColor60}"/>
+            </Style>
+            <Style Selector="Button.Ghost#ShowReleaseNotesButton">
+              <Setter Property="Padding" Value="0"/>
+              <Setter Property="Height" Value="NaN"/>
+            </Style>
+          </StackPanel.Styles>
+
+          <StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_Run1_Text}}"/>
+              <TextBlock Text="{Binding CurrentVersion, RelativeSource={RelativeSource TemplatedParent}, Mode=OneTime}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_Run2_Text}}"/>
+              <TextBlock Text="{Binding Settings.Common.LastUpdateCheckTime, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static conv:CommonConverters.DateTimeOffsetToString}, ConverterParameter=G, Mode=OneWay}"/>
+            </StackPanel>
+
+            <Button
+              x:Name="ShowReleaseNotesButton" Classes="Ghost"
+              HorizontalAlignment="Left"
+              Command="{Binding ShowReleaseNotesCommand, RelativeSource={RelativeSource TemplatedParent}}"
+              CornerRadius="1">
+              <TextBlock>
+                <Run
+                  Foreground="{DynamicResource InfoColor}"
+                  Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text}}"
+                  TextDecorations="Underline"/>
+              </TextBlock>
+            </Button>
+          </StackPanel>
+
+          <Button
+            Classes="Outline" Margin="32,0,0,0"
+            VerticalAlignment="Center" shadui:ButtonAssist.IconSize="18"
+            shadui:ButtonAssist.ShowProgress="{Binding CheckForUpdatesCommand.IsRunning, RelativeSource={RelativeSource TemplatedParent}}"
+            Command="{Binding CheckForUpdatesCommand, RelativeSource={RelativeSource TemplatedParent}}"
+            IsVisible="{Binding SoftwareUpdater.LatestVersion, Converter={x:Static ObjectConverters.IsNull}, RelativeSource={RelativeSource TemplatedParent}}">
+            <shadui:ButtonAssist.Icon>
+              <LucideIcon Kind="RefreshCcw"/>
+            </shadui:ButtonAssist.Icon>
+            <ContentControl Content="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content}}"/>
+          </Button>
+
+          <Button
+            x:Name="PerformUpdateButton" Classes="Outline"
+            Margin="32,0,0,0" VerticalAlignment="Center"
+            shadui:ButtonAssist.ShowProgress="{Binding PerformUpdateCommand.IsRunning, RelativeSource={RelativeSource TemplatedParent}}"
+            Background="{DynamicResource SuccessColor60}"
+            Command="{TemplateBinding PerformUpdateCommand}"
+            IsVisible="{Binding SoftwareUpdater.LatestVersion, Converter={x:Static ObjectConverters.IsNotNull}, RelativeSource={RelativeSource TemplatedParent}}">
+            <TextBlock>
+              <Run Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_PerformUpdateButton_Content}}"/>
+              <Run Text="{Binding SoftwareUpdater.LatestVersion, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </TextBlock>
+          </Button>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

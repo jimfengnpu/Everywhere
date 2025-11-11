@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Avalonia.Reactive;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
+using Everywhere.Extensions;
 using Everywhere.Utilities;
 using MessagePack;
 using ZLinq;
@@ -28,19 +29,6 @@ public abstract partial class DynamicResourceKeyBase : IObservable<object?>
     public DynamicResourceKeyBase Self => this;
 
     public abstract IDisposable Subscribe(IObserver<object?> observer);
-}
-
-public class EmptyDynamicResourceKey : DynamicResourceKeyBase
-{
-    public static EmptyDynamicResourceKey Shared { get; } = new();
-
-    public override IDisposable Subscribe(IObserver<object?> observer)
-    {
-        observer.OnNext(null);
-        return Disposable.Empty;
-    }
-
-    public override string ToString() => string.Empty;
 }
 
 /// <summary>
@@ -136,6 +124,8 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
 public partial class DirectResourceKey(object key) : DynamicResourceKey(key)
 {
+    public static DirectResourceKey Empty { get; } = new(string.Empty);
+
     private static readonly IDisposable NullDisposable = Disposable.Empty;
 
     public override IDisposable Subscribe(IObserver<object?> observer)
@@ -178,7 +168,7 @@ public partial class FormattedDynamicResourceKey(object key, params IReadOnlyLis
         var resolvedKey = Resolve(Key);
         return string.IsNullOrEmpty(resolvedKey) ?
             string.Empty :
-            string.Format(resolvedKey, Args.AsValueEnumerable().Select(a => a.ToString()).ToList().AsSpan());
+            string.Format(resolvedKey, Args.AsValueEnumerable().Select(object? (a) => a.ToString()).ToArray());
     }
 }
 
@@ -219,15 +209,4 @@ public partial class AggregateDynamicResourceKey(IReadOnlyList<DynamicResourceKe
 
         return string.Join(Separator, resolvedKeys);
     }
-}
-
-[AttributeUsage(AttributeTargets.All)]
-public class DynamicResourceKeyAttribute(string headerKey, string? descriptionKey = null) : Attribute
-{
-    public string HeaderKey { get; } = headerKey;
-
-    /// <summary>
-    /// The optional description key.
-    /// </summary>
-    public string? DescriptionKey { get; } = descriptionKey;
 }

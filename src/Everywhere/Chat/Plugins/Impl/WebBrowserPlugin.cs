@@ -35,7 +35,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Description);
     public override LucideIconKind? Icon => LucideIconKind.Globe;
 
-    public override IReadOnlyList<SettingsItem>? SettingsItems { get; }
+    public override IReadOnlyList<SettingsItem> SettingsItems => _webSearchEngineSettings.SettingsItems;
 
     private readonly WebSearchEngineSettings _webSearchEngineSettings;
     private readonly IRuntimeConstantProvider _runtimeConstantProvider;
@@ -114,8 +114,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                     WebSnapshotAsync,
                     ChatFunctionPermissions.NetworkAccess));
         });
-
-        SettingsItems = Configuration.SettingsItems.CreateForObject(_webSearchEngineSettings, "Plugin_WebSearchEngine");
 
         new ObjectObserver(HandleSettingsChanged).Observe(_webSearchEngineSettings);
     }

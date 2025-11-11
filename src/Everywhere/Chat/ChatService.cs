@@ -981,7 +981,7 @@ public class ChatService(
 
         try
         {
-            var language = settings.Common.Language == "default" ? "en-US" : settings.Common.Language;
+            var language = settings.Common.Language.ToEnglishName();
 
             activity?.SetTag("chat.context.id", metadata.Id);
             activity?.SetTag("user_message.length", userMessage.Length);

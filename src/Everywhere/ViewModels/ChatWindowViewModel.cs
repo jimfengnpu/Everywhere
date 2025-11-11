@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Reactive.Disposables;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -168,7 +167,7 @@ public sealed partial class ChatWindowViewModel :
                 LocaleKey.ChatWindowViewModel_QuickActions_Translate,
                 null,
                 SendMessageCommand,
-                $"Please translate the focal elements and related content into {GetLanguageDisplayName()}. " +
+                $"Please translate the focal elements and related content into {Settings.Common.Language.ToEnglishName()}. " +
                 $"If it's already in target language, translate it to English. " +
                 $"Provide only the translation, do not include any other text or explanation."
             ),
@@ -196,22 +195,6 @@ public sealed partial class ChatWindowViewModel :
                 "If no problem is described, provide some relevant suggestions or improvements."
             ),
         ];
-
-        string GetLanguageDisplayName()
-        {
-            try
-            {
-                return Settings.Common.Language switch
-                {
-                    "default" => "English (United States)",
-                    _ => new CultureInfo(Settings.Common.Language).DisplayName
-                };
-            }
-            catch
-            {
-                return "English (United States)";
-            }
-        }
     }
 
     private CancellationTokenSource? _targetElementChangedTokenSource;
