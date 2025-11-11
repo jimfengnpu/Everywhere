@@ -42,11 +42,9 @@ public partial class CustomAssistant : ObservableObject
     [SettingsStringItem(IsMultiline = true, MaxLength = 40960)]
     public partial Customizable<string> SystemPrompt { get; set; } = Prompts.DefaultSystemPrompt;
 
-#pragma warning disable CA1822
     [JsonIgnore]
     [HiddenSettingsItem]
-    private ModelProviderTemplate[] ModelProviderTemplates => ModelProviderTemplate.SupportedTemplates;
-#pragma warning restore CA1822
+    private static ModelProviderTemplate[] ModelProviderTemplates => ModelProviderTemplate.SupportedTemplates;
 
     /// <summary>
     /// The ID of the model provider to use for this custom assistant.
