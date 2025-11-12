@@ -1501,4 +1501,10 @@
     <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
         <value>OpenAI</value>
     </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
+        <value>请求超时时长</value>
+    </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>设置请求模型返回内容的等待时间，单位为秒。对于速度较慢的模型（如思考模型和本地模型），可考虑适当延长时间。</value>
+    </data>
 </root>
