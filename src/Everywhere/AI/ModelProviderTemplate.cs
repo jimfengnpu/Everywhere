@@ -422,9 +422,9 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
-                    Id = "x-ai/grok-4-fast:free",
-                    ModelId = "x-ai/grok-4-fast:free",
-                    DisplayName = "xAI: Grok 4 Fast (free)",
+                    Id = "x-ai/grok-4-fast",
+                    ModelId = "x-ai/grok-4-fast",
+                    DisplayName = "xAI: Grok 4 Fast",
                     MaxTokens = 2_000_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
