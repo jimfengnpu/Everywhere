@@ -558,7 +558,7 @@
         <value>重置</value>
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
-        <value>API 模式</value>
+        <value>API 协议</value>
     </data>
     <data name="CustomAssistant_Schema_Description" xml:space="preserve">
         <value>选择 API 的模式。如果你不确定这是什么，请保持默认值。</value>
@@ -1491,5 +1491,17 @@
     </data>
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
         <value>请求超时时长</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>用户拒绝了脚本执行。</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>代理服务器地址缺失。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>代理服务器地址无效。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>代理服务器不支持 {0} 模式。</value>
     </data>
 </root>
