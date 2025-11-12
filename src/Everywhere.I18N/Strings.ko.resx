@@ -1503,4 +1503,7 @@
     <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
         <value>프록시 서버 스킴 '{0}'은(는) 지원되지 않습니다.</value>
     </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
+    </data>
 </root>

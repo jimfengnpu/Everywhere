@@ -1503,4 +1503,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
         <value>El esquema del servidor proxy '{0}' no es compatible.</value>
     </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
+    </data>
 </root>
