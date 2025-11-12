@@ -598,16 +598,16 @@
     <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>Restart</value>
     </data>
-    <data name="Settings_Common_DebugFeatures_Header" xml:space="preserve">
+    <data name="CommonSettings_DebugFeatures_Header" xml:space="preserve">
         <value>Debug Features</value>
     </data>
-    <data name="Settings_Common_DebugFeatures_Description" xml:space="preserve">
+    <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>Access and manage application settings file and logs.</value>
     </data>
-    <data name="Settings_Common_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
         <value>Edit Settings File</value>
     </data>
-    <data name="Settings_Common_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
         <value>Open Logs Folder</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
