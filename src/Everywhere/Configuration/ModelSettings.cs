@@ -2,16 +2,11 @@
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.AI;
-using Lucide.Avalonia;
 
 namespace Everywhere.Configuration;
 
-public partial class ModelSettings : SettingsCategory
+public partial class ModelSettings : ObservableObject
 {
-    public override string Header => "Model";
-
-    public override LucideIconKind Icon => LucideIconKind.Brain;
-
     [ObservableProperty]
     public partial ObservableCollection<CustomAssistant> CustomAssistants { get; set; } = [];
 

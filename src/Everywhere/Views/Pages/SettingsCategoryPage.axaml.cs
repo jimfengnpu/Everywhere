@@ -13,18 +13,18 @@ public partial class SettingsCategoryPage : UserControl, IMainViewPage
 {
     public int Index { get; }
 
-    public DynamicResourceKey Title { get; }
+    public DynamicResourceKeyBase Title { get; }
 
     public LucideIconKind Icon { get; }
 
     public SettingsItems Items { get; }
 
-    public SettingsCategoryPage(int index, SettingsCategory settingsCategory)
+    public SettingsCategoryPage(int index, ISettingsCategory settingsCategory)
     {
         Index = index;
-        Title = new DynamicResourceKey($"SettingsCategory_{settingsCategory.Header}_Header");
+        Title = settingsCategory.DisplayNameKey;
         Icon = settingsCategory.Icon;
-        Items = new SettingsItems(settingsCategory);
+        Items = settingsCategory.SettingsItems ?? [];
 
         InitializeComponent();
     }
@@ -34,7 +34,7 @@ public class SettingsCategoryPageFactory(Settings settings) : IMainViewPageFacto
 {
     public IEnumerable<IMainViewPage> CreatePages() => typeof(Settings)
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        .Where(p => p.PropertyType.IsAssignableTo(typeof(SettingsCategory)))
+        .Where(p => p.PropertyType.IsAssignableTo(typeof(ISettingsCategory)))
         .Where(p => p.GetCustomAttribute<HiddenSettingsItemAttribute>() is null)
-        .Select((p, i) => new SettingsCategoryPage(i, p.GetValue(settings).NotNull<SettingsCategory>()));
+        .Select((p, i) => new SettingsCategoryPage(i, p.GetValue(settings).NotNull<ISettingsCategory>()));
 }

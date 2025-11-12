@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/Everywhere/I18N/Strings.resx'
+      - 'src/Everywhere.I18N/Strings.resx'
 
 jobs:
   sync-and-pr:

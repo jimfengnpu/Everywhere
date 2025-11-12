@@ -1,14 +1,13 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
 using Everywhere.Collections;
 
 namespace Everywhere.Configuration;
 
-public class PluginSettings : SettingsCategory
+public class PluginSettings : ObservableObject
 {
-    public override string Header => "Plugin";
-
     /// <summary>
     /// Gets or sets whether each plugin is enabled.
     /// </summary>
@@ -17,20 +16,22 @@ public class PluginSettings : SettingsCategory
     /// Plugins are disabled if the key is not present.
     /// But Functions are enabled by default if the plugin is enabled.
     /// </remarks>
-    [HiddenSettingsItem]
     public ObservableDictionary<string, bool> IsEnabledRecords { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the granted permissions for each plugin function.
     /// The key is in the format of "PluginKey.FunctionName.[Id]".
     /// </summary>
-    [HiddenSettingsItem]
     public ObservableDictionary<string, ChatFunctionPermissions> GrantedPermissions { get; set; } = new();
 
-    [HiddenSettingsItem]
+    /// <summary>
+    /// Gets or sets the list of MCP chat plugins.
+    /// </summary>
     public ObservableCollection<McpChatPlugin> McpPlugins { get; set; } = [];
 
-    [HiddenSettingsItem]
+    /// <summary>
+    /// Gets or sets the web search engine settings.
+    /// </summary>
     public WebSearchEngineSettings WebSearchEngine { get; set; } = new();
 
     public PluginSettings()

@@ -1,7 +1,7 @@
 using System.Net;
-using Everywhere.Common;
+using Everywhere.Configuration;
 
-namespace Everywhere.Configuration;
+namespace Everywhere.Common;
 
 /// <summary>
 /// An IWebProxy implementation that can be updated at runtime.
