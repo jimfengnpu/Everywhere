@@ -114,6 +114,11 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         return _impl.GetWindowElementAt(point);
     }
 
+    public IVisualElement? GetWindowElementByPid(int pid)
+    {
+        return _impl.GetWindowElementByPid(pid);
+    }
+
     public IVisualElement GetScreenElement()
     {
         return _impl.GetScreenElement();

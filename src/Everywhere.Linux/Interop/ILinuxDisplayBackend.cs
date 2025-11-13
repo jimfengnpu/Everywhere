@@ -70,6 +70,8 @@ public interface ILinuxDisplayBackend: IWindowHelper
 
     IVisualElement GetWindowElementAt(PixelPoint point);
 
+    IVisualElement? GetWindowElementByPid(int pid);
+
     IVisualElement GetScreenElement();
 
     void RegisterFocusChanged(Action handler);

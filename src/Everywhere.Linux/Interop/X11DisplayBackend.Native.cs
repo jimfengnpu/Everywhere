@@ -213,6 +213,7 @@ public partial class X11DisplayBackend
     private const string LibX11 = "libX11.so.6";
     private const int XA_ATOM = 4;
     private const int XA_CARDINAL = 6;
+    private const int XA_WINDOW = 33;
     [StructLayout(LayoutKind.Sequential)]
     private struct XWindowAttributes
     {

@@ -228,6 +228,43 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         return Key.None;
     }
 
+    private void XGetProperty(
+        IntPtr window,
+        string propertyName,
+        long length,
+        IntPtr reqType,
+        Action<IntPtr, int, ulong, ulong, IntPtr> propertyCallback)
+    {// actualType, actualFormat, nitems, bytesAfter, data
+        IntPtr atom = XInternAtom(_display, propertyName, 1);
+        if (atom == IntPtr.Zero) return;
+
+        XGetWindowProperty(_display, window, atom,
+            0, length, 0, reqType,
+            out var actualType, out var actualFormat,
+            out var nItems, out var bytesAfter, out var prop);
+        try
+        {
+            propertyCallback(actualType, actualFormat, nItems, bytesAfter, prop);
+        }
+        finally
+        {
+            XFree(prop);
+        }
+    }
+
+    private int XGetWindowPid(IntPtr window)
+    {
+        int pid = 0;
+        XGetProperty(window, "_NET_WM_PID", 1, 
+            (IntPtr)XA_CARDINAL, (_, _, nItems, _, prop) =>
+        {
+            if (nItems == 0 || prop == IntPtr.Zero)
+                return;
+            pid = Marshal.ReadInt32(prop);
+        });
+        return pid;
+    }
+
     private IVisualElement GetWindowElement(IntPtr window, Func<IVisualElement> maker)
     {
         // 检查缓存
@@ -243,6 +280,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         _windowCache[window] = element;
         return element;
     }
+    
+    private IVisualElement GetWindowElement(IntPtr window)
+    {
+        return GetWindowElement(window, () => new X11WindowVisualElement(this, window));
+    }
 
     public IVisualElement? GetFocusedWindowElement()
     {
@@ -251,7 +293,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             if (_display == IntPtr.Zero) return null;
             XGetInputFocus(_display, out var focusWindow, out _);
             if (focusWindow == IntPtr.Zero) return null;
-            return GetWindowElement(focusWindow, () => new X11WindowVisualElement(this, focusWindow));
+            return GetWindowElement(focusWindow);
         }
         catch (Exception ex)
         {
@@ -260,13 +302,35 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
     }
 
+    private IntPtr GetWindowAtPoint(IntPtr window, int x, int y)
+    {
+        XGetWindowAttributes(_display, window, out var attr);
+        if (x < attr.x || y < attr.y ||
+            x >= attr.x + attr.width || y >= attr.y + attr.height) {
+            return IntPtr.Zero;
+        }
+        var rx = x - attr.x;
+        var ry = y - attr.y;
+        XQueryTree(_display, window, out _, out _, out var childrenPtr, out var count);
+        for (var i = 0; i < count; i++)
+        {
+            var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
+            if (child != IntPtr.Zero)
+            {
+                var sub = GetWindowAtPoint(child, rx, ry);
+                if (sub != IntPtr.Zero)
+                {
+                    return sub;
+                }
+            }
+        }
+        return window;
+    }
+
     public IVisualElement GetWindowElementAt(PixelPoint point)
     {
-        _logger.LogInformation("Enter Backend");
-        XQueryPointer(_display, _rootWindow,
-            out _, out var child, out _, out _, out _, out _, out _);
-
-        // 如果child为0，说明指向的是root window本身
+        var child = GetWindowAtPoint(_rootWindow, point.X, point.Y);
+        // if child = 0 fallback to root
         if (child == IntPtr.Zero)
         {
             _logger.LogDebug("XQueryPointer returned child=0, using root window");
@@ -276,8 +340,48 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         _logger.LogInformation("GetWindowElementAt at ({x},{y}) -> window {window}",
             point.X, point.Y, child.ToString("X"));
 
-        return GetWindowElement(child, () => new X11WindowVisualElement(this, child));
+        return GetWindowElement(child);
     }
+
+    private void XForEachTopWindow(Action<IntPtr> handle)
+    {
+        IntPtr target = IntPtr.Zero;
+        XGetProperty(_rootWindow, "_NET_CLIENT_LIST", -1
+            , XA_WINDOW,
+            (type, format, count, _, data) =>
+            {
+                if (type == XA_WINDOW && format == 32)
+                {
+                    for (var i = 0; i < ((int)count); i++)
+                    {
+                        var client = 
+                            Marshal.ReadIntPtr(data, i * IntPtr.Size);
+                        if (client != IntPtr.Zero)
+                        {
+                            handle(client);
+                        }
+                    }
+                }
+            });
+    }
+    
+    public IVisualElement? GetWindowElementByPid(int pid)
+    {
+        IntPtr target = IntPtr.Zero;
+        XForEachTopWindow((window) =>
+        {
+            if (XGetWindowPid(window) == pid)
+            {
+                target = window;
+            }
+        });
+        if (target != IntPtr.Zero)
+        {
+            return GetWindowElement(target);
+        }
+        return null;
+    }
+
     public IVisualElement GetScreenElement()
     {
         var screenIdx = XDefaultScreen(_display);
@@ -430,7 +534,17 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     public bool AnyModelDialogOpened(Window window)
     {
-        return false;
+        if (window.TryGetPlatformHandle() is not { } handle) return false;
+        var ownerWindow = handle.Handle;
+        var dialogFound = false;
+        XForEachTopWindow((win) =>
+        {
+            if (win == ownerWindow)
+            {
+                dialogFound = true;
+            }
+        });
+        return dialogFound;
     }
 
     public void SetWindowAsOverlay(Window window)
@@ -446,7 +560,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             attrs.override_redirect = 1;
             XChangeWindowAttributes(_display, wnd, (int)CW.OverrideRedirect, ref attrs);
 
-            // 2. 设置窗口类型为 DOCK（关键！）
+            // 2. window type set DOCK
             IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
             IntPtr atomDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
             if (atomType != IntPtr.Zero && atomDock != IntPtr.Zero)
@@ -455,7 +569,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 XChangeProperty(_display, wnd, atomType, XA_ATOM, 32, PropModeReplace, data, 1);
             }
 
-            // 3. 确保输入区域为空
+            // 3. clear input region
             if (XFixesQueryExtension(_display, out _, out _) != 0)
             {
                 XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, IntPtr.Zero);
@@ -514,12 +628,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             XChangeProperty(_display, overlay, netWmType, (IntPtr)4, 32, 0, data, 1);
         }
         
-        // 清空输入区域（穿透）
+        
         if (XFixesQueryExtension(_display, out _, out _) != 0)
         {
             XFixesSetWindowShapeRegion(_display, overlay, ShapeInput, 0, 0, IntPtr.Zero);
         }
-        // 创建用于绘制高亮边框的 GC（XOR 模式）
+        
         var gcval = new XGCValues
         {
             foreground = XWhitePixel(_display, 0),
@@ -553,13 +667,9 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 XQueryPointer(_display, root, out _, out var child,
                     out var rootX, out var rootY, out _, out _, out var mask);
     
-                // 关键：如果 child 是 overlay，说明穿透失败！
-                // 但因为我们设置了 ShapeInput=null + override_redirect，
-                // child 应该是底层窗口
                 var pixelPoint = new PixelPoint(rootX, rootY);
                 var rect = hook(pixelPoint);
     
-                // 检测鼠标点击
                 bool isLeftPressed = (mask & 0x100) != 0; // Button1Mask
                 if (isLeftPressed && !leftPressed)
                 {
@@ -568,7 +678,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 else if (!isLeftPressed && leftPressed)
                 {
                     leftPressed = false;
-                    done = true; // 鼠标释放时结束
+                    done = true;
                 }
                 if (isLeftPressed)
                 {
@@ -818,11 +928,16 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             get
             {
                 XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out _);
+                // while (parentHandle != IntPtr.Zero && parentHandle != backend._rootWindow)
+                // {
+                //     XQueryTree(backend._display, parentHandle, out _, out var current, out _, out var count);
+                //     if (count > 1) break;
+                //     parentHandle = current;
+                // } TODO: compress ok ?
                 if (parentHandle != IntPtr.Zero
                     && parentHandle != backend._rootWindow)
                 {
-                    return backend.GetWindowElement(parentHandle,
-                        () => new X11WindowVisualElement(backend, parentHandle));
+                    return backend.GetWindowElement(parentHandle);
                 }
                 return null;
             }
@@ -837,10 +952,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
                     if (child != IntPtr.Zero)
                     {
-                        yield return backend.GetWindowElement(child,
-                            () => new X11WindowVisualElement(backend, child));
+                        yield return backend.GetWindowElement(child);
                     }
                 }
+                XFree(childrenPtr);
             }
         }
         public IVisualElement? PreviousSibling
@@ -851,8 +966,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     out var parentHandle, out _, out var _);
                 if (parentHandle != IntPtr.Zero)
                 {
-                    var parent = backend.GetWindowElement(parentHandle,
-                        () => new X11WindowVisualElement(backend, parentHandle));
+                    var parent = backend.GetWindowElement(parentHandle);
                     var siblings = parent.Children.ToList();
                     var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
                     if (index > 0 && index < siblings.Count)
@@ -870,7 +984,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out var _);
                 if (parentHandle != IntPtr.Zero)
                 {
-                    var parent = backend.GetWindowElement(parentHandle, () => new X11WindowVisualElement(backend, parentHandle));
+                    var parent = backend.GetWindowElement(parentHandle);
                     var siblings = parent.Children.ToList();
                     var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
                     if (index >= 0 && index < siblings.Count - 1)
@@ -915,15 +1029,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                         backend._logger.LogWarning("BoundingRectangle called with zero window handle");
                         return default(PixelRect);
                     }
-
-                    var result = XGetGeometry(display, windowHandle, out _, out var x, out var y, out var w, out var h, out _, out _);
-                    if (result == 0)
-                    {
-                        backend._logger.LogWarning("XGetGeometry failed for window {window}", windowHandle.ToString("X"));
-                        return default(PixelRect);
-                    }
-
-                    result = XTranslateCoordinates(
+                    XGetWindowAttributes(backend._display, windowHandle, out var windowAttr);
+                    var x = windowAttr.x;
+                    var y = windowAttr.y;
+                    var w = windowAttr.width;
+                    var h = windowAttr.height;
+                    var result = XTranslateCoordinates(
                         display,
                         windowHandle,
                         backend._rootWindow,
@@ -934,10 +1045,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     if (result == 0)
                     {
                         backend._logger.LogWarning("XTranslateCoordinates failed for window {window}", windowHandle.ToString("X"));
-                        return new PixelRect(x, y, (int)w, (int)h);
+                        return new PixelRect(x, y, w, h);
                     }
 
-                    return new PixelRect(absX, absY, (int)w, (int)h);
+                    return new PixelRect(absX, absY, w, h);
                 }
                 catch (Exception ex)
                 {
@@ -946,30 +1057,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
             }
         }
-        public int ProcessId
-        {
-            get
-            {
-                IntPtr atomPid = XInternAtom(backend._display, "_NET_WM_PID", 1);
-                if (atomPid == IntPtr.Zero) return 0;
-
-                XGetWindowProperty(backend._display, windowHandle, atomPid,
-                    0, 1, 0, (IntPtr)XA_CARDINAL,
-                    out var actualType, out var actualFormat,
-                    out var nItems, out var bytesAfter, out var prop);
-
-                if (nItems == 0 || prop == IntPtr.Zero)
-                    return 0;
-                try
-                {
-                    return Marshal.ReadInt32(prop);
-                }
-                finally
-                {
-                    XFree(prop);
-                }
-            }
-        }
+        public int ProcessId => backend.XGetWindowPid(windowHandle);
         public IntPtr NativeWindowHandle => windowHandle;
         public string? GetText(int maxLength = -1) => Name;
         public string? GetSelectionText()
@@ -1015,7 +1103,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
                     if (child != IntPtr.Zero)
                     {
-                        yield return backend.GetWindowElement(child, () => new X11WindowVisualElement(backend, child));
+                        yield return backend.GetWindowElement(child);
                     }
                 }
             }
