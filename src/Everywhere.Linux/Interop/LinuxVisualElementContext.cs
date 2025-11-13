@@ -52,8 +52,8 @@ public partial class LinuxVisualElementContext: IVisualElementContext
             switch (mode)
             {
                 case PickElementMode.Element:
-                    // var elem = _atspi.ElementFromPoint(point);
-                    var elem = _backend.GetWindowElementAt(point);
+                    var elem = _atspi.ElementFromPoint(point);
+                    // var elem = _backend.GetWindowElementAt(point);
                     return elem;
                     
                 case PickElementMode.Window:
