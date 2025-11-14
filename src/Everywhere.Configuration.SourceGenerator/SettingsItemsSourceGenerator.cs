@@ -344,7 +344,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
 
         // Apply common properties (Header, Description, Value, etc.)
-        ApplyCommonMetadata(sb, itemName, metadata, bindingPath);
+        ApplyCommonMetadata(sb, itemName, metadata);
 
         // Apply IsEnabled/IsVisible bindings
         ApplyItemBindings(sb, itemName, metadata);
@@ -355,6 +355,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         // Handle nested items via [SettingsItems]
         ApplyGroup(ctx, sb, itemName, metadata, bindingPath);
 
+        sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
+        EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
+
         // Add the generated item to its parent collection
         if (!string.IsNullOrEmpty(parentCollection))
         {
@@ -362,7 +365,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata, string bindingPath)
+    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
     {
         var headerExpr = string.IsNullOrWhiteSpace(metadata.HeaderKey) ?
             "null" :
@@ -373,9 +376,6 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         {
             sb.AppendLine($"{itemName}.DescriptionKey = new global::Everywhere.I18N.DynamicResourceKey({metadata.DescriptionKey});");
         }
-
-        sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
-        EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
     }
 
     /// <summary>

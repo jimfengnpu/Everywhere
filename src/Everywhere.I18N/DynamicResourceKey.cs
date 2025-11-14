@@ -65,6 +65,8 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
             WeakReferenceMessenger.Default.Register(this); // register for locale change messages
         }
 
+        while (_observers.ContainsKey(id)) id++; // ensure unique id
+        
         _observers.Add(id, new WeakReference<IObserver<object?>>(observer));
         observer.OnNext(ToString());
 
