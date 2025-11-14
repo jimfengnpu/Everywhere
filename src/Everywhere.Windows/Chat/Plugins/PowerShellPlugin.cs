@@ -40,6 +40,8 @@ public class PowerShellPlugin : BuiltInChatPlugin
         var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 #if NET9_0
         var modulesPath = Path.Combine(path ?? ".", "runtimes", "win", "lib", "net9.0", "Modules");
+#elif NET10_0
+        var modulesPath = Path.Combine(path ?? ".", "runtimes", "win", "lib", "net10.0", "Modules");
 #else
         #error Target framework not supported
 #endif

@@ -6,7 +6,6 @@
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IsDeploymentTarget>true</IsDeploymentTarget>
-    <AssemblyVersion></AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
