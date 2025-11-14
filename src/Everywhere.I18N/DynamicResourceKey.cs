@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using Avalonia.Reactive;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
-using Everywhere.Extensions;
 using Everywhere.Utilities;
 using MessagePack;
 using ZLinq;
@@ -41,7 +40,8 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
     [Key(0)]
     public object Key { get; } = key ?? string.Empty; // avoid null key (especially for MessagePack)
 
-    [IgnoreMember] private readonly Dictionary<int, WeakReference<IObserver<object?>>> _observers = new(1); // usually only one subscriber
+    // TODO: Check whether Memory leak occurs here
+    [IgnoreMember] private readonly Dictionary<int, IObserver<object?>> _observers = new(1); // usually only one subscriber
 
     /// <summary>
     /// Subscribes an observer to receive updates when the locale changes.
@@ -67,7 +67,7 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
 
         while (_observers.ContainsKey(id)) id++; // ensure unique id
         
-        _observers.Add(id, new WeakReference<IObserver<object?>>(observer));
+        _observers.Add(id, observer);
         observer.OnNext(ToString());
 
         return Disposable.Create(() =>
@@ -109,9 +109,9 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
 
     public void Receive(LocaleChangedMessage message)
     {
-        foreach (var observerRef in _observers.Values.AsValueEnumerable())
+        foreach (var observer in _observers.Values.AsValueEnumerable())
         {
-            if (observerRef.TryGetTarget(out var observer)) observer.OnNext(ToString());
+            observer.OnNext(ToString());
         }
     }
 
