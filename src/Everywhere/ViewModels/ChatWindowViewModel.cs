@@ -559,7 +559,7 @@ public sealed partial class ChatWindowViewModel :
                 DialogManager.Close(card);
             };
             DialogManager
-                .CreateDialog(card)
+                .CreateCustomDialog(card)
                 .ShowAsync(message.CancellationToken);
         });
     }
