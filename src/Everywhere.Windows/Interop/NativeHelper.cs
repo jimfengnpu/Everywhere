@@ -135,7 +135,7 @@ public class NativeHelper : INativeHelper
             if (hBitmap.IsInvalid) return null;
 
             var bmp = new BITMAP();
-            PInvoke.GetObject(hBitmap, sizeof(BITMAP), &bmp);
+            PInvoke.GetObject((HGDIOBJ)hBitmap.DangerousGetHandle(), sizeof(BITMAP), &bmp);
             var width = bmp.bmWidth;
             var height = bmp.bmHeight;
             if (width <= 0 || height <= 0) return null;
