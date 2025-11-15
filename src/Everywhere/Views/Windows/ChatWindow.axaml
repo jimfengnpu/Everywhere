@@ -208,7 +208,7 @@
           </Button>
 
           <ToggleButton
-            Classes="Ghost TitleBar"
+            Classes="Ghost TitleBar" Background="#00252525"
             IsChecked="{Binding $parent[v:ChatWindow].IsWindowPinned, Mode=TwoWay}"
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}">
             <LucideIcon
@@ -1086,8 +1086,7 @@
         <LucideIcon
           x:Name="DragDropIcon" HorizontalAlignment="Center"
           Foreground="{DynamicResource ForegroundColor}"
-          Kind="FileUp"
-          Size="64"/>
+          Kind="FileUp" Size="64"/>
         <TextBlock
           x:Name="DragDropText" HorizontalAlignment="Center"
           FontSize="18" FontWeight="SemiBold"

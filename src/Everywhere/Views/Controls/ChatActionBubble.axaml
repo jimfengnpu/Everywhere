@@ -1,9 +1,6 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="using:Everywhere.Views">
-  <Design.PreviewWith>
-    <v:ChatActionBubble/>
-  </Design.PreviewWith>
 
   <ControlTheme
     x:Key="{x:Type v:ChatActionBubble}"
@@ -41,15 +38,16 @@
                 Orientation="Horizontal" Spacing="4">
                 <LucideIcon
                   Kind="{TemplateBinding Icon}"
-                  Size="12"/>
+                  Size="14"/>
                 <ContentPresenter Content="{TemplateBinding Header}"/>
 
                 <shadui:Loading
-                  Width="12" Height="12"
+                  Width="14" Height="14"
                   VerticalAlignment="Center" IsHitTestVisible="False"
                   IsVisible="{TemplateBinding IsBusy}"/>
                 <TextBlock
-                  VerticalAlignment="Bottom" FontSize="10"
+                  Margin="0,0,0,1" VerticalAlignment="Bottom"
+                  FontSize="10"
                   Foreground="{DynamicResource SuccessColor60}"
                   Text="{Binding ElapsedSeconds, StringFormat='{}{0:F1}s', Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}">
                   <TextBlock.IsVisible>
@@ -64,10 +62,10 @@
                   </TextBlock.IsVisible>
                 </TextBlock>
                 <LucideIcon
-                  Margin="4,0,0,0" VerticalAlignment="Center"
+                  Margin="2,0,0,0" VerticalAlignment="Center"
                   Foreground="{DynamicResource ErrorColor}"
                   IsHitTestVisible="False" Kind="X"
-                  Size="12">
+                  Size="14">
                   <LucideIcon.IsVisible>
                     <MultiBinding Converter="{x:Static BoolConverters.And}">
                       <TemplateBinding Property="IsError"/>
