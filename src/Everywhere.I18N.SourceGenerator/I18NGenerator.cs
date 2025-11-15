@@ -321,14 +321,14 @@ public class I18NSourceGenerator : IIncrementalGenerator
 
                         cultureInfo = cultureInfo.Parent;
                     }
-
+                    
                     CurrentLocale = currentLocale ?? default(LocaleName);
                 }
 
                 [field: AllowNull, MaybeNull]
                 public static LocaleName CurrentLocale
                 {
-                    get;
+                    get => _currentLocale.GetValueOrDefault();
                     set
                     {
                         var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
@@ -343,21 +343,23 @@ public class I18NSourceGenerator : IIncrementalGenerator
                         
                         void SetField()
                         {
-                            if (field == value) return;
+                            if (_currentLocale == value) return;
                             
-                            var oldLocale = field;
+                            var oldLocale = _currentLocale;
                             if (!Locales.TryGetValue(value, out var newLocale))
                             {
                                 (value, newLocale) = Locales.First();
                             }
                             
-                            field = value;
+                            _currentLocale = value;
                             Shared.SetItems(newLocale);
                         
                             WeakReferenceMessenger.Default.Send(new LocaleChangedMessage(oldLocale, value));
                         }
                     }
                 }
+            
+                private static LocaleName? _currentLocale;
             }
             """);
 
