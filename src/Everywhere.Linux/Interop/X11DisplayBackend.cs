@@ -264,6 +264,27 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
         return pid;
     }
+    
+    private void XForEachTopWindow(Action<IntPtr> handle)
+    {
+        XGetProperty(_rootWindow, "_NET_CLIENT_LIST", -1
+            , XA_WINDOW,
+            (type, format, count, _, data) =>
+            {
+                if (type == XA_WINDOW && format == 32)
+                {
+                    for (var i = 0; i < ((int)count); i++)
+                    {
+                        var client = 
+                            Marshal.ReadIntPtr(data, i * IntPtr.Size);
+                        if (client != IntPtr.Zero)
+                        {
+                            handle(client);
+                        }
+                    }
+                }
+            });
+    }
 
     private IVisualElement GetWindowElement(IntPtr window, Func<IVisualElement> maker)
     {
@@ -305,14 +326,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     private IntPtr GetWindowAtPoint(IntPtr window, int x, int y)
     {
         XGetWindowAttributes(_display, window, out var attr);
-        if (x < attr.x || y < attr.y ||
-            x >= attr.x + attr.width || y >= attr.y + attr.height) {
+        if (attr.map_state != IsViewable)
+        {
             return IntPtr.Zero;
         }
         var rx = x - attr.x;
         var ry = y - attr.y;
         XQueryTree(_display, window, out _, out _, out var childrenPtr, out var count);
-        for (var i = 0; i < count; i++)
+        for (var i = count - 1; i >= 0; i--) // backward iter to find the topmost
         {
             var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
             if (child != IntPtr.Zero)
@@ -323,6 +344,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     return sub;
                 }
             }
+        }
+        if (x < attr.x || y < attr.y ||
+            x >= attr.x + attr.width || y >= attr.y + attr.height)
+        {
+            return IntPtr.Zero;
         }
         return window;
     }
@@ -341,28 +367,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             point.X, point.Y, child.ToString("X"));
 
         return GetWindowElement(child);
-    }
-
-    private void XForEachTopWindow(Action<IntPtr> handle)
-    {
-        IntPtr target = IntPtr.Zero;
-        XGetProperty(_rootWindow, "_NET_CLIENT_LIST", -1
-            , XA_WINDOW,
-            (type, format, count, _, data) =>
-            {
-                if (type == XA_WINDOW && format == 32)
-                {
-                    for (var i = 0; i < ((int)count); i++)
-                    {
-                        var client = 
-                            Marshal.ReadIntPtr(data, i * IntPtr.Size);
-                        if (client != IntPtr.Zero)
-                        {
-                            handle(client);
-                        }
-                    }
-                }
-            });
     }
     
     public IVisualElement? GetWindowElementByPid(int pid)
@@ -1057,7 +1061,24 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
             }
         }
-        public int ProcessId => backend.XGetWindowPid(windowHandle);
+        public int ProcessId
+        {
+            get
+            {
+                var pid = 0;
+                var win = this;
+                while (win != null)
+                {
+                    pid = backend.XGetWindowPid(win.NativeWindowHandle);
+                    if (pid != 0)
+                    {
+                        break;
+                    }
+                    win = (X11WindowVisualElement?)win.Parent;
+                }
+                return pid;
+            }
+        }
         public IntPtr NativeWindowHandle => windowHandle;
         public string? GetText(int maxLength = -1) => Name;
         public string? GetSelectionText()

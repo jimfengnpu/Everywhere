@@ -78,13 +78,6 @@ public partial class AtspiService
             if (atspi_state_set_contains(elemStateset, STATE_SELECTED) == 1) states |= VisualElementStates.Selected;
             if (atspi_state_set_contains(elemStateset, STATE_EDITABLE) == 0) states |= VisualElementStates.ReadOnly;
             g_object_unref(elemStateset);
-            if (atspi_accessible_is_component(elem) != 0)
-            {
-                if (atspi_component_get_layer(elem, IntPtr.Zero) == LAYER_BACKGROUND)
-                {
-                    states |= VisualElementStates.Offscreen;
-                }
-            }
             if (atspi_accessible_get_role(elem, IntPtr.Zero) == ROLE_PASSWORD_TEXT) 
                 states |= VisualElementStates.Password;
             return states;
@@ -94,38 +87,88 @@ public partial class AtspiService
             return VisualElementStates.None;
         }
     }
+    
+    private IntPtr GArrayIndex(IntPtr array, int index)
+    {
+        // note: in glib garray structure, data pointer is always located at the beginning
+        // see glib/garray.h
+        IntPtr data = Marshal.ReadIntPtr(array);
+        return Marshal.ReadIntPtr(data,  IntPtr.Size * index);
+    }
+
+    private int GArrayLength(IntPtr array)
+    {
+        return Marshal.ReadInt32(array, IntPtr.Size);
+    }
+        
+    private IntPtr TryMatchRelationSubWindow(IntPtr window)
+    {
+        var array = atspi_accessible_get_relation_set(window, IntPtr.Zero);
+        var count = GArrayLength(array);
+        for (var i = 0; i < count; i++)
+        {
+            var relation = GArrayIndex(array, i);
+            if (relation != IntPtr.Zero)
+            {
+                var type = atspi_relation_get_relation_type(relation);
+                var nTarget = atspi_relation_get_n_targets(relation);
+                if ((type is RELATION_EMBEDS or RELATION_SUBWINDOW_OF) && nTarget == 1)
+                {
+                    var target = atspi_relation_get_target(relation, 0);
+                    if (target != IntPtr.Zero && ElementVisible(target))
+                    {
+                        return target;
+                    }
+                }
+            }
+        }
+        return IntPtr.Zero;
+    }
+    
     private bool ElementVisible(IntPtr elem, bool includeApp = false)
     {
+        if (ElementState(elem).HasFlag(VisualElementStates.Offscreen)) return false;
         if (includeApp && atspi_accessible_is_application(elem) != 0)
         {
             return true;
         }
         if (atspi_accessible_is_component(elem) == 0) return false;
-        if (ElementState(elem).HasFlag(VisualElementStates.Offscreen)) return false;
         var rect = ElementBounds(elem);
         return rect is { Height: > 0, Width: > 0 };
     }
 
     private IEnumerable<AtspiVisualElement> ElementChildren(IntPtr elem)
     {
-        var count = atspi_accessible_get_child_count(elem, IntPtr.Zero);
-        var i = 0;
-        while (i < count)
+        var relatedSubWindow = TryMatchRelationSubWindow(elem);
+        if (relatedSubWindow != IntPtr.Zero && ElementVisible(relatedSubWindow, true))
         {
-            var child = atspi_accessible_get_child_at_index(elem, i, IntPtr.Zero);
-            if (child != IntPtr.Zero && ElementVisible(child, true))
+            var sub = GetAtspiVisualElement(() => relatedSubWindow);
+            if (sub != null)
             {
-                var childElem = GetAtspiVisualElement(() => child);
-                if (childElem != null)
-                {
-                    yield return childElem;
-                }
+                yield return sub;
             }
-            i++;
+        }
+        else
+        {
+            var count = atspi_accessible_get_child_count(elem, IntPtr.Zero);
+            var i = 0;
+            while (i < count)
+            {
+                var child = atspi_accessible_get_child_at_index(elem, i, IntPtr.Zero);
+                if (child != IntPtr.Zero && ElementVisible(child, true))
+                {
+                    var childElem = GetAtspiVisualElement(() => child);
+                    if (childElem != null)
+                    {
+                        yield return childElem;
+                    }
+                }
+                i++;
+            }
         }
     }
     
-    private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point)
+    private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point, bool root = false)
     {
         
         parent ??= GetAtspiVisualElement(() => atspi_get_desktop(0));
@@ -133,28 +176,32 @@ public partial class AtspiService
         {
             return null;
         }
-        var elem = atspi_component_get_accessible_at_point(
-            parent._element,
-            point.X, point.Y, AtspiCoordTypeScreen, IntPtr.Zero);
-        if (elem != IntPtr.Zero && ElementVisible(elem))
+        if (!root && !ElementVisible(parent._element, true))
         {
-            return GetAtspiVisualElement(() => elem);
+            return null;
         }
-        _logger.LogInformation("> {Name} {Rect}", parent.Name, parent.BoundingRectangle);
-        var rect = ElementBounds(parent._element);
+        _logger.LogInformation("> {Name} {States}", parent.Name, parent.States);
+        var rect = parent.BoundingRectangle;
         if (rect is { Height: > 0, Width: > 0 } && !rect.Contains(point))
         {
             return null;
         }
-        foreach (var child in ElementChildren(parent._element))
+        bool existVisible = false;
+        foreach (var child in ElementChildren(parent._element)
+                     .OrderByDescending(child => child.Order))
         {
+            existVisible = true;
             var found = AtspiElementFromPoint(child, point);
             if (found != null)
             {
                 return found;
             }
         }
-        if (rect is { Height: > 0, Width: > 0 } && rect.Contains(point))
+        if (!existVisible)
+        {
+            return null;
+        }
+        if (rect is { Height: > 0, Width: > 0 } && rect.Contains(point) && ElementVisible(parent._element))
         {
             return parent;
         }
@@ -162,10 +209,29 @@ public partial class AtspiService
         return null;
     }
 
-    public IVisualElement? ElementFromPoint(PixelPoint point)
+    private AtspiVisualElement? AtspiAppElementByPid(int pid)
+    {
+        var root = GetAtspiVisualElement(() => atspi_get_desktop(0));
+        if (root is null)
+        {
+            return null;
+        }
+        foreach (var child in ElementChildren(root._element)
+                     .OrderByDescending(child => child.Order))
+        {
+            if (child.ProcessId == pid)
+            {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    public IVisualElement? ElementFromPoint(PixelPoint point, int pid)
     {
         CheckInitialized();
-        var elem = AtspiElementFromPoint(null, point);
+        var app = AtspiAppElementByPid(pid);
+        var elem = AtspiElementFromPoint(app, point, true);
         if (elem == null)
         { 
             _logger.LogWarning("AtspiElementFromPoint {Point} not found", point);
@@ -415,6 +481,31 @@ public partial class AtspiService
             throw new NotImplementedException();
         }
 
+        private static int LayerOrder(int layer)
+        {
+            return layer switch
+            {
+                LAYER_BACKGROUND => 1,
+                LAYER_WINDOW => 2,
+                LAYER_MDI => 3,
+                LAYER_CANVAS => 4,
+                LAYER_WIDGET => 5,
+                LAYER_POPUP => 6,
+                LAYER_OVERLAY => 7,
+                _ => 0
+            };
+        }
+        
+        public int Order
+        {
+            get
+            {
+                var layer = atspi_component_get_layer(_element, IntPtr.Zero);
+                var z = atspi_component_get_mdi_z_order(_element, IntPtr.Zero);
+                return LayerOrder(layer)*256 + z*16 + IndexInParent;
+            }
+        }
+
         public PixelRect BoundingRectangle
         {
             get
@@ -443,7 +534,7 @@ public partial class AtspiService
             if (element == IntPtr.Zero) return null;
             if (_cachedElement.TryGetValue(element, out var visualElement)) return visualElement;
             var elem = new AtspiVisualElement(this, element);
-            _logger.LogInformation("Element add {Name}({Type})", elem.Name, elem.Type);
+            _logger.LogInformation("Element add {Name}({Type})[{States}]", elem.Name, elem.Type, elem.States);
             _cachedElement[element] = elem;
             return elem;
         }
@@ -541,10 +632,17 @@ public partial class AtspiService
     // Password
     // refer to Role
     
+    // Relation Type
+    private const int RELATION_SUBWINDOW_OF = 12;
+    private const int RELATION_EMBEDS = 13;
+    
     // Component Layer
     private const int LAYER_INVALID = 0;
     private const int LAYER_BACKGROUND = 1;
-    private const int LAYER_WIDGET = 2;
+    private const int LAYER_CANVAS = 2;
+    private const int LAYER_WIDGET = 3;
+    private const int LAYER_MDI = 4;
+    private const int LAYER_POPUP = 5;
     private const int LAYER_OVERLAY = 6;
     private const int LAYER_WINDOW = 7;
     
@@ -594,7 +692,16 @@ public partial class AtspiService
     public static partial int atspi_accessible_get_process_id(IntPtr accessible, IntPtr error);
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_accessible_id(IntPtr accessible, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial IntPtr atspi_accessible_get_relation_set(IntPtr accessible, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_relation_get_n_targets (IntPtr relation);
 
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_relation_get_relation_type(IntPtr relation);
+
+    [LibraryImport(LibAtspi)]
+    public static partial IntPtr atspi_relation_get_target(IntPtr accessible, int i);
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_application(IntPtr accessible);
     [LibraryImport(LibAtspi)]
@@ -605,6 +712,8 @@ public partial class AtspiService
     public static partial int atspi_component_get_layer(IntPtr component, IntPtr error);
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_component_get_extents(IntPtr component, int coordType, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial short atspi_component_get_mdi_z_order(IntPtr component, IntPtr error);
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_text(IntPtr accessible);
     [LibraryImport(LibAtspi)]

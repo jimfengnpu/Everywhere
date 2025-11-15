@@ -182,6 +182,11 @@ public partial class X11DisplayBackend
     private const int MotionNotify = 6;
     private const int FocusIn = 9;
     private const int FocusOut = 10;
+    
+    // Window Attr
+    private const int IsUnmapped = 0;
+    private const int IsUnviewable = 1;
+    private const int IsViewable = 2;
 
     private static class CW
     {
@@ -224,14 +229,16 @@ public partial class X11DisplayBackend
         public IntPtr visual;
         public IntPtr root;
         public int class_visual;
-        public IntPtr bit_gravity;
-        public IntPtr win_gravity;
+        public int bit_gravity;
+        public int win_gravity;
         public int backing_store;
-        public ulong backing_planes;
-        public ulong backing_pixel;
+        public IntPtr backing_planes;
+        public IntPtr backing_pixel;
         public int save_under;
         public IntPtr colormap;
-        public int all_event_masks;
+        public int map_installed;
+        public int map_state;
+        public IntPtr all_event_masks;
         public IntPtr your_event_mask;
         public IntPtr do_not_propagate_mask;
         public int override_redirect;
