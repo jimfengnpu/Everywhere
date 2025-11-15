@@ -59,7 +59,7 @@
         <value>Light</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>Use custom proxy</value>
+        <value>Use Custom Proxy</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Override the system proxy with an application-specific proxy.</value>
@@ -71,19 +71,19 @@
         <value>Enter the proxy URI, for example http://127.0.0.1:7890.</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>Bypass proxy for local addresses</value>
+        <value>Bypass Local Addresses</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>Send requests to intranet and loopback addresses directly.</value>
     </data>
     <data name="ProxySettings_BypassList_Header" xml:space="preserve">
-        <value>Bypass list</value>
+        <value>Bypass List</value>
     </data>
     <data name="ProxySettings_BypassList_Description" xml:space="preserve">
         <value>Optional. One pattern per line; matching hosts bypass the proxy.</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Header" xml:space="preserve">
-        <value>Proxy authentication</value>
+        <value>Proxy Authentication</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Description" xml:space="preserve">
         <value>Enable credentials when the proxy requires authentication.</value>
@@ -554,13 +554,13 @@
         <value>For online models, you need to get from the corresponding official, please refer to the guide for details.</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
-        <value>Support Image Input</value>
+        <value>Image Input Support</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
         <value>You can upload images in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support image inputs, enabling this may cause failures.</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
-        <value>Support Tools Usage</value>
+        <value>Tools Usage Support</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>Model can use tools you configured in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support function calling, enabling this may cause failures.</value>
@@ -569,7 +569,7 @@
         <value>Model can think before replies. If you're not sure what you're doing, keep the default value. If the model doesn't support deep thinking, enabling this may cause failures.</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
-        <value>Support Deep Thinking</value>
+        <value>Deep Thinking Support</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>The maximum context length of single chat. If you're not sure what you're doing, keep the default value. Setting this larger than the default value may cause failures.</value>
@@ -860,7 +860,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Enable telemetry</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnostic data</value>
+        <value>Diagnostics</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>To help us improve, we need the “telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you. You may choose to send only necessary data; this option will not affect core functionality.</value>
@@ -1515,7 +1515,7 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>Set the wait time for the model to return results, measured in seconds. For slower models (such as thinking models and local models), consider extending this time appropriately.</value>
     </data>
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
-        <value>Request timeout duration</value>
+        <value>Request Timeout</value>
     </data>
     <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
         <value>User denied consent for PowerShell script execution.</value>
