@@ -37,6 +37,9 @@ public partial class X11DisplayBackend
     private static partial int XMapWindow(IntPtr display, IntPtr window);
 
     [LibraryImport(LibX11)]
+    private static partial int XRaiseWindow(IntPtr display, IntPtr window);
+
+    [LibraryImport(LibX11)]
     private static partial int XUnmapWindow(IntPtr display, IntPtr window);
 
     [LibraryImport(LibX11)]
@@ -109,6 +112,18 @@ public partial class X11DisplayBackend
     private const int ShapeInput = 2;
     private const int ShapeSet = 0;
     private const int ShapeUnion = 1;
+    
+    [StructLayout(LayoutKind.Sequential)]
+    private struct XRectangle
+    {
+        public short x;
+        public short y;
+        public ushort width;
+        public ushort height;
+    }
+
+    [LibraryImport("libXfixes.so.3")] private static partial IntPtr XFixesCreateRegion(IntPtr display, XRectangle[] rectangles, int nrectangles);
+    [LibraryImport("libXfixes.so.3")] private static partial void XFixesDestroyRegion(IntPtr display, IntPtr region);
     [LibraryImport("libXfixes.so.3")] private static partial void XFixesSetWindowShapeRegion(IntPtr display, IntPtr window, int shapeKind, int xOffset, int yOffset, IntPtr region);
     [LibraryImport("libXfixes.so.3")] private static partial int XFixesQueryExtension(IntPtr display, out int eventBase, out int errorBase);
     [LibraryImport("libXext.so.6")] private static partial int XShapeQueryExtension(IntPtr display, out int eventBase, out int errorBase);
@@ -248,15 +263,15 @@ public partial class X11DisplayBackend
     [StructLayout(LayoutKind.Sequential)]
     private struct XSetWindowAttributes
     {
-        public ulong background_pixmap;
-        public ulong background_pixel;
-        public ulong border_pixmap;
-        public ulong border_pixel;
+        public IntPtr background_pixmap;
+        public IntPtr background_pixel;
+        public IntPtr border_pixmap;
+        public IntPtr border_pixel;
         public int bit_gravity;
         public int win_gravity;
         public int backing_store;
-        public ulong backing_planes;
-        public ulong backing_pixel;
+        public IntPtr backing_planes;
+        public IntPtr backing_pixel;
         public int save_under;
         public IntPtr event_mask;
         public IntPtr do_not_propagate_mask;

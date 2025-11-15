@@ -99,10 +99,10 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         return _impl.GetPointer();
     }
 
-    public void WindowPickerHook(Func<PixelPoint, PixelRect> hook)
-    {
-        _impl.WindowPickerHook(hook);
-    }
+    // public void WindowPickerHook(Func<PixelPoint, PixelRect> hook)
+    // {
+    //     _impl.WindowPickerHook(hook);
+    // }
 
     public IVisualElement? GetFocusedWindowElement()
     {

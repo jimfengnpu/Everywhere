@@ -64,7 +64,7 @@ public interface ILinuxDisplayBackend: IWindowHelper
 
     PixelPoint GetPointer();
     
-    void WindowPickerHook(Func<PixelPoint, PixelRect> hook);
+    // void WindowPickerHook(Func<PixelPoint, PixelRect> hook);
 
     IVisualElement? GetFocusedWindowElement();
 

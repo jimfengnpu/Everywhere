@@ -25,7 +25,9 @@ public partial class LinuxVisualElementContext
             _context = context;
             _mode = mode;
             _selectedRect = new PixelRect();
-            backend.WindowPickerHook(Pick);
+            // backend.WindowPickerHook(Pick);
+            // TODO: element picker
+            throw new NotImplementedException();
         }
 
         private PixelRect Pick(PixelPoint pixelPoint)
