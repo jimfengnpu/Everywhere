@@ -950,11 +950,11 @@ public class ChatService(
                     return;
                 }
 
-                if (MimeTypeUtilities.IsAudio(file.MimeType))
+                if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Audio))
                 {
                     content.Items.Add(new AudioContent(data, file.MimeType));
                 }
-                else if (MimeTypeUtilities.IsImage(file.MimeType))
+                else if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Image))
                 {
                     content.Items.Add(new ImageContent(data, file.MimeType));
                 }

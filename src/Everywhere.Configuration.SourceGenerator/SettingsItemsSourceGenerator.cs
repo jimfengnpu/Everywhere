@@ -751,7 +751,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         public IndentedStringBuilder Append(string text)
         {
             if (_isLineStart) _stringBuilder.Append(_indent);
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
             var lines = text.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
             switch (lines.Length)
             {
                 case 0:
@@ -781,7 +783,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         public IndentedStringBuilder AppendLine(string line)
         {
             if (_isLineStart) _stringBuilder.Append(_indent);
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
             var lines = line.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
             switch (lines.Length)
             {
                 case 0:

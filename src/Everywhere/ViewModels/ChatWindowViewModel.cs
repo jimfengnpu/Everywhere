@@ -298,7 +298,7 @@ public sealed partial class ChatWindowViewModel :
                     {
                         var uri = storageItem.Path;
                         if (!uri.IsFile) break;
-                        await AddFileUncheckAsync(uri.AbsolutePath);
+                        await AddFileUncheckAsync(uri.AbsolutePath, cancellationToken);
                         if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) break;
                     }
                 }
@@ -353,23 +353,23 @@ public sealed partial class ChatWindowViewModel :
                     [
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles.I18N())
                         {
-                            Patterns = MimeTypeUtilities.SupportedMimeTypes.Keys
+                            Patterns = FileUtilities.KnownMimeTypes.Keys
                                 .AsValueEnumerable()
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Images.I18N())
                         {
-                            Patterns = MimeTypeUtilities.GetExtensionsForMimeTypePrefix("image/")
+                            Patterns = FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Documents.I18N())
                         {
-                            Patterns = MimeTypeUtilities.GetExtensionsForMimeTypePrefix("application/")
+                            Patterns = FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Document)
                                 .AsValueEnumerable()
-                                .Concat(MimeTypeUtilities.GetExtensionsForMimeTypePrefix("text/"))
+                                .Concat(FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Script))
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
@@ -392,24 +392,33 @@ public sealed partial class ChatWindowViewModel :
             return;
         }
 
-        await AddFileUncheckAsync(filePath);
+        await AddFileUncheckAsync(filePath, _cancellationTokenSource.Token);
     }
 
     /// <summary>
     /// Add a file to the chat attachments without checking the attachment count limit.
     /// </summary>
     /// <param name="filePath"></param>
-    private async ValueTask AddFileUncheckAsync(string filePath)
+    /// <param name="cancellationToken"></param>
+    private async ValueTask AddFileUncheckAsync(string filePath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(filePath)) return;
 
         try
         {
-            _chatAttachmentsSource.Add(await ChatFileAttachment.CreateAsync(filePath));
+            _chatAttachmentsSource.Add(await ChatFileAttachment.CreateAsync(filePath, cancellationToken: cancellationToken));
         }
         catch (Exception ex)
         {
+            ex = HandledSystemException.Handle(ex);
+
             _logger.LogError(ex, "Failed to load image from file: {FilePath}", filePath);
+            ToastManager
+                .CreateToast(LocaleKey.Common_Error.I18N())
+                .WithContent(ex.GetFriendlyMessage())
+                .DismissOnClick()
+                .OnBottomRight()
+                .ShowError();
         }
     }
 
@@ -421,7 +430,8 @@ public sealed partial class ChatWindowViewModel :
     public async Task AddFileFromDragDropAsync(string filePath)
     {
         if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
-        await AddFileUncheckAsync(filePath);
+
+        await AddFileUncheckAsync(filePath, _cancellationTokenSource.Token);
     }
 
     private static ChatVisualElementAttachment CreateFromVisualElement(IVisualElement element)

@@ -243,7 +243,9 @@ public class I18NSourceGenerator : IIncrementalGenerator
             // Escape quotes in the value
             value = value
                 .Replace("\"", "\\\"")
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
                 .Replace(Environment.NewLine, "\\n")
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
                 .Replace("\r", "\\n")
                 .Replace("\n", "\\n");
 

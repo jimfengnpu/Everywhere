@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.IO;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -11,10 +10,11 @@ using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Configuration;
-using Everywhere.I18N;
 using Everywhere.Interop;
 using Everywhere.Storage;
+using Everywhere.Utilities;
 using LiveMarkdown.Avalonia;
+using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using ShadUI;
 
@@ -498,7 +498,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                 if (hasUnsupportedFile)
                 {
                     e.DragEffects = DragDropEffects.None;
-                    DragDropIcon.Kind = Lucide.Avalonia.LucideIconKind.FileX;
+                    DragDropIcon.Kind = LucideIconKind.FileX;
                     DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_Unsupported.I18N();
                     DragDropOverlay.IsVisible = true;
                     return;
@@ -514,9 +514,9 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                     }
 
                     e.DragEffects = DragDropEffects.Copy;
-                    DragDropIcon.Kind = firstMimeType != null && MimeTypeUtilities.IsImage(firstMimeType)
-                        ? Lucide.Avalonia.LucideIconKind.Image
-                        : Lucide.Avalonia.LucideIconKind.FileUp;
+                    DragDropIcon.Kind = firstMimeType != null && FileUtilities.IsOfCategory(firstMimeType, FileTypeCategory.Image)
+                        ? LucideIconKind.Image
+                        : LucideIconKind.FileUp;
                     DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropFilesHere.I18N();
                     DragDropOverlay.IsVisible = true;
                     return;
@@ -528,7 +528,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         if (hasText)
         {
             e.DragEffects = DragDropEffects.Copy;
-            DragDropIcon.Kind = Lucide.Avalonia.LucideIconKind.TextCursorInput;
+            DragDropIcon.Kind = LucideIconKind.TextCursorInput;
             DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropTextHere.I18N();
             DragDropOverlay.IsVisible = true;
             return;
@@ -605,7 +605,9 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
         localPath = path;
         var extension = Path.GetExtension(path).ToLowerInvariant();
-        if (MimeTypeUtilities.SupportedMimeTypes.TryGetValue(extension, out var mime) && mime is not null)
+        if (FileUtilities.KnownMimeTypes.TryGetValue(extension, out var mime) &&
+            FileUtilities.KnownFileTypes.TryGetValue(mime, out var fileType) &&
+            fileType is FileTypeCategory.Image or FileTypeCategory.Audio or FileTypeCategory.Document or FileTypeCategory.Script)
         {
             mimeType = mime;
             return true;

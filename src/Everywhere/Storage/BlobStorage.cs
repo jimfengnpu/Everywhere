@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using Everywhere.Configuration;
 using Everywhere.Database;
+using Everywhere.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Everywhere.Storage;
@@ -29,7 +30,7 @@ public class BlobStorage(IDbContextFactory<ChatDbContext> dbFactory, IRuntimeCon
             throw new OverflowException($"File size exceeds the maximum allowed size of {maxBytesSize} bytes.");
         }
 
-        mimeType = await MimeTypeUtilities.EnsureMimeTypeAsync(mimeType, filePath);
+        mimeType = await FileUtilities.EnsureMimeTypeAsync(mimeType, filePath, cancellationToken);
         return await StorageBlobAsync(stream, filePath, mimeType, cancellationToken);
     }
 
