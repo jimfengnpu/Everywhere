@@ -231,6 +231,11 @@ public partial class AtspiService
     {
         CheckInitialized();
         var app = AtspiAppElementByPid(pid);
+        if (app == null)
+        {
+            _logger.LogInformation("App {pid} do not support At-SPI", pid);
+            return null;
+        }
         var elem = AtspiElementFromPoint(app, point, true);
         if (elem == null)
         { 
