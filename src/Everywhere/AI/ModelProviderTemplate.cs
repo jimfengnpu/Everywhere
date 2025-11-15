@@ -228,7 +228,7 @@ public record ModelProviderTemplate
             Id = "google",
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
-            Endpoint = "https://generativelanguage.googleapis.com/v1beta/openai",
+            Endpoint = "https://generativelanguage.googleapis.com/v1beta",
             IconUrl = "avares://Everywhere/Assets/Icons/google-color.svg",
             Schema = ModelProviderSchema.Google,
             ModelDefinitions =

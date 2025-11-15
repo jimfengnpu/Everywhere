@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using Everywhere.Common;
 using Microsoft.SemanticKernel;
+using ZLinq;
 
 namespace Everywhere.Extensions;
 
@@ -32,18 +33,18 @@ public static class ExceptionExtension
             }
             case AggregateException ae:
             {
+                var innerMessages = ae
+                    .InnerExceptions
+                    .AsValueEnumerable()
+                    .Select(DynamicResourceKeyBase (i) => i.GetFriendlyMessage())
+                    .Distinct()
+                    .ToList();
+
+                if (innerMessages.Count == 1) return innerMessages[0];
+
                 return new FormattedDynamicResourceKey(
                     LocaleKey.FriendlyExceptionMessage_Aggregate,
-                    new AggregateDynamicResourceKey(ae.InnerExceptions.Select(DynamicResourceKeyBase (i) => i.GetFriendlyMessage()).ToList(), "\n"));
-            }
-            case HandledException { ShowDetails: true } he:
-            {
-                return new AggregateDynamicResourceKey(
-                    [
-                        he.FriendlyMessageKey,
-                        new DirectResourceKey(he.Message.Trim())
-                    ],
-                    "\n");
+                    new AggregateDynamicResourceKey(innerMessages, "\n"));
             }
             case HandledException he:
             {

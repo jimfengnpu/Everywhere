@@ -876,7 +876,7 @@
         <value>API 密钥缺失或无效。</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>超出 API 使用配额，或者没有访问当前模型的权限。</value>
+        <value>超出 API 使用配额，通常意味着余额不足，或者没有访问当前模型的权限。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>请求过于频繁、账户金额不足或者网络或地区不受支持。</value>
@@ -900,7 +900,7 @@
         <value>请求服务超时，请重试。</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>发生网络错误，请检查网络/服务提供商地区不支持。</value>
+        <value>发生网络错误，请检查网络或代理设置，亦或是服务提供商不支持您所在的地区。</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>服务当前不可用，请稍后重试。</value>
@@ -981,7 +981,7 @@
         <value>执行终端脚本</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>上下文长度超出限制。</value>
+        <value>上下文长度超出限制，尝试新建聊天或者换用上下文更长的模型。</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>访问进程</value>

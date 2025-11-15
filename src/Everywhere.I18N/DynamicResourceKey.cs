@@ -116,6 +116,10 @@ public partial class DynamicResourceKey(object? key) : DynamicResourceKeyBase, I
     }
 
     public override string? ToString() => Resolve(Key);
+
+    public override bool Equals(object? obj) => obj is DynamicResourceKey other && Equals(Key, other.Key);
+
+    public override int GetHashCode() => Key.GetHashCode();
 }
 
 /// <summary>
@@ -141,6 +145,10 @@ public partial class DirectResourceKey(object key) : DynamicResourceKey(key)
     /// </summary>
     /// <returns></returns>
     public override string? ToString() => Key.ToString();
+
+    public override bool Equals(object? obj) => obj is DynamicResourceKey other && Equals(Key, other.Key);
+
+    public override int GetHashCode() => Key.GetHashCode();
 }
 
 /// <summary>
@@ -171,6 +179,18 @@ public partial class FormattedDynamicResourceKey(object key, params IReadOnlyLis
         return string.IsNullOrEmpty(resolvedKey) ?
             string.Empty :
             string.Format(resolvedKey, Args.AsValueEnumerable().Select(object? (a) => a.ToString()).ToArray());
+    }
+
+    public override bool Equals(object? obj) => obj is FormattedDynamicResourceKey other &&
+           Equals(Key, other.Key) &&
+           Args.SequenceEqual(other.Args);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Key);
+        foreach (var arg in Args) hash.Add(arg);
+        return hash.ToHashCode();
     }
 }
 
@@ -210,5 +230,17 @@ public partial class AggregateDynamicResourceKey(IReadOnlyList<DynamicResourceKe
         }
 
         return string.Join(Separator, resolvedKeys);
+    }
+
+    public override bool Equals(object? obj) => obj is AggregateDynamicResourceKey other &&
+           Keys.SequenceEqual(other.Keys) &&
+           Separator == other.Separator;
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (var key in Keys) hash.Add(key);
+        hash.Add(Separator);
+        return hash.ToHashCode();
     }
 }

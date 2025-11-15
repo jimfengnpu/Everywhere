@@ -875,9 +875,6 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La chiave API è mancante o non valida.</value>
     </data>
-    <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Superata la quota di utilizzo dell'API o mancano i permessi per accedere al modello corrente.</value>
-    </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Richiesta troppo frequente, saldo insufficiente o rete/regione non supportata.</value>
     </data>
@@ -898,9 +895,6 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
     </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>La richiesta al servizio è scaduta. Riprova.</value>
-    </data>
-    <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Si è verificato un errore di rete. Controlla la tua connessione e riprova.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Il servizio non è attualmente disponibile. Riprova più tardi.</value>
@@ -979,9 +973,6 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
     </data>
     <data name="ChatFunctionPermissions_ShellExecute" xml:space="preserve">
         <value>Esegui Script Shell</value>
-    </data>
-    <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Lunghezza del contesto superata.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Accedi Processo</value>

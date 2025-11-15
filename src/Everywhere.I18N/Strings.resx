@@ -890,7 +890,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>API key is missing or invalid.</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Exceeded the API usage quota, or lacks permission to access the current model.</value>
+        <value>Exceeding API usage quotas, which typically indicates insufficient balance or lack of access permissions for the current model.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Request too frequent, insufficient account balance, or network/region not supported.</value>
@@ -914,7 +914,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Request to the service timed out. Please try again.</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>A network error occurred. Please check your connection and try again.</value>
+        <value>A network error has occurred. Please check your network or proxy settings, or your service provider may not support your region.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Service is currently unavailable. Please try again later.</value>
@@ -995,7 +995,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Execute Shell Script</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Context length exceeded.</value>
+        <value>The context length exceeds the limit. Try creating a new chat or switching to a model with a longer context.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Access Process</value>

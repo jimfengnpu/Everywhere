@@ -875,9 +875,6 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La clé API est manquante ou invalide.</value>
     </data>
-    <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Quota d'utilisation de l'API dépassé, ou absence de permission pour accéder au modèle actuel.</value>
-    </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Requête trop fréquente, solde insuffisant ou réseau/région non pris en charge.</value>
     </data>
@@ -898,9 +895,6 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>La requête au service a expiré. Veuillez réessayer.</value>
-    </data>
-    <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Une erreur réseau s'est produite. Veuillez vérifier votre connexion et réessayer.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Le service est actuellement indisponible. Veuillez réessayer plus tard.</value>
@@ -979,9 +973,6 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     </data>
     <data name="ChatFunctionPermissions_ShellExecute" xml:space="preserve">
         <value>Exécuter un script shell</value>
-    </data>
-    <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Longueur du contexte dépassée.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Accéder au processus</value>

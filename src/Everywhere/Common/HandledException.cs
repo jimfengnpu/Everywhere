@@ -1,6 +1,5 @@
 ﻿using System.ClientModel;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
 using System.Security;
@@ -20,14 +19,12 @@ public class HandledException : Exception
     /// <summary>
     /// Gets the key for a localized, user-friendly error message.
     /// </summary>
-    public required DynamicResourceKey FriendlyMessageKey { get; init; }
+    public virtual DynamicResourceKeyBase FriendlyMessageKey { get; }
 
     /// <summary>
     /// Gets a value indicating whether the error is a general, non-technical error that can be shown to the user.
     /// </summary>
     public virtual bool IsExpected { get; }
-
-    public virtual bool ShowDetails { get; }
 
     public override string Message
     {
@@ -45,7 +42,6 @@ public class HandledException : Exception
         }
     }
 
-    [SetsRequiredMembers]
     public HandledException(
         Exception originalException,
         DynamicResourceKey friendlyMessageKey,
@@ -53,12 +49,21 @@ public class HandledException : Exception
         bool showDetails = true
     ) : base(null, originalException)
     {
-        FriendlyMessageKey = friendlyMessageKey;
         IsExpected = isExpected;
-        ShowDetails = showDetails;
+        FriendlyMessageKey = showDetails ?
+            new AggregateDynamicResourceKey(
+                [
+                    friendlyMessageKey,
+                    new DirectResourceKey(originalException.Message.Trim())
+                ],
+                "\n") :
+            friendlyMessageKey;
     }
 
-    protected HandledException(Exception originalException) : base(originalException.Message, originalException) { }
+    protected HandledException(Exception originalException) : base(originalException.Message, originalException)
+    {
+        FriendlyMessageKey = new DirectResourceKey(originalException.Message.Trim());
+    }
 }
 
 /// <summary>
@@ -199,7 +204,6 @@ public class HandledSystemException : HandledException
     /// Initializes a new instance, inferring a user-friendly message key from the provided type,
     /// unless a custom key is supplied.
     /// </summary>
-    [SetsRequiredMembers]
     public HandledSystemException(
         Exception originalException,
         HandledSystemExceptionType type,
@@ -541,7 +545,11 @@ public enum HandledChatExceptionType
 /// Represents errors that occur during requests to LLM providers.
 /// This class normalizes various provider-specific exceptions into a unified format.
 /// </summary>
-public class HandledChatException : HandledException
+public class HandledChatException(
+    Exception originalException,
+    HandledChatExceptionType type,
+    DynamicResourceKey? customFriendlyMessageKey = null
+) : HandledException(originalException)
 {
     /// <summary>
     /// Gets a value indicating whether the error is a general, non-technical error.
@@ -549,15 +557,45 @@ public class HandledChatException : HandledException
     /// </summary>
     public override bool IsExpected => ExceptionType != HandledChatExceptionType.Unknown;
 
+    public override DynamicResourceKeyBase FriendlyMessageKey { get; } = new AggregateDynamicResourceKey(
+        [
+            customFriendlyMessageKey ?? new DynamicResourceKey(
+                type switch
+                {
+                    HandledChatExceptionType.InvalidConfiguration => LocaleKey.HandledChatException_InvalidConfiguration,
+                    HandledChatExceptionType.InvalidApiKey => LocaleKey.HandledChatException_InvalidApiKey,
+                    HandledChatExceptionType.ContextLengthExceeded => LocaleKey.HandledChatException_ContextLengthExceeded,
+                    HandledChatExceptionType.QuotaExceeded => LocaleKey.HandledChatException_QuotaExceeded,
+                    HandledChatExceptionType.RateLimit => LocaleKey.HandledChatException_RateLimit,
+                    HandledChatExceptionType.EndpointNotReachable => LocaleKey.HandledChatException_EndpointNotReachable,
+                    HandledChatExceptionType.InvalidEndpoint => LocaleKey.HandledChatException_InvalidEndpoint,
+                    HandledChatExceptionType.EmptyResponse => LocaleKey.HandledChatException_EmptyResponse,
+                    HandledChatExceptionType.FeatureNotSupport => LocaleKey.HandledChatException_FeatureNotSupport,
+                    HandledChatExceptionType.ImageNotSupport => LocaleKey.HandledChatException_ImageNotSupport,
+                    HandledChatExceptionType.Timeout => LocaleKey.HandledChatException_Timeout,
+                    HandledChatExceptionType.NetworkError => LocaleKey.HandledChatException_NetworkError,
+                    HandledChatExceptionType.ServiceUnavailable => LocaleKey.HandledChatException_ServiceUnavailable,
+                    HandledChatExceptionType.OperationCancelled => LocaleKey.HandledChatException_OperationCancelled,
+                    _ => LocaleKey.HandledChatException_Unknown,
+                }),
+            new DirectResourceKey(originalException.Message.Trim())
+        ],
+        "\n");
+
     /// <summary>
     /// Gets the categorized type of the exception.
     /// </summary>
-    public HandledChatExceptionType ExceptionType { get; }
+    public HandledChatExceptionType ExceptionType { get; } = type;
 
     /// <summary>
     /// Gets the HTTP status code of the response, if available.
     /// </summary>
     public HttpStatusCode? StatusCode { get; init; }
+
+    /// <summary>
+    /// Gets the socket error code, if applicable.
+    /// </summary>
+    public SocketError? SocketError { get; init; }
 
     /// <summary>
     /// Gets the ID of the model provider associated with the request.
@@ -568,35 +606,6 @@ public class HandledChatException : HandledException
     /// Gets the ID of the model associated with the request.
     /// </summary>
     public string? ModelId { get; init; }
-
-    [SetsRequiredMembers]
-    public HandledChatException(
-        Exception originalException,
-        HandledChatExceptionType type,
-        DynamicResourceKey? customFriendlyMessageKey = null
-    ) : base(originalException)
-    {
-        ExceptionType = type;
-        FriendlyMessageKey = customFriendlyMessageKey ?? new DynamicResourceKey(
-            type switch
-            {
-                HandledChatExceptionType.InvalidConfiguration => LocaleKey.HandledChatException_InvalidConfiguration,
-                HandledChatExceptionType.InvalidApiKey => LocaleKey.HandledChatException_InvalidApiKey,
-                HandledChatExceptionType.ContextLengthExceeded => LocaleKey.HandledChatException_ContextLengthExceeded,
-                HandledChatExceptionType.QuotaExceeded => LocaleKey.HandledChatException_QuotaExceeded,
-                HandledChatExceptionType.RateLimit => LocaleKey.HandledChatException_RateLimit,
-                HandledChatExceptionType.EndpointNotReachable => LocaleKey.HandledChatException_EndpointNotReachable,
-                HandledChatExceptionType.InvalidEndpoint => LocaleKey.HandledChatException_InvalidEndpoint,
-                HandledChatExceptionType.EmptyResponse => LocaleKey.HandledChatException_EmptyResponse,
-                HandledChatExceptionType.FeatureNotSupport => LocaleKey.HandledChatException_FeatureNotSupport,
-                HandledChatExceptionType.ImageNotSupport => LocaleKey.HandledChatException_ImageNotSupport,
-                HandledChatExceptionType.Timeout => LocaleKey.HandledChatException_Timeout,
-                HandledChatExceptionType.NetworkError => LocaleKey.HandledChatException_NetworkError,
-                HandledChatExceptionType.ServiceUnavailable => LocaleKey.HandledChatException_ServiceUnavailable,
-                HandledChatExceptionType.OperationCancelled => LocaleKey.HandledChatException_OperationCancelled,
-                _ => LocaleKey.HandledChatException_Unknown,
-            });
-    }
 
     /// <summary>
     /// Parses a generic <see cref="Exception"/> into a <see cref="HandledChatException"/> or <see cref="AggregateException"/>.
@@ -616,19 +625,25 @@ public class HandledChatException : HandledException
         }
 
         var context = new ExceptionParsingContext(exception);
+
+        // First layer: provider-specific exceptions
         new ParserChain<ClientResultExceptionParser,
             ParserChain<GoogleApiExceptionParser,
                 ParserChain<HttpRequestExceptionParser,
                     ParserChain<OllamaExceptionParser,
-                        ParserChain<HttpOperationExceptionParser,
-                            GeneralExceptionParser>>>>>().TryParse(ref context);
-        new HttpStatusCodeParser().TryParse(ref context);
+                        HttpOperationExceptionParser>>>>().TryParse(ref context);
+
+        // Second layer: general network/socket exceptions
+        new ParserChain<SocketExceptionParser,
+            ParserChain<HttpStatusCodeParser,
+                GeneralExceptionParser>>().TryParse(ref context);
 
         return new HandledChatException(
             originalException: exception,
             type: context.ExceptionType ?? HandledChatExceptionType.Unknown)
         {
             StatusCode = context.StatusCode,
+            SocketError = context.SocketError,
             ModelProviderId = modelProviderId,
             ModelId = modelId,
         };
@@ -639,6 +654,7 @@ public class HandledChatException : HandledException
         public Exception Exception { get; } = exception;
         public HandledChatExceptionType? ExceptionType { get; set; }
         public HttpStatusCode? StatusCode { get; set; }
+        public SocketError? SocketError { get; set; }
     }
 
     private readonly struct ParserChain<T1, T2> : IExceptionParser
@@ -768,7 +784,32 @@ public class HandledChatException : HandledException
             {
                 return false;
             }
+
             context.StatusCode = httpOperation.StatusCode;
+            return true;
+        }
+    }
+
+    private readonly struct SocketExceptionParser : IExceptionParser
+    {
+        public bool TryParse(ref ExceptionParsingContext context)
+        {
+            var ex = context.Exception;
+            SocketException? socket = null;
+            while (ex is not null)
+            {
+                socket = ex as SocketException;
+                if (socket is not null) break;
+                ex = ex.InnerException;
+            }
+
+            if (socket is null)
+            {
+                return false;
+            }
+
+            context.SocketError = socket.SocketErrorCode;
+            context.ExceptionType = HandledChatExceptionType.NetworkError;
             return true;
         }
     }
@@ -848,12 +889,6 @@ public class HandledChatException : HandledException
                 return fallback;
             }
 
-            if (message.Contains("context") ||
-                message.Contains("length", StringComparison.OrdinalIgnoreCase))
-            {
-                return HandledChatExceptionType.InvalidConfiguration;
-            }
-
             if (message.Contains("quota", StringComparison.OrdinalIgnoreCase) ||
                 message.Contains("limit", StringComparison.OrdinalIgnoreCase) ||
                 message.Contains("exceeded", StringComparison.OrdinalIgnoreCase) ||
@@ -885,30 +920,14 @@ public class HandledChatException : HandledException
                 return HandledChatExceptionType.ImageNotSupport;
             }
 
+            if (message.Contains("context") ||
+                message.Contains("length", StringComparison.OrdinalIgnoreCase))
+            {
+                return HandledChatExceptionType.ContextLengthExceeded;
+            }
+
             // Default for 403 Forbidden if no specific keywords are found
             return fallback;
         }
-    }
-}
-
-/// <summary>
-/// Represents errors that occur during tool execution (function calling).
-/// </summary>
-public class ChatFunctionCallException : HandledException
-{
-    /// <summary>
-    /// Gets a value indicating whether the error is a general, non-technical error.
-    /// </summary>
-    public override bool IsExpected { get; }
-
-    [SetsRequiredMembers]
-    public ChatFunctionCallException(
-        Exception originalException,
-        DynamicResourceKey friendlyMessageKey,
-        bool isGeneralError
-    ) : base(originalException)
-    {
-        FriendlyMessageKey = friendlyMessageKey;
-        IsExpected = isGeneralError;
     }
 }

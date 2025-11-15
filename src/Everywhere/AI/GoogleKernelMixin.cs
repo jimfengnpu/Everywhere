@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using System.Reflection;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
@@ -25,11 +25,32 @@ public sealed class GoogleKernelMixin : KernelMixinBase
         var service = new GoogleAIGeminiChatCompletionService(
             ModelId,
             ApiKey ?? string.Empty,
-            ResolveApiVersion(Endpoint),
-            httpClient,
-            loggerFactory);
+            httpClient: httpClient,
+            loggerFactory: loggerFactory);
+
+        ApplyCustomEndpoint(service);
 
         ChatCompletionService = new OptimizedGeminiChatCompletionService(service);
+    }
+
+    private void ApplyCustomEndpoint(GoogleAIGeminiChatCompletionService service)
+    {
+        // We need to modify the endpoint by reflection because the GoogleAIGeminiChatCompletionService does not expose it.
+
+        var client = typeof(GoogleAIGeminiChatCompletionService)
+            .GetField("_chatCompletionClient", BindingFlags.NonPublic | BindingFlags.Instance)?
+            .GetValue(service);
+        if (client is null) return;
+
+        // this._chatGenerationEndpoint = new Uri($"https://generativelanguage.googleapis.com/{apiVersionSubLink}/models/{this._modelId}:generateContent");
+        // this._chatStreamingEndpoint = new Uri($"https://generativelanguage.googleapis.com/{apiVersionSubLink}/models/{this._modelId}:streamGenerateContent?alt=sse");
+        client.GetType()
+            .GetField("_chatGenerationEndpoint", BindingFlags.NonPublic | BindingFlags.Instance)?
+            .SetValue(client, new Uri($"{Endpoint}/models/{ModelId}:generateContent"));
+
+        client.GetType()
+            .GetField("_chatStreamingEndpoint", BindingFlags.NonPublic | BindingFlags.Instance)?
+            .SetValue(client, new Uri($"{Endpoint}/models/{ModelId}:streamGenerateContent?alt=sse"));
     }
 
     public override PromptExecutionSettings GetPromptExecutionSettings(FunctionChoiceBehavior? functionChoiceBehavior = null)
@@ -43,13 +64,6 @@ public sealed class GoogleKernelMixin : KernelMixinBase
             TopP = topP,
             FunctionChoiceBehavior = functionChoiceBehavior
         };
-    }
-
-    private static GoogleAIVersion ResolveApiVersion(string endpoint)
-    {
-        return endpoint.Contains("v1beta", StringComparison.OrdinalIgnoreCase)
-            ? GoogleAIVersion.V1_Beta
-            : GoogleAIVersion.V1;
     }
 
     /// <summary>
@@ -74,7 +88,11 @@ public sealed class GoogleKernelMixin : KernelMixinBase
             Kernel? kernel = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            await foreach (var content in innerService.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings, kernel, cancellationToken))
+            await foreach (var content in innerService.GetStreamingChatMessageContentsAsync(
+                               chatHistory,
+                               executionSettings,
+                               kernel,
+                               cancellationToken))
             {
                 // inject GeminiMetadata into "Usage" key for consistent handling in ChatService
                 if (content.Metadata is GeminiMetadata geminiMetadata)
@@ -85,7 +103,7 @@ public sealed class GoogleKernelMixin : KernelMixinBase
                         OutputTokenCount = geminiMetadata.CandidatesTokenCount + geminiMetadata.ThoughtsTokenCount,
                         TotalTokenCount = geminiMetadata.TotalTokenCount
                     };
-                    
+
                     var newMetadata = new Dictionary<string, object?>();
                     if (content.Metadata is not null)
                     {
@@ -95,7 +113,7 @@ public sealed class GoogleKernelMixin : KernelMixinBase
                         }
                     }
                     newMetadata["Usage"] = usageDetails;
-                    
+
                     yield return new StreamingChatMessageContent(
                         content.Role,
                         content.Content,
@@ -110,11 +128,6 @@ public sealed class GoogleKernelMixin : KernelMixinBase
                     yield return content;
                 }
             }
-        }
-
-        public object? GetService(Type serviceType, object? serviceKey = null)
-        {
-            return ((IServiceProvider)innerService).GetService(serviceType);
         }
     }
 }

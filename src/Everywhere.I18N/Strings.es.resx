@@ -875,9 +875,6 @@ Mi inteligencia proviene de poderosos modelos de lenguaje grande (LLMs), que son
     <data name="HandledChatException_InvalidApiKey" xml:space="preserve">
         <value>La clave API falta o es inválida.</value>
     </data>
-    <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Se ha excedido la cuota de uso de la API, o no se tiene permiso para acceder al modelo actual.</value>
-    </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Solicitud demasiado frecuente, saldo insuficiente o red/región no admitida.</value>
     </data>
@@ -898,9 +895,6 @@ Mi inteligencia proviene de poderosos modelos de lenguaje grande (LLMs), que son
     </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>La solicitud al servicio ha expirado. Por favor, inténtalo de nuevo.</value>
-    </data>
-    <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Ocurrió un error de red. Por favor, verifica tu conexión e inténtalo de nuevo.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>El servicio no está disponible en este momento. Por favor, inténtalo más tarde.</value>
@@ -979,9 +973,6 @@ Mi inteligencia proviene de poderosos modelos de lenguaje grande (LLMs), que son
     </data>
     <data name="ChatFunctionPermissions_ShellExecute" xml:space="preserve">
         <value>Ejecutar script de shell</value>
-    </data>
-    <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Longitud de contexto excedida.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Acceder al proceso</value>
