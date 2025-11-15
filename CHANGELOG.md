@@ -1,3 +1,23 @@
+## [v0.4.6](https://github.com/DearVa/Everywhere/releases/tag/v0.4.6) - 2025-11-15
+
+### ✨ Features
+- Added native support for the Gemini schema, which fixes the issue where Gemini could not upload images (#125).
+- Added drag-and-drop support for files and text (#135).
+
+### 🚀 Improvements
+- Improved error message display (e.g., context length exceeded, network proxy errors, and duplicated error messages).
+- Improved UI appearance and visual effects.
+
+### 🐛 Bug Fixes
+- Fixed an issue where the log folder could not be opened if the path contained non-ASCII characters (such as Chinese) (#117).
+- Fixed some UI elements not responding correctly when switching languages.
+- Fixed garbled UI text for English users in some cases.
+- (Windows) Fixed an issue where terminal execution could sometimes not be terminated, causing the application to freeze.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.5...v0.4.6
+
+
+
 ## [v0.4.5](https://github.com/DearVa/Everywhere/releases/tag/v0.4.5) - 2025-11-13
 
 ### ✨ Features
