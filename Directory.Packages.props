@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <MicrosoftPackageVersion>10.0.0</MicrosoftPackageVersion>
-    <EntityFrameworkVersion>9.0.7</EntityFrameworkVersion>
+    <EntityFrameworkVersion>10.0.0</EntityFrameworkVersion>
     <SemanticKernelVersion>1.67.1</SemanticKernelVersion>
     <OpenTelemetryVersion>1.14.0</OpenTelemetryVersion>
     <SentryVersion>5.16.2</SentryVersion>
