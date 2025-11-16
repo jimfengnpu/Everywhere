@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+﻿using System.Reactive.Disposables;
+using Avalonia.Input;
 using CoreFoundation;
 using Everywhere.Interop;
 using Everywhere.Utilities;
@@ -197,7 +198,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
         }
 
         handlers.Add(handler);
-        return new AnonymousDisposable(() =>
+        return Disposable.Create(() =>
         {
             using var _ = _syncLock.EnterScope();
             if (_keyboardHandlers.TryGetValue(shortcut, out var existingHandlers))

@@ -31,7 +31,7 @@
     is missing or out-of-date and rebuilds it if necessary.
   -->
   <Target Name="BuildWatchdog"
-          BeforeTargets="BeforeBuild"
+          BeforeTargets="BeforeResolveReferences"
           Inputs="$(WatchdogProject)"
           Outputs="$(WatchdogExecutable)">
 
@@ -39,10 +39,6 @@
 
     <MSBuild Projects="$(WatchdogProject)"
              Targets="Publish"
-             Properties="
-               Configuration=$(Configuration);
-               RuntimeIdentifier=$(RuntimeIdentifier);
-               PublishDir=$(WatchdogOutDir);
-               SelfContained=true;" />
+             Properties="PublishDir=$(WatchdogOutDir);" />
   </Target>
 </Project>
