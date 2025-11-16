@@ -36,6 +36,13 @@
     x:Name="RootGrid" RowDefinitions="Auto,*">
     <ExperimentalAcrylicBorder
       Grid.Row="0" Grid.RowSpan="2">
+      <ExperimentalAcrylicBorder.CornerRadius>
+        <!--  TODO: Can I get window corner radius dynamically?  -->
+        <OnPlatform
+          x:TypeArguments="CornerRadius" Linux="0"
+          Windows="0" macOS="10"/>
+      </ExperimentalAcrylicBorder.CornerRadius>
+
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial
           FallbackColor="#CC000000" MaterialOpacity="0.7"

@@ -9,6 +9,7 @@
     <IsDeploymentTarget>true</IsDeploymentTarget>
     <UseAppHost>true</UseAppHost>
     <CreateAppBundle>true</CreateAppBundle>
+    <CFBundleIconFile>Everywhere.icns</CFBundleIconFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,14 +31,20 @@
     </Content>
   </ItemGroup>
 
-  <Import Project="..\Build.Watchdog.targets" />
+  <ItemGroup>
+    <None Remove="Everywhere.icns" />
+    <BundleResource Include="Everywhere.icns" />
+  </ItemGroup>
+
+  <Import Project="..\Build.Watchdog.targets"/>
 
   <Target Name="AdHocSign" AfterTargets="Build">
     <PropertyGroup>
       <AppBundlePath>$(OutputPath)$(ProjectName).app</AppBundlePath>
     </PropertyGroup>
 
-    <Exec Command="codesign --force --deep --sign - &quot;$(AppBundlePath)&quot;" />
+    <Exec Command="xattr -cr &quot;$(AppBundlePath)&quot;"/>
+    <Exec Command="codesign --force --deep --sign - &quot;$(AppBundlePath)&quot;"/>
   </Target>
 
 </Project>

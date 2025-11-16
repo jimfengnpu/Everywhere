@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>ApplicationId</key>
-    <string>com.sylinko.everywhere</string>
-    <key>CFBundleName</key>
-    <string>Everywhere</string>
+	<key>ApplicationId</key>
+	<string>com.sylinko.everywhere</string>
+	<key>CFBundleIconFile</key>
+	<string>Everywhere.icns</string>
+	<key>CFBundleName</key>
+	<string>Everywhere</string>
 	<key>CFBundleDisplayName</key>
 	<string>Everywhere</string>
 	<key>CFBundleExecutable</key>
