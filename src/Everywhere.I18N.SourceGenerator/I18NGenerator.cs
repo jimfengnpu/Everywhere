@@ -327,7 +327,6 @@ public class I18NSourceGenerator : IIncrementalGenerator
                     CurrentLocale = currentLocale ?? default(LocaleName);
                 }
 
-                [field: AllowNull, MaybeNull]
                 public static LocaleName CurrentLocale
                 {
                     get => _currentLocale.GetValueOrDefault();
