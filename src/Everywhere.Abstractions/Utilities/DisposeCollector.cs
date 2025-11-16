@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Disposables;
 
 namespace Everywhere.Utilities;
 
@@ -96,7 +97,7 @@ public class DisposeCollector<T>(bool disposeOnFinalize = false) : IReadOnlyList
 
 public class DisposeCollector(bool disposeOnFinalize = false) : DisposeCollector<IDisposable>(disposeOnFinalize)
 {
-    public void Add(Action disposer) => Add(new AnonymousDisposable(disposer));
+    public void Add(Action disposer) => Add(Disposable.Create(disposer));
     
     public T Add<T>(T disposable) where T : IDisposable
     {

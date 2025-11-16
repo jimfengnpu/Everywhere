@@ -14,7 +14,7 @@ public partial class AboutPageViewModel : ReactiveViewModelBase
     private void OpenWelcomeDialog()
     {
         DialogManager
-            .CreateDialog(ServiceLocator.Resolve<WelcomeView>())
+            .CreateCustomDialog(ServiceLocator.Resolve<WelcomeView>())
             .ShowAsync();
     }
 
@@ -22,7 +22,7 @@ public partial class AboutPageViewModel : ReactiveViewModelBase
     private void OpenChangeLogDialog()
     {
         DialogManager
-            .CreateDialog(ServiceLocator.Resolve<ChangeLogView>())
+            .CreateCustomDialog(ServiceLocator.Resolve<ChangeLogView>())
             .Dismissible()
             .ShowAsync();
     }

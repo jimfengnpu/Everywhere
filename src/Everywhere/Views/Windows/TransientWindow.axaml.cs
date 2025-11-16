@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls;
-using ShadUI;
+﻿using ShadUI;
 using Window = ShadUI.Window;
 
 namespace Everywhere.Views;
@@ -13,16 +12,6 @@ public partial class TransientWindow : Window, IReactiveHost
     public TransientWindow()
     {
         InitializeComponent();
-
-        // determines if current system supports Mica
-        if (Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= 22621)
-        {
-            TransparencyLevelHint = [WindowTransparencyLevel.Mica];
-        }
-        else
-        {
-            TransparencyLevelHint = [WindowTransparencyLevel.AcrylicBlur ];
-        }
     }
 
     protected override void OnClosed(EventArgs e)

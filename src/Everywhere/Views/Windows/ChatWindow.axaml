@@ -18,6 +18,12 @@
   TargetBoundingRect="{Binding TargetBoundingRect}"
   TransparencyLevelHint="AcrylicBlur" WindowStartupLocation="Manual">
 
+  <v:ReactiveShadWindow.Resources>
+    <!--  This is used for LaTeX rendering  -->
+    <!--  ReSharper disable once Xaml.RedundantResource  -->
+    <Color x:Key="SystemBaseHighColor">#FFFFFF</Color>
+  </v:ReactiveShadWindow.Resources>
+
   <v:ReactiveShadWindow.Hosts>
     <shadui:DialogHost
       x:Name="PART_DialogHost" Margin="0,36,0,0"
@@ -202,7 +208,7 @@
           </Button>
 
           <ToggleButton
-            Classes="Ghost TitleBar"
+            Classes="Ghost TitleBar" Background="#00252525"
             IsChecked="{Binding $parent[v:ChatWindow].IsWindowPinned, Mode=TwoWay}"
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}">
             <LucideIcon
@@ -255,7 +261,7 @@
 
             <StackPanel
               Margin="0,0,0,8"
-              IsVisible="{Binding ChatContextManager.ChatMessageNodes.Count, Converter={x:Static vc:Int32Converters.NotGreaterThan}, ConverterParameter=1}"
+              IsVisible="{Binding ChatContextManager.Current.BranchNodesWithoutSystem.Count, Converter={x:Static vc:Int32Converters.NotGreaterThan}, ConverterParameter=1}"
               Spacing="8">
               <ToggleSwitch
                 HorizontalAlignment="Center" shadui:ToggleSwitchAssist.RightAlignedContent="True"
@@ -311,7 +317,7 @@
               x:Name="ItemsControl" Margin="0,0,0,8"
               Padding="8,0"
               IsVisible="{Binding $self.ItemCount, Converter={x:Static vc:Int32Converters.GreaterThan}, ConverterParameter=0}"
-              ItemsSource="{Binding ChatContextManager.ChatMessageNodes}">
+              ItemsSource="{Binding ChatContextManager.Current.BranchNodesWithoutSystem}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                   <StackPanel
@@ -413,7 +419,7 @@
                         <StackPanel
                           Classes="ChatMessage Assistant" Background="Transparent"
                           Orientation="Vertical" Spacing="4">
-                          <ItemsControl ItemsSource="{Binding Spans, Converter={x:Static vc:ObservableListConverters.ObservableOnDispatcher}}">
+                          <ItemsControl ItemsSource="{Binding Spans}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
                                 <StackPanel Spacing="8"/>
@@ -446,7 +452,7 @@
                                   <ItemsControl
                                     ClipToBounds="False"
                                     IsVisible="{Binding !!$self.ItemCount}"
-                                    ItemsSource="{Binding FunctionCalls, Converter={x:Static vc:ObservableListConverters.ObservableOnDispatcher}}">
+                                    ItemsSource="{Binding FunctionCalls}">
                                     <ItemsControl.ItemsPanel>
                                       <ItemsPanelTemplate>
                                         <StackPanel Spacing="8"/>
@@ -772,34 +778,15 @@
             IsToolCallEnabled="{Binding Settings.Internal.IsToolCallEnabled, Mode=TwoWay}"
             IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported, FallbackValue=false}"
             MaxChatAttachmentCount="{Binding Settings.Internal.MaxChatAttachmentCount}"
+            RemoveAttachmentCommand="{Binding RemoveAttachmentCommand}"
             SelectedCustomAssistant="{Binding Settings.Model.SelectedCustomAssistant, Mode=TwoWay}"
             Text="{Binding Settings.Internal.ChatInputBoxText, Mode=TwoWay}"
             TextWrapping="Wrap">
             <v:ChatInputBox.AddChatAttachmentMenuItems>
               <MenuItem
                 Command="{Binding PickElementCommand}"
-                CommandParameter="{x:Static interop:PickElementMode.Screen}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickScreen}}">
-                <MenuItem.Icon>
-                  <LucideIcon
-                    Width="18" Height="18"
-                    Kind="Monitor" Size="18"/>
-                </MenuItem.Icon>
-              </MenuItem>
-              <MenuItem
-                Command="{Binding PickElementCommand}"
-                CommandParameter="{x:Static interop:PickElementMode.Window}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickWindow}}">
-                <MenuItem.Icon>
-                  <LucideIcon
-                    Width="18" Height="18"
-                    Kind="AppWindow" Size="18"/>
-                </MenuItem.Icon>
-              </MenuItem>
-              <MenuItem
-                Command="{Binding PickElementCommand}"
                 CommandParameter="{x:Static interop:PickElementMode.Element}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickElement}}">
+                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement}}">
                 <MenuItem.Icon>
                   <LucideIcon
                     Width="18" Height="18"
@@ -1088,5 +1075,24 @@
         </ScrollViewer>
       </Grid>
     </Panel>
+
+    <Border
+      x:Name="DragDropOverlay" Grid.Row="0"
+      Grid.RowSpan="2" Background="#CC000000"
+      IsVisible="False">
+      <StackPanel
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        Spacing="16">
+        <LucideIcon
+          x:Name="DragDropIcon" HorizontalAlignment="Center"
+          Foreground="{DynamicResource ForegroundColor}"
+          Kind="FileUp" Size="64"/>
+        <TextBlock
+          x:Name="DragDropText" HorizontalAlignment="Center"
+          FontSize="18" FontWeight="SemiBold"
+          Foreground="{DynamicResource ForegroundColor}"
+          Text="{I18N {x:Static LocaleKey.ChatWindow_DragDrop_Overlay_DropFilesHere}}"/>
+      </StackPanel>
+    </Border>
   </Grid>
 </v:ReactiveShadWindow>

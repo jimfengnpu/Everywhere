@@ -2,7 +2,7 @@
 
 namespace Everywhere.Configuration;
 
-public partial class InternalSettings : SettingsCategory
+public partial class InternalSettings : ObservableObject
 {
     /// <summary>
     /// Used to popup welcome dialog on first launch and update.

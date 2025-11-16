@@ -12,8 +12,6 @@ using Everywhere.Storage;
 using Everywhere.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.ChatCompletion;
-using ObservableCollections;
 using ShadUI;
 using ZLinq;
 
@@ -21,11 +19,6 @@ namespace Everywhere.Chat;
 
 public partial class ChatContextManager : ObservableObject, IChatContextManager, IAsyncInitializer, IRecipient<ChatContextMetadataChangedMessage>
 {
-    public IReadOnlyList<ChatMessageNode> ChatMessageNodes =>
-        Current.ToNotifyCollectionChanged(
-            v => v.AttachFilter(m => m.Message.Role != AuthorRole.System),
-            SynchronizationContextCollectionEventDispatcher.Current);
-
     public ChatContext Current
     {
         get
@@ -110,7 +103,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             {
                 new("Time", () => DateTime.Now.ToString("F")),
                 new("OS", () => Environment.OSVersion.ToString()),
-                new("SystemLanguage", () => _settings.Common.Language == "default" ? "en-US" : _settings.Common.Language),
+                new("SystemLanguage", () => _settings.Common.Language.ToEnglishName()),
                 new("WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{DateTime.Now:yyyy-MM-dd}"))
             });
 
@@ -121,14 +114,19 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
 
     IRelayCommand IChatContextManager.RemoveSelectedCommand => RemoveSelectedCommand;
 
-    private ICollection<ChatContextMetadata> LoadedMetadata => _metadataMap.To<IDictionary<Guid, ChatContextMetadata>>().Values;
+    private ICollection<ChatContextMetadata> LoadedMetadata => _metadataMap.Values;
 
     private ChatContext? _current;
 
-    private readonly ObservableDictionary<Guid, ChatContextMetadata> _metadataMap = [];
+    private readonly Dictionary<Guid, ChatContextMetadata> _metadataMap = [];
     private readonly ObservableCollection<ChatContextHistory> _recentHistory = [];
     private readonly ObservableCollection<ChatContextHistory> _allHistory = [];
-    private readonly HashSet<ChatContext> _saveBuffer = [];
+
+    /// <summary>
+    /// A buffer for chat contexts and their metadata to be saved.
+    /// Sometimes only metadata needs to be saved (e.g., when only the topic is changed), in which case the context can be null.
+    /// </summary>
+    private readonly Dictionary<Guid, ChatContextMetadataChangedMessage> _saveBuffer = [];
 
     private readonly Settings _settings;
     private readonly IChatContextStorage _chatContextStorage;
@@ -150,16 +148,18 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             () => this,
             static that =>
             {
-                List<ChatContext> toSave;
+                List<ChatContextMetadataChangedMessage> toSave;
                 lock (that._saveBuffer)
                 {
-                    toSave = that._saveBuffer.ToList(); // ToList is better than ToArray (less allocation)
+                    toSave = that._saveBuffer.Values.ToList(); // ToList is better than ToArray (less allocation)
                     that._saveBuffer.Clear();
                 }
                 Task.WhenAll(
                         toSave.AsValueEnumerable()
-                            .Where(c => !IsEmptyContext(c) && !c.Metadata.IsTemporary)
-                            .Select(c => that._chatContextStorage.SaveChatContextAsync(c))
+                            .Where(p => !IsEmptyContext(p.Context) && !p.Metadata.IsTemporary)
+                            .Select(p => p.Context is not null ?
+                                that._chatContextStorage.SaveChatContextAsync(p.Context) :
+                                that._chatContextStorage.SaveChatContextMetadataAsync(p.Metadata)) // only save metadata if context is null
                             .ToList())
                     .Detach(that._logger.ToExceptionHandler());
             },
@@ -178,7 +178,16 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         if (message.PropertyName is not nameof(ChatContextMetadata.DateModified) and not nameof(ChatContextMetadata.Topic))
             return; // Only care about these two properties
 
-        lock (_saveBuffer) _saveBuffer.Add(message.Context);
+        lock (_saveBuffer)
+        {
+            ref var valueRef = ref CollectionsMarshal.GetValueRefOrAddDefault(_saveBuffer, message.Metadata.Id, out _);
+            if (valueRef is null) valueRef = message;
+            else
+            {
+                valueRef.Context ??= message.Context;
+                valueRef.Metadata = message.Metadata;
+            }
+        }
         _saveDebounceExecutor.Trigger();
 
         Dispatcher.UIThread.InvokeOnDemand(CreateNewCommand.NotifyCanExecuteChanged);
@@ -360,7 +369,6 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
     {
         OnPropertyChanged(nameof(Current));
         OnPropertyChanged(nameof(CurrentMetadata));
-        OnPropertyChanged(nameof(ChatMessageNodes));
         Dispatcher.UIThread.InvokeOnDemand(() =>
         {
             RemoveCommand.NotifyCanExecuteChanged();

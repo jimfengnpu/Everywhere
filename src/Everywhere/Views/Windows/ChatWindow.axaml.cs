@@ -11,7 +11,10 @@ using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
+using Everywhere.Storage;
+using Everywhere.Utilities;
 using LiveMarkdown.Avalonia;
+using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using ShadUI;
 
@@ -80,6 +83,17 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
         ChatInputBox.TextChanged += HandleChatInputBoxTextChanged;
         ChatInputBox.PastingFromClipboard += HandleChatInputBoxPastingFromClipboard;
+        
+        SetupDragDropHandlers();
+    }
+    
+    private void SetupDragDropHandlers()
+    {
+        DragDrop.SetAllowDrop(this, true);
+        AddHandler(DragDrop.DragEnterEvent, HandleDragEnter);
+        AddHandler(DragDrop.DragOverEvent, HandleDragOver);
+        AddHandler(DragDrop.DragLeaveEvent, HandleDragLeave);
+        AddHandler(DragDrop.DropEvent, HandleDrop);
     }
 
     /// <summary>
@@ -426,4 +440,180 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         // currently we only support http(s) links for safety reasons
         return e.HRef is not { Scheme: "http" or "https" } uri ? Task.CompletedTask : _launcher.LaunchUriAsync(uri);
     }
+
+    private void HandleDragEnter(object? sender, DragEventArgs e)
+    {
+        UpdateDragVisuals(e);
+        e.Handled = true;
+    }
+
+    private void HandleDragOver(object? sender, DragEventArgs e)
+    {
+        UpdateDragVisuals(e);
+        e.Handled = true;
+    }
+
+    private void UpdateDragVisuals(DragEventArgs e)
+    {
+        if (ViewModel.IsBusy)
+        {
+            e.DragEffects = DragDropEffects.None;
+            DragDropOverlay.IsVisible = false;
+            return;
+        }
+
+        var hasFiles = e.DataTransfer.Contains(DataFormat.File);
+        var hasText = e.DataTransfer.Contains(DataFormat.Text);
+
+        if (!hasFiles && !hasText)
+        {
+            e.DragEffects = DragDropEffects.None;
+            DragDropOverlay.IsVisible = false;
+            return;
+        }
+
+        // Check file support
+        if (hasFiles)
+        {
+            var files = e.DataTransfer.TryGetFiles();
+            if (files != null)
+            {
+                var hasSupportedFile = false;
+                var hasUnsupportedFile = false;
+                string? firstMimeType = null;
+
+                foreach (var item in files)
+                {
+                    if (IsSupportedFile(item, out _, out var mimeType))
+                    {
+                        hasSupportedFile = true;
+                        firstMimeType ??= mimeType;
+                    }
+                    else
+                    {
+                        hasUnsupportedFile = true;
+                    }
+                }
+
+                if (hasUnsupportedFile)
+                {
+                    e.DragEffects = DragDropEffects.None;
+                    DragDropIcon.Kind = LucideIconKind.FileX;
+                    DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_Unsupported.I18N();
+                    DragDropOverlay.IsVisible = true;
+                    return;
+                }
+
+                if (hasSupportedFile)
+                {
+                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount)
+                    {
+                        e.DragEffects = DragDropEffects.None;
+                        DragDropOverlay.IsVisible = false;
+                        return;
+                    }
+
+                    e.DragEffects = DragDropEffects.Copy;
+                    DragDropIcon.Kind = firstMimeType != null && FileUtilities.IsOfCategory(firstMimeType, FileTypeCategory.Image)
+                        ? LucideIconKind.Image
+                        : LucideIconKind.FileUp;
+                    DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropFilesHere.I18N();
+                    DragDropOverlay.IsVisible = true;
+                    return;
+                }
+            }
+        }
+
+        // Text only
+        if (hasText)
+        {
+            e.DragEffects = DragDropEffects.Copy;
+            DragDropIcon.Kind = LucideIconKind.TextCursorInput;
+            DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropTextHere.I18N();
+            DragDropOverlay.IsVisible = true;
+            return;
+        }
+
+        e.DragEffects = DragDropEffects.None;
+        DragDropOverlay.IsVisible = false;
+    }
+
+    private void HandleDragLeave(object? sender, DragEventArgs e)
+    {
+        DragDropOverlay.IsVisible = false;
+        e.Handled = true;
+    }
+
+    private async void HandleDrop(object? sender, DragEventArgs e)
+    {
+        DragDropOverlay.IsVisible = false;
+        e.Handled = true;
+
+        if (ViewModel.IsBusy)
+            return;
+
+        // Handle file drops
+        if (e.DataTransfer.Contains(DataFormat.File))
+        {
+            var files = e.DataTransfer.TryGetFiles();
+            if (files != null)
+            {
+                foreach (var item in files)
+                {
+                    if (!IsSupportedFile(item, out var localPath, out _))
+                        continue;
+
+                    try
+                    {
+                        await ViewModel.AddFileFromDragDropAsync(localPath!);
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceLocator.Resolve<ILogger<ChatWindow>>()
+                            .LogError(ex, "Failed to add dropped file: {FilePath}", localPath);
+                    }
+
+                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount)
+                        break;
+                }
+            }
+
+            return;
+        }
+
+        // Handle text drops
+        if (e.DataTransfer.Contains(DataFormat.Text))
+        {
+            var text = e.DataTransfer.TryGetText();
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                var currentText = _settings.Internal.ChatInputBoxText ?? string.Empty;
+                var caretIndex = ChatInputBox.CaretIndex;
+                _settings.Internal.ChatInputBoxText = currentText.Insert(caretIndex, text!);
+                ChatInputBox.CaretIndex = caretIndex + text!.Length;
+            }
+        }
+    }
+
+    private static bool IsSupportedFile(IStorageItem storageItem, out string? localPath, out string? mimeType)
+    {
+        localPath = null;
+        mimeType = null;
+
+        if (!storageItem.Path.IsFile || storageItem.TryGetLocalPath() is not { } path)
+            return false;
+
+        localPath = path;
+        var extension = Path.GetExtension(path).ToLowerInvariant();
+        if (FileUtilities.KnownMimeTypes.TryGetValue(extension, out var mime) &&
+            FileUtilities.KnownFileTypes.TryGetValue(mime, out var fileType) &&
+            fileType is FileTypeCategory.Image or FileTypeCategory.Audio or FileTypeCategory.Document or FileTypeCategory.Script)
+        {
+            mimeType = mime;
+            return true;
+        }
+
+        return false;
+    }
+
 }

@@ -190,22 +190,6 @@ public static class EnumerableExtension
             }
         }
     }
-    
-    public static int IndexOf<T>(this IEnumerable<T> source, T item)
-    {
-        var index = 0;
-        foreach (var i in source)
-        {
-            if (EqualityComparer<T>.Default.Equals(i, item))
-            {
-                return index;
-            }
-
-            index++;
-        }
-
-        return -1;
-    }
 
     public static int FindIndexOf<T>(this IEnumerable<T> source, Predicate<T> predicate)
     {

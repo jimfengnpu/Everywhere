@@ -351,7 +351,7 @@ public class ChatService(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var chatSpan = new AssistantChatMessageSpan();
-                assistantChatMessage.Spans.Add(chatSpan);
+                assistantChatMessage.AddSpan(chatSpan);
                 try
                 {
                     var functionCallContents = await GetStreamingChatMessageContentsAsync(
@@ -625,7 +625,7 @@ public class ChatService(
                 chatFunction,
                 functionCallChatMessage);
 
-            chatSpan.FunctionCalls.Add(functionCallChatMessage);
+            chatSpan.AddFunctionCall(functionCallChatMessage);
 
             // Add call message to the chat history.
             var functionCallMessage = new ChatMessageContent(AuthorRole.Assistant, content: null);
@@ -652,7 +652,7 @@ public class ChatService(
                     // Also add a display block for the function call content.
                     // This will allow the UI to display the function call content.
                     var friendlyContent = chatFunction.GetFriendlyCallContent(functionCallContent);
-                    if (friendlyContent is not null) functionCallChatMessage.DisplayBlocks.Add(friendlyContent);
+                    if (friendlyContent is not null) functionCallChatMessage.DisplaySink.AppendBlock(friendlyContent);
 
                     // Add the function call content to the chat history.
                     // This will allow the LLM to see the function call in the chat history.
@@ -670,8 +670,6 @@ public class ChatService(
                     // dd the function result content to the function call chat message.
                     // This will record the function result in the database.
                     functionCallChatMessage.Results.Add(resultContent);
-
-                    // TODO: Also add a display block for the function result content?
 
                     // Add the function result content to the chat history.
                     // This will allow the LLM to see the function result in the chat history.
@@ -952,11 +950,11 @@ public class ChatService(
                     return;
                 }
 
-                if (MimeTypeUtilities.IsAudio(file.MimeType))
+                if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Audio))
                 {
                     content.Items.Add(new AudioContent(data, file.MimeType));
                 }
-                else if (MimeTypeUtilities.IsImage(file.MimeType))
+                else if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Image))
                 {
                     content.Items.Add(new ImageContent(data, file.MimeType));
                 }
@@ -981,7 +979,7 @@ public class ChatService(
 
         try
         {
-            var language = settings.Common.Language == "default" ? "en-US" : settings.Common.Language;
+            var language = settings.Common.Language.ToEnglishName();
 
             activity?.SetTag("chat.context.id", metadata.Id);
             activity?.SetTag("user_message.length", userMessage.Length);
@@ -1023,7 +1021,7 @@ public class ChatService(
     }
 
     public IChatPluginDisplaySink DisplaySink =>
-        _currentFunctionCallContext?.ChatMessage.DisplayBlocks ?? throw new InvalidOperationException("No active function call to display sink for");
+        _currentFunctionCallContext?.ChatMessage.DisplaySink ?? throw new InvalidOperationException("No active function call to display sink for");
 
     public async Task<bool> RequestConsentAsync(
         string? id,

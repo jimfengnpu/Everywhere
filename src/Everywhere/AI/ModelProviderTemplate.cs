@@ -26,13 +26,6 @@ public record ModelProviderTemplate
     public string? IconUrl { get; set; }
 
     /// <summary>
-    /// A dynamic resource key for the description of the model provider.
-    /// This allows for localized descriptions that can be updated without
-    /// requiring a new application build.
-    /// </summary>
-    public JsonDynamicResourceKey? DescriptionKey { get; set; }
-
-    /// <summary>
     /// Endpoint URL for the model provider's API.
     /// e.g., "https://api.example.com/v1/models".
     /// This URL is used to send requests to the model provider's servers.
@@ -65,6 +58,11 @@ public record ModelProviderTemplate
     /// specific to the user's account.
     /// </summary>
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// Timeout for each request to the model, in seconds.
+    /// </summary>
+    public int RequestTimeoutSeconds { get; set; } = 20;
 
     /// <summary>
     /// A list of model definitions provided by this model provider.
@@ -230,9 +228,9 @@ public record ModelProviderTemplate
             Id = "google",
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
-            Endpoint = "https://generativelanguage.googleapis.com/v1beta/openai",
+            Endpoint = "https://generativelanguage.googleapis.com/v1beta",
             IconUrl = "avares://Everywhere/Assets/Icons/google-color.svg",
-            Schema = ModelProviderSchema.OpenAI,
+            Schema = ModelProviderSchema.Google,
             ModelDefinitions =
             [
                 new ModelDefinitionTemplate
@@ -268,79 +266,6 @@ public record ModelProviderTemplate
                 }
             ]
         },
-        // TODO: Enable it after xAI API is fixed.
-        // new ModelProvider
-        // {
-        //     Id = "xai",
-        //     DisplayName = "xAI (Grok)",
-        //     Endpoint = "https://api.x.ai/v1",
-        //     IconUrl = "https://registry.npmmirror.com/@lobehub/icons-static-svg/latest/files/icons/xai.svg",
-        //     Schema = ModelProviderSchema.OpenAI,
-        //     ModelDefinitions =
-        //     [
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-code-fast-1",
-        //             ModelId = "grok-code-fast-1",
-        //             DisplayName = "Grok Code Fast",
-        //             MaxTokens = 256_000,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = true,
-        //         },
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-4-fast-reasoning",
-        //             ModelId = "grok-4-fast-reasoning",
-        //             DisplayName = "Grok 4 Fast",
-        //             MaxTokens = 2_000_000,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = true,
-        //         },
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-4-fast-non-reasoning",
-        //             ModelId = "grok-4-fast-non-reasoning",
-        //             DisplayName = "Grok 4 Fast (No Reasoning)",
-        //             MaxTokens = 2_000_000,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = false,
-        //             IsDefault = true,
-        //         },
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-4-0709",
-        //             ModelId = "grok-4-0709",
-        //             DisplayName = "Grok 4",
-        //             MaxTokens = 256_000,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = true,
-        //         },
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-3-mini",
-        //             ModelId = "grok-3-mini",
-        //             DisplayName = "Grok 3 Mini",
-        //             MaxTokens = 131_072,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = true,
-        //         },
-        //         new ModelDefinition
-        //         {
-        //             Id = "grok-3",
-        //             ModelId = "grok-3",
-        //             DisplayName = "Grok 3",
-        //             MaxTokens = 131_072,
-        //             IsImageInputSupported = true,
-        //             IsFunctionCallingSupported = true,
-        //             IsDeepThinkingSupported = false,
-        //         }
-        //     ]
-        // },
         new()
         {
             Id = "deepseek",
@@ -429,9 +354,9 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
-                    Id = "x-ai/grok-4-fast:free",
-                    ModelId = "x-ai/grok-4-fast:free",
-                    DisplayName = "xAI: Grok 4 Fast (free)",
+                    Id = "x-ai/grok-4-fast",
+                    ModelId = "x-ai/grok-4-fast",
+                    DisplayName = "xAI: Grok 4 Fast",
                     MaxTokens = 2_000_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
@@ -501,6 +426,7 @@ public record ModelProviderTemplate
             Endpoint = "http://127.0.0.1:11434",
             IconUrl = "avares://Everywhere/Assets/Icons/ollama.svg",
             Schema = ModelProviderSchema.Ollama,
+            RequestTimeoutSeconds = 120, // Local models may take longer time.
             ModelDefinitions =
             [
                 new ModelDefinitionTemplate

@@ -98,14 +98,13 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     private async Task DeleteCustomAssistantAsync()
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
-        var dialogTcs = new TaskCompletionSource<bool>();
-        DialogManager.CreateDialog(
-                LocaleKey.Common_Warning.I18N(),
-                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.I18N(new DirectResourceKey(customAssistant.Name)))
-            .WithPrimaryButton(LocaleKey.Common_Yes.I18N(), () => dialogTcs.SetResult(true))
-            .WithCancelButton(LocaleKey.Common_No.I18N(), () => dialogTcs.SetResult(false))
-            .Show();
-        if (!await dialogTcs.Task) return;
+        var result = await DialogManager.CreateDialog(
+                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.I18N(new DirectResourceKey(customAssistant.Name)),
+                LocaleKey.Common_Warning.I18N())
+            .WithPrimaryButton(LocaleKey.Common_Yes.I18N())
+            .WithCancelButton(LocaleKey.Common_No.I18N())
+            .ShowAsync();
+        if (result != DialogResult.Primary) return;
 
         settings.Model.CustomAssistants.Remove(customAssistant);
     }

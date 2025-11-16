@@ -27,7 +27,7 @@ public abstract class ReactiveViewModelBase : ObservableValidator
     }
 
     protected AnonymousExceptionHandler DialogExceptionHandler => new((exception, message, source, lineNumber) =>
-        DialogManager.CreateDialog($"[{source}:{lineNumber}] {message ?? "Error"}", exception.GetFriendlyMessage().ToString() ?? "Unknown error"));
+        DialogManager.CreateDialog(exception.GetFriendlyMessage().ToString() ?? "Unknown error", $"[{source}:{lineNumber}] {message ?? "Error"}"));
 
     protected AnonymousExceptionHandler ToastExceptionHandler => new((exception, message, source, lineNumber) =>
         ToastManager.CreateToast($"[{source}:{lineNumber}] {message ?? "Error"}")

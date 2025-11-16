@@ -35,7 +35,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_Description);
     public override LucideIconKind? Icon => LucideIconKind.Globe;
 
-    public override IReadOnlyList<SettingsItem>? SettingsItems { get; }
+    public override IReadOnlyList<SettingsItem> SettingsItems => _webSearchEngineSettings.SettingsItems;
 
     private readonly WebSearchEngineSettings _webSearchEngineSettings;
     private readonly IRuntimeConstantProvider _runtimeConstantProvider;
@@ -103,16 +103,17 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             },
             TimeSpan.FromMinutes(5)); // Dispose browser after 5 minutes of inactivity
 
-        _functions.Add(
-            new NativeChatFunction(
-                WebSearchAsync,
-                ChatFunctionPermissions.NetworkAccess));
-        _functions.Add(
-            new NativeChatFunction(
-                WebSnapshotAsync,
-                ChatFunctionPermissions.NetworkAccess));
-
-        SettingsItems = Configuration.SettingsItems.CreateForObject(_webSearchEngineSettings, "Plugin_WebSearchEngine");
+        _functionsSource.Edit(list =>
+        {
+            list.Add(
+                new NativeChatFunction(
+                    WebSearchAsync,
+                    ChatFunctionPermissions.NetworkAccess));
+            list.Add(
+                new NativeChatFunction(
+                    WebSnapshotAsync,
+                    ChatFunctionPermissions.NetworkAccess));
+        });
 
         new ObjectObserver(HandleSettingsChanged).Observe(_webSearchEngineSettings);
     }
@@ -134,7 +135,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         {
             throw new HandledException(
                 new ArgumentException("Web search engine provider is not selected."),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage));
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage),
+                showDetails: false);
         }
 
         if (!Uri.TryCreate(provider.EndPoint.ActualValue, UriKind.Absolute, out var uri) ||
@@ -142,7 +144,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         {
             throw new HandledException(
                 new ArgumentException("Endpoint is not a valid absolute URI."),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage));
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage),
+                showDetails: false);
         }
 
         // Extract only the base URI without query parameters
@@ -160,7 +163,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                 provider.SearchEngineId ??
                 throw new HandledException(
                     new UnauthorizedAccessException("Search Engine ID is not set."),
-                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage)),
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage),
+                    showDetails: false),
                 _loggerFactory) as IWebSearchEngineConnector, 10),
             "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
             "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
@@ -169,14 +173,16 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             "searxng" => (new SearxngConnector(_httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             _ => throw new HandledException(
                 new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported."),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage))
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage),
+                showDetails: false)
         };
 
         string EnsureApiKey(string? apiKey) =>
             string.IsNullOrWhiteSpace(apiKey) ?
                 throw new HandledException(
                     new UnauthorizedAccessException("API key is not set."),
-                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage)) :
+                    new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage),
+                    showDetails: false) :
                 apiKey;
     }
 
@@ -266,7 +272,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                     await TestUrlConnectionAsync("https://cdn.npmmirror.com/binaries/chromium-browser-snapshots") ??
                     throw new HandledException(
                         new HttpRequestException("Failed to connect to the Puppeteer browser download URL."),
-                        new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage));
+                        new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
+                        showDetails: false);
                 await browserFetcher.DownloadAsync(buildId);
             }
 
@@ -289,7 +296,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         {
             throw new HandledException(
                 new InvalidOperationException("Failed to download or launch Puppeteer browser.", e),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage));
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage),
+                showDetails: false);
         }
 
         async ValueTask<string?> TestUrlConnectionAsync(string testUrl)

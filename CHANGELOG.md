@@ -1,3 +1,47 @@
+## [v0.4.6](https://github.com/DearVa/Everywhere/releases/tag/v0.4.6) - 2025-11-15
+
+### ✨ Features
+- Added native support for the Gemini schema, which fixes the issue where Gemini could not upload images (#125).
+- Added drag-and-drop support for files and text (#135).
+
+### 🚀 Improvements
+- Improved error message display (e.g., context length exceeded, network proxy errors, and duplicated error messages).
+- Improved UI appearance and visual effects.
+
+### 🐛 Bug Fixes
+- Fixed an issue where the log folder could not be opened if the path contained non-ASCII characters (such as Chinese) (#117).
+- Fixed some UI elements not responding correctly when switching languages.
+- Fixed garbled UI text for English users in some cases.
+- (Windows) Fixed an issue where terminal execution could sometimes not be terminated, causing the application to freeze.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.5...v0.4.6
+
+
+
+## [v0.4.5](https://github.com/DearVa/Everywhere/releases/tag/v0.4.5) - 2025-11-13
+
+### ✨ Features
+- Added a setting for model request timeout.
+- Added shortcuts in settings to "Edit configuration file" and "Open log folder" (Thanks @TheNotoBarth).
+- Added rendering support for LaTeX formulas.
+
+### 🚀 Improvements
+- Network proxy settings now take effect immediately without requiring an application restart.
+- Improved error messages for large language models (Thanks @TheNotoBarth).
+- Optimized the loading performance of the settings page.
+- Removed the unsupported `x-ai/grok-4-fast:free` model from OpenRouter.
+- Improved the display of some error messages.
+
+### 🐛 Bug Fixes
+- Refactored the underlying data model to fix a bug where messages could be displayed repeatedly.
+- Fixed a potential memory leak.
+- Optimized the display logic for dialog boxes to prevent them from going beyond the window boundaries and becoming inoperable.
+- Fixed an issue where model requests could not handle redirects automatically.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.4...v0.4.5
+
+
+
 ## [v0.4.4](https://github.com/DearVa/Everywhere/releases/tag/v0.4.4) - 2025-11-5
 
 - 📢 The macOS version is on the way and is expected to be released in v0.5.0. Good things take time, so please be patient!

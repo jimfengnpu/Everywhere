@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reactive.Disposables;
 using Avalonia.Collections;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
@@ -132,7 +133,7 @@ public class I18NExtension : MarkupExtension
             DisposeCollector.DisposeToDefault(ref _selfSubscription);
             _selfSubscription = _bindingInstance?.Source.Subscribe(this); // Subscribe to the binding so that we can get updates.
 
-            return _bindingInstance?.Source.Subscribe(observer) ?? AnonymousDisposable.Empty;
+            return _bindingInstance?.Source.Subscribe(observer) ?? Disposable.Empty;
         }
 
         public override string ToString() => _value?.ToString() ?? string.Empty;

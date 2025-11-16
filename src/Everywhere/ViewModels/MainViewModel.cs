@@ -1,39 +1,55 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reflection;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Views;
 using Lucide.Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using ObservableCollections;
 using ShadUI;
 
 namespace Everywhere.ViewModels;
 
-public partial class MainViewModel(IServiceProvider serviceProvider, Settings settings) : ReactiveViewModelBase
+public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
 {
-    [field: AllowNull, MaybeNull]
-    public NotifyCollectionChangedSynchronizedViewList<SidebarItem> Pages =>
-        field ??= _pages.ToNotifyCollectionChangedSlim(SynchronizationContextCollectionEventDispatcher.Current);
+    public ReadOnlyObservableCollection<SidebarItem> Pages { get; }
 
     [ObservableProperty] public partial SidebarItem? SelectedPage { get; set; }
 
-    public Settings Settings => settings;
+    public Settings Settings { get; }
 
-    private readonly ObservableList<SidebarItem> _pages = [];
+    private readonly SourceList<SidebarItem> _pagesSource = new();
+    private readonly CompositeDisposable _disposables = new(2);
+
+    private readonly IServiceProvider _serviceProvider;
+
+    public MainViewModel(IServiceProvider serviceProvider, Settings settings)
+    {
+        _serviceProvider = serviceProvider;
+        Settings = settings;
+
+        Pages = _pagesSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+
+        _disposables.Add(_pagesSource);
+    }
 
     protected internal override Task ViewLoaded(CancellationToken cancellationToken)
     {
-        if (_pages.Count > 0) return base.ViewLoaded(cancellationToken);
+        if (_pagesSource.Count > 0) return base.ViewLoaded(cancellationToken);
 
-        _pages.Reset(
-            serviceProvider
+        _pagesSource.AddRange(
+            _serviceProvider
                 .GetServices<IMainViewPageFactory>()
                 .SelectMany(f => f.CreatePages())
-                .Concat(serviceProvider.GetServices<IMainViewPage>())
+                .Concat(_serviceProvider.GetServices<IMainViewPage>())
                 .OrderBy(p => p.Index)
                 .Select(p => new SidebarItem
                 {
@@ -44,7 +60,7 @@ public partial class MainViewModel(IServiceProvider serviceProvider, Settings se
                     [SidebarItem.RouteProperty] = p,
                     Icon = new LucideIcon { Kind = p.Icon, Size = 20 }
                 }));
-        SelectedPage = _pages.FirstOrDefault();
+        SelectedPage = _pagesSource.Items.FirstOrDefault();
 
         ShowOobeDialogOnDemand();
 
@@ -57,22 +73,22 @@ public partial class MainViewModel(IServiceProvider serviceProvider, Settings se
     private void ShowOobeDialogOnDemand()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version;
-        if (!Version.TryParse(settings.Internal.PreviousLaunchVersion, out var previousLaunchVersion)) previousLaunchVersion = null;
-        if (settings.Model.CustomAssistants.Count == 0)
+        if (!Version.TryParse(Settings.Internal.PreviousLaunchVersion, out var previousLaunchVersion)) previousLaunchVersion = null;
+        if (Settings.Model.CustomAssistants.Count == 0)
         {
             DialogManager
-                .CreateDialog(ServiceLocator.Resolve<WelcomeView>())
+                .CreateCustomDialog(ServiceLocator.Resolve<WelcomeView>())
                 .ShowAsync();
         }
         else if (previousLaunchVersion != version)
         {
             DialogManager
-                .CreateDialog(ServiceLocator.Resolve<ChangeLogView>())
+                .CreateCustomDialog(ServiceLocator.Resolve<ChangeLogView>())
                 .Dismissible()
                 .ShowAsync();
         }
 
-        settings.Internal.PreviousLaunchVersion = version?.ToString();
+        Settings.Internal.PreviousLaunchVersion = version?.ToString();
     }
 
     protected internal override Task ViewUnloaded()
@@ -84,9 +100,14 @@ public partial class MainViewModel(IServiceProvider serviceProvider, Settings se
 
     private void ShowHideToTrayNotificationOnDemand()
     {
-        if (!settings.Internal.IsFirstTimeHideToTrayIcon) return;
+        if (!Settings.Internal.IsFirstTimeHideToTrayIcon) return;
 
         ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotification(LocaleKey.MainView_EverywhereHasMinimizedToTray.I18N());
-        settings.Internal.IsFirstTimeHideToTrayIcon = false;
+        Settings.Internal.IsFirstTimeHideToTrayIcon = false;
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

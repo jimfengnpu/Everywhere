@@ -1,30 +1,32 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Disposables;
+using DynamicData;
 using Everywhere.AI;
+using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Utilities;
 using Lucide.Avalonia;
-using ObservableCollections;
 using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
 
-public class ChatPluginManager : IChatPluginManager
+public sealed class ChatPluginManager : IChatPluginManager, IDisposable
 {
-    public INotifyCollectionChangedSynchronizedViewList<BuiltInChatPlugin> BuiltInPlugins =>
-        _builtInPlugins.ToNotifyCollectionChangedSlim(SynchronizationContextCollectionEventDispatcher.Current);
+    public ReadOnlyObservableCollection<BuiltInChatPlugin> BuiltInPlugins { get; }
 
-    public INotifyCollectionChangedSynchronizedViewList<McpChatPlugin> McpPlugins =>
-        _mcpPlugins.ToNotifyCollectionChangedSlim(SynchronizationContextCollectionEventDispatcher.Current);
+    public ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
 
-    private readonly ObservableList<BuiltInChatPlugin> _builtInPlugins = [];
-    private readonly ObservableList<McpChatPlugin> _mcpPlugins = [];
+    private readonly SourceList<BuiltInChatPlugin> _builtInPluginsSource = new();
+    private readonly SourceList<McpChatPlugin> _mcpPluginsSource = new();
+    private readonly CompositeDisposable _disposables = new();
 
     public ChatPluginManager(IEnumerable<BuiltInChatPlugin> builtInPlugins, Settings settings)
     {
-        _builtInPlugins.AddRange(builtInPlugins);
+        _builtInPluginsSource.AddRange(builtInPlugins);
 
         var isEnabledRecords = settings.Plugin.IsEnabled;
-        foreach (var builtInPlugin in _builtInPlugins)
+        foreach (var builtInPlugin in _builtInPluginsSource.Items)
         {
             builtInPlugin.IsEnabled = GetIsEnabled($"builtin.{builtInPlugin.Name}", false);
             foreach (var function in builtInPlugin.Functions)
@@ -32,6 +34,18 @@ public class ChatPluginManager : IChatPluginManager
                 function.IsEnabled = GetIsEnabled($"builtin.{builtInPlugin.Name}.{function.KernelFunction.Name}", true);
             }
         }
+
+        BuiltInPlugins = _builtInPluginsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+        McpPlugins = _mcpPluginsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+
+        _disposables.Add(_builtInPluginsSource);
+        _disposables.Add(_mcpPluginsSource);
 
         new ObjectObserver(HandleBuiltInPluginsChange).Observe(BuiltInPlugins);
 
@@ -49,12 +63,12 @@ public class ChatPluginManager : IChatPluginManager
             }
 
             var parts = e.Path.Split(':');
-            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= _builtInPlugins.Count)
+            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= _builtInPluginsSource.Count)
             {
                 return;
             }
 
-            var plugin = _builtInPlugins[pluginIndex];
+            var plugin = _builtInPluginsSource.Items[pluginIndex];
             switch (parts.Length)
             {
                 case 2:
@@ -85,10 +99,11 @@ public class ChatPluginManager : IChatPluginManager
         // Ensure that functions in the scope do not have the same name.
         var functionNames = new HashSet<string>();
         return new ChatPluginScope(
-            _builtInPlugins
+            _builtInPluginsSource
+                .Items
                 .AsValueEnumerable()
                 .Cast<ChatPlugin>()
-                .Concat(_mcpPlugins)
+                .Concat(_mcpPluginsSource.Items)
                 .Where(p => p.IsEnabled)
                 .Select(p => new ChatPluginSnapshot(p, chatContext, customAssistant, functionNames))
                 .ToList());
@@ -137,7 +152,7 @@ public class ChatPluginManager : IChatPluginManager
         {
             _originalChatPlugin = originalChatPlugin;
             AllowedPermissions = originalChatPlugin.AllowedPermissions.ActualValue;
-            _functions.AddRange(
+            _functionsSource.AddRange(
                 originalChatPlugin
                     .SnapshotFunctions(chatContext, customAssistant)
                     .Select(EnsureUniqueFunctionName));
@@ -158,5 +173,10 @@ public class ChatPluginManager : IChatPluginManager
                 return function;
             }
         }
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

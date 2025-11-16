@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -10,12 +10,11 @@ namespace Everywhere.Configuration;
 /// <summary>
 /// Represents a single settings item for View.
 /// </summary>
-/// <param name="name"></param>
-public class SettingsItem(string name) : AvaloniaObject
+public abstract class SettingsItem : AvaloniaObject
 {
-    public DynamicResourceKey HeaderKey => $"Settings_{name}_Header";
+    public DynamicResourceKey? HeaderKey { get; set; }
 
-    public DynamicResourceKey DescriptionKey => $"Settings_{name}_Description";
+    public DynamicResourceKey? DescriptionKey { get; set; }
 
     public static readonly StyledProperty<object?> ValueProperty = AvaloniaProperty.Register<SettingsItem, object?>(nameof(Value));
 
@@ -57,10 +56,15 @@ public class SettingsItem(string name) : AvaloniaObject
         set => SetValue(IsExpandableProperty, value);
     }
 
+    /// <summary>
+    /// Indicates whether this settings item contains no content (but may have child items).
+    /// </summary>
+    public virtual bool IsEmpty => false;
+
     public List<SettingsItem> Items { get; } = [];
 }
 
-public class SettingsBooleanItem(string name) : SettingsItem(name)
+public class SettingsBooleanItem : SettingsItem
 {
     public static readonly StyledProperty<bool> IsNullableProperty = AvaloniaProperty.Register<SettingsBooleanItem, bool>(nameof(IsNullable));
 
@@ -71,7 +75,7 @@ public class SettingsBooleanItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsStringItem(string name) : SettingsItem(name)
+public class SettingsStringItem : SettingsItem
 {
     public static readonly StyledProperty<string?> WatermarkProperty = AvaloniaProperty.Register<SettingsStringItem, string?>(nameof(Watermark));
 
@@ -97,7 +101,8 @@ public class SettingsStringItem(string name) : SettingsItem(name)
         set => SetValue(IsMultilineProperty, value);
     }
 
-    public static readonly StyledProperty<TextWrapping> TextWrappingProperty = AvaloniaProperty.Register<SettingsStringItem, TextWrapping>(nameof(TextWrapping));
+    public static readonly StyledProperty<TextWrapping> TextWrappingProperty =
+        AvaloniaProperty.Register<SettingsStringItem, TextWrapping>(nameof(TextWrapping));
 
     public TextWrapping TextWrapping
     {
@@ -122,7 +127,7 @@ public class SettingsStringItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsIntegerItem(string name) : SettingsItem(name)
+public class SettingsIntegerItem : SettingsItem
 {
     public static readonly StyledProperty<int> MinValueProperty = AvaloniaProperty.Register<SettingsIntegerItem, int>(nameof(MinValue));
 
@@ -150,7 +155,7 @@ public class SettingsIntegerItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsDoubleItem(string name) : SettingsItem(name)
+public class SettingsDoubleItem : SettingsItem
 {
     public static readonly StyledProperty<double> MinValueProperty = AvaloniaProperty.Register<SettingsDoubleItem, double>(nameof(MinValue));
 
@@ -186,7 +191,7 @@ public class SettingsDoubleItem(string name) : SettingsItem(name)
     }
 }
 
-public class SettingsSelectionItem(string name) : SettingsItem(name)
+public class SettingsSelectionItem : SettingsItem
 {
     public record Item(DynamicResourceKey Key, object Value, IDataTemplate? ContentTemplate);
 
@@ -217,48 +222,56 @@ public class SettingsSelectionItem(string name) : SettingsItem(name)
         }
     }
 
+    private bool _isHandlingPropertyChange;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ValueProperty && ItemsSource.AsValueEnumerable().Count() > 0)
+        if (_isHandlingPropertyChange) return;
+
+        _isHandlingPropertyChange = true;
+        try
         {
-            SelectedItem = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+            if (change.Property == ValueProperty && ItemsSource.AsValueEnumerable().Count() > 0)
+            {
+                SelectedItem = ItemsSource.FirstOrDefault(i => Equals(i.Value, change.NewValue));
+            }
+            else if (change.Property == ItemsSourceProperty)
+            {
+                SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, Value));
+
+                if (change.OldValue is INotifyCollectionChanged oldCollection)
+                {
+                    oldCollection.CollectionChanged -= HandleItemsSourceCollectionChanged;
+                }
+
+                if (change.NewValue is INotifyCollectionChanged newCollection)
+                {
+                    newCollection.CollectionChanged += HandleItemsSourceCollectionChanged;
+                }
+            }
+            else if (change.Property == SelectedItemProperty)
+            {
+                Value = change.NewValue.As<Item>()?.Value;
+            }
         }
-        else if (change.Property == ItemsSourceProperty)
+        finally
         {
-            SelectedItem = change.NewValue.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, change.NewValue));
-        }
-        else if (change.Property == SelectedItemProperty)
-        {
-            Value = change.NewValue.As<Item>()?.Value;
+            _isHandlingPropertyChange = false;
         }
     }
 
-    public static SettingsSelectionItem FromEnum(Type enumType, string name)
+    private void HandleItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (!enumType.IsEnum)
-        {
-            throw new ArgumentException("Type is not an enum", nameof(enumType));
-        }
+        if (Value is not { } value ||
+            sender.As<IEnumerable<Item>>()?.FirstOrDefault(i => Equals(i.Value, value)) is not { } selectedItem) return;
 
-        return new SettingsSelectionItem(name)
-        {
-            ItemsSource = Enum.GetValues(enumType).AsValueEnumerable().Cast<object>().Select(x =>
-            {
-                if (Enum.GetName(enumType, x) is { } enumName &&
-                    enumType.GetField(enumName)?.GetCustomAttribute<DynamicResourceKeyAttribute>() is { } ppAttribute)
-                {
-                    return new Item(new DynamicResourceKey(ppAttribute.HeaderKey), x, null);
-                }
-
-                return new Item(new DirectResourceKey(x), x, null);
-            }).ToList()
-        };
+        SelectedItem = selectedItem;
     }
 }
 
-public class SettingsCustomizableItem(string name, SettingsItem customValueItem) : SettingsItem(name)
+public class SettingsCustomizableItem(SettingsItem customValueItem) : SettingsItem
 {
     public SettingsItem CustomValueItem => customValueItem;
 
@@ -272,33 +285,57 @@ public class SettingsCustomizableItem(string name, SettingsItem customValueItem)
     }
 }
 
-public abstract class SettingsTypedItem(string name, IDataTemplate? dataTemplate) : SettingsItem(name)
+/// <summary>
+/// A settings item that holds a value of a specific type.
+/// TType is used for DataTemplate selection.
+/// </summary>
+/// <param name="dataTemplate"></param>
+public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsItem
 {
     public IDataTemplate? DataTemplate => dataTemplate;
 
-    public static SettingsTypedItem? TryCreate(Type propertyType, string name)
+    /// <summary>
+    /// Creates a SettingsTypedItem for the given property type. If no DataTemplate is found, returns an EmptySettingsTypedItem.
+    /// </summary>
+    /// <param name="propertyType"></param>
+    /// <returns></returns>
+    public static SettingsTypedItem Create(Type propertyType)
     {
         if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
             resource is not IDataTemplate dataTemplate)
         {
-            return null;
+            return new EmptySettingsTypedItem();
         }
 
         var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
-        var constructor = typedItem.GetConstructor([typeof(string), typeof(IDataTemplate)]);
-        return (SettingsTypedItem?)constructor?.Invoke([name, dataTemplate]);
+        var constructor = typedItem.GetConstructor([typeof(IDataTemplate)]);
+        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]) ?? new EmptySettingsTypedItem();
     }
+}
+
+/// <summary>
+/// Stands for a SettingsTypedItem with no specific type, usually used as a placeholder.
+/// </summary>
+public sealed class EmptySettingsTypedItem() : SettingsTypedItem(null)
+{
+    public override bool IsEmpty => true;
 }
 
 /// <summary>
 /// A settings item that holds a value of a specific type.
 /// TType is used for DataTemplate selection.
 /// </summary>
-/// <param name="name"></param>
 /// <typeparam name="TType"></typeparam>
-public class SettingsTypedItem<TType>(string name, IDataTemplate? dataTemplate) : SettingsTypedItem(name, dataTemplate);
+public sealed class SettingsTypedItem<TType>(IDataTemplate? dataTemplate) : SettingsTypedItem(dataTemplate);
 
-public class SettingsControlItem(string name, Control control) : SettingsItem(name)
+/// <summary>
+/// A settings item that contains a custom control.
+/// </summary>
+/// <param name="controlFactory"></param>
+public sealed class SettingsControlItem(Func<Control> controlFactory) : SettingsItem
 {
-    public Control Control => control;
+    /// <summary>
+    /// Use lazy control creation to avoid unnecessary instantiation and potential UI thread issues.
+    /// </summary>
+    public Control Control => controlFactory();
 }

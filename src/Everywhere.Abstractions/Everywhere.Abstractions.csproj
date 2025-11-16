@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm"/>
+    <PackageReference Include="DynamicData"/>
     <PackageReference Include="Microsoft.SemanticKernel.Abstractions"/>
-    <PackageReference Include="ObservableCollections"/>
     <PackageReference Include="System.Linq.Async"/>
     <PackageReference Include="ZLinq"/>
   </ItemGroup>

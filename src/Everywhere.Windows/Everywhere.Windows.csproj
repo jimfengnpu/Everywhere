@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-windows10.0.20348.0</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
@@ -14,8 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop"/>
-    <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.PowerShell.SDK"/>
+    <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
     <PackageReference Include="Microsoft.Windows.CsWin32">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\3rd\EverythingNetCore\EverythingNet\EverythingNet.csproj"/>
+    <ProjectReference Include="..\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj" />
     <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
   </ItemGroup>
 
