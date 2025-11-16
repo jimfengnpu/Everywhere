@@ -18,7 +18,7 @@ public class LinuxShortcutListener : IShortcutListener
         ArgumentNullException.ThrowIfNull(handler);
         var id = _backend?.GrabKey(hotkey, handler)??0;
         return id != 0
-            ? new AnonymousDisposable(() => _backend?.Ungrab(id))
+            ? new Disposer(() => _backend?.Ungrab(id))
             : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
@@ -36,6 +36,11 @@ public class LinuxShortcutListener : IShortcutListener
     public IKeyboardShortcutScope StartCaptureKeyboardShortcut()
     {
         return new LinuxKeyboardShortcutScopeImpl(_backend ?? throw new InvalidOperationException("Display _backend is not available."));
+    }
+    
+    private readonly record struct Disposer(Action DisposeAction) : IDisposable
+    {
+        public void Dispose() => DisposeAction?.Invoke();
     }
 }
 

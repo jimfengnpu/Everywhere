@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop"/>
-    <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
+    <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
     <PackageReference Include="SkiaSharp"/>
     <PackageReference Include="SkiaSharp.NativeAssets.Linux"/>
   </ItemGroup>
@@ -48,7 +48,5 @@
     </Content>
   </ItemGroup>
 
-  <Target Name="BuildWatchdog" BeforeTargets="BeforeBuild" Inputs="$(WatchdogProject)" Outputs="$(WatchdogExecutable)">
-    <Message Text="Watchdog executable is out-of-date. Building..." Importance="high"/>
-  </Target>
+  <Import Project="..\Build.Watchdog.targets" />
 </Project>
