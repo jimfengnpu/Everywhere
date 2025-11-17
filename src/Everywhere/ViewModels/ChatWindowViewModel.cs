@@ -55,9 +55,6 @@ public sealed partial class ChatWindowViewModel :
         }
     }
 
-    [ObservableProperty]
-    public partial PixelRect TargetBoundingRect { get; private set; }
-
     /// <summary>
     /// Indicates whether the chat window is currently viewing history page.
     /// </summary>
@@ -199,7 +196,11 @@ public sealed partial class ChatWindowViewModel :
 
     private CancellationTokenSource? _targetElementChangedTokenSource;
 
-    public async Task TryFloatToTargetElementAsync(IVisualElement? targetElement)
+    /// <summary>
+    /// Show the chat window and float to the target element.
+    /// </summary>
+    /// <param name="targetElement"></param>
+    public async Task ShowAsync(IVisualElement? targetElement)
     {
         // debouncing
         if (_targetElementChangedTokenSource is not null) await _targetElementChangedTokenSource.CancelAsync();
@@ -218,7 +219,6 @@ public sealed partial class ChatWindowViewModel :
             // Avoid adding duplicate attachments
             if (_chatAttachmentsSource.Items.Any(a => a is ChatVisualElementAttachment vea && Equals(vea.Element?.Target, targetElement))) return;
 
-            TargetBoundingRect = default;
             if (targetElement == null)
             {
                 _chatAttachmentsSource.Edit(list =>
@@ -232,10 +232,10 @@ public sealed partial class ChatWindowViewModel :
             }
 
             var createElement = Settings.ChatWindow.AutomaticallyAddElement;
-            var (boundingRect, attachment) = await Task
-                .Run(() => (targetElement.BoundingRectangle, createElement ? CreateFromVisualElement(targetElement) : null), cancellationToken)
+            var attachment = await Task
+                .Run(() => createElement ? CreateFromVisualElement(targetElement) : null, cancellationToken)
                 .WaitAsync(TimeSpan.FromSeconds(1), cancellationToken);
-            TargetBoundingRect = boundingRect;
+
             if (attachment is not null)
             {
                 _chatAttachmentsSource.Edit(list =>

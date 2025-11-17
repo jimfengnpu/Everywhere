@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Everywhere.Common;
 using Everywhere.Views;
 using Microsoft.Extensions.DependencyInjection;
 using ShadUI;
@@ -9,6 +10,15 @@ namespace Everywhere.Extensions;
 
 public static class AvaloniaExtension
 {
+    public static AnonymousExceptionHandler ToExceptionHandler(this DialogManager dialogManager) => new((exception, message, source, lineNumber) =>
+        dialogManager.CreateDialog(exception.GetFriendlyMessage().ToString() ?? "Unknown error", $"[{source}:{lineNumber}] {message ?? "Error"}"));
+
+    public static AnonymousExceptionHandler ToExceptionHandler(this ToastManager toastManager) => new((exception, message, source, lineNumber) =>
+        toastManager.CreateToast($"[{source}:{lineNumber}] {message ?? "Error"}")
+            .WithContent(exception.GetFriendlyMessage().ToTextBlock())
+            .DismissOnClick()
+            .ShowError());
+
     public static TextBlock ToTextBlock(this DynamicResourceKeyBase dynamicResourceKey)
     {
         return new TextBlock

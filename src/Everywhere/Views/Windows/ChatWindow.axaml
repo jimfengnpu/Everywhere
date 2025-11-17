@@ -14,9 +14,8 @@
   IsTitleBarVisible="False"
   RequestedThemeVariant="{x:Static themes:ThemeVariants.Acrylic}"
   ShowActivated="False" SizeToContent="WidthAndHeight"
-  SystemDecorations="BorderOnly"
-  TargetBoundingRect="{Binding TargetBoundingRect}"
-  TransparencyLevelHint="AcrylicBlur" WindowStartupLocation="Manual">
+  SystemDecorations="BorderOnly" TransparencyLevelHint="AcrylicBlur"
+  WindowStartupLocation="CenterScreen">
 
   <v:ReactiveShadWindow.Resources>
     <!--  This is used for LaTeX rendering  -->
