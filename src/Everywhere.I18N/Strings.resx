@@ -1532,4 +1532,10 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
         <value>File size ({0}) exceeds the maximum allowed size ({1}).</value>
     </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Font Size</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Adjust the global font display size.</value>
+    </data>
 </root>

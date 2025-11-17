@@ -45,6 +45,7 @@ public class SettingsIntegerItemAttribute : Attribute
     public int Min { get; set; } = int.MinValue;
     public int Max { get; set; } = int.MaxValue;
     public bool IsSliderVisible { get; set; } = true;
+    public bool IsTextBoxVisible { get; set; } = true;
 }
 
 [AttributeUsage(AttributeTargets.Property)]
@@ -54,6 +55,7 @@ public class SettingsDoubleItemAttribute : Attribute
     public double Max { get; set; } = double.PositiveInfinity;
     public double Step { get; set; } = 1.0d;
     public bool IsSliderVisible { get; set; } = true;
+    public bool IsTextBoxVisible { get; set; } = true;
 }
 
 [AttributeUsage(AttributeTargets.Property)]

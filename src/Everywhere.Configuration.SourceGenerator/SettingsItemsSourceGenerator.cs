@@ -424,6 +424,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine($"{itemName}.MinValue = {GetNamedArgValue(attribute, "Min", "int.MinValue")};");
                 sb.AppendLine($"{itemName}.MaxValue = {GetNamedArgValue(attribute, "Max", "int.MaxValue")};");
                 sb.AppendLine($"{itemName}.IsSliderVisible = {GetNamedArgValue(attribute, "IsSliderVisible", "true")};");
+                sb.AppendLine($"{itemName}.IsTextBoxVisible = {GetNamedArgValue(attribute, "IsTextBoxVisible", "true")};");
                 break;
             }
             case ItemKind.Double when metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsDoubleItem) is { } attribute:
@@ -432,6 +433,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine($"{itemName}.MaxValue = {GetNamedArgValue(attribute, "Max", "double.PositiveInfinity")};");
                 sb.AppendLine($"{itemName}.Step = {GetNamedArgValue(attribute, "Step", "0.1d")};");
                 sb.AppendLine($"{itemName}.IsSliderVisible = {GetNamedArgValue(attribute, "IsSliderVisible", "true")};");
+                sb.AppendLine($"{itemName}.IsTextBoxVisible = {GetNamedArgValue(attribute, "IsTextBoxVisible", "true")};");
                 break;
             }
             case ItemKind.Enum:

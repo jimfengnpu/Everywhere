@@ -153,6 +153,15 @@ public class SettingsIntegerItem : SettingsItem
         get => GetValue(IsSliderVisibleProperty);
         set => SetValue(IsSliderVisibleProperty, value);
     }
+
+    public static readonly StyledProperty<bool> IsTextBoxVisibleProperty =
+        AvaloniaProperty.Register<SettingsIntegerItem, bool>(nameof(IsTextBoxVisible), true);
+
+    public bool IsTextBoxVisible
+    {
+        get => GetValue(IsTextBoxVisibleProperty);
+        set => SetValue(IsTextBoxVisibleProperty, value);
+    }
 }
 
 public class SettingsDoubleItem : SettingsItem
@@ -188,6 +197,15 @@ public class SettingsDoubleItem : SettingsItem
     {
         get => GetValue(IsSliderVisibleProperty);
         set => SetValue(IsSliderVisibleProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> IsTextBoxVisibleProperty =
+        AvaloniaProperty.Register<SettingsDoubleItem, bool>(nameof(IsTextBoxVisible), true);
+
+    public bool IsTextBoxVisible
+    {
+        get => GetValue(IsTextBoxVisibleProperty);
+        set => SetValue(IsTextBoxVisibleProperty, value);
     }
 }
 

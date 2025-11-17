@@ -1519,4 +1519,10 @@
     <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
         <value>文件大小 ({0}) 超出允许上限 ({1})。</value>
     </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>字体大小</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>调整全局的字体显示大小。</value>
+    </data>
 </root>
