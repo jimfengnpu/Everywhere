@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using CSharpMath;
 using Everywhere.Common;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
@@ -416,11 +417,11 @@ public partial class AtspiService
             get
             {
                 var idPtr = atspi_accessible_get_accessible_id(_element, IntPtr.Zero);
-                if (idPtr == IntPtr.Zero)
-                {
-                    return "";
-                }
                 var idStr = Marshal.PtrToStringUTF8(idPtr) ?? "";
+                if (idPtr == IntPtr.Zero || idStr.IsEmpty())
+                {
+                    return _element.ToString("X");
+                }
                 g_free(idPtr);
                 return idStr;
             }
@@ -448,8 +449,14 @@ public partial class AtspiService
         {
             if (atspi_accessible_is_text(_element) == 1)
             {
+                var objTextCount = atspi_accessible_get_child_count(_element, IntPtr.Zero);
+                if (objTextCount > 0)
+                {
+                    // in this case, libatspi return objTextCount char “obj char” (U+FFFC), we just simply return null
+                    return null;
+                }
                 var count = atspi_text_get_character_count(_element, IntPtr.Zero);
-                var rawText = atspi_text_get_text(_element, 0, count, IntPtr.Zero);
+                var rawText = atspi_text_get_text(_element, 0, maxLength == -1? count: maxLength, IntPtr.Zero);
                 if (rawText == IntPtr.Zero)
                 {
                     return null;
@@ -515,7 +522,7 @@ public partial class AtspiService
                     return new PixelRect(0, 0, 0, 0);
                 }
                 var rect = ElementBounds(_element);
-                atspi._logger.LogInformation("Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
+                atspi._logger.LogDebug("Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
                     Name, rect.X, rect.Y, rect.Width, rect.Height);
                 return rect;
             }
