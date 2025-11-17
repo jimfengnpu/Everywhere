@@ -186,21 +186,16 @@ public partial class AtspiService
         {
             return null;
         }
-        bool existVisible = false;
         foreach (var child in ElementChildren(parent._element)
                      .OrderByDescending(child => child.Order))
         {
-            existVisible = true;
             var found = AtspiElementFromPoint(child, point);
             if (found != null)
             {
                 return found;
             }
         }
-        if (!existVisible)
-        {
-            return null;
-        }
+        
         if (rect is { Height: > 0, Width: > 0 } && rect.Contains(point) && ElementVisible(parent._element))
         {
             return parent;

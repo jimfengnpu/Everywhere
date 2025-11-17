@@ -14,7 +14,6 @@ namespace Everywhere.Linux.Interop;
 /// </summary>
 public partial class LinuxVisualElementContext: IVisualElementContext
 {
-    private readonly INativeHelper _nativeHelper;
     public readonly ILinuxDisplayBackend _backend;
     private readonly AtspiService _atspi;
     private readonly ILogger<LinuxVisualElementContext> _logger;
@@ -35,9 +34,8 @@ public partial class LinuxVisualElementContext: IVisualElementContext
 
     public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
 
-    public LinuxVisualElementContext(INativeHelper nativeHelper, ILinuxDisplayBackend backend, ILogger<LinuxVisualElementContext> logger)
+    public LinuxVisualElementContext(ILinuxDisplayBackend backend, ILogger<LinuxVisualElementContext> logger)
     {
-        _nativeHelper = nativeHelper;
         _backend = backend;
         backend.Context = this;
         _atspi = new AtspiService(this);

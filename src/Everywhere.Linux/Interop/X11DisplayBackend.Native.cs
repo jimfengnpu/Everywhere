@@ -527,33 +527,33 @@ public partial class X11DisplayBackend
         };
     }
 
-    /// <summary>
-    /// X11 Error Discription
-    /// </summary>
-    private static string GetErrorDescription(int code)
-    {
-        return code switch
-        {
-            1 => "The request code is invalid",
-            2 => "Some numeric value falls outside the allowed range",
-            3 => "A parameter for a Window request does not refer to a valid Window",
-            4 => "A parameter for a Pixmap request does not refer to a valid Pixmap",
-            5 => "A parameter for an Atom request does not refer to a valid Atom",
-            6 => "A parameter for a Cursor request does not refer to a valid Cursor",
-            7 => "A parameter for a Font request does not refer to a valid Font",
-            8 => "The input shape does not match the drawable",
-            9 => "A parameter for a Drawable request does not refer to a valid Drawable",
-            10 => "The client attempted to access a resource it does not have permission to access",
-            11 => "The server failed to allocate the requested resource",
-            12 => "A value for a Colormap request does not refer to a valid Colormap",
-            13 => "A parameter for a GContext request does not refer to a valid GContext",
-            14 => "The choice is not in the allowed range",
-            15 => "A font or color name does not exist",
-            16 => "The length of a request is shorter or longer than required",
-            17 => "The server does not implement some aspect of the request",
-            _ => $"No description available for error code {code}"
-        };
-    }
+    // /// <summary>
+    // /// X11 Error Discription
+    // /// </summary>
+    // private static string GetErrorDescription(int code)
+    // {
+    //     return code switch
+    //     {
+    //         1 => "The request code is invalid",
+    //         2 => "Some numeric value falls outside the allowed range",
+    //         3 => "A parameter for a Window request does not refer to a valid Window",
+    //         4 => "A parameter for a Pixmap request does not refer to a valid Pixmap",
+    //         5 => "A parameter for an Atom request does not refer to a valid Atom",
+    //         6 => "A parameter for a Cursor request does not refer to a valid Cursor",
+    //         7 => "A parameter for a Font request does not refer to a valid Font",
+    //         8 => "The input shape does not match the drawable",
+    //         9 => "A parameter for a Drawable request does not refer to a valid Drawable",
+    //         10 => "The client attempted to access a resource it does not have permission to access",
+    //         11 => "The server failed to allocate the requested resource",
+    //         12 => "A value for a Colormap request does not refer to a valid Colormap",
+    //         13 => "A parameter for a GContext request does not refer to a valid GContext",
+    //         14 => "The choice is not in the allowed range",
+    //         15 => "A font or color name does not exist",
+    //         16 => "The length of a request is shorter or longer than required",
+    //         17 => "The server does not implement some aspect of the request",
+    //         _ => $"No description available for error code {code}"
+    //     };
+    // }
 
     private static string GetRequestCodeName(int requestCode)
     {

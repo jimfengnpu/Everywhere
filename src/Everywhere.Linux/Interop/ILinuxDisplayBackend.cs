@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
@@ -64,7 +65,7 @@ public interface ILinuxDisplayBackend: IWindowHelper
 
     PixelPoint GetPointer();
     
-    // void WindowPickerHook(Func<PixelPoint, PixelRect> hook);
+    void WindowPickerHook(Window overlayLayer, Action<PixelPoint, EventType> hook);
 
     IVisualElement? GetFocusedWindowElement();
 

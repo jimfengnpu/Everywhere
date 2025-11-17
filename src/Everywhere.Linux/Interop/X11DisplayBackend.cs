@@ -15,6 +15,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 {
     private IntPtr _display;
     private IntPtr _rootWindow;
+    private IntPtr _scanSkipWindowHandle = IntPtr.Zero;
     private readonly ILogger<X11DisplayBackend> _logger = ServiceLocator.Resolve<ILogger<X11DisplayBackend>>();
     private readonly ConcurrentDictionary<int, RegInfo> _regs = new();
     private int _nextId = 1;
@@ -325,8 +326,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     private IntPtr GetWindowAtPoint(IntPtr window, int x, int y)
     {
+        if (window == _scanSkipWindowHandle)
+        {
+            return IntPtr.MaxValue;
+        }
         XGetWindowAttributes(_display, window, out var attr);
-        if (attr.map_state != IsViewable)// skip hidden
+        if (attr.map_state != IsViewable || attr.override_redirect == 1)// skip hidden
         {
             return IntPtr.Zero;
         }
@@ -339,8 +344,18 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             if (child != IntPtr.Zero)
             {
                 var sub = GetWindowAtPoint(child, rx, ry);
+                if (sub == IntPtr.MaxValue)
+                {
+                    if (window != _rootWindow)
+                    {
+                        return IntPtr.MaxValue;
+                    }
+                    continue;
+                }
                 if (sub != IntPtr.Zero)
                 {
+                    _logger.LogInformation("< {window}", 
+                        window.ToString("X"));
                     return sub;
                 }
             }
@@ -350,6 +365,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             return IntPtr.Zero;
         }
+        _logger.LogInformation("<< get {window}", 
+            window.ToString("X"));
         return window;
     }
 
@@ -550,12 +567,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         IntPtr wnd = ph.Handle;
 
         if (cloaked)
-        {
-
-            // set override_redirect and window Dock type
-            // XWindowAttributes attrs = new();
-            // attrs.override_redirect = 1;
-            // XChangeWindowAttributes(_display, wnd, (int)CW.OverrideRedirect, ref attrs);
+        { 
             // IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
             // IntPtr atomDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
             // if (atomType != IntPtr.Zero && atomDock != IntPtr.Zero)
@@ -563,31 +575,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             //     ulong[] data = { (ulong)atomDock };
             //     XChangeProperty(_display, wnd, atomType, XA_ATOM, 32, PropModeReplace, data, 1);
             // }
-            // if (XFixesQueryExtension(_display, out _, out _) != 0)
-            // {
-            //     XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, IntPtr.Zero);
-            // }
             
             window.Hide();
         }
         else
         {
-            // reset override_redirect
-            // XWindowAttributes attrs = new();
-            // attrs.override_redirect = 0;
-            // XChangeWindowAttributes(_display, wnd, (int)CW.OverrideRedirect, ref attrs);
-            
-            // if (XFixesQueryExtension(_display, out _, out _) != 0)
-            // {
-            //     // 创建一个覆盖整个窗口的 region
-            //     IntPtr fullRegion = XFixesCreateRegion(_display, new[] { new XRectangle { x = 0, y = 0, width = (ushort)window.Width, height = (ushort)window.Height } }, 1);
-            //     XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, fullRegion);
-            //     XFixesDestroyRegion(_display, fullRegion);
-            // }
-
-            // 显式设置键盘焦点
-            // XSetInputFocus(_display, wnd, RevertToParent, CurrentTime);
-            // show window
             window.Show();
             window.Activate();
         }
@@ -617,110 +609,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         return new PixelPoint(rootX, rootY);
     }
 
-    public void WindowPickerHook(Window overlay, Func<PixelPoint, PixelRect> hook)
+    public void WindowPickerHook(Window overlay, Action<PixelPoint, EventType> hook)
     {
-        // create overlay
-        // var root = XDefaultRootWindow(_display);
-        // int hovn;
-        // XQueryTree(_display, root, out _, out _, out var wins, out var nwins);
-        // XGetWindowAttributes(_display, root, out var rootAttr);
-        // XMatchVisualInfo(_display, XDefaultScreen(_display), 32, TrueColor, out var vinfo);
-        // var cmap = XCreateColormap(_display, root, vinfo.visual, 0);
-        // var swa = new XSetWindowAttributes
-        // {
-        //     colormap = cmap,
-        //     background_pixel = 0,
-        //     border_pixel = 0,
-        //     override_redirect = 1
-        // };
-        // var overlay = XCreateWindow(
-        //     _display, root,
-        //     0, 0, (uint)rootAttr.width, (uint)rootAttr.height,
-        //     0, vinfo.depth, (int)CreateWindowArgs.InputOutput,
-        //     vinfo.visual,
-        //     (int)(CW.Colormap | CW.BackPixel | CW.BorderPixel | CW.OverrideRedirect),
-        //     ref swa
-        // );
-        //
-        // // 设置为 DOCK 类型（关键！）
-        // var netWmType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
-        // var netWmDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
-        // if (netWmType != IntPtr.Zero && netWmDock != IntPtr.Zero)
-        // {
-        //     var data = new ulong[] { (ulong)netWmDock };
-        //     XChangeProperty(_display, overlay, netWmType, (IntPtr)4, 32, 0, data, 1);
-        // }
-        //
-        //
-        // if (XFixesQueryExtension(_display, out _, out _) != 0)
-        // {
-        //     XFixesSetWindowShapeRegion(_display, overlay, ShapeInput, 0, 0, IntPtr.Zero);
-        // }
-        //
-        // var gcval = new XGCValues
-        // {
-        //     foreground = XWhitePixel(_display, 0),
-        //     function = GCFunction.GXxor,
-        //     background = XBlackPixel(_display, 0),
-        //     plane_mask = XWhitePixel(_display, 0) ^ XBlackPixel(_display, 0),
-        //     subwindow_mode = IncludeInferiors
-        // };
-        // var gcvalPtr = Marshal.AllocHGlobal(Marshal.SizeOf<XGCValues>());
-        // Marshal.StructureToPtr(gcval, gcvalPtr, false);
-        //
-        // var gc = XCreateGC(_display, overlay,
-        //     GCMask.GCFunction | GCMask.GCForeground | GCMask.GCBackground | GCMask.GCSubwindowMode,
-        //     gcvalPtr);
-        //
-        // // 映射窗口
-        // XMapWindow(_display, overlay);
-        // XFlush(_display);
-    
-        try
-        {
-            IVisualElement? selected = null;
-            Rect maskRect = default;
-    
-            bool done = false;
-            bool leftPressed = false;
-    
-            while (!done)
-            {
-                // 获取鼠标位置
-                XQueryPointer(_display, _rootWindow, out _, out var child,
-                    out var rootX, out var rootY, out _, out _, out var mask);
-    
-                var pixelPoint = new PixelPoint(rootX, rootY);
-                var rect = hook(pixelPoint);
-    
-                bool isLeftPressed = (mask & 0x100) != 0; // Button1Mask
-                if (isLeftPressed && !leftPressed)
-                {
-                    leftPressed = true;
-                }
-                else if (!isLeftPressed && leftPressed)
-                {
-                    leftPressed = false;
-                    done = true;
-                }
-                // if (isLeftPressed)
-                // {
-                //     XClearArea(_display, overlay, 0, 0,
-                //         (uint)rootAttr.width, (uint)rootAttr.height, 0);
-                //     XDrawRectangle(_display, overlay, gc,
-                //         rect.X, rect.Y, (uint)rect.Width, (uint)rect.Height);
-                // }
-    
-                Thread.Sleep(16);
-            }
-        }
-        finally
-        {
-            // Marshal.FreeHGlobal(gcvalPtr);
-            // XUnmapWindow(_display, overlay);
-            // XDestroyWindow(_display, overlay);
-            XFlush(_display);
-        }
+        var handle = overlay.TryGetPlatformHandle()?.Handle;
+        _scanSkipWindowHandle = handle?? IntPtr.Zero;
+        GrabMouseHook(hook);
     }
 
 
