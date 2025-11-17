@@ -19,12 +19,6 @@
     <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <WatchdogProject>..\Everywhere.Watchdog\Everywhere.Watchdog.csproj</WatchdogProject>
-    <WatchdogOutDir>$(MSBuildThisFileDirectory)$(WatchdogProject)\..\bin\$(Configuration)\net9.0\linux-x64\publish\</WatchdogOutDir>
-    <WatchdogExecutable>$(WatchdogOutDir)Everywhere.Watchdog</WatchdogExecutable>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop"/>
     <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
