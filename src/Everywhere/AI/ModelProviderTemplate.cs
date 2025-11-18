@@ -235,6 +235,16 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
+                    Id = "gemini-3-pro-preview",
+                    ModelId = "gemini-3-pro-preview",
+                    DisplayName = "Gemini 3 Pro Preview",
+                    MaxTokens = 1_048_576,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
                     Id = "gemini-2.5-pro",
                     ModelId = "gemini-2.5-pro",
                     DisplayName = "Gemini 2.5 Pro",
