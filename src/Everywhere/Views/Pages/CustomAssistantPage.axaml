@@ -5,14 +5,26 @@
   xmlns:vm="clr-namespace:Everywhere.ViewModels" x:DataType="vm:CustomAssistantPageViewModel">
   <Grid
     ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*"
-    RowSpacing="16">
-    <Button
-      Classes="Primary" Grid.Row="0"
-      Grid.Column="0" HorizontalAlignment="Left"
-      shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
-      Command="{Binding CreateNewCustomAssistantCommand}"
-      Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
-      ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
+    RowSpacing="8">
+    <DockPanel
+      Grid.Row="0" Grid.Column="0">
+      <Button
+        Classes="Primary" DockPanel.Dock="Left"
+        HorizontalAlignment="Left"
+        shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
+        Command="{Binding CreateNewCustomAssistantCommand}"
+        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
+
+      <Button
+        Classes="Primary" DockPanel.Dock="Right"
+        HorizontalAlignment="Right"
+        shadui:ButtonAssist.Icon="{LucideIconContent Copy}"
+        Command="{Binding DuplicateCustomAssistantCommand}"
+        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_Content}}"
+        IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}"/>
+    </DockPanel>
 
     <ListBox
       Grid.Row="1" Grid.Column="0"

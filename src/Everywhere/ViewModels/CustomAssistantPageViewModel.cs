@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -63,6 +64,22 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
         };
         settings.Model.CustomAssistants.Add(newAssistant);
         SelectedCustomAssistant = newAssistant;
+    }
+
+    [RelayCommand]
+    private void DuplicateCustomAssistant()
+    {
+        if (SelectedCustomAssistant is not { } customAssistant) return;
+
+        var jsonSerializerOptions = JsonSerializerOptions.Default;
+        var duplicatedAssistant = JsonSerializer.Deserialize<CustomAssistant>(
+            JsonSerializer.Serialize(customAssistant, jsonSerializerOptions),
+            jsonSerializerOptions).NotNull();
+
+        duplicatedAssistant.Id = Guid.CreateVersion7();
+        duplicatedAssistant.Name += " - " + LocaleKey.Common_Copy.I18N();
+        settings.Model.CustomAssistants.Insert(settings.Model.CustomAssistants.IndexOf(customAssistant) + 1, duplicatedAssistant);
+        SelectedCustomAssistant = duplicatedAssistant;
     }
 
     [RelayCommand]

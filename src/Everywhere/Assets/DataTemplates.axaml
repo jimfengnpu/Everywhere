@@ -46,10 +46,11 @@
     <Button
       HorizontalAlignment="Left" CornerRadius="20">
       <v:IconPresenter
-        Width="40" Height="40"
-        FontSize="24"
+        MinWidth="40" MinHeight="40"
+        FontSize="{DynamicResource FontSize2Xl}"
         Icon="{Binding Value}"
-        IconSize="24"/>
+        IconSize="{DynamicResource FontSize2Xl}"
+        LineHeight="{DynamicResource LineHeight2Xl}"/>
 
       <Button.Flyout>
         <Flyout>
