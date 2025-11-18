@@ -100,8 +100,28 @@ public sealed partial class ChatWindowViewModel :
 
     public IChatContextManager ChatContextManager { get; }
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    public partial ChatMessageNode? EditingUserMessageNode { get; private set; }
+
+    public bool CanEdit => IsNotBusy && EditingUserMessageNode is null;
+
+    /// <summary>
+    /// The text in the chat input box.
+    /// </summary>
+    public string? ChatInputBoxText
+    {
+        get;
+        set
+        {
+            if (!SetProperty(ref field, value)) return;
+            if (EditingUserMessageNode is null) Settings.Internal.ChatInputBoxText = value;
+        }
+    }
+
     private readonly IChatService _chatService;
     private readonly IVisualElementContext _visualElementContext;
+    private readonly INativeHelper _nativeHelper;
     private readonly IBlobStorage _blobStorage;
     private readonly ILogger<ChatWindowViewModel> _logger;
 
@@ -109,6 +129,8 @@ public sealed partial class ChatWindowViewModel :
     private readonly SourceList<ChatAttachment> _chatAttachmentsSource = new();
     private readonly ReusableCancellationTokenSource _cancellationTokenSource = new();
     private readonly ActivitySource _activitySource = new(typeof(ChatWindowViewModel).FullName.NotNull());
+
+    private List<ChatAttachment>? _chatAttachmentsBeforeEditing;
 
     /// <summary>
     /// Start an activity when the window is opened, and dispose it when closed.
@@ -120,6 +142,7 @@ public sealed partial class ChatWindowViewModel :
         IChatContextManager chatContextManager,
         IChatService chatService,
         IVisualElementContext visualElementContext,
+        INativeHelper nativeHelper,
         IBlobStorage blobStorage,
         ILogger<ChatWindowViewModel> logger)
     {
@@ -129,8 +152,12 @@ public sealed partial class ChatWindowViewModel :
 
         _chatService = chatService;
         _visualElementContext = visualElementContext;
+        _nativeHelper = nativeHelper;
         _blobStorage = blobStorage;
         _logger = logger;
+
+        // Load the saved input box text
+        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
 
         ChatAttachments = _chatAttachmentsSource
             .Connect()
@@ -300,8 +327,8 @@ public sealed partial class ChatWindowViewModel :
                     }
                 }
             }
-            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true && 
-                     formats.Contains(DataFormat.Bitmap) && 
+            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true &&
+                     formats.Contains(DataFormat.Bitmap) &&
                      await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {
                 await Task.Run(
@@ -499,15 +526,57 @@ public sealed partial class ChatWindowViewModel :
                 attachments = [..list];
                 list.Clear();
             });
+
             var userMessage = new UserChatMessage(message, attachments)
             {
                 Inlines = { message }
             };
 
-            return Task.Run(() => _chatService.SendMessageAsync(userMessage, cancellationToken), cancellationToken);
+            if (EditingUserMessageNode is not { } originalNode)
+            {
+                return Task.Run(() => _chatService.SendMessageAsync(userMessage, cancellationToken), cancellationToken);
+            }
+
+            CancelEditing();
+
+            return Task.Run(() => _chatService.EditAsync(originalNode, userMessage, cancellationToken), cancellationToken);
         },
         _logger.ToExceptionHandler(),
         cancellationToken: _cancellationTokenSource.Token);
+
+    [RelayCommand(CanExecute = nameof(CanEdit))]
+    private void Edit(ChatMessageNode userChatMessageNode)
+    {
+        if (userChatMessageNode is not { Message: UserChatMessage userChatMessage }) return;
+
+        EditingUserMessageNode = userChatMessageNode;
+        ChatInputBoxText = userChatMessage.Inlines.Text;
+        _chatAttachmentsSource.Edit(list =>
+        {
+            _chatAttachmentsBeforeEditing = list.ToList();
+            list.Clear();
+            list.AddRange(userChatMessage.Attachments.Where(a => a is not ChatVisualElementAttachment { IsElementValid: false }));
+        });
+    }
+
+    [RelayCommand]
+    public void CancelEditing()
+    {
+        if (EditingUserMessageNode is null) return;
+
+        EditingUserMessageNode = null;
+        _chatAttachmentsSource.Edit(list =>
+        {
+            list.Clear();
+            if (_chatAttachmentsBeforeEditing is not null)
+            {
+                list.AddRange(_chatAttachmentsBeforeEditing);
+                _chatAttachmentsBeforeEditing = null;
+            }
+        });
+
+        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
+    }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
     private Task RetryAsync(ChatMessageNode chatMessageNode) => ExecuteBusyTaskAsync(
@@ -522,7 +591,22 @@ public sealed partial class ChatWindowViewModel :
     }
 
     [RelayCommand]
-    private Task CopyAsync(ChatMessage chatMessage) => Clipboard.SetTextAsync(chatMessage.ToString());
+    private Task CopyAsync(ChatMessage chatMessage)
+    {
+        string? text;
+        if (chatMessage is UserChatMessage userChatMessage)
+        {
+            var isShiftPressed = _nativeHelper.GetKeyState(Key.LeftShift) || _nativeHelper.GetKeyState(Key.RightShift);
+            if (isShiftPressed) text = userChatMessage.UserPrompt; // Get full text with attachments info
+            else text = userChatMessage.Inlines.Text; // Get only the message text
+        }
+        else
+        {
+            text = chatMessage.ToString();
+        }
+
+        return Clipboard.SetTextAsync(text);
+    }
 
     [RelayCommand]
     private void SwitchViewingHistory(object? value)
@@ -557,6 +641,7 @@ public sealed partial class ChatWindowViewModel :
             AddClipboardCommand.NotifyCanExecuteChanged();
             AddFileCommand.NotifyCanExecuteChanged();
             SendMessageCommand.NotifyCanExecuteChanged();
+            EditCommand.NotifyCanExecuteChanged();
             RetryCommand.NotifyCanExecuteChanged();
             CancelCommand.NotifyCanExecuteChanged();
         }

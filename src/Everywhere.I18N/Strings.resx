@@ -169,7 +169,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Regenerate</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Copy</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -1546,5 +1546,14 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copy</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Edit</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Editing message...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Cancel Editing (Esc)</value>
     </data>
 </root>

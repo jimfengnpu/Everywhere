@@ -48,4 +48,3 @@ jobs:
           branch: 'chore/i18n-sync'
           branch-suffix: 'short-commit-hash'
           labels: 'i18n, automated'
-          reviewers: DearVa

@@ -157,8 +157,8 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>重新回答</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
-        <value>复制回答</value>
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
+        <value>复制</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
         <value>打开主窗口</value>
@@ -1533,5 +1533,14 @@
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>副本</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>编辑</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>正在编辑消息……</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>取消编辑 (Esc)</value>
     </data>
 </root>

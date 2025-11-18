@@ -95,26 +95,15 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         {
             case { Key: Key.Escape }:
             {
-                IsOpened = false;
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.D, KeyModifiers: KeyModifiers.Control }:
-            {
-                IsWindowPinned = !IsWindowPinned;
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
-            {
-                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
-                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
-            {
-                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
+                if (ViewModel.EditingUserMessageNode is not null)
+                {
+                    ViewModel.CancelEditing();
+                }
+                else
+                {
+                    IsOpened = false;
+                }
+
                 e.Handled = true;
                 break;
             }

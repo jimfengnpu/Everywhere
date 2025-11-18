@@ -157,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Erneuern</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Kopieren</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">

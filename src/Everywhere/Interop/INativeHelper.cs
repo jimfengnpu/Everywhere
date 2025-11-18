@@ -1,4 +1,5 @@
-﻿using Avalonia.Media.Imaging;
+﻿using Avalonia.Input;
+using Avalonia.Media.Imaging;
 
 namespace Everywhere.Interop;
 
@@ -30,6 +31,13 @@ public interface INativeHelper
     /// Restart the application as administrator (aka UAC on Windows).
     /// </summary>
     void RestartAsAdministrator();
+
+    /// <summary>
+    /// Get the current state of the given key. True if the key is currently pressed down, false otherwise.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    bool GetKeyState(Key key);
 
     /// <summary>
     /// Show a desktop notification with the given message and optional title.

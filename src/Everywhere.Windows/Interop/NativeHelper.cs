@@ -6,11 +6,13 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Avalonia;
+using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
+using Everywhere.Windows.Extensions;
 using Microsoft.Win32;
 using Vector = Avalonia.Vector;
 
@@ -118,6 +120,11 @@ public class NativeHelper : INativeHelper
         Entrance.ReleaseMutex();
         Process.Start(startInfo);
         Environment.Exit(0); // Exit the current process
+    }
+
+    public bool GetKeyState(Key key)
+    {
+        return PInvoke.GetAsyncKeyState((int)key.ToVirtualKey()) != 0;
     }
 
     public void ShowDesktopNotification(string message, string? title)
