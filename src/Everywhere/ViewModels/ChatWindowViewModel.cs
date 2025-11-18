@@ -350,23 +350,25 @@ public sealed partial class ChatWindowViewModel :
                     [
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles.I18N())
                         {
-                            Patterns = FileUtilities.KnownMimeTypes.Keys
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Document))
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Script))
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Images.I18N())
                         {
-                            Patterns = FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Image)
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Documents.I18N())
                         {
-                            Patterns = FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Document)
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Document)
                                 .AsValueEnumerable()
-                                .Concat(FileUtilities.GetMimeTypesByCategory(FileTypeCategory.Script))
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Script))
                                 .Select(x => '*' + x)
                                 .ToList()
                         },

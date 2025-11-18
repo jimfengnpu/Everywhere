@@ -375,6 +375,13 @@ public static class FileUtilities
             .Where(kv => KnownFileTypes.TryGetValue(kv.Value, out var cat) && cat == category)
             .Select(kv => kv.Value);
     }
+    
+    public static IEnumerable<string> GetFileExtensionsByCategory(FileTypeCategory category)
+    {
+        return KnownMimeTypes
+            .Where(kv => KnownFileTypes.TryGetValue(kv.Value, out var cat) && cat == category)
+            .Select(kv => kv.Key);
+    }
 
     /// <summary>
     /// Converts a byte size into a human-readable string with appropriate units.
