@@ -102,7 +102,6 @@ public sealed partial class ChatWindowViewModel :
 
     private readonly IChatService _chatService;
     private readonly IVisualElementContext _visualElementContext;
-    private readonly INativeHelper _nativeHelper;
     private readonly IBlobStorage _blobStorage;
     private readonly ILogger<ChatWindowViewModel> _logger;
 
@@ -121,7 +120,6 @@ public sealed partial class ChatWindowViewModel :
         IChatContextManager chatContextManager,
         IChatService chatService,
         IVisualElementContext visualElementContext,
-        INativeHelper nativeHelper,
         IBlobStorage blobStorage,
         ILogger<ChatWindowViewModel> logger)
     {
@@ -131,7 +129,6 @@ public sealed partial class ChatWindowViewModel :
 
         _chatService = chatService;
         _visualElementContext = visualElementContext;
-        _nativeHelper = nativeHelper;
         _blobStorage = blobStorage;
         _logger = logger;
 
@@ -303,10 +300,10 @@ public sealed partial class ChatWindowViewModel :
                     }
                 }
             }
-            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true)
+            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true && 
+                     formats.Contains(DataFormat.Bitmap) && 
+                     await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {
-                if (await _nativeHelper.GetClipboardBitmapAsync() is not { } bitmap) return;
-
                 await Task.Run(
                     async () =>
                     {
@@ -465,8 +462,7 @@ public sealed partial class ChatWindowViewModel :
                 VisualElementType.TreeViewItem => LucideIconKind.ListTree,
                 VisualElementType.DataGrid => LucideIconKind.Table,
                 VisualElementType.DataGridItem => LucideIconKind.Table,
-                VisualElementType.TabControl => LucideIconKind.LayoutPanelTop,
-                VisualElementType.TabItem => LucideIconKind.LayoutPanelTop,
+                VisualElementType.TabControl or VisualElementType.TabItem => LucideIconKind.LayoutPanelTop,
                 VisualElementType.Table => LucideIconKind.Table,
                 VisualElementType.TableRow => LucideIconKind.Table,
                 VisualElementType.Menu => LucideIconKind.Menu,

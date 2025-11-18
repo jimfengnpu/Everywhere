@@ -32,12 +32,6 @@ public interface INativeHelper
     void RestartAsAdministrator();
 
     /// <summary>
-    /// Get the bitmap from the clipboard. This method is asynchronous and may return null if the clipboard does not contain a bitmap.
-    /// </summary>
-    /// <returns></returns>
-    Task<WriteableBitmap?> GetClipboardBitmapAsync();
-
-    /// <summary>
     /// Show a desktop notification with the given message and optional title.
     /// </summary>
     /// <param name="message"></param>
