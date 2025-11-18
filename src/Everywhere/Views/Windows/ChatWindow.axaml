@@ -121,6 +121,7 @@
           <Button
             x:Name="HistoryButton" Classes="Ghost TitleBar"
             Command="{Binding ChatContextManager.UpdateRecentHistoryCommand}"
+            Content="{LucideIconContent History}"
             IsVisible="{Binding !IsViewingHistory}"
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
             <Button.Flyout>
@@ -201,32 +202,25 @@
                 </Grid>
               </Flyout>
             </Button.Flyout>
-
-            <LucideIcon
-              Kind="History" Size="16"/>
           </Button>
 
           <Button
             Classes="Ghost TitleBar"
             Command="{Binding ChatContextManager.CreateNewCommand}"
-            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_CreateNew_ToolTip}}">
-            <LucideIcon Kind="Plus"/>
-          </Button>
+            Content="{LucideIconContent Plus}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_CreateNew_ToolTip}}"/>
 
           <ToggleButton
             Classes="Ghost TitleBar" Background="#00252525"
+            Content="{LucideIconContent Pin, Size=16}"
             IsChecked="{Binding $parent[v:ChatWindow].IsWindowPinned, Mode=TwoWay}"
-            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}">
-            <LucideIcon
-              Kind="Pin" Size="16"/>
-          </ToggleButton>
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_TogglePin_ToolTip}}"/>
 
           <Button
             Classes="Ghost TitleBar Close"
             Command="{Binding CloseCommand}"
-            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_Close_ToolTip}}">
-            <LucideIcon Kind="X"/>
-          </Button>
+            Content="{LucideIconContent X}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_Close_ToolTip}}"/>
         </StackPanel>
 
         <TextBlock
@@ -281,11 +275,11 @@
                 <ItemsControl.DataTemplates>
                   <DataTemplate DataType="common:DynamicNamedCommand">
                     <Button
-                      Classes="Secondary" Height="32"
-                      Padding="12,4"
+                      Classes="Secondary Outline" Height="NaN"
+                      MinHeight="32" Padding="12,4"
                       Command="{Binding Command}"
                       CommandParameter="{Binding CommandParameter}"
-                      CornerRadius="18">
+                      CornerRadius="{DynamicResource FullCornerRadius}">
                       <StackPanel
                         VerticalAlignment="Center" Orientation="Vertical"
                         Spacing="4">
@@ -393,10 +387,8 @@
                             Padding="2" Background="Transparent"
                             BorderBrush="{x:Null}"
                             BorderThickness="0"
-                            Foreground="{TemplateBinding Foreground}">
-                            <LucideIcon
-                              Kind="ChevronLeft" Size="18"/>
-                          </RepeatButton>
+                            Content="{LucideIconContent ChevronLeft, Size=18}"
+                            Foreground="{TemplateBinding Foreground}"/>
                           <ContentPresenter
                             Name="PART_ContentPresenter" Grid.Column="1"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
@@ -407,10 +399,8 @@
                             Padding="2" Background="Transparent"
                             BorderBrush="{x:Null}"
                             BorderThickness="0"
-                            Foreground="{TemplateBinding Foreground}">
-                            <LucideIcon
-                              Kind="ChevronRight" Size="18"/>
-                          </RepeatButton>
+                            Content="{LucideIconContent ChevronRight, Size=18}"
+                            Foreground="{TemplateBinding Foreground}"/>
                         </Grid>
                       </ControlTemplate>
                     </Setter>
@@ -532,16 +522,14 @@
                               Classes="Ghost Compact"
                               Command="{Binding $parent[v:ChatWindow].ViewModel.RetryCommand}"
                               CommandParameter="{Binding $parent[ContentControl].DataContext}"
-                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Regenerate}}">
-                              <LucideIcon Kind="RefreshCcw"/>
-                            </Button>
+                              Content="{LucideIconContent RefreshCcw}"
+                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Regenerate}}"/>
                             <Button
                               Classes="Ghost Compact"
                               Command="{Binding $parent[v:ChatWindow].ViewModel.CopyCommand}"
                               CommandParameter="{Binding}"
-                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Copy}}">
-                              <LucideIcon Kind="Copy"/>
-                            </Button>
+                              Content="{LucideIconContent Copy}"
+                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Copy}}"/>
                           </StackPanel>
                         </StackPanel>
                       </DataTemplate>
@@ -644,7 +632,22 @@
                             </ItemsControl.DataTemplates>
                           </ItemsControl>
 
-                          <!--  TODO: Edit operations  -->
+                          <StackPanel
+                            x:Name="ChatMessageOperationPanel" Orientation="Horizontal">
+                            <Button
+                              Classes="Ghost Compact"
+                              Command="{Binding $parent[v:ChatWindow].ViewModel.RetryCommand}"
+                              CommandParameter="{Binding $parent[ContentControl].DataContext}"
+                              Content="{LucideIconContent RefreshCcw}"
+                              IsVisible="{Binding !IsBusy}"
+                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Regenerate}}"/>
+                            <Button
+                              Classes="Ghost Compact"
+                              Command="{Binding $parent[v:ChatWindow].ViewModel.CopyCommand}"
+                              CommandParameter="{Binding}"
+                              Content="{LucideIconContent Copy}"
+                              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_Assistant_Copy}}"/>
+                          </StackPanel>
                         </StackPanel>
                       </DataTemplate>
 
@@ -907,7 +910,7 @@
                   <MenuItem.Icon>
                     <LucideIcon
                       Foreground="{DynamicResource DestructiveColor}"
-                      Kind="Trash2" Size="1"/>
+                      Kind="Trash2" Size="16"/>
                   </MenuItem.Icon>
                 </MenuItem>
               </MenuItem>

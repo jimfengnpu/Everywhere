@@ -50,6 +50,7 @@
               <TextBlock
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 FontSize="{Binding $parent[v:IconPresenter].FontSize}"
+                LineHeight="{Binding $parent[v:IconPresenter].LineHeight}"
                 Text="{Binding Text}">
                 <TextBlock.Foreground>
                   <MultiBinding Converter="{x:Static vc:CommonConverters.DefaultMultiValue}">

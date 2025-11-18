@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls.Primitives;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Everywhere.Common;
 
 namespace Everywhere.Views;
@@ -20,5 +21,13 @@ public class IconPresenter : TemplatedControl
     {
         get => GetValue(IconSizeProperty);
         set => SetValue(IconSizeProperty, value);
+    }
+
+    public static readonly StyledProperty<double> LineHeightProperty = TextBlock.LineHeightProperty.AddOwner<IconPresenter>();
+
+    public double LineHeight
+    {
+        get => GetValue(LineHeightProperty);
+        set => SetValue(LineHeightProperty, value);
     }
 }

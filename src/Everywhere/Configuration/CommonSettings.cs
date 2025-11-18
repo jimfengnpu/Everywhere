@@ -190,6 +190,7 @@ public partial class CommonSettings : ObservableObject, ISettingsCategory
         set
         {
             Dispatcher.UIThread.InvokeOnDemand(SetFontSize);
+            OnPropertyChanged();
 
             void SetFontSize()
             {
