@@ -68,6 +68,7 @@ public partial class X11DisplayBackend
     // Keyboard and Mouse
     [LibraryImport(LibX11)] private static partial UIntPtr XKeycodeToKeysym(IntPtr display, int keycode, int index);
     [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(UIntPtr keysym);
+    [LibraryImport(LibX11)] private static partial void XQueryKeymap(IntPtr display, byte[] keymap);
     [LibraryImport(LibX11)] private static partial int XGrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow, int ownerEvents, int pointerMode, int keyboardMode);
     [LibraryImport(LibX11)] private static partial int XUngrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow);
     [LibraryImport(LibX11)] private static partial int XGrabKeyboard(IntPtr display, IntPtr grabWindow, int ownerEvents, int pointerMode, int keyboardMode, uint time);

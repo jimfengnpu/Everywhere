@@ -104,6 +104,35 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         }
     }
 
+    private int XKeycode(Key key)
+    {
+        var ks = XStringToKeysym(key.ToString());
+        int keycode = 0;
+        if (ks != UIntPtr.Zero) keycode = XKeysymToKeycode(_display, ks);
+        if (keycode == 0)
+        {
+            ks = XStringToKeysym(key.ToString().ToUpperInvariant());
+            if (ks != UIntPtr.Zero) keycode = XKeysymToKeycode(_display, ks);
+        }
+        return keycode;
+    }
+    
+    public bool GetKeyState(Key key)
+    {
+        var keycode = XKeycode(key);
+        if (keycode != 0)
+        {
+            byte[] keymap = new byte[32];
+            XQueryKeymap(_display, keymap);
+
+            int byteIndex = keycode / 8;
+            int bitIndex = keycode % 8;
+            int pressed = (keymap[byteIndex] >> bitIndex) & 1;
+            return pressed == 1;
+        }
+        return false;
+    }
+
     public int GrabKey(KeyboardShortcut hotkey, Action handler)
     {
         if (_display == IntPtr.Zero) return 0;
@@ -117,15 +146,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 if (hotkey.Modifiers.HasFlag(KeyModifiers.Control)) mods |= ControlMask;
                 if (hotkey.Modifiers.HasFlag(KeyModifiers.Alt)) mods |= Mod1Mask;
                 if (hotkey.Modifiers.HasFlag(KeyModifiers.Meta)) mods |= Mod4Mask;
-
-                var ks = XStringToKeysym(hotkey.Key.ToString());
-                int keycode = 0;
-                if (ks != UIntPtr.Zero) keycode = XKeysymToKeycode(_display, ks);
-                if (keycode == 0)
-                {
-                    ks = XStringToKeysym(hotkey.Key.ToString().ToUpperInvariant());
-                    if (ks != UIntPtr.Zero) keycode = XKeysymToKeycode(_display, ks);
-                }
+                int keycode = XKeycode(hotkey.Key);
                 if (keycode == 0)
                 {
                     tcs.SetResult(0);
@@ -413,62 +434,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         var screenWindow = XRootWindow(_display, screenIdx);
         return GetWindowElement(screenWindow, () => new X11ScreenVisualElement(this, screenIdx));
     }
-
-    // public void SetWindowCornerRadius(Window window, CornerRadius cornerRadius)
-    // {
-    //     try
-    //     {
-    //         var ph = window.TryGetPlatformHandle();
-    //         if (ph is null) return;
-    //         IntPtr wnd = ph.Handle;
-    //
-    //         if (_display == IntPtr.Zero) return;
-    //
-    //         XGetGeometry(_display, wnd, out _, out _, out _, out var width, out var height, out _, out _);
-    //         if (width == 0 || height == 0) return;
-    //
-    //         if (XShapeQueryExtension(_display, out _, out _) == 0)
-    //         {
-    //             _logger.LogWarning("XShape extension not available, cannot set window corner radius");
-    //             return;
-    //         }
-    //
-    //         IntPtr mask = XCreatePixmap(_display, wnd, width, height, 1);
-    //         IntPtr gc = XCreateGC(_display, mask, 0, IntPtr.Zero);
-    //
-    //         XSetForeground(_display, gc, 0);
-    //         XFillRectangle(_display, mask, gc, 0, 0, width, height);
-    //
-    //         XSetForeground(_display, gc, 1);
-    //         const int Arc90Degrees = 90 * 64;
-    //         int r = (int)cornerRadius.TopLeft;
-    //         if (r <= 0) r = 8;
-    //
-    //         // Draw Arc
-    //         XFillArc(_display, mask, gc, 0, 0, (uint)(2 * r), (uint)(2 * r),
-    //          2 * Arc90Degrees, Arc90Degrees); // Top-left
-    //         XFillArc(_display, mask, gc, (int)(width - 2 * r), 0, (uint)(2 * r), (uint)(2 * r),
-    //          3 * Arc90Degrees, Arc90Degrees);
-    //         XFillArc(_display, mask, gc, 0, (int)(height - 2 * r), (uint)(2 * r), (uint)(2 * r),
-    //          Arc90Degrees, Arc90Degrees);
-    //         XFillArc(_display, mask, gc, (int)(width - 2 * r), (int)(height - 2 * r), (uint)(2 * r),
-    //          (uint)(2 * r), 0, Arc90Degrees);
-    //
-    //         // Fill Rects
-    //         XFillRectangle(_display, mask, gc, r, 0, (uint)(width - 2 * r), height);
-    //         XFillRectangle(_display, mask, gc, 0, r, width, (uint)(height - 2 * r));
-    //
-    //         // Apply the shape mask to the window
-    //         XShapeCombineMask(_display, wnd, ShapeBounding, 0, 0, mask, ShapeSet);
-    //         XFreeGC(_display, gc);
-    //         XFreePixmap(_display, mask);
-    //         XFlush(_display);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         _logger.LogError(ex, "X11 SetWindowCornerRadius failed");
-    //     }
-    // }
 
     public void SetFocusable(Window window, bool focusable)
     {

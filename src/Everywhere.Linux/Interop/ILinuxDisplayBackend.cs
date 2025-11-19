@@ -37,6 +37,7 @@ public interface ILinuxDisplayBackend: IWindowHelper
     /// <summary>Close display/resources.</summary>
     void Close();
 
+    bool GetKeyState(Key key);
     /// <summary>
     /// Grab a global key. Returns an id (>0) on success, or 0 on failure.
     /// The _backend must handle common modifier permutations (Lock/NumLock).

@@ -49,6 +49,12 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         return _impl.Open();
     }
 
+    
+    public bool GetKeyState(Key key)
+    {
+        return _impl.GetKeyState(key);
+    }
+    
     public int GrabKey(KeyboardShortcut hotkey, Action handler)
     {
         return _impl.GrabKey(hotkey, handler);
