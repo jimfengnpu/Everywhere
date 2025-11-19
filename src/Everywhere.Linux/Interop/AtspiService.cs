@@ -92,7 +92,7 @@ public partial class AtspiService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "OnFocusChanged failed");
+            _logger.LogError(ex, "OnEvent failed: {Message}", ex.Message);
         }
     }
     
@@ -356,13 +356,10 @@ public partial class AtspiService
                 {
                     if (!_childrenCached)
                     {
-                        atspi._logger.LogInformation("Element {Name}: Get Children", Name);
+                        _cachedAccessibleChildren.Clear();
                         foreach (var elem in atspi.ElementChildren(_element))
                         {
-                            if (!_cachedAccessibleChildren.Contains(elem._element))
-                            {
-                                _cachedAccessibleChildren.Add(elem._element);
-                            }
+                            _cachedAccessibleChildren.Add(elem._element);
                         }
                         _childrenCached = true;
                     }
@@ -403,25 +400,48 @@ public partial class AtspiService
                     var role = atspi_accessible_get_role(_element, IntPtr.Zero);
                     return role switch
                     {
-                        ROLE_APPLICATION => VisualElementType.TopLevel,
-                        ROLE_BUTTON => VisualElementType.Button,
-                        ROLE_CHECK_BOX => VisualElementType.CheckBox,
+                        ROLE_APPLICATION or
+                            ROLE_FRAME => VisualElementType.TopLevel,
+                        ROLE_BUTTON or
+                            ROLE_SPIN_BUTTON or
+                            ROLE_TOGGLE_BUTTON or
+                            ROLE_PUSH_BUTTON => VisualElementType.Button,
+                        ROLE_CHECK_BOX or
+                            ROLE_SWITCH => VisualElementType.CheckBox,
                         ROLE_COMBO_BOX => VisualElementType.ComboBox,
                         ROLE_DOCUMENT_EMAIL or
                             ROLE_DOCUMENT_FRAME or
                             ROLE_DOCUMENT_PRESENTATION or
                             ROLE_DOCUMENT_SPREADSHEET or
                             ROLE_DOCUMENT_TEXT or
-                            ROLE_DOCUMENT_WEB => VisualElementType.Document,
+                            ROLE_DOCUMENT_WEB or
+                            ROLE_HTML_CONTAINER or
+                            ROLE_PARAGRAPH or
+                            ROLE_FORM or
+                            ROLE_DESCRIPTION_VALUE => VisualElementType.Document,
                         ROLE_ENTRY or
+                            ROLE_EDITBAR or
                             ROLE_PASSWORD_TEXT => VisualElementType.TextEdit,
-                        ROLE_IMAGE => VisualElementType.Image,
-                        ROLE_LABEL => VisualElementType.Label,
+                        ROLE_IMAGE or
+                            ROLE_DESKTOP_ICON or
+                            ROLE_ICON => VisualElementType.Image,
+                        ROLE_LABEL or
+                            ROLE_TEXT or
+                            ROLE_HEADER or
+                            ROLE_FOOTER or
+                            ROLE_CAPTION or
+                            ROLE_COMMENT or
+                            ROLE_DESCRIPTION_TERM or
+                            ROLE_FOOTNOTE => VisualElementType.Label,
                         ROLE_LINK  => VisualElementType.Hyperlink,
-                        ROLE_LIST  => VisualElementType.ListView,
+                        ROLE_LIST or
+                            ROLE_LIST_BOX or
+                            ROLE_DESCRIPTION_LIST => VisualElementType.ListView,
                         ROLE_LIST_ITEM => VisualElementType.ListViewItem,
                         ROLE_MENU      => VisualElementType.Menu,
-                        ROLE_MENU_ITEM => VisualElementType.MenuItem,
+                        ROLE_MENU_ITEM or
+                            ROLE_CHECK_MENU_ITEM or 
+                            ROLE_TEAROFF_MENU_ITEM => VisualElementType.MenuItem,
                         ROLE_PAGE_TAB  => VisualElementType.TabItem,
                         ROLE_PANEL     => VisualElementType.Panel,
                         ROLE_PROGRESS_BAR => VisualElementType.ProgressBar,
@@ -621,10 +641,23 @@ public partial class AtspiService
     
     // Role
     private const int ROLE_INVALID = 0;
+    // Label(Text)
     private const int ROLE_LABEL = 29;
+    private const int ROLE_TEXT = 61;
+    private const int ROLE_HEADER = 71;
+    private const int ROLE_FOOTER = 72;
+    private const int ROLE_CAPTION = 81;
+    private const int ROLE_COMMENT = 97;
+    private const int ROLE_DESCRIPTION_TERM = 122;
+    private const int ROLE_FOOTNOTE = 124;
+    // Button
     private const int ROLE_BUTTON = 43;
+    private const int ROLE_SPIN_BUTTON = 52;
+    private const int ROLE_TOGGLE_BUTTON = 62;
+    private const int ROLE_PUSH_BUTTON = 129;
     // TextEdit
     private const int ROLE_ENTRY = 79; // ATSPI_STATE_EDITABLE else Text Role
+    private const int ROLE_EDITBAR = 77;
     private const int ROLE_PASSWORD_TEXT = 40;
     // Document
     private const int ROLE_DOCUMENT_FRAME = 82;
@@ -633,19 +666,28 @@ public partial class AtspiService
     private const int ROLE_DOCUMENT_TEXT = 94;
     private const int ROLE_DOCUMENT_WEB = 95;
     private const int ROLE_DOCUMENT_EMAIL = 96;
+    private const int ROLE_HTML_CONTAINER = 25;
+    private const int ROLE_PARAGRAPH = 73;
+    private const int ROLE_FORM = 87;
+    private const int ROLE_DESCRIPTION_VALUE = 123;
     
     // Hyperlink
     private const int ROLE_LINK = 88;
     // Image
     private const int ROLE_IMAGE = 27;
+    private const int ROLE_DESKTOP_ICON = 13;
+    private const int ROLE_ICON = 26;
     // CheckBox
     private const int ROLE_CHECK_BOX = 7;
+    private const int ROLE_SWITCH = 130;
     // RadioButtion
     private const int ROLE_RADIO_BUTTON = 44;
     // ComboBox
     private const int ROLE_COMBO_BOX = 11;
     // ListView
     private const int ROLE_LIST = 31;
+    private const int ROLE_LIST_BOX = 98;
+    private const int ROLE_DESCRIPTION_LIST = 121;
     // ListViewItem
     private const int ROLE_LIST_ITEM = 32;
     // TreeView
@@ -666,6 +708,8 @@ public partial class AtspiService
     private const int ROLE_MENU = 33;
     // MenuItem
     private const int ROLE_MENU_ITEM = 35;
+    private const int ROLE_CHECK_MENU_ITEM = 8;
+    private const int ROLE_TEAROFF_MENU_ITEM = 59;
     // Slider
     private const int ROLE_SLIDER = 51;
     // ScrollBar
@@ -676,6 +720,7 @@ public partial class AtspiService
     private const int ROLE_PANEL = 39;
     // TopLevel
     private const int ROLE_APPLICATION = 75;
+    private const int ROLE_FRAME = 23;
     // Screen
     
     // States
