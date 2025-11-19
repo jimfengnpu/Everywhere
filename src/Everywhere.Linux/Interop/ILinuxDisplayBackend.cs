@@ -24,8 +24,6 @@ public enum EventType
     FocusChange,
 }
 
-public readonly record struct PointerState(PixelPoint Point, int ButtonMask);
-
 /// <summary>
 /// Abstract display _backend contract (X11 / Wayland / other).
 /// Implementations should be thread-safe for public methods.

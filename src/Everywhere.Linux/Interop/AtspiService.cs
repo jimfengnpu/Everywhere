@@ -18,6 +18,8 @@ public partial class AtspiService
     private readonly LinuxVisualElementContext _context;
     private readonly ConcurrentDictionary<IntPtr, AtspiVisualElement> _cachedElement = new();
     private readonly ILogger<AtspiService> _logger = ServiceLocator.Resolve<ILogger<AtspiService>>();
+    private readonly AtspiEventListenerCallback _eventCallback;
+    private IntPtr _eventListener;
     private IntPtr _focusedElement;
     
     public AtspiService(LinuxVisualElementContext context)
@@ -27,8 +29,9 @@ public partial class AtspiService
         
         if (atspi_init() < 0)
             throw new InvalidOperationException("Failed to initialize AT-SPI");
-        var listener = atspi_event_listener_new(OnEvent, IntPtr.Zero, IntPtr.Zero);
-        atspi_event_listener_register(listener, 
+        _eventCallback = OnEvent;
+        _eventListener = atspi_event_listener_new(_eventCallback, IntPtr.Zero, IntPtr.Zero);
+        atspi_event_listener_register(_eventListener, 
             Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"), IntPtr.Zero);
         ThreadPool.QueueUserWorkItem(_ =>
         {
@@ -48,12 +51,49 @@ public partial class AtspiService
     
     ~AtspiService()
     {
+        if (_eventListener != IntPtr.Zero)
+        {
+            atspi_event_listener_deregister(_eventListener, 
+                Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"), IntPtr.Zero);
+            _eventListener = IntPtr.Zero;
+        }
         atspi_exit();
     }
 
-    private static void OnEvent(IntPtr atspiEvent, IntPtr userData)
+    private void OnEvent(IntPtr atspiEventPtr, IntPtr userData)
     {
-        
+        try
+        {
+            var ev = Marshal.PtrToStructure<AtspiEvent>(atspiEventPtr);
+            var eventType = Marshal.PtrToStringAnsi(ev.type) ?? string.Empty;
+            if (eventType.Contains("focused"))
+            {
+                if (ev.detail1 == 1) // focus in
+                {
+                    var element = ev.source;
+                    if (element == IntPtr.Zero) return;
+                    if (_focusedElement != IntPtr.Zero)
+                    {
+                        g_object_unref(_focusedElement);
+                    }
+                    _focusedElement = element;
+                    g_object_ref(_focusedElement);
+                }
+                else
+                {
+                    if (_focusedElement != IntPtr.Zero)
+                    {
+                        g_object_unref(_focusedElement);
+                    }
+                    _focusedElement = IntPtr.Zero;
+                }
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "OnFocusChanged failed");
+        }
     }
     
     
@@ -99,6 +139,7 @@ public partial class AtspiService
 
     private int GArrayLength(IntPtr array)
     {
+        // garray structure length is located after data pointer
         return Marshal.ReadInt32(array, IntPtr.Size);
     }
         
@@ -650,6 +691,16 @@ public partial class AtspiService
     private const int LAYER_POPUP = 5;
     private const int LAYER_OVERLAY = 6;
     private const int LAYER_WINDOW = 7;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct AtspiEvent
+    {
+        public IntPtr type; // char*
+        public IntPtr source; // AtspiAccessible*
+        public int detail1;
+        public int detail2;
+        public IntPtr any_data; // gpointer
+    }
     
     public delegate void AtspiEventListenerCallback(IntPtr atspiEvent, IntPtr userData);
 
@@ -664,6 +715,8 @@ public partial class AtspiService
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_event_listener_register(IntPtr listener, IntPtr eventTypeChar, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_event_listener_deregister(IntPtr listener, IntPtr eventTypeChar, IntPtr error);
 
     [LibraryImport(LibAtspi)]
     public static partial void atspi_event_main();
