@@ -431,6 +431,7 @@
 
             <ToggleButton
               Classes="Outline Rounded" Focusable="False"
+              HotKey="Ctrl+T"
               IsChecked="{Binding IsToolCallEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
               IsVisible="{TemplateBinding IsToolCallSupported}"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ToolCallButton_ToolTip}}">
@@ -441,8 +442,7 @@
 
             <Button
               Classes="Outline Rounded"
-              Content="{LucideIconContent Settings,
-                                          Size=16}"
+              Content="{LucideIconContent Settings, Size=16}"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_SettingsButton_ToolTip}}">
               <Button.Flyout>
                 <Flyout

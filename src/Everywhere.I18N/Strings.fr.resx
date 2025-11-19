@@ -157,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Régénérer</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Copier</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -1517,5 +1517,29 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
     </data>
     <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
         <value>La taille du fichier ({0}) dépasse la taille maximale autorisée ({1}).</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Taille de police</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Ajustez la taille d'affichage de la police globale.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Dupliquer</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Dupliquer l'assistant sélectionné.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Copier</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Modifier</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Modification du message...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Annuler la modification (Échap)</value>
     </data>
 </root>

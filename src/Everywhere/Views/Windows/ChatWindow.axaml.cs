@@ -5,13 +5,11 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
-using Everywhere.Storage;
 using Everywhere.Utilities;
 using LiveMarkdown.Avalonia;
 using Lucide.Avalonia;
@@ -35,24 +33,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         private set => SetAndRaise(IsOpenedProperty, ref field, value);
     }
 
-    public static readonly StyledProperty<PixelRect> TargetBoundingRectProperty =
-        AvaloniaProperty.Register<ChatWindow, PixelRect>(nameof(TargetBoundingRect));
-
-    public PixelRect TargetBoundingRect
-    {
-        get => GetValue(TargetBoundingRectProperty);
-        set => SetValue(TargetBoundingRectProperty, value);
-    }
-
-    public static readonly StyledProperty<PlacementMode> PlacementProperty =
-        AvaloniaProperty.Register<ChatWindow, PlacementMode>(nameof(Placement));
-
-    public PlacementMode Placement
-    {
-        get => GetValue(PlacementProperty);
-        set => SetValue(PlacementProperty, value);
-    }
-
     public static readonly StyledProperty<bool> IsWindowPinnedProperty =
         AvaloniaProperty.Register<ChatWindow, bool>(nameof(IsWindowPinned));
 
@@ -62,13 +42,14 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         set => SetValue(IsWindowPinnedProperty, value);
     }
 
+    private static Size DefaultSize => new(400d, 600d);
+
     private readonly ILauncher _launcher;
     private readonly IWindowHelper _windowHelper;
     private readonly Settings _settings;
 
     public ChatWindow(
         ILauncher launcher,
-        IChatContextManager chatContextManager,
         IWindowHelper windowHelper,
         Settings settings)
     {
@@ -79,7 +60,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         InitializeComponent();
         AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, true);
 
-        chatContextManager.PropertyChanged += HandleChatContextManagerPropertyChanged;
         ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
         ChatInputBox.TextChanged += HandleChatInputBoxTextChanged;
         ChatInputBox.PastingFromClipboard += HandleChatInputBoxPastingFromClipboard;
@@ -115,26 +95,15 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         {
             case { Key: Key.Escape }:
             {
-                IsOpened = false;
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.D, KeyModifiers: KeyModifiers.Control }:
-            {
-                IsWindowPinned = !IsWindowPinned;
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.N, KeyModifiers: KeyModifiers.Control }:
-            {
-                ViewModel.ChatContextManager.CreateNewCommand.Execute(null);
-                e.Handled = true;
-                break;
-            }
-            case { Key: Key.T, KeyModifiers: KeyModifiers.Control } when
-                _settings.Model.SelectedCustomAssistant?.IsFunctionCallingSupported.ActualValue is true:
-            {
-                _settings.Internal.IsToolCallEnabled = !_settings.Internal.IsToolCallEnabled;
+                if (ViewModel.EditingUserMessageNode is not null)
+                {
+                    ViewModel.CancelEditing();
+                }
+                else
+                {
+                    IsOpened = false;
+                }
+
                 e.Handled = true;
                 break;
             }
@@ -149,10 +118,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         {
             IsOpened = change.NewValue is true;
         }
-        else if (change.Property == TargetBoundingRectProperty)
-        {
-            CalculatePositionAndPlacement();
-        }
         else if (change.Property == IsWindowPinnedProperty)
         {
             var value = change.NewValue is true;
@@ -165,7 +130,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     /// <summary>
     /// Indicates whether the window has been resized by the user.
     /// </summary>
-    private bool _isResizedByUser;
+    private bool _isUserResized;
 
     protected override void OnResized(WindowResizedEventArgs e)
     {
@@ -173,9 +138,17 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
         if (e.Reason == WindowResizeReason.User)
         {
-            _isResizedByUser = true;
+            if (e.ClientSize.NearlyEquals(new Size(MinWidth, MinHeight)))
+            {
+                _isUserResized = false;
+                SizeToContent = SizeToContent.WidthAndHeight;
+            }
+            else
+            {
+                _isUserResized = true;
+            }
         }
-        else if (!_isResizedByUser)
+        else if (!_isUserResized)
         {
             ClampToScreen();
         }
@@ -183,9 +156,9 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        if (!_isResizedByUser)
+        if (!_isUserResized)
         {
-            availableSize = new Size(400d, 600d);
+            availableSize = DefaultSize;
         }
 
         double width = 0;
@@ -205,7 +178,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
             }
         }
 
-        if (_isResizedByUser)
+        if (_isUserResized)
         {
             var clientSize = ClientSize;
 
@@ -243,84 +216,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
     protected override AutomationPeer OnCreateAutomationPeer()
     {
-        return null!; // Disable automation peer to avoid being detected by self
-    }
-
-    private void CalculatePositionAndPlacement()
-    {
-        // 1. Get the available area of all screens
-        var actualSize = Bounds.Size.To(s => new PixelSize((int)(s.Width * DesktopScaling), (int)(s.Height * DesktopScaling)));
-        if (actualSize == PixelSize.Empty)
-        {
-            // If the size is empty, we cannot calculate the position and placement
-            return;
-        }
-
-        // 2. Screen coordinates and this window size of the target element
-        var targetBoundingRectangle = TargetBoundingRect;
-        if (targetBoundingRectangle.Width <= 0 || targetBoundingRectangle.Height <= 0)
-        {
-            // If the target bounding rectangle is invalid, we cannot calculate the position and placement
-            return;
-        }
-
-        // 3. Generate a candidate list based on the priority of attachment (right → bottom → top → left) and alignment priority (top/left priority)
-        var candidates = new List<(PlacementMode mode, PixelPoint pos)>
-        {
-            // →
-            (PlacementMode.RightEdgeAlignedTop, new PixelPoint(targetBoundingRectangle.X + targetBoundingRectangle.Width, targetBoundingRectangle.Y)),
-            (PlacementMode.RightEdgeAlignedBottom,
-                new PixelPoint(
-                    targetBoundingRectangle.X + targetBoundingRectangle.Width,
-                    targetBoundingRectangle.Y + targetBoundingRectangle.Height - actualSize.Height)),
-
-            // ↓
-            (PlacementMode.BottomEdgeAlignedLeft,
-                new PixelPoint(targetBoundingRectangle.X, targetBoundingRectangle.Y + targetBoundingRectangle.Height)),
-            (PlacementMode.BottomEdgeAlignedRight,
-                new PixelPoint(
-                    targetBoundingRectangle.X + targetBoundingRectangle.Width - actualSize.Width,
-                    targetBoundingRectangle.Y + targetBoundingRectangle.Height)),
-
-            // ↑
-            (PlacementMode.TopEdgeAlignedLeft, new PixelPoint(targetBoundingRectangle.X, targetBoundingRectangle.Y - actualSize.Height)),
-            (PlacementMode.TopEdgeAlignedRight,
-                new PixelPoint(
-                    targetBoundingRectangle.X + targetBoundingRectangle.Width - actualSize.Width,
-                    targetBoundingRectangle.Y - actualSize.Height)),
-
-            // ←
-            (PlacementMode.LeftEdgeAlignedTop, new PixelPoint(targetBoundingRectangle.X - actualSize.Width, targetBoundingRectangle.Y)),
-            (PlacementMode.LeftEdgeAlignedBottom,
-                new PixelPoint(
-                    targetBoundingRectangle.X - actualSize.Width,
-                    targetBoundingRectangle.Y + targetBoundingRectangle.Height - actualSize.Height)),
-
-            // center
-            (PlacementMode.Center,
-                new PixelPoint(
-                    targetBoundingRectangle.X + targetBoundingRectangle.Width / 2 - actualSize.Width / 2,
-                    targetBoundingRectangle.Y + targetBoundingRectangle.Height / 2 - actualSize.Height / 2))
-        };
-
-        // 4. Search for the first candidate that completely falls into any screen workspace
-        var screenAreas = Screens.All.Select(s => s.Bounds).ToReadOnlyList();
-        foreach (var (mode, pos) in candidates)
-        {
-            var rect = new PixelRect(pos, actualSize);
-            if (screenAreas.Any(area => area.Contains(rect)))
-            {
-                Position = pos;
-                Placement = mode;
-                return;
-            }
-        }
-
-        // 5. If none of them are met, use the preferred solution and clamp it onto the main screen
-        var (fallbackMode, fallbackPos) = candidates[0];
-        var mainArea = screenAreas[0];
-        Position = ClampToArea(fallbackPos, actualSize, mainArea);
-        Placement = fallbackMode;
+        return new NoneAutomationPeer(this); // Disable automation peer to avoid being detected by self
     }
 
     private void ClampToScreen()
@@ -343,13 +239,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         base.OnPointerPressed(e);
         if (TitleBarBorder.Bounds.Contains(e.GetCurrentPoint(this).Position))
             BeginMoveDrag(e);
-    }
-
-    private void HandleChatContextManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName != nameof(IChatContextManager.Current)) return;
-        Dispatcher.UIThread.InvokeOnDemand(() => SizeToContent = SizeToContent.WidthAndHeight); // Update size to content when chat context changes
-        _isResizedByUser = false;
     }
 
     private void HandleViewModelPropertyChanged(object? sender, PropertyChangedEventArgs args)
@@ -544,7 +433,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         e.Handled = true;
     }
 
-    private async void HandleDrop(object? sender, DragEventArgs e)
+    private void HandleDrop(object? sender, DragEventArgs e)
     {
         DragDropOverlay.IsVisible = false;
         e.Handled = true;
@@ -552,12 +441,16 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         if (ViewModel.IsBusy)
             return;
 
-        // Handle file drops
-        if (e.DataTransfer.Contains(DataFormat.File))
+        HandleDropAsync().Detach(ToastHost.Manager.ToExceptionHandler());
+
+        async Task HandleDropAsync()
         {
-            var files = e.DataTransfer.TryGetFiles();
-            if (files != null)
+            // Handle file drops
+            if (e.DataTransfer.Contains(DataFormat.File))
             {
+                var files = e.DataTransfer.TryGetFiles();
+                if (files is null) return;
+
                 foreach (var item in files)
                 {
                     if (!IsSupportedFile(item, out var localPath, out _))
@@ -573,24 +466,21 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                             .LogError(ex, "Failed to add dropped file: {FilePath}", localPath);
                     }
 
-                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount)
-                        break;
+                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount) break;
                 }
             }
 
-            return;
-        }
 
-        // Handle text drops
-        if (e.DataTransfer.Contains(DataFormat.Text))
-        {
-            var text = e.DataTransfer.TryGetText();
-            if (!string.IsNullOrWhiteSpace(text))
+            // Handle text drops
+            if (e.DataTransfer.Contains(DataFormat.Text))
             {
+                var text = e.DataTransfer.TryGetText();
+                if (string.IsNullOrWhiteSpace(text)) return;
+
                 var currentText = _settings.Internal.ChatInputBoxText ?? string.Empty;
                 var caretIndex = ChatInputBox.CaretIndex;
-                _settings.Internal.ChatInputBoxText = currentText.Insert(caretIndex, text!);
-                ChatInputBox.CaretIndex = caretIndex + text!.Length;
+                _settings.Internal.ChatInputBoxText = currentText.Insert(caretIndex, text);
+                ChatInputBox.CaretIndex = caretIndex + text.Length;
             }
         }
     }

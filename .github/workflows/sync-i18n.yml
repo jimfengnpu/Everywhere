@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,4 +48,3 @@ jobs:
           branch: 'chore/i18n-sync'
           branch-suffix: 'short-commit-hash'
           labels: 'i18n, automated'
-          reviewers: DearVa

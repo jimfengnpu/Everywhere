@@ -75,11 +75,14 @@
                         Width="320" VerticalAlignment="Center"
                         IsSnapToTickEnabled="True"
                         IsVisible="{Binding IsSliderVisible}"
+                        LargeChange="1"
                         Maximum="{Binding MaxValue}"
                         Minimum="{Binding MinValue}"
+                        SmallChange="1" TickFrequency="1"
                         Value="{Binding Value, Mode=TwoWay}"/>
                       <TextBox
                         MinHeight="32" VerticalAlignment="Center"
+                        IsVisible="{Binding IsTextBoxVisible}"
                         Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                   </DataTemplate>
@@ -98,6 +101,7 @@
                         Value="{Binding Value, Mode=TwoWay}"/>
                       <TextBox
                         MinHeight="32" VerticalAlignment="Center"
+                        IsVisible="{Binding IsTextBoxVisible}"
                         Text="{Binding Value, Mode=TwoWay, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                   </DataTemplate>

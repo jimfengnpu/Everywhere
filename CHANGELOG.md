@@ -1,3 +1,21 @@
+## [v0.4.7](https://github.com/DearVa/Everywhere/releases/tag/v0.4.7) - 2025-11-19
+
+### ✨ Features
+- Added the ability to copy and edit sent messages. You can also hold `Shift` while clicking the copy button to get the raw message content (#70).
+- Added a setting to adjust the font size (#47).
+- Added a button to duplicate custom assistants (#150).
+- Added support for Gemini 3 Pro Preview.
+
+### 🚀 Improvements
+- Optimized window positioning and resizing behavior. The chat window now opens centered and remembers its last position. The window size is no longer reset when switching chats unless manually minimized.
+
+### 🐛 Bug Fixes
+- Fixed an issue where adding an attachment could result in an incorrect file extension.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.6...v0.4.7
+
+
+
 ## [v0.4.6](https://github.com/DearVa/Everywhere/releases/tag/v0.4.6) - 2025-11-15
 
 ### ✨ Features

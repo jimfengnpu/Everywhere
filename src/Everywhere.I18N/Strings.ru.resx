@@ -157,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Перегенерировать</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Копировать</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -1517,5 +1517,29 @@
     </data>
     <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
         <value>Размер файла ({0}) превышает максимально допустимый размер ({1}).</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Размер шрифта</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Настройте общий размер отображения шрифта.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Дублировать</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Дублировать выбранного помощника.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Копировать</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Редактировать</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Редактирование сообщения...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Отменить редактирование (Esc)</value>
     </data>
 </root>

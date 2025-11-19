@@ -42,6 +42,12 @@ public partial class ChatVisualElementAttachment : ChatAttachment
     [IgnoreMember]
     public bool IsFocusedElement { get; set; }
 
+    /// <summary>
+    /// Indicates whether the visual element is valid (i.e., its target is not null).
+    /// </summary>
+    [IgnoreMember]
+    public bool IsElementValid => Element?.Target is not null;
+
     [SerializationConstructor]
     private ChatVisualElementAttachment(DynamicResourceKeyBase headerKey, LucideIconKind icon) : base(headerKey)
     {

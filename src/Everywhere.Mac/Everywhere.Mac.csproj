@@ -2,18 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-macos</TargetFramework>
-    <TargetPlatformVersion>15.0</TargetPlatformVersion>
-    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <SupportedOSPlatformVersion>12.0</SupportedOSPlatformVersion>
     <IsDeploymentTarget>true</IsDeploymentTarget>
-
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <UseAppHost>true</UseAppHost>
-
     <CreateAppBundle>true</CreateAppBundle>
-    <ApplicationId>com.sylinko.everywhere</ApplicationId>
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
+    <CFBundleIconFile>Everywhere.icns</CFBundleIconFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,14 +31,20 @@
     </Content>
   </ItemGroup>
 
-  <Import Project="..\Build.Watchdog.targets" />
+  <ItemGroup>
+    <None Remove="Everywhere.icns" />
+    <BundleResource Include="Everywhere.icns" />
+  </ItemGroup>
+
+  <Import Project="..\Build.Watchdog.targets"/>
 
   <Target Name="AdHocSign" AfterTargets="Build">
     <PropertyGroup>
       <AppBundlePath>$(OutputPath)$(ProjectName).app</AppBundlePath>
     </PropertyGroup>
-    
-    <Exec Command="codesign --force --deep --sign - &quot;$(AppBundlePath)&quot;" />
+
+    <Exec Command="xattr -cr &quot;$(AppBundlePath)&quot;"/>
+    <Exec Command="codesign --force --deep --sign - &quot;$(AppBundlePath)&quot;"/>
   </Target>
 
 </Project>

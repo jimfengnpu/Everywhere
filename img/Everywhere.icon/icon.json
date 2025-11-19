@@ -2,6 +2,7 @@
   "fill" : "system-light",
   "groups" : [
     {
+      "blur-material" : null,
       "layers" : [
         {
           "glass" : true,
@@ -11,6 +12,13 @@
         }
       ],
       "lighting" : "individual",
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
@@ -42,6 +50,13 @@
           "name" : "1_Face"
         }
       ],
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
@@ -53,17 +68,27 @@
       }
     },
     {
+      "blur-material" : null,
       "layers" : [
         {
+          "glass" : false,
           "image-name" : "0_Background.png",
-          "name" : "0_Background"
+          "name" : "0_Background",
+          "position" : {
+            "scale" : 0.55,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
+      "lighting" : "individual",
       "shadow" : {
         "kind" : "layer-color",
         "opacity" : 1
       },
-      "specular" : true,
+      "specular" : false,
       "translucency" : {
         "enabled" : true,
         "value" : 0.5
@@ -71,6 +96,9 @@
     }
   ],
   "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
     "squares" : "shared"
   }
 }
