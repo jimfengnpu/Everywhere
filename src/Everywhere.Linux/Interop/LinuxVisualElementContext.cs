@@ -1,7 +1,5 @@
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
 using ZLinq;
@@ -22,11 +20,14 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         {
             try
             {
-                return _atspi.ElementFocused();
+                // use backend window focus element as fallback
+                var focused = _atspi.ElementFocused() 
+                    ?? _backend.GetFocusedWindowElement();
+                return focused;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "KeyboardFocusedElement failed");
+                _logger.LogError(ex, "AtspiFocusedElement failed");
                 return null;
             }
         }

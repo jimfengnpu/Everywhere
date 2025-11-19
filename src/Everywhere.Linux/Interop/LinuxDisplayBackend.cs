@@ -29,7 +29,7 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         }
         else
         {
-            throw new PlatformNotSupportedException("Other Backend(Such as Wayland) is not supported yet.");
+            throw new PlatformNotSupportedException("Other Backend(Such as Wayland) is not supported.");
         }
         _impl.Open();
     }

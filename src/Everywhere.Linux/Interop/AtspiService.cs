@@ -288,7 +288,16 @@ public partial class AtspiService
 
     public IVisualElement? ElementFocused()
     {
-        return GetAtspiVisualElement(() => _focusedElement);
+        try
+        {
+            CheckInitialized();
+            return GetAtspiVisualElement(() => _focusedElement);
+        } 
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AtspiFocusedElement failed");
+            return null;
+        }
     }
     
     private class AtspiVisualElement(AtspiService atspi, IntPtr elementPtr) 

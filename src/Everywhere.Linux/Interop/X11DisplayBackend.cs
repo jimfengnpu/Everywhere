@@ -132,7 +132,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     return;
                 }
 
-                var variants = new uint[] { 0u, LockMask, Mod2Mask, LockMask | Mod2Mask };
+                var variants = new[] { 0u, LockMask, Mod2Mask, LockMask | Mod2Mask };
                 foreach (var v in variants) XGrabKey(_display, keycode, mods | v, _rootWindow, 0, GrabModeAsync, GrabModeAsync);
                 XFlush(_display);
                 var id = Interlocked.Increment(ref _nextId);
@@ -155,7 +155,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         XThreadAction(() =>
         {
             if (!_regs.TryRemove(id, out var info)) return;
-            var variants = new uint[] { 0u, LockMask, Mod2Mask, LockMask | Mod2Mask };
+            var variants = new[] { 0u, LockMask, Mod2Mask, LockMask | Mod2Mask };
             foreach (var v in variants) XUngrabKey(_display, info.Keycode, info.Mods | v, _rootWindow);
             XFlush(_display);
 
@@ -223,10 +223,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             var ks = XKeycodeToKeysym(_display, (int)keycode, 0);
             var name = KeysymToString(ks);
-            if (!string.IsNullOrEmpty(name) && name.Length == 1 && char.IsLetter(name[0])) return (Key)Enum.Parse(typeof(Key), name.ToUpperInvariant());
+            if (!string.IsNullOrEmpty(name) && name.Length == 1 && char.IsLetter(name[0]))
+                return (Key)Enum.Parse(typeof(Key), name.ToUpperInvariant());
+            return Key.None;
         }
-        catch { }
-        return Key.None;
+        catch
+        {
+            return Key.None;
+        }
     }
 
     private void XGetProperty(
@@ -257,7 +261,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     {
         int pid = 0;
         XGetProperty(window, "_NET_WM_PID", 1, 
-            (IntPtr)XA_CARDINAL, (_, _, nItems, _, prop) =>
+            XA_CARDINAL, (_, _, nItems, _, prop) =>
         {
             if (nItems == 0 || prop == IntPtr.Zero)
                 return;
@@ -292,13 +296,13 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         // return cached if any
         if (_windowCache.TryGetValue(window, out var cachedElement))
         {
-            _logger.LogDebug("Using cached window element for {window}", window.ToString("X"));
+            // _logger.LogDebug("Using cached window element for {window}", window.ToString("X"));
             return cachedElement;
         }
 
         // create
         var element = maker();
-        _logger.LogInformation("Creating window element for {window}", window.ToString("X"));
+        // _logger.LogInformation("Creating window element for {window}", window.ToString("X"));
         _windowCache[window] = element;
         return element;
     }
@@ -530,19 +534,22 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             IntPtr wnd = ph.Handle;
 
             if (_display == IntPtr.Zero) return;
-            
+
             XWindowAttributes attrs = new();
-            attrs.override_redirect = visible? 0: 1;
-            XChangeWindowAttributes(_display, wnd, (int)CW.OverrideRedirect, ref attrs);
+            attrs.override_redirect = visible ? 0 : 1;
+            XChangeWindowAttributes(_display, wnd, CW.OverrideRedirect, ref attrs);
 
             if (XFixesQueryExtension(_display, out _, out _) != 0)
             {
                 if (visible)
                 {
-                    IntPtr fullRegion = XFixesCreateRegion(_display, new[]
-                    {
-                        new XRectangle { x = 0, y = 0, width = (ushort)window.Width, height = (ushort)window.Height }
-                    }, 1);
+                    IntPtr fullRegion = XFixesCreateRegion(
+                        _display,
+                        new[]
+                        {
+                            new XRectangle { x = 0, y = 0, width = (ushort)window.Width, height = (ushort)window.Height }
+                        },
+                        1);
                     XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, fullRegion);
                     XFixesDestroyRegion(_display, fullRegion);
                 }
@@ -552,7 +559,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
             }
         }
-        catch { }
+        catch(Exception ex)
+        {
+            _logger.LogError("X11 SetHitTestVisible {visible} Failed: {Message}", visible, ex.Message);
+        }
     }
 
     public bool GetEffectiveVisible(Window window)
@@ -562,20 +572,10 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     public void SetCloaked(Window window, bool cloaked)
     {
-        var ph = window.TryGetPlatformHandle();
-        if (ph is null) return;
-        IntPtr wnd = ph.Handle;
-
+        // In X11, we manually handle window element search and skip picker window,
+        // so just use AvaloniaUI hide/show
         if (cloaked)
-        { 
-            // IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
-            // IntPtr atomDock = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_DOCK", 0);
-            // if (atomType != IntPtr.Zero && atomDock != IntPtr.Zero)
-            // {
-            //     ulong[] data = { (ulong)atomDock };
-            //     XChangeProperty(_display, wnd, atomType, XA_ATOM, 32, PropModeReplace, data, 1);
-            // }
-            
+        {
             window.Hide();
         }
         else
@@ -837,7 +837,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         IntPtr windowHandle
     ) : IVisualElement
     {
-        public IVisualElementContext Context => backend.Context!;
         public string Id => windowHandle.ToString("X");
         public IVisualElement? Parent
         {
@@ -926,9 +925,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                         XFree(ptr);
                         return name;
                     }
+                    return null;
                 }
-                catch { }
-                return null;
+                catch
+                {
+                    return null;
+                }
             }
         }
         public PixelRect BoundingRectangle
@@ -995,17 +997,17 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         public string? GetText(int maxLength = -1) => Name;
         public string? GetSelectionText()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Invoke()
         {
-            throw new NotImplementedException();
+            // no op
         }
 
         public void SetText(string text)
         {
-            throw new NotImplementedException();
+            // no op
         }
 
         public void SendShortcut(KeyboardShortcut shortcut)
@@ -1022,7 +1024,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     ) : IVisualElement
     {
         private int ScreenCount => XScreenCount(backend._display);
-        public IVisualElementContext Context => backend.Context!;
         public string Id => $"Screen {index}";
         public IVisualElement? Parent => null;
         public IEnumerable<IVisualElement> Children
@@ -1180,7 +1181,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                         while (true)
                         {
                             _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
-                            int r = read(_wakePipeR, buf, (IntPtr)buf.Length);
+                            int r = read(_wakePipeR, buf, buf.Length);
                             _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
                             if (r > 0) continue;
                             if (r == 0) break;
@@ -1232,7 +1233,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             if (_wakePipeW != -1)
             {
-                var b = new byte[1] { 1 };
+                var b = new byte[] { 1 };
                 var wr = write(_wakePipeW, b, 1);
                 _logger.LogDebug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
             }

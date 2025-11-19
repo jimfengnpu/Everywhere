@@ -1,8 +1,5 @@
 using System.Runtime.InteropServices;
-using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
-using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
 
 namespace Everywhere.Linux.Interop;
@@ -470,7 +467,7 @@ public partial class X11DisplayBackend
         try
         {
             var ev = Marshal.PtrToStructure<XErrorEvent>(errorEventPtr);
-            string text = string.Empty;
+            string text;
             try
             {
                 // XGetErrorText Buffer
@@ -720,7 +717,7 @@ public partial class X11DisplayBackend
     private EventType GetEventType(IntPtr rawEvent)
     {
         var ev = Marshal.PtrToStructure<XAnyEvent>(rawEvent);
-        _logger.LogInformation("X recv event type={ev}", ev.type);
+        // _logger.LogInformation("X recv event type={ev}", ev.type);
         switch (ev.type)
         {
             case KeyPress: return EventType.KeyDown;
