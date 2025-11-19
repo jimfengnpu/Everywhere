@@ -143,7 +143,7 @@ public partial class AtspiService
         return Marshal.ReadInt32(array, IntPtr.Size);
     }
         
-    private IntPtr TryMatchRelationSubWindow(IntPtr window)
+    private IntPtr TryMatchRelationWindow(IntPtr window, bool down)
     {
         var array = atspi_accessible_get_relation_set(window, IntPtr.Zero);
         var count = GArrayLength(array);
@@ -154,7 +154,9 @@ public partial class AtspiService
             {
                 var type = atspi_relation_get_relation_type(relation);
                 var nTarget = atspi_relation_get_n_targets(relation);
-                if ((type is RELATION_EMBEDS or RELATION_SUBWINDOW_OF) && nTarget == 1)
+                if (((type is RELATION_EMBEDS or RELATION_SUBWINDOW_OF && down) 
+                        ||(type is RELATION_EMBEDDED_BY && (!down)))
+                    && nTarget == 1)
                 {
                     var target = atspi_relation_get_target(relation, 0);
                     if (target != IntPtr.Zero && ElementVisible(target))
@@ -181,7 +183,7 @@ public partial class AtspiService
 
     private IEnumerable<AtspiVisualElement> ElementChildren(IntPtr elem)
     {
-        var relatedSubWindow = TryMatchRelationSubWindow(elem);
+        var relatedSubWindow = TryMatchRelationWindow(elem, true);
         if (relatedSubWindow != IntPtr.Zero && ElementVisible(relatedSubWindow, true))
         {
             var sub = GetAtspiVisualElement(() => relatedSubWindow);
@@ -330,7 +332,11 @@ public partial class AtspiService
             get
             {
                 if (_element == IntPtr.Zero) return null;
-                var parent = atspi_accessible_get_parent(_element, IntPtr.Zero);
+                var parent = atspi.TryMatchRelationWindow(_element, false);
+                if (parent == IntPtr.Zero)
+                {
+                    parent = atspi_accessible_get_parent(_element, IntPtr.Zero);
+                }
                 if (parent == IntPtr.Zero) return null;
                 return atspi_accessible_is_application(parent) != 0 ? 
                     null : atspi.GetAtspiVisualElement(() => parent);
@@ -589,7 +595,7 @@ public partial class AtspiService
             if (element == IntPtr.Zero) return null;
             if (_cachedElement.TryGetValue(element, out var visualElement)) return visualElement;
             var elem = new AtspiVisualElement(this, element);
-            _logger.LogInformation("Element add {Name}({Type})[{States}]", elem.Name, elem.Type, elem.States);
+            _logger.LogInformation("Element add: {Name}({Type})[{States}]", elem.Name, elem.Type, elem.States);
             _cachedElement[element] = elem;
             return elem;
         }
@@ -690,6 +696,7 @@ public partial class AtspiService
     // Relation Type
     private const int RELATION_SUBWINDOW_OF = 12;
     private const int RELATION_EMBEDS = 13;
+    private const int RELATION_EMBEDDED_BY = 14;
     
     // Component Layer
     private const int LAYER_INVALID = 0;

@@ -186,7 +186,6 @@ public partial class LinuxVisualElementContext
 
         protected override void OnOpened(EventArgs e)
         {
-            // bool done = false;
             bool leftPressed = false;
             
             _context._backend.WindowPickerHook(this, (point, type) =>
