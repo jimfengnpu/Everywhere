@@ -120,17 +120,14 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     public bool GetKeyState(Key key)
     {
         var keycode = XKeycode(key);
-        if (keycode != 0)
-        {
-            byte[] keymap = new byte[32];
-            XQueryKeymap(_display, keymap);
+        if (keycode == 0) return false;
+        var keymap = new byte[32];
+        XQueryKeymap(_display, keymap);
 
-            int byteIndex = keycode / 8;
-            int bitIndex = keycode % 8;
-            int pressed = (keymap[byteIndex] >> bitIndex) & 1;
-            return pressed == 1;
-        }
-        return false;
+        var byteIndex = keycode / 8;
+        var bitIndex = keycode % 8;
+        var pressed = (keymap[byteIndex] >> bitIndex) & 1;
+        return pressed == 1;
     }
 
     public int GrabKey(KeyboardShortcut hotkey, Action handler)

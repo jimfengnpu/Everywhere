@@ -275,124 +275,115 @@ public sealed partial class SoftwareUpdater(
         }
     }
 
-    private static void UpdateViaInstaller(string installerPath)
+    private static void UpdateViaInstaller(string packagePath)
     {
         // On Linux installers are uncommon for this project; if an executable installer/script is provided,
         // try to make it executable and run it. Otherwise, fall back to attempting to execute directly.
         try
         {
-            // Ensure executable bit is set (best-effort; may fail on non-Unix filesystems)
-            try
-            {
-                if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-                {
-                    // Use chmod to set executable permission
-                    Process.Start(new ProcessStartInfo("chmod", $"+x \"{installerPath}\"") { UseShellExecute = false })?.WaitForExit();
-                }
-            }
-            catch
-            {
-                // ignore chmod failures
-            }
+            if (!OperatingSystem.IsLinux())
+                return;
 
-            Process.Start(new ProcessStartInfo(installerPath) { UseShellExecute = true });
+            if (packagePath.EndsWith(".deb") && File.Exists("/etc/debian_version"))
+            {
+                // Use chmod to set executable permission
+                Process.Start(new ProcessStartInfo("sudo", $"dpkg -i \"{packagePath}\"") { UseShellExecute = true })?.WaitForExit();
+            }
         }
         catch
         {
-            // If starting installer failed, just exit and allow user to handle manual install.
+            
         }
 
         Environment.Exit(0);
     }
 
-        private async static Task UpdateViaPortableAsync(string archivePath)
+    private async static Task UpdateViaPortableAsync(string archivePath)
+    {
+        // Use Entry Assembly location where possible; fall back to AppContext.BaseDirectory for single-file builds.
+        var entryAssembly = Assembly.GetEntryAssembly();
+        var exeLocation = entryAssembly?.Location;
+        if (string.IsNullOrEmpty(exeLocation))
         {
-                // Use Entry Assembly location where possible; fall back to AppContext.BaseDirectory for single-file builds.
-                var entryAssembly = Assembly.GetEntryAssembly();
-                var exeLocation = entryAssembly?.Location;
-                if (string.IsNullOrEmpty(exeLocation))
-                {
-                        // In single-file publish, Assembly.Location may be empty; use base directory + executable name.
-                        var exeName = entryAssembly?.GetName().Name ?? "Everywhere.Linux";
-                        exeLocation = Path.Combine(AppContext.BaseDirectory, exeName);
-                }
-
-                var currentDir = Path.GetDirectoryName(exeLocation) ?? AppContext.BaseDirectory;
-
-                var scriptPath = Path.Combine(Path.GetTempPath(), $"everywhere_update_{Guid.NewGuid():N}.sh");
-
-                // Prepare a shell script that will wait for the app to exit, backup current installation, unpack new files and start the new binary.
-                var scriptContent =
-                    "#!/usr/bin/env bash\n" +
-                    "set -e\n" +
-                    "EXE_LOCATION='" + exeLocation.Replace("'", "'\\''") + "'\n" +
-                    "ARCHIVE_PATH='" + archivePath.Replace("'", "'\\''") + "'\n" +
-                    "PARENT_DIR=\"$(dirname \\\"$EXE_LOCATION\\\")\"\n" +
-                    "EXE_NAME=\"$(basename \\\"$EXE_LOCATION\\\")\"\n\n" +
-                    "echo \"Waiting for the application to close...\"\n" +
-                    "# Try to terminate running instances by path or by name\n" +
-                    "pkill -f -- \"$EXE_LOCATION\" || true\n" +
-                    "pkill -f -- \"${EXE_NAME}\" || true\n" +
-                    "sleep 1\n\n" +
-                    "echo \"Backing up old version...\"\n" +
-                    "mv \"$PARENT_DIR\" \"${PARENT_DIR}_old\"\n\n" +
-                    "echo \"Unpacking new version...\"\n" +
-                    "mkdir -p \"$PARENT_DIR\"\n" +
-                    "if [[ \"$ARCHIVE_PATH\" == *.zip ]]; then\n" +
-                    "    if ! command -v unzip >/dev/null 2>&1; then\n" +
-                    "        echo \"unzip not available\" >&2\n" +
-                    "        mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
-                    "        exit 1\n" +
-                    "    fi\n" +
-                    "    unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-                    "else\n" +
-                    "    # assume tar.gz or tar.xz\n" +
-                    "    if [[ \"$ARCHIVE_PATH\" == *.tar.gz || \"$ARCHIVE_PATH\" == *.tgz ]]; then\n" +
-                    "        tar -xzf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-                    "    elif [[ \"$ARCHIVE_PATH\" == *.tar.xz ]]; then\n" +
-                    "        tar -xJf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-                    "    else\n" +
-                    "        # try unzip as fallback\n" +
-                    "        if command -v unzip >/dev/null 2>&1; then\n" +
-                    "            unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-                    "        else\n" +
-                    "            echo \"Unknown archive format and no unzip available\" >&2\n" +
-                    "            mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
-                    "            exit 1\n" +
-                    "        fi\n" +
-                    "    fi\n" +
-                    "fi\n\n" +
-                    "echo \"Cleaning up old files...\"\n" +
-                    "rm -rf \"${PARENT_DIR}_old\"\n\n" +
-                    "echo \"Starting new version...\"\n" +
-                    "# Ensure executable bit is set for the new binary\n" +
-                    "if [ -f \"$EXE_LOCATION\" ]; then\n" +
-                    "    chmod +x \"$EXE_LOCATION\" || true\n" +
-                    "    nohup \"$EXE_LOCATION\" >/dev/null 2>&1 &\n" +
-                    "fi\n\n" +
-                    "# Remove the updater script\n" +
-                    "rm -- \"$scriptPath\" || true\n";
-
-                await File.WriteAllTextAsync(scriptPath, scriptContent);
-                try
-                {
-                        // Make script executable (best-effort)
-                        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-                        {
-                                Process.Start(new ProcessStartInfo("chmod", $"+x \"{scriptPath}\"") { UseShellExecute = false })?.WaitForExit();
-                        }
-
-                        // Start the script with bash and exit the current process to allow the updater to replace files.
-                        Process.Start(new ProcessStartInfo("/bin/bash", scriptPath) { UseShellExecute = false, CreateNoWindow = true });
-                }
-                catch (Exception ex)
-                {
-                        // If spawning the script failed, log and rethrow to surface the error to caller.
-                        throw new InvalidOperationException("Failed to start updater script.", ex);
-                }
-
-                Environment.Exit(0);
+            // In single-file publish, Assembly.Location may be empty; use base directory + executable name.
+            var exeName = entryAssembly?.GetName().Name ?? "Everywhere.Linux";
+            exeLocation = Path.Combine(AppContext.BaseDirectory, exeName);
         }
+
+        var scriptPath = Path.Combine(Path.GetTempPath(), $"everywhere_update_{Guid.NewGuid():N}.sh");
+
+        // Prepare a shell script that will wait for the app to exit, backup current installation, unpack new files and start the new binary.
+        var scriptContent =
+            "#!/usr/bin/env bash\n" +
+            "set -e\n" +
+            "EXE_LOCATION='" + exeLocation.Replace("'", "'\\''") + "'\n" +
+            "ARCHIVE_PATH='" + archivePath.Replace("'", "'\\''") + "'\n" +
+            "PARENT_DIR=\"$(dirname \\\"$EXE_LOCATION\\\")\"\n" +
+            "EXE_NAME=\"$(basename \\\"$EXE_LOCATION\\\")\"\n\n" +
+            "echo \"Waiting for the application to close...\"\n" +
+            "# Try to terminate running instances by path or by name\n" +
+            "pkill -f -- \"$EXE_LOCATION\" || true\n" +
+            "pkill -f -- \"${EXE_NAME}\" || true\n" +
+            "sleep 1\n\n" +
+            "echo \"Backing up old version...\"\n" +
+            "mv \"$PARENT_DIR\" \"${PARENT_DIR}_old\"\n\n" +
+            "echo \"Unpacking new version...\"\n" +
+            "mkdir -p \"$PARENT_DIR\"\n" +
+            "if [[ \"$ARCHIVE_PATH\" == *.zip ]]; then\n" +
+            "    if ! command -v unzip >/dev/null 2>&1; then\n" +
+            "        echo \"unzip not available\" >&2\n" +
+            "        mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
+            "        exit 1\n" +
+            "    fi\n" +
+            "    unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
+            "else\n" +
+            "    # assume tar.gz or tar.xz\n" +
+            "    if [[ \"$ARCHIVE_PATH\" == *.tar.gz || \"$ARCHIVE_PATH\" == *.tgz ]]; then\n" +
+            "        tar -xzf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
+            "    elif [[ \"$ARCHIVE_PATH\" == *.tar.xz ]]; then\n" +
+            "        tar -xJf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
+            "    else\n" +
+            "        # try unzip as fallback\n" +
+            "        if command -v unzip >/dev/null 2>&1; then\n" +
+            "            unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
+            "        else\n" +
+            "            echo \"Unknown archive format and no unzip available\" >&2\n" +
+            "            mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
+            "            exit 1\n" +
+            "        fi\n" +
+            "    fi\n" +
+            "fi\n\n" +
+            "echo \"Cleaning up old files...\"\n" +
+            "rm -rf \"${PARENT_DIR}_old\"\n\n" +
+            "echo \"Starting new version...\"\n" +
+            "# Ensure executable bit is set for the new binary\n" +
+            "if [ -f \"$EXE_LOCATION\" ]; then\n" +
+            "    chmod +x \"$EXE_LOCATION\" || true\n" +
+            "    nohup \"$EXE_LOCATION\" >/dev/null 2>&1 &\n" +
+            "fi\n\n" +
+            "# Remove the updater script\n" +
+            "rm -- \"$scriptPath\" || true\n";
+
+        await File.WriteAllTextAsync(scriptPath, scriptContent);
+        try
+        {
+            // Make script executable (best-effort)
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                Process.Start(new ProcessStartInfo("chmod", $"+x \"{scriptPath}\"") { UseShellExecute = false })?.WaitForExit();
+            }
+
+            // Start the script with bash and exit the current process to allow the updater to replace files.
+            Process.Start(new ProcessStartInfo("/bin/bash", scriptPath) { UseShellExecute = false, CreateNoWindow = true });
+        }
+        catch (Exception ex)
+        {
+            // If spawning the script failed, log and rethrow to surface the error to caller.
+            throw new InvalidOperationException("Failed to start updater script.", ex);
+        }
+
+        Environment.Exit(0);
+    }
 
     public void Dispose()
     {
@@ -407,14 +398,16 @@ public sealed partial class SoftwareUpdater(
         string Name,
         string Digest,
         long Size,
-        string DownloadUrl);
+        string DownloadUrl
+    );
 
     // Represents asset metadata deserialized from the API response.
     [Serializable]
     private record AssetMetadata(
         [property: JsonPropertyName("name")] string Name,
         [property: JsonPropertyName("digest")] string Digest,
-        [property: JsonPropertyName("size")] long Size);
+        [property: JsonPropertyName("size")] long Size
+    );
 
     [GeneratedRegex(@"-v(?<version>\d+\.\d+\.\d+(\.\d+)?)\.(exe|zip)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "zh-CN")]
     private static partial Regex VersionRegex();
