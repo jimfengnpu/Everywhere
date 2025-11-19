@@ -69,9 +69,9 @@ public class LinuxDisplayBackend : ILinuxDisplayBackend, IDisposable
         _impl.UngrabKeyHook();
     }
 
-    public void GrabMouse(MouseShortcut hotkey, Action handler)
+    public int GrabMouse(MouseShortcut hotkey, Action handler)
     {
-        _impl.GrabMouse(hotkey, handler);
+        return _impl.GrabMouse(hotkey, handler);
     }
 
     public void UngrabMouse(int id)

@@ -185,7 +185,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         });
     }
 
-    public void GrabMouse(MouseShortcut hotkey, Action handler)
+    public int GrabMouse(MouseShortcut hotkey, Action handler)
     {
         throw new NotImplementedException();
     }

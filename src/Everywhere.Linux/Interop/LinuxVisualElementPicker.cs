@@ -13,6 +13,7 @@ using Window = Avalonia.Controls.Window;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
+using Microsoft.Extensions.Logging;
 
 namespace Everywhere.Linux.Interop;
 
@@ -187,6 +188,7 @@ public partial class LinuxVisualElementContext
         {
             // bool done = false;
             bool leftPressed = false;
+            
             _context._backend.WindowPickerHook(this, (point, type) =>
             {
                 switch (type)
@@ -221,6 +223,10 @@ public partial class LinuxVisualElementContext
         private void Pick(PixelPoint pixelPoint)
         {
             SetToolTipWindowPosition(pixelPoint);
+            if (_selectedElement != null && _selectedElement.BoundingRectangle.Contains(pixelPoint))
+            {
+                return;
+            }
             _selectedElement = _context.ElementFromPoint(pixelPoint, _mode);
             if (_selectedElement == null) return;
             var maskRect = _selectedElement.BoundingRectangle
@@ -232,7 +238,10 @@ public partial class LinuxVisualElementContext
         private void SetMask(Rect rect)
         {
             if (_previousMaskRect == rect) return;
-
+            if (rect.Width < 0 || rect.Height < 0)
+            {
+                _context._logger.LogError("invalid rect: {Rect}", rect);
+            }
             _maskBorder.Clip = new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(Bounds), new RectangleGeometry(rect));
             _elementBoundsBorder.Margin = new Thickness(rect.X, rect.Y, 0, 0);
             _elementBoundsBorder.Width = rect.Width;

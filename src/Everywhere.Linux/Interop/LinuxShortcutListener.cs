@@ -1,7 +1,6 @@
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Interop;
-using Everywhere.Utilities;
 
 namespace Everywhere.Linux.Interop;
 
@@ -26,7 +25,13 @@ public class LinuxShortcutListener : IShortcutListener
     // Returns an IDisposable that unregisters this handler only.
     public IDisposable Register(MouseShortcut hotkey, Action handler)
     {
-        throw new NotImplementedException();
+        if (hotkey.Key == MouseButton.None)
+            throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
+        ArgumentNullException.ThrowIfNull(handler);
+        var id = _backend?.GrabMouse(hotkey, handler)??0;
+        return id != 0
+            ? new Disposer(() => _backend?.UngrabMouse(id))
+            : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
     /// <summary>

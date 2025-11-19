@@ -52,7 +52,7 @@ public interface ILinuxDisplayBackend: IWindowHelper
 
     void UngrabKeyHook();
     
-    void GrabMouse(MouseShortcut hotkey, Action handler);
+    int GrabMouse(MouseShortcut hotkey, Action handler);
     
     void UngrabMouse(int id);
     

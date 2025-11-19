@@ -29,15 +29,8 @@ public class LinuxNativeHelper : INativeHelper
     public void ShowDesktopNotification(string message, string? title = null)
     {
         // Try to use libnotify via command line as a best-effort notification
-        try
-        {
-            var args = $"-u normal \"{title ?? "Everywhere"}\" \"{message}\"";
-            Process.Start("notify-send", args);
-        }
-        catch
-        {
-            // swallow
-        }
+        var args = $"-u normal \"{title ?? "Everywhere"}\" \"{message}\"";
+        Process.Start("notify-send", args);
     }
 
     public void OpenFileLocation(string fullPath)

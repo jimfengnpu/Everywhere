@@ -253,11 +253,9 @@ public partial class AtspiService
     private class AtspiVisualElement(AtspiService atspi, IntPtr elementPtr) 
         : IVisualElement, IDisposable
     {
-        // public IVisualElementContext Context => atspi._context;
         public readonly IntPtr _element = g_object_ref(elementPtr);
         private readonly List<IntPtr> _cachedAccessibleChildren = [];
         private bool _childrenCached;
-        // private AtspiVisualElement? _parent => (AtspiVisualElement?)Parent;
         private bool _disposed;
         private readonly Lock _childrenLoading = new ();
 
