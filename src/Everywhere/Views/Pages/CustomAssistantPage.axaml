@@ -10,14 +10,14 @@
       Grid.Row="0" Grid.Column="0"
       Orientation="Horizontal" Spacing="5">
       <Button
-        Classes="Primary" HorizontalAlignment="Left"
+        Classes="Primary"
         shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
         Command="{Binding CreateNewCustomAssistantCommand}"
         Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
         ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
 
       <Button
-        Classes="Primary" HorizontalAlignment="Right"
+        Classes="Secondary"
         shadui:ButtonAssist.Icon="{LucideIconContent Copy}"
         Command="{Binding DuplicateCustomAssistantCommand}"
         Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_Content}}"
