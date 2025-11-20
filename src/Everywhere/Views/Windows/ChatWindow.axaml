@@ -352,6 +352,17 @@
 
                 <Style Selector="SelectableTextBlock">
                   <Setter Property="TextWrapping" Value="Wrap"/>
+                  <Setter Property="LineHeight" Value="NaN"/>
+                </Style>
+
+                <Style Selector="md|MarkdownTextBlock">
+                  <Setter Property="LineHeight" Value="NaN"/>
+                </Style>
+
+                <Style Selector="InlineUIContainer.Code">
+                  <Style Selector="^ md|MarkdownTextBlock">
+                    <Setter Property="FontSize" Value="{DynamicResource FontSizeM}"/>
+                  </Style>
                 </Style>
 
                 <Style Selector="ItemsControl:empty">

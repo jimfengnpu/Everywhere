@@ -6,7 +6,6 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishTrimmed>true</PublishTrimmed>
     <IsDeploymentTarget>true</IsDeploymentTarget>
   </PropertyGroup>
 
