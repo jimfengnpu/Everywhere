@@ -77,6 +77,8 @@ cat > DEBIAN/prerm <<EOF
 #!/bin/sh
 set -e
 
+systemd --user disable Everywhere.service
+rm -f $HOME/.config/systemd/user/Everywhere.service
 # Remove symlink on uninstall
 rm -f /usr/bin/Everywhere
 

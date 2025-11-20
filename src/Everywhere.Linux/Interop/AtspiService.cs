@@ -88,7 +88,6 @@ public partial class AtspiService
                     _focusedElement = IntPtr.Zero;
                 }
             }
-            
         }
         catch (Exception ex)
         {
