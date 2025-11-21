@@ -133,7 +133,7 @@ public partial class WelcomeViewModel : BusyViewModelBase
         IsApiKeyValid = false;
         var customAssistant = new CustomAssistant
         {
-            Name = LocaleKey.CustomAssistant_Name_Default.I18N(),
+            Name = LocaleResolver.CustomAssistant_Name_Default,
             Icon = new ColoredIcon(ColoredIconType.Text) { Text = "🥳" },
             ApiKey = ApiKey,
             ModelProviderTemplateId = SelectedModelProvider.ProviderTemplate.Id,
@@ -154,7 +154,7 @@ public partial class WelcomeViewModel : BusyViewModelBase
                 SelectedModelProvider.ProviderTemplate.Id,
                 SelectedModelDefinition.Id);
             ToastManager
-                .CreateToast(LocaleKey.WelcomeViewModel_ValidateApiKey_FailedToast_Title.I18N())
+                .CreateToast(LocaleResolver.WelcomeViewModel_ValidateApiKey_FailedToast_Title)
                 .WithContent(ex.GetFriendlyMessage().ToTextBlock())
                 .DismissOnClick()
                 .ShowError();

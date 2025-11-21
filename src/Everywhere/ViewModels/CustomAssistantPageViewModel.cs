@@ -54,7 +54,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     {
         var newAssistant = new CustomAssistant
         {
-            Name = LocaleKey.CustomAssistant_Name_Default.I18N(),
+            Name = LocaleResolver.CustomAssistant_Name_Default,
             Icon = new ColoredIcon(
                 ColoredIconType.Lucide,
                 background: RandomAssistantIconBackgrounds[Random.Shared.Next(RandomAssistantIconBackgrounds.Length)])
@@ -76,7 +76,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
             CustomAssistant.JsonSerializerContext.Default.CustomAssistant).NotNull();
 
         duplicatedAssistant.Id = Guid.CreateVersion7();
-        duplicatedAssistant.Name += " - " + LocaleKey.Common_Copy.I18N();
+        duplicatedAssistant.Name += " - " + LocaleResolver.Common_Copy;
         settings.Model.CustomAssistants.Insert(settings.Model.CustomAssistants.IndexOf(customAssistant) + 1, duplicatedAssistant);
         SelectedCustomAssistant = duplicatedAssistant;
     }
@@ -90,7 +90,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
         {
             await kernelMixinFactory.GetOrCreate(customAssistant).CheckConnectivityAsync(cancellationToken);
             ToastManager
-                .CreateToast(LocaleKey.CustomAssistantPageViewModel_CheckConnectivity_SuccessToast_Title.I18N())
+                .CreateToast(LocaleResolver.CustomAssistantPageViewModel_CheckConnectivity_SuccessToast_Title)
                 .DismissOnClick()
                 .ShowSuccess();
         }
@@ -103,7 +103,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
                 customAssistant.Endpoint.ActualValue,
                 customAssistant.ModelId);
             ToastManager
-                .CreateToast(LocaleKey.CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title.I18N())
+                .CreateToast(LocaleResolver.CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title)
                 .WithContent(ex.GetFriendlyMessage().ToTextBlock())
                 .DismissOnClick()
                 .ShowError();
@@ -115,10 +115,10 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
         var result = await DialogManager.CreateDialog(
-                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.I18N(new DirectResourceKey(customAssistant.Name)),
-                LocaleKey.Common_Warning.I18N())
-            .WithPrimaryButton(LocaleKey.Common_Yes.I18N())
-            .WithCancelButton(LocaleKey.Common_No.I18N())
+                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.Format(customAssistant.Name),
+                LocaleResolver.Common_Warning)
+            .WithPrimaryButton(LocaleResolver.Common_Yes)
+            .WithCancelButton(LocaleResolver.Common_No)
             .ShowAsync();
         if (result != DialogResult.Primary) return;
 

@@ -254,7 +254,7 @@ public partial class CommonSettings : ObservableObject, ISettingsCategory
     public SettingsControl<DebugFeaturesControl> DebugFeatures { get; } = new();
 
     private static void ShowErrorToast(Exception ex) => ServiceLocator.Resolve<ToastManager>()
-        .CreateToast(LocaleKey.Common_Error.I18N())
+        .CreateToast(LocaleResolver.Common_Error)
         .WithContent(ex.GetFriendlyMessage())
         .DismissOnClick()
         .OnBottomRight()

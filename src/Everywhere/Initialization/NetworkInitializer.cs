@@ -64,7 +64,7 @@ public sealed class NetworkInitializer : IAsyncInitializer
                 {
                     ServiceLocator
                         .Resolve<ToastManager>()
-                        .CreateToast(LocaleKey.Common_Error.I18N())
+                        .CreateToast(LocaleResolver.Common_Error)
                         .WithContent(ex.GetFriendlyMessage().ToTextBlock())
                         .DismissOnClick()
                         .OnBottomRight()

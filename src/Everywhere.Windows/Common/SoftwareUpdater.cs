@@ -128,8 +128,8 @@ public sealed partial class SoftwareUpdater(
             {
                 _notifiedVersion = LatestVersion;
                 new NativeHelper().ShowDesktopNotification(
-                    LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message.I18N(),
-                    LocaleKey.Common_Info.I18N());
+                    LocaleResolver.SoftwareUpdater_UpdateAvailable_Toast_Message,
+                    LocaleResolver.Common_Info);
             }
         }
         catch (Exception ex)

@@ -84,16 +84,16 @@ public class I18NSourceGenerator : IIncrementalGenerator
 
             foreach (var resxFile in resxFiles)
             {
-                var fileName = Path.GetFileNameWithoutExtension(resxFile.Path);
-                var localeName = fileName.Substring(fileName.IndexOf('.') + 1);
-
                 if (Path.GetFileName(resxFile.Path).Equals("Strings.resx", StringComparison.OrdinalIgnoreCase) &&
                     resxFile.GetText(context.CancellationToken)?.ToString() is { Length: > 0 } content)
                 {
-                    var localeSource = GenerateLocaleClass(resxFile.Path, localeName.Replace('-', '_'), ParseResxEntries(content));
-                    context.AddSource($"{localeName}.g.cs", SourceText.From(localeSource, Encoding.UTF8));
+                    var localeSource = GenerateLocaleClass(resxFile.Path, "default", ParseResxEntries(content));
+                    context.AddSource("default.g.cs", SourceText.From(localeSource, Encoding.UTF8));
                     continue;
                 }
+
+                var fileName = Path.GetFileNameWithoutExtension(resxFile.Path);
+                var localeName = fileName.Substring(fileName.IndexOf('.') + 1);
 
                 var enumName = string.Join("", localeName.Split('-').Select(p => p.Length == 0 ? p : char.ToUpper(p[0]) + p.Substring(1)));
                 localeNamesMap[enumName] = localeName;
@@ -229,7 +229,7 @@ public class I18NSourceGenerator : IIncrementalGenerator
               /// <summary>
               ///     Provides strongly-typed access to localized strings.
               /// </summary>
-              public static class LocaleResolver
+              partial class LocaleResolver
               {
                   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                   [System.Diagnostics.DebuggerNonUserCode]

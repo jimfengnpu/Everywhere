@@ -49,7 +49,7 @@ public partial class KeyboardShortcutInputBox : UserControl
 
         if (_shortcutScope is not null) return;
 
-        ShortcutTextBox.Watermark = LocaleKey.KeyboardShortcutInputBox_SettingWatermark.I18N();
+        ShortcutTextBox.Watermark = LocaleResolver.KeyboardShortcutInputBox_SettingWatermark;
 
         _shortcutScope = ServiceLocator.Resolve<IShortcutListener>().StartCaptureKeyboardShortcut();
         _shortcutScope.PressingShortcutChanged += (_, hotkey) => Dispatcher.UIThread.InvokeOnDemand(() => ShortcutTextBox.Text = hotkey.ToString());
@@ -69,7 +69,7 @@ public partial class KeyboardShortcutInputBox : UserControl
     {
         base.OnLostFocus(e);
 
-        ShortcutTextBox.Watermark = LocaleKey.KeyboardShortcutInputBox_Watermark.I18N();
+        ShortcutTextBox.Watermark = LocaleResolver.KeyboardShortcutInputBox_Watermark;
 
         TopLevel.GetTopLevel(this)?.Focus(); // Ensure the focus is moved away from this control.
         DisposeCollector.DisposeToDefault(ref _shortcutScope);

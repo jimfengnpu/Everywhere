@@ -4,8 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
 using Microsoft.Extensions.Logging;
 using ShadUI;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Everywhere.Views.Configuration;
 
@@ -33,7 +31,7 @@ public partial class DebugFeaturesControl(ToastManager toastManager, ILogger<Deb
             ex = HandledSystemException.Handle(ex);
             ServiceLocator.Resolve<ILogger<DebugFeaturesControl>>().LogError(ex, "Failed to open settings file.");
             ServiceLocator.Resolve<ToastManager>()
-                .CreateToast(LocaleKey.Common_Error.I18N())
+                .CreateToast(LocaleResolver.Common_Error)
                 .WithContent(ex.GetFriendlyMessage())
                 .DismissOnClick()
                 .OnBottomRight()
@@ -67,7 +65,7 @@ public partial class DebugFeaturesControl(ToastManager toastManager, ILogger<Deb
             ex = HandledSystemException.Handle(ex);
             logger.LogError(ex, "Failed to open logs folder.");
             toastManager
-                .CreateToast(LocaleKey.Common_Error.I18N())
+                .CreateToast(LocaleResolver.Common_Error)
                 .WithContent(ex.GetFriendlyMessage())
                 .DismissOnClick()
                 .OnBottomRight()

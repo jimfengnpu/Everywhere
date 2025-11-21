@@ -331,8 +331,8 @@ public partial class ChatContextMetadata(Guid id, DateTimeOffset dateCreated, Da
     {
         get
         {
-            if (IsTemporary) return LocaleKey.ChatContext_Temporary.I18N();
-            if (string.IsNullOrWhiteSpace(Topic)) return LocaleKey.ChatContext_Metadata_Topic_Default.I18N();
+            if (IsTemporary) return LocaleResolver.ChatContext_Temporary;
+            if (string.IsNullOrWhiteSpace(Topic)) return LocaleResolver.ChatContext_Metadata_Topic_Default;
             return Topic;
         }
         set => Topic = value?.Trim();

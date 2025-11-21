@@ -26,6 +26,15 @@ public abstract class ReactiveViewModelBase : ObservableValidator
         private set;
     }
 
+    protected AnonymousExceptionHandler DialogExceptionHandler => new((exception, message, source, lineNumber) =>
+        DialogManager.CreateDialog(exception.GetFriendlyMessage().ToString() ?? "Unknown error", $"[{source}:{lineNumber}] {message ?? "Error"}"));
+
+    protected AnonymousExceptionHandler ToastExceptionHandler => new((exception, message, source, lineNumber) =>
+        ToastManager.CreateToast($"[{source}:{lineNumber}] {message ?? "Error"}")
+            .WithContent(exception.GetFriendlyMessage().ToTextBlock())
+            .DismissOnClick()
+            .ShowError());
+
     protected IClipboard Clipboard { get; private set; } = ServiceLocator.Resolve<IClipboard>();
 
     protected IStorageProvider StorageProvider { get; private set; } = ServiceLocator.Resolve<IStorageProvider>();
