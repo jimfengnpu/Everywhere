@@ -60,6 +60,12 @@ public partial class AtspiService
         atspi_exit();
     }
 
+    private readonly static List<string> DesktopAppName = ["plasmashell", "gnome-shell", "xfdesktop", "caja", "nemo", "pcmanfm"];
+    private static bool IsAppNameDesktop(string? appName)
+    {
+        return appName != null && DesktopAppName.Any(appName.Contains);
+    }
+
     private void OnEvent(IntPtr atspiEventPtr, IntPtr userData)
     {
         try
@@ -76,8 +82,16 @@ public partial class AtspiService
                     {
                         g_object_unref(_focusedElement);
                     }
+                    var appName = ElementName(ev.sender);
+                    if (IsAppNameDesktop(appName))
+                    {
+                        element = ev.sender;
+                    }
                     _focusedElement = element;
-                    g_object_ref(_focusedElement);
+                    if (_focusedElement != IntPtr.Zero)
+                    { 
+                        g_object_ref(_focusedElement);
+                    }
                 }
                 else
                 {
@@ -94,7 +108,25 @@ public partial class AtspiService
             _logger.LogError(ex, "OnEvent failed: {Message}", ex.Message);
         }
     }
-    
+
+    private static string? ElementName(IntPtr elem)
+    {
+        try
+        {
+            var namePtr = atspi_accessible_get_name(elem, IntPtr.Zero);
+            if (namePtr == IntPtr.Zero)
+            {
+                return null;
+            }
+            var name = Marshal.PtrToStringUTF8(namePtr);
+            g_free(namePtr);
+            return name;
+        }
+        catch (COMException)
+        {
+            return null;
+        }
+    }
     
     private static PixelRect ElementBounds(IntPtr elem)
     {
@@ -399,8 +431,9 @@ public partial class AtspiService
                     var role = atspi_accessible_get_role(_element, IntPtr.Zero);
                     return role switch
                     {
-                        ROLE_APPLICATION or
-                            ROLE_FRAME => VisualElementType.TopLevel,
+                        ROLE_APPLICATION or 
+                            ROLE_FRAME or 
+                            ROLE_CANVAS => VisualElementType.TopLevel,
                         ROLE_BUTTON or
                             ROLE_SPIN_BUTTON or
                             ROLE_TOGGLE_BUTTON or
@@ -463,28 +496,8 @@ public partial class AtspiService
 
         public VisualElementStates States => ElementState(_element);
 
-        public string? Name
-        {
-            get
-            {
-                try
-                {
-                    var namePtr = atspi_accessible_get_name(_element, IntPtr.Zero);
-                    if (namePtr == IntPtr.Zero)
-                    {
-                        return null;
-                    }
-                    var name = Marshal.PtrToStringUTF8(namePtr);
-                    g_free(namePtr);
-                    return name;
-                }
-                catch (COMException)
-                {
-                    return null;
-                }
-            }
-        }
-        
+        public string? Name => ElementName(_element);
+
         public string Id
         {
             get
@@ -590,9 +603,14 @@ public partial class AtspiService
         {
             get
             {
-                if (!atspi.ElementVisible(_element))
+                if (atspi_accessible_is_component(_element) == 0)
                 {
-                    return new PixelRect(0, 0, 0, 0);
+                    var unionRect = new PixelRect();
+                    foreach (var child in atspi.ElementChildren(_element))
+                    {
+                        unionRect.Union(child.BoundingRectangle);
+                    }
+                    return unionRect;
                 }
                 var rect = ElementBounds(_element);
                 atspi._logger.LogDebug("Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
@@ -720,6 +738,7 @@ public partial class AtspiService
     // TopLevel
     private const int ROLE_APPLICATION = 75;
     private const int ROLE_FRAME = 23;
+    private const int ROLE_CANVAS = 6;
     // Screen
     
     // States
@@ -759,7 +778,11 @@ public partial class AtspiService
         public IntPtr source; // AtspiAccessible*
         public int detail1;
         public int detail2;
-        public IntPtr any_data; // gpointer
+        // GValue 
+        public IntPtr anyValueType;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+        public byte[] anyValueData;
+        public IntPtr sender;
     }
     
     public delegate void AtspiEventListenerCallback(IntPtr atspiEvent, IntPtr userData);
