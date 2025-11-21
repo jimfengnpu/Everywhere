@@ -1270,7 +1270,7 @@
         <value>編輯檔案內容</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
-        <value>搜尋中：{0}</value>
+        <value>🔎 {0}</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>網頁搜尋</value>
@@ -1285,7 +1285,7 @@
         <value>訪問網頁</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
-        <value>正在訪問 {0}</value>
+        <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
         <value>{0} 個網址</value>

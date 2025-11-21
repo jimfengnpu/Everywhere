@@ -1270,7 +1270,7 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
         <value>Modifier le contenu du fichier</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
-        <value>Recherche : {0}</value>
+        <value>🔎 {0}</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>Recherche Web</value>
@@ -1285,7 +1285,7 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
         <value>Visiter la page Web</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
-        <value>Visite de {0}</value>
+        <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
         <value>{0} Urls</value>

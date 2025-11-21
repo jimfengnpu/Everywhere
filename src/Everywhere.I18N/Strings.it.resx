@@ -1270,7 +1270,7 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
         <value>Modifica Contenuto del File</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
-        <value>Ricerca: {0}</value>
+        <value>🔎 {0}</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>Ricerca Web</value>
@@ -1285,7 +1285,7 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
         <value>Visita Pagina Web</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
-        <value>Visitando {0}</value>
+        <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
         <value>{0} Url</value>
