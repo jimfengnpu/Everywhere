@@ -61,19 +61,22 @@ public class ChatWindowInitializer(
                     visualElementContext.ElementFromPointer()?
                         .GetAncestors(true)
                         .LastOrDefault();
-                if (element == null) return;
+                var hWnd = element?.NativeWindowHandle;
 
-                var hWnd = element.NativeWindowHandle;
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     var chatWindow = ServiceLocator.Resolve<ChatWindow>();
-                    if (hWnd == chatWindow.TryGetPlatformHandle()?.Handle)
+                    if (chatWindow.IsFocused)
                     {
                         chatWindow.ViewModel.IsOpened = false; // Hide chat window if it's already focused
                     }
                     else
                     {
-                        chatWindow.ViewModel.TryFloatToTargetElementAsync(element).Detach(logger.ToExceptionHandler());
+                        // Avoid focusing on an element inside the chat window
+                        // But we still allow showing the chat window without focusing if hWnd is null
+                        if (chatWindow.TryGetPlatformHandle() is { } handle && handle.Handle == hWnd) element = null;
+
+                        chatWindow.ViewModel.ShowAsync(element).Detach(logger.ToExceptionHandler());
                     }
                 });
             }));

@@ -68,11 +68,15 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
             sb.AppendLine();
         }
 
+        sb.AppendLine("[global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(");
+        sb.AppendLine("    global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties |");
+        sb.AppendLine("    global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors");
+        sb.AppendLine(")]");
         sb.Append("partial class ").Append(type.Name).AppendLine();
         sb.AppendLine("{");
         using (sb.Indent())
         {
-            sb.AppendLine("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]").AppendLine();
+            sb.AppendLine("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]");
             sb.AppendLine("[global::System.Text.Json.Serialization.JsonIgnore]");
             sb.AppendLine("public global::Everywhere.Configuration.SettingsItems SettingsItems { get; } = new();").AppendLine();
 
@@ -344,7 +348,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
 
         // Apply common properties (Header, Description, Value, etc.)
-        ApplyCommonMetadata(sb, itemName, metadata, bindingPath);
+        ApplyCommonMetadata(sb, itemName, metadata);
 
         // Apply IsEnabled/IsVisible bindings
         ApplyItemBindings(sb, itemName, metadata);
@@ -355,6 +359,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         // Handle nested items via [SettingsItems]
         ApplyGroup(ctx, sb, itemName, metadata, bindingPath);
 
+        sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
+        EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
+
         // Add the generated item to its parent collection
         if (!string.IsNullOrEmpty(parentCollection))
         {
@@ -362,7 +369,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata, string bindingPath)
+    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
     {
         var headerExpr = string.IsNullOrWhiteSpace(metadata.HeaderKey) ?
             "null" :
@@ -373,9 +380,6 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         {
             sb.AppendLine($"{itemName}.DescriptionKey = new global::Everywhere.I18N.DynamicResourceKey({metadata.DescriptionKey});");
         }
-
-        sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
-        EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
     }
 
     /// <summary>
@@ -424,6 +428,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine($"{itemName}.MinValue = {GetNamedArgValue(attribute, "Min", "int.MinValue")};");
                 sb.AppendLine($"{itemName}.MaxValue = {GetNamedArgValue(attribute, "Max", "int.MaxValue")};");
                 sb.AppendLine($"{itemName}.IsSliderVisible = {GetNamedArgValue(attribute, "IsSliderVisible", "true")};");
+                sb.AppendLine($"{itemName}.IsTextBoxVisible = {GetNamedArgValue(attribute, "IsTextBoxVisible", "true")};");
                 break;
             }
             case ItemKind.Double when metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsDoubleItem) is { } attribute:
@@ -432,6 +437,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine($"{itemName}.MaxValue = {GetNamedArgValue(attribute, "Max", "double.PositiveInfinity")};");
                 sb.AppendLine($"{itemName}.Step = {GetNamedArgValue(attribute, "Step", "0.1d")};");
                 sb.AppendLine($"{itemName}.IsSliderVisible = {GetNamedArgValue(attribute, "IsSliderVisible", "true")};");
+                sb.AppendLine($"{itemName}.IsTextBoxVisible = {GetNamedArgValue(attribute, "IsTextBoxVisible", "true")};");
                 break;
             }
             case ItemKind.Enum:
@@ -751,7 +757,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         public IndentedStringBuilder Append(string text)
         {
             if (_isLineStart) _stringBuilder.Append(_indent);
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
             var lines = text.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
             switch (lines.Length)
             {
                 case 0:
@@ -781,7 +789,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         public IndentedStringBuilder AppendLine(string line)
         {
             if (_isLineStart) _stringBuilder.Append(_indent);
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
             var lines = line.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
             switch (lines.Length)
             {
                 case 0:

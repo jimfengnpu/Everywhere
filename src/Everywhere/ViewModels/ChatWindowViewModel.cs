@@ -55,9 +55,6 @@ public sealed partial class ChatWindowViewModel :
         }
     }
 
-    [ObservableProperty]
-    public partial PixelRect TargetBoundingRect { get; private set; }
-
     /// <summary>
     /// Indicates whether the chat window is currently viewing history page.
     /// </summary>
@@ -103,6 +100,25 @@ public sealed partial class ChatWindowViewModel :
 
     public IChatContextManager ChatContextManager { get; }
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(EditCommand))]
+    public partial ChatMessageNode? EditingUserMessageNode { get; private set; }
+
+    public bool CanEdit => IsNotBusy && EditingUserMessageNode is null;
+
+    /// <summary>
+    /// The text in the chat input box.
+    /// </summary>
+    public string? ChatInputBoxText
+    {
+        get;
+        set
+        {
+            if (!SetProperty(ref field, value)) return;
+            if (EditingUserMessageNode is null) Settings.Internal.ChatInputBoxText = value;
+        }
+    }
+
     private readonly IChatService _chatService;
     private readonly IVisualElementContext _visualElementContext;
     private readonly INativeHelper _nativeHelper;
@@ -113,6 +129,8 @@ public sealed partial class ChatWindowViewModel :
     private readonly SourceList<ChatAttachment> _chatAttachmentsSource = new();
     private readonly ReusableCancellationTokenSource _cancellationTokenSource = new();
     private readonly ActivitySource _activitySource = new(typeof(ChatWindowViewModel).FullName.NotNull());
+
+    private List<ChatAttachment>? _chatAttachmentsBeforeEditing;
 
     /// <summary>
     /// Start an activity when the window is opened, and dispose it when closed.
@@ -137,6 +155,9 @@ public sealed partial class ChatWindowViewModel :
         _nativeHelper = nativeHelper;
         _blobStorage = blobStorage;
         _logger = logger;
+
+        // Load the saved input box text
+        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
 
         ChatAttachments = _chatAttachmentsSource
             .Connect()
@@ -199,7 +220,11 @@ public sealed partial class ChatWindowViewModel :
 
     private CancellationTokenSource? _targetElementChangedTokenSource;
 
-    public async Task TryFloatToTargetElementAsync(IVisualElement? targetElement)
+    /// <summary>
+    /// Show the chat window and float to the target element.
+    /// </summary>
+    /// <param name="targetElement"></param>
+    public async Task ShowAsync(IVisualElement? targetElement)
     {
         // debouncing
         if (_targetElementChangedTokenSource is not null) await _targetElementChangedTokenSource.CancelAsync();
@@ -218,7 +243,6 @@ public sealed partial class ChatWindowViewModel :
             // Avoid adding duplicate attachments
             if (_chatAttachmentsSource.Items.Any(a => a is ChatVisualElementAttachment vea && Equals(vea.Element?.Target, targetElement))) return;
 
-            TargetBoundingRect = default;
             if (targetElement == null)
             {
                 _chatAttachmentsSource.Edit(list =>
@@ -232,10 +256,10 @@ public sealed partial class ChatWindowViewModel :
             }
 
             var createElement = Settings.ChatWindow.AutomaticallyAddElement;
-            var (boundingRect, attachment) = await Task
-                .Run(() => (targetElement.BoundingRectangle, createElement ? CreateFromVisualElement(targetElement) : null), cancellationToken)
+            var attachment = await Task
+                .Run(() => createElement ? CreateFromVisualElement(targetElement) : null, cancellationToken)
                 .WaitAsync(TimeSpan.FromSeconds(1), cancellationToken);
-            TargetBoundingRect = boundingRect;
+
             if (attachment is not null)
             {
                 _chatAttachmentsSource.Edit(list =>
@@ -298,15 +322,15 @@ public sealed partial class ChatWindowViewModel :
                     {
                         var uri = storageItem.Path;
                         if (!uri.IsFile) break;
-                        await AddFileUncheckAsync(uri.AbsolutePath);
+                        await AddFileUncheckAsync(uri.AbsolutePath, cancellationToken);
                         if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) break;
                     }
                 }
             }
-            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true)
+            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true &&
+                     formats.Contains(DataFormat.Bitmap) &&
+                     await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {
-                if (await _nativeHelper.GetClipboardBitmapAsync() is not { } bitmap) return;
-
                 await Task.Run(
                     async () =>
                     {
@@ -353,23 +377,25 @@ public sealed partial class ChatWindowViewModel :
                     [
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles.I18N())
                         {
-                            Patterns = MimeTypeUtilities.SupportedMimeTypes.Keys
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Document))
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Script))
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Images.I18N())
                         {
-                            Patterns = MimeTypeUtilities.GetExtensionsForMimeTypePrefix("image/")
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
                         new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Documents.I18N())
                         {
-                            Patterns = MimeTypeUtilities.GetExtensionsForMimeTypePrefix("application/")
+                            Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Document)
                                 .AsValueEnumerable()
-                                .Concat(MimeTypeUtilities.GetExtensionsForMimeTypePrefix("text/"))
+                                .Concat(FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Script))
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
@@ -392,25 +418,46 @@ public sealed partial class ChatWindowViewModel :
             return;
         }
 
-        await AddFileUncheckAsync(filePath);
+        await AddFileUncheckAsync(filePath, _cancellationTokenSource.Token);
     }
 
     /// <summary>
     /// Add a file to the chat attachments without checking the attachment count limit.
     /// </summary>
     /// <param name="filePath"></param>
-    private async ValueTask AddFileUncheckAsync(string filePath)
+    /// <param name="cancellationToken"></param>
+    private async ValueTask AddFileUncheckAsync(string filePath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(filePath)) return;
 
         try
         {
-            _chatAttachmentsSource.Add(await ChatFileAttachment.CreateAsync(filePath));
+            _chatAttachmentsSource.Add(await ChatFileAttachment.CreateAsync(filePath, cancellationToken: cancellationToken));
         }
         catch (Exception ex)
         {
+            ex = HandledSystemException.Handle(ex);
+
             _logger.LogError(ex, "Failed to load image from file: {FilePath}", filePath);
+            ToastManager
+                .CreateToast(LocaleKey.Common_Error.I18N())
+                .WithContent(ex.GetFriendlyMessage())
+                .DismissOnClick()
+                .OnBottomRight()
+                .ShowError();
         }
+    }
+
+    /// <summary>
+    /// Add a file to the chat attachments from drag and drop.
+    /// Checks the attachment count limit.
+    /// </summary>
+    /// <param name="filePath">The file path to add.</param>
+    public async Task AddFileFromDragDropAsync(string filePath)
+    {
+        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+
+        await AddFileUncheckAsync(filePath, _cancellationTokenSource.Token);
     }
 
     private static ChatVisualElementAttachment CreateFromVisualElement(IVisualElement element)
@@ -444,8 +491,7 @@ public sealed partial class ChatWindowViewModel :
                 VisualElementType.TreeViewItem => LucideIconKind.ListTree,
                 VisualElementType.DataGrid => LucideIconKind.Table,
                 VisualElementType.DataGridItem => LucideIconKind.Table,
-                VisualElementType.TabControl => LucideIconKind.LayoutPanelTop,
-                VisualElementType.TabItem => LucideIconKind.LayoutPanelTop,
+                VisualElementType.TabControl or VisualElementType.TabItem => LucideIconKind.LayoutPanelTop,
                 VisualElementType.Table => LucideIconKind.Table,
                 VisualElementType.TableRow => LucideIconKind.Table,
                 VisualElementType.Menu => LucideIconKind.Menu,
@@ -480,15 +526,57 @@ public sealed partial class ChatWindowViewModel :
                 attachments = [..list];
                 list.Clear();
             });
+
             var userMessage = new UserChatMessage(message, attachments)
             {
                 Inlines = { message }
             };
 
-            return Task.Run(() => _chatService.SendMessageAsync(userMessage, cancellationToken), cancellationToken);
+            if (EditingUserMessageNode is not { } originalNode)
+            {
+                return Task.Run(() => _chatService.SendMessageAsync(userMessage, cancellationToken), cancellationToken);
+            }
+
+            CancelEditing();
+
+            return Task.Run(() => _chatService.EditAsync(originalNode, userMessage, cancellationToken), cancellationToken);
         },
         _logger.ToExceptionHandler(),
         cancellationToken: _cancellationTokenSource.Token);
+
+    [RelayCommand(CanExecute = nameof(CanEdit))]
+    private void Edit(ChatMessageNode userChatMessageNode)
+    {
+        if (userChatMessageNode is not { Message: UserChatMessage userChatMessage }) return;
+
+        EditingUserMessageNode = userChatMessageNode;
+        ChatInputBoxText = userChatMessage.Inlines.Text;
+        _chatAttachmentsSource.Edit(list =>
+        {
+            _chatAttachmentsBeforeEditing = list.ToList();
+            list.Clear();
+            list.AddRange(userChatMessage.Attachments.Where(a => a is not ChatVisualElementAttachment { IsElementValid: false }));
+        });
+    }
+
+    [RelayCommand]
+    public void CancelEditing()
+    {
+        if (EditingUserMessageNode is null) return;
+
+        EditingUserMessageNode = null;
+        _chatAttachmentsSource.Edit(list =>
+        {
+            list.Clear();
+            if (_chatAttachmentsBeforeEditing is not null)
+            {
+                list.AddRange(_chatAttachmentsBeforeEditing);
+                _chatAttachmentsBeforeEditing = null;
+            }
+        });
+
+        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
+    }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
     private Task RetryAsync(ChatMessageNode chatMessageNode) => ExecuteBusyTaskAsync(
@@ -503,7 +591,22 @@ public sealed partial class ChatWindowViewModel :
     }
 
     [RelayCommand]
-    private Task CopyAsync(ChatMessage chatMessage) => Clipboard.SetTextAsync(chatMessage.ToString());
+    private Task CopyAsync(ChatMessage chatMessage)
+    {
+        string? text;
+        if (chatMessage is UserChatMessage userChatMessage)
+        {
+            var isShiftPressed = _nativeHelper.GetKeyState(Key.LeftShift) || _nativeHelper.GetKeyState(Key.RightShift);
+            if (isShiftPressed) text = userChatMessage.UserPrompt; // Get full text with attachments info
+            else text = userChatMessage.Inlines.Text; // Get only the message text
+        }
+        else
+        {
+            text = chatMessage.ToString();
+        }
+
+        return Clipboard.SetTextAsync(text);
+    }
 
     [RelayCommand]
     private void SwitchViewingHistory(object? value)
@@ -538,6 +641,7 @@ public sealed partial class ChatWindowViewModel :
             AddClipboardCommand.NotifyCanExecuteChanged();
             AddFileCommand.NotifyCanExecuteChanged();
             SendMessageCommand.NotifyCanExecuteChanged();
+            EditCommand.NotifyCanExecuteChanged();
             RetryCommand.NotifyCanExecuteChanged();
             CancelCommand.NotifyCanExecuteChanged();
         }
@@ -559,7 +663,7 @@ public sealed partial class ChatWindowViewModel :
                 DialogManager.Close(card);
             };
             DialogManager
-                .CreateDialog(card)
+                .CreateCustomDialog(card)
                 .ShowAsync(message.CancellationToken);
         });
     }

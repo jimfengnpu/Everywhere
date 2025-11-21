@@ -115,21 +115,6 @@
     <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>选择用于网络搜索引擎的服务提供商。</value>
     </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
-        <value>必应</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
-        <value>Google</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
-        <value>Brave</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
-        <value>博查</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
-        <value>Jina</value>
-    </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>API 调用地址</value>
     </data>
@@ -172,8 +157,8 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>重新回答</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
-        <value>复制回答</value>
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
+        <value>复制</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
         <value>打开主窗口</value>
@@ -192,6 +177,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>关闭 (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>在此处拖放文件</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>将文本拖放到此处以插入</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>不支持此类型的项目</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>选择视觉元素</value>
@@ -573,7 +567,7 @@
         <value>重置</value>
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
-        <value>API 模式</value>
+        <value>API 协议</value>
     </data>
     <data name="CustomAssistant_Schema_Description" xml:space="preserve">
         <value>选择 API 的模式。如果你不确定这是什么，请保持默认值。</value>
@@ -882,7 +876,7 @@
         <value>API 密钥缺失或无效。</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>超出 API 使用配额，或者没有访问当前模型的权限。</value>
+        <value>超出 API 使用配额，通常意味着余额不足，或者没有访问当前模型的权限。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>请求过于频繁、账户金额不足或者网络或地区不受支持。</value>
@@ -906,7 +900,7 @@
         <value>请求服务超时，请重试。</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>发生网络错误，请检查网络/服务提供商地区不支持。</value>
+        <value>发生网络错误，请检查网络或代理设置，亦或是服务提供商不支持您所在的地区。</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>服务当前不可用，请稍后重试。</value>
@@ -987,7 +981,7 @@
         <value>执行终端脚本</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>上下文长度超出限制。</value>
+        <value>上下文长度超出限制，尝试新建聊天或者换用上下文更长的模型。</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>访问进程</value>
@@ -1492,20 +1486,62 @@
     <data name="Common_None" xml:space="preserve">
         <value>无</value>
     </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
+    </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
     </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>设置请求模型返回内容的等待时间，单位为秒。对于速度较慢的模型（如思考模型和本地模型），可考虑适当延长时间。</value>
     </data>
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
         <value>请求超时时长</value>
     </data>
-    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
-        <value>设置请求模型返回内容的等待时间，单位为秒。对于速度较慢的模型（如思考模型和本地模型），可考虑适当延长时间。</value>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>用户拒绝了脚本执行。</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>代理服务器地址缺失。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>代理服务器地址无效。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>代理服务器不支持 {0} 模式。</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>文件大小 ({0}) 超出允许上限 ({1})。</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>字体大小</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>调整全局的字体显示大小。</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>复制</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>复制选中的 AI 助手。</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>副本</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>编辑</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>正在编辑消息……</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>取消编辑 (Esc)</value>
     </data>
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
         <value>MCP 服务器</value>

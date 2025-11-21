@@ -47,7 +47,7 @@
         <value>ライト</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>カスタムプロキシを使用する</value>
+        <value>カスタムプロキシを使用</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>システムプロキシをアプリケーション専用のプロキシで上書きします。</value>
@@ -59,7 +59,7 @@
         <value>プロキシURIを入力します。例: http://127.0.0.1:7890。</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>ローカルアドレスのプロキシをバイパス</value>
+        <value>ローカルアドレスをバイパス</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>イントラネットおよびループバックアドレスへのリクエストを直接送信します。</value>
@@ -157,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>再生成</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>コピー</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -177,6 +177,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>閉じる (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>ここにファイルをドロップ</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>挿入するためにここにテキストをドロップ</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>このアイテムタイプはサポートされていません</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>ビジュアル要素を選択</value>
@@ -531,13 +540,13 @@
         <value>オンラインモデルの場合、対応する公式から取得する必要があります。詳細はガイドを参照してください。</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
-        <value>画像入力のサポート</value>
+        <value>画像入力サポート</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
         <value>チャットコンテキストで画像をアップロードできます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが画像入力をサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
-        <value>ツール使用のサポート</value>
+        <value>ツール使用サポート</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>モデルはチャットコンテキストで設定したツールを使用できます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが関数呼び出しをサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
@@ -546,7 +555,7 @@
         <value>モデルは返信前に考えることができます。何をしているかわからない場合はデフォルト値のままにしてください。モデルが深い思考をサポートしていない場合、これを有効にすると失敗する可能性があります。</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
-        <value>深い思考のサポート</value>
+        <value>深い思考サポート</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>単一チャットの最大コンテキスト長です。何をしているかわからない場合はデフォルト値のままにしてください。デフォルト値より大きく設定すると失敗する可能性があります。</value>
@@ -583,6 +592,18 @@
     </data>
     <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>再起動</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Header" xml:space="preserve">
+        <value>デバッグ機能</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
+        <value>アプリケーション設定ファイルとログにアクセスして管理します。</value>
+    </data>
+    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+        <value>設定ファイルを編集</value>
+    </data>
+    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+        <value>ログフォルダーを開く</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
         <value>エラー</value>
@@ -825,7 +846,7 @@
         <value>テレメトリを有効にする</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>診断データ</value>
+        <value>診断</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>改善のために、「テレメトリ」を有効にして匿名データを収集する必要があります。このデータは分析のみに使用され、あなたの個人を特定できる情報を含んだり推測したりすることはありません。必要なデータのみを送信することも選択できます。このオプションは基本機能に影響を与えません。</value>
@@ -855,7 +876,7 @@
         <value>APIキーが欠落しているか無効です。</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>API使用量の上限を超えたか、現在のモデルにアクセスする権限がありません。</value>
+        <value>API使用量の制限を超えています。これは通常、残高不足または現在のモデルへのアクセス権がないことを示しています。</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>リクエストが頻繁すぎる、アカウント残高が不足している、またはネットワーク/地域がサポートされていない。</value>
@@ -872,11 +893,14 @@
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>選択したモデルは要求された機能をサポートしていません。</value>
     </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>選択したモデルは画像入力をサポートしていません。</value>
+    </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>サービスへのリクエストがタイムアウトしました。もう一度お試しください。</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>ネットワークエラーが発生しました。接続を確認してもう一度お試しください。</value>
+        <value>ネットワークエラーが発生しました。ネットワークまたはプロキシ設定を確認するか、サービスプロバイダーがあなたの地域をサポートしていない可能性があります。</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>サービスは現在利用できません。後でもう一度お試しください。</value>
@@ -957,7 +981,7 @@
         <value>シェルスクリプトを実行</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>コンテキストの長さが超過しました。</value>
+        <value>コンテキストの長さが制限を超えています。新しいチャットを作成するか、より長いコンテキストを持つモデルに切り替えてください。</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>プロセスにアクセス</value>
@@ -1461,13 +1485,61 @@
     <data name="Common_None" xml:space="preserve">
         <value>なし</value>
     </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
+    </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
     </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>モデルが結果を返すまでの待機時間を秒単位で設定します。遅いモデル（思考モデルやローカルモデルなど）の場合は、この時間を適切に延長することを検討してください。</value>
+    </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
+        <value>リクエストタイムアウト</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>ユーザーがPowerShellスクリプトの実行に対する同意を拒否しました。</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>プロキシサーバーのアドレスが必要です。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>プロキシサーバーのアドレスが無効です。</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>プロキシサーバーのスキーム '{0}' はサポートされていません。</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>ファイルサイズ ({0}) が許可されている最大サイズ ({1}) を超えています。</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>フォントサイズ</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>グローバルフォント表示サイズを調整します。</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>複製</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>選択したアシスタントを複製します。</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>コピー</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>編集</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>メッセージを編集中...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>編集をキャンセル (Esc)</value>
     </data>
 </root>

@@ -47,7 +47,7 @@
         <value>Светлая</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>Использовать собственный прокси</value>
+        <value>Использовать пользовательский прокси</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Переопределите системный прокси с помощью прокси, специфичного для приложения.</value>
@@ -59,13 +59,13 @@
         <value>Введите URI прокси, например http://127.0.0.1:7890.</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>Обход прокси для локальных адресов</value>
+        <value>Игнорировать локальные адреса</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>Отправлять запросы на адреса интрасети и обратной связи напрямую.</value>
     </data>
     <data name="ProxySettings_BypassList_Header" xml:space="preserve">
-        <value>Список обхода</value>
+        <value>Список исключений</value>
     </data>
     <data name="ProxySettings_BypassList_Description" xml:space="preserve">
         <value>Необязательно. Один шаблон на строку; хосты, соответствующие шаблону, обходят прокси.</value>
@@ -115,21 +115,6 @@
     <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>Выберите поставщика услуг для поисковых систем.</value>
     </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
-        <value>Bing</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
-        <value>Google</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
-        <value>Brave</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
-        <value>Bocha</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
-        <value>Jina</value>
-    </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>API Url</value>
     </data>
@@ -172,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Перегенерировать</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Копировать</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -192,6 +177,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Закрыть (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>Перетащите файлы сюда</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>Перетащите текст сюда для вставки</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>Этот тип элемента не поддерживается</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Выбрать визуальный элемент</value>
@@ -599,6 +593,18 @@
     <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>Перезапустить</value>
     </data>
+    <data name="CommonSettings_DebugFeatures_Header" xml:space="preserve">
+        <value>Отладочные функции</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
+        <value>Доступ к файлу настроек приложения и журналам.</value>
+    </data>
+    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+        <value>Редактировать файл настроек</value>
+    </data>
+    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+        <value>Открыть папку журналов</value>
+    </data>
     <data name="Common_Error" xml:space="preserve">
         <value>Ошибка</value>
     </data>
@@ -840,7 +846,7 @@
         <value>Включить телеметрию</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Диагностические данные</value>
+        <value>Диагностика</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>Чтобы помочь нам улучшиться, нам нужна «телеметрия» для сбора анонимных данных. Эти данные используются исключительно для анализа и не содержат и не позволяют делать выводы о какой-либо личной информации о вас. Вы можете выбрать отправку только необходимых данных; эта опция не повлияет на основную функциональность.</value>
@@ -870,7 +876,7 @@
         <value>Отсутствует или недействительный API ключ.</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Превышена квота использования API или отсутствуют права доступа к текущей модели.</value>
+        <value>Превышены квоты использования API, что обычно указывает на недостаточный баланс или отсутствие прав доступа для текущей модели.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Запрос слишком частый, недостаточный баланс счета или сеть/регион не поддерживается.</value>
@@ -887,11 +893,14 @@
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>Выбранная модель не поддерживает запрашиваемую функцию.</value>
     </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>Выбранная модель не поддерживает ввод изображений.</value>
+    </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>Запрос к сервису превысил время ожидания. Пожалуйста, попробуйте снова.</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Произошла ошибка сети. Пожалуйста, проверьте подключение и попробуйте снова.</value>
+        <value>Произошла ошибка сети. Пожалуйста, проверьте свои сетевые или прокси-настройки, или ваш провайдер услуг может не поддерживать ваш регион.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Сервис временно недоступен. Пожалуйста, попробуйте позже.</value>
@@ -972,7 +981,7 @@
         <value>Выполнение shell-скрипта</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Превышена длина контекста.</value>
+        <value>Длина контекста превышает лимит. Попробуйте создать новый чат или переключиться на модель с более длинным контекстом.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Доступ к процессу</value>
@@ -1476,13 +1485,61 @@
     <data name="Common_None" xml:space="preserve">
         <value>Нет</value>
     </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
+    </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
     </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>Установите время ожидания для получения результатов от модели, измеряемое в секундах. Для более медленных моделей (таких как модели размышлений и локальные модели) рассмотрите возможность соответствующего увеличения этого времени.</value>
+    </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
+        <value>Тайм-аут запроса</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>Пользователь отказал в согласии на выполнение скрипта PowerShell.</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>Необходим адрес прокси-сервера.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>Адрес прокси-сервера недействителен.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>Схема прокси-сервера '{0}' не поддерживается.</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>Размер файла ({0}) превышает максимально допустимый размер ({1}).</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Размер шрифта</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Настройте общий размер отображения шрифта.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Дублировать</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Дублировать выбранного помощника.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Копировать</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Редактировать</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Редактирование сообщения...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Отменить редактирование (Esc)</value>
     </data>
 </root>

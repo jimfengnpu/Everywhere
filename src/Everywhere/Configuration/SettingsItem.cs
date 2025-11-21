@@ -153,6 +153,15 @@ public class SettingsIntegerItem : SettingsItem
         get => GetValue(IsSliderVisibleProperty);
         set => SetValue(IsSliderVisibleProperty, value);
     }
+
+    public static readonly StyledProperty<bool> IsTextBoxVisibleProperty =
+        AvaloniaProperty.Register<SettingsIntegerItem, bool>(nameof(IsTextBoxVisible), true);
+
+    public bool IsTextBoxVisible
+    {
+        get => GetValue(IsTextBoxVisibleProperty);
+        set => SetValue(IsTextBoxVisibleProperty, value);
+    }
 }
 
 public class SettingsDoubleItem : SettingsItem
@@ -188,6 +197,15 @@ public class SettingsDoubleItem : SettingsItem
     {
         get => GetValue(IsSliderVisibleProperty);
         set => SetValue(IsSliderVisibleProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> IsTextBoxVisibleProperty =
+        AvaloniaProperty.Register<SettingsDoubleItem, bool>(nameof(IsTextBoxVisible), true);
+
+    public bool IsTextBoxVisible
+    {
+        get => GetValue(IsTextBoxVisibleProperty);
+        set => SetValue(IsTextBoxVisibleProperty, value);
     }
 }
 
@@ -304,25 +322,21 @@ public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsI
         if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
             resource is not IDataTemplate dataTemplate)
         {
-            return EmptySettingsTypedItem.Shared;
+            return new EmptySettingsTypedItem();
         }
 
         var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
         var constructor = typedItem.GetConstructor([typeof(IDataTemplate)]);
-        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]) ?? EmptySettingsTypedItem.Shared;
+        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]) ?? new EmptySettingsTypedItem();
     }
 }
 
 /// <summary>
 /// Stands for a SettingsTypedItem with no specific type, usually used as a placeholder.
 /// </summary>
-public sealed class EmptySettingsTypedItem : SettingsTypedItem
+public sealed class EmptySettingsTypedItem() : SettingsTypedItem(null)
 {
-    public static EmptySettingsTypedItem Shared { get; } = new();
-
     public override bool IsEmpty => true;
-
-    private EmptySettingsTypedItem() : base(null) { }
 }
 
 /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -66,6 +67,21 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     }
 
     [RelayCommand]
+    private void DuplicateCustomAssistant()
+    {
+        if (SelectedCustomAssistant is not { } customAssistant) return;
+
+        var duplicatedAssistant = JsonSerializer.Deserialize(
+            JsonSerializer.Serialize(customAssistant, CustomAssistant.JsonSerializerContext.Default.CustomAssistant),
+            CustomAssistant.JsonSerializerContext.Default.CustomAssistant).NotNull();
+
+        duplicatedAssistant.Id = Guid.CreateVersion7();
+        duplicatedAssistant.Name += " - " + LocaleKey.Common_Copy.I18N();
+        settings.Model.CustomAssistants.Insert(settings.Model.CustomAssistants.IndexOf(customAssistant) + 1, duplicatedAssistant);
+        SelectedCustomAssistant = duplicatedAssistant;
+    }
+
+    [RelayCommand]
     private async Task CheckConnectivityAsync(CancellationToken cancellationToken)
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
@@ -98,14 +114,13 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     private async Task DeleteCustomAssistantAsync()
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
-        var dialogTcs = new TaskCompletionSource<bool>();
-        DialogManager.CreateDialog(
-                LocaleKey.Common_Warning.I18N(),
-                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.I18N(new DirectResourceKey(customAssistant.Name)))
-            .WithPrimaryButton(LocaleKey.Common_Yes.I18N(), () => dialogTcs.SetResult(true))
-            .WithCancelButton(LocaleKey.Common_No.I18N(), () => dialogTcs.SetResult(false))
-            .Show();
-        if (!await dialogTcs.Task) return;
+        var result = await DialogManager.CreateDialog(
+                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.I18N(new DirectResourceKey(customAssistant.Name)),
+                LocaleKey.Common_Warning.I18N())
+            .WithPrimaryButton(LocaleKey.Common_Yes.I18N())
+            .WithCancelButton(LocaleKey.Common_No.I18N())
+            .ShowAsync();
+        if (result != DialogResult.Primary) return;
 
         settings.Model.CustomAssistants.Remove(customAssistant);
     }

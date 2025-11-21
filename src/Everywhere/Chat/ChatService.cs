@@ -10,7 +10,6 @@ using Everywhere.Chat.Plugins;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
-using Everywhere.Storage;
 using Everywhere.Utilities;
 using LiveMarkdown.Avalonia;
 using Lucide.Avalonia;
@@ -94,9 +93,29 @@ public class ChatService(
         await Task.Run(() => GenerateAsync(node.Context, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
     }
 
-    public Task EditAsync(ChatMessageNode node, CancellationToken cancellationToken)
+    public async Task EditAsync(ChatMessageNode originalNode, UserChatMessage newMessage, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var customAssistant = settings.Model.SelectedCustomAssistant;
+        if (customAssistant is null) return;
+
+        using var activity = _activitySource.StartActivity();
+
+        var chatContext = chatContextManager.Current;
+        activity?.SetTag("chat.context.id", chatContext.Metadata.Id);
+
+        if (originalNode.Message.Role != AuthorRole.User)
+        {
+            throw new InvalidOperationException("Only user messages can be retried.");
+        }
+
+        chatContext.CreateBranchOn(originalNode, newMessage);
+
+        await ProcessUserChatMessageAsync(chatContext, customAssistant, newMessage, cancellationToken);
+
+        var assistantChatMessage = new AssistantChatMessage { IsBusy = true };
+        chatContext.Add(assistantChatMessage);
+
+        await Task.Run(() => GenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
     }
 
     private async Task ProcessUserChatMessageAsync(
@@ -671,8 +690,6 @@ public class ChatService(
                     // This will record the function result in the database.
                     functionCallChatMessage.Results.Add(resultContent);
 
-                    // TODO: Also add a display block for the function result content?
-
                     // Add the function result content to the chat history.
                     // This will allow the LLM to see the function result in the chat history.
                     chatHistory.Add(new ChatMessageContent(AuthorRole.Tool, [resultContent]));
@@ -952,11 +969,11 @@ public class ChatService(
                     return;
                 }
 
-                if (MimeTypeUtilities.IsAudio(file.MimeType))
+                if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Audio))
                 {
                     content.Items.Add(new AudioContent(data, file.MimeType));
                 }
-                else if (MimeTypeUtilities.IsImage(file.MimeType))
+                else if (FileUtilities.IsOfCategory(file.MimeType, FileTypeCategory.Image))
                 {
                     content.Items.Add(new ImageContent(data, file.MimeType));
                 }

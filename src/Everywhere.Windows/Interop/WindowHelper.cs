@@ -170,7 +170,7 @@ public class WindowHelper : IWindowHelper
 
             PInvoke.SetForegroundWindow(hWnd);
             PInvoke.SetActiveWindow(hWnd);
-            PInvoke.SetFocus(hWnd);
+            window.Focus();
 
             // Push our window to the top of the Z-order and make it the topmost, so that it appears above all other windows.
             // We want to remove the topmost status when we hide the window (because we cloak it instead of hiding it).

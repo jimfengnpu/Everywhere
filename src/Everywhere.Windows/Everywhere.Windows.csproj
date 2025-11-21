@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-windows10.0.20348.0</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IsDeploymentTarget>true</IsDeploymentTarget>
-    <AssemblyVersion></AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,8 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop"/>
-    <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.PowerShell.SDK"/>
+    <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
     <PackageReference Include="Microsoft.Windows.CsWin32">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,7 +31,35 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TrimmerRootAssembly Include="Everywhere"/>
+    <TrimmerRootAssembly Include="Everywhere.Abstractions"/>
+    <TrimmerRootAssembly Include="Everywhere.I18N"/>
+    <TrimmerRootAssembly Include="Everywhere.Windows"/>
+    <TrimmerRootAssembly Include="WritableJsonConfiguration"/>
+    <TrimmerRootAssembly Include="Anthropic.SDK"/>
+    <TrimmerRootAssembly Include="CSharpMath.Avalonia"/>
+    <TrimmerRootAssembly Include="FlaUI.Core"/>
+    <TrimmerRootAssembly Include="FlaUI.UIA3"/>
+    <TrimmerRootAssembly Include="Google.Apis.Core"/>
+    <TrimmerRootAssembly Include="Google.Apis"/>
+    <TrimmerRootAssembly Include="MessagePack"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Relational"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Google"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Plugins.Web"/>
+    <TrimmerRootAssembly Include="Microsoft.Windows.SDK.NET"/>
+    <TrimmerRootAssembly Include="Newtonsoft.Json"/>
+    <TrimmerRootAssembly Include="OllamaSharp"/>
+    <TrimmerRootAssembly Include="PuppeteerSharp"/>
+    <TrimmerRootAssembly Include="Serilog"/>
+    <TrimmerRootAssembly Include="SharpGen.Runtime"/>
+    <TrimmerRootAssembly Include="WinRT.Runtime"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\3rd\EverythingNetCore\EverythingNet\EverythingNet.csproj"/>
+    <ProjectReference Include="..\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj" />
     <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
   </ItemGroup>
 

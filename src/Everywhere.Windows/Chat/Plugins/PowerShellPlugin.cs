@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
+using System.Diagnostics;
 using System.Reflection;
 using DynamicData;
 using Everywhere.Chat.Permissions;
@@ -10,7 +9,6 @@ using Everywhere.Extensions;
 using Everywhere.I18N;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
-using Microsoft.PowerShell;
 using Microsoft.SemanticKernel;
 
 namespace Everywhere.Windows.Chat.Plugins;
@@ -26,28 +24,10 @@ public class PowerShellPlugin : BuiltInChatPlugin
     public override string BeautifulIcon => "avares://Everywhere.Windows/Assets/Icons/PowerShell.svg";
 
     private readonly ILogger<PowerShellPlugin> _logger;
-    private readonly InitialSessionState _initialSessionState;
 
     public PowerShellPlugin(ILogger<PowerShellPlugin> logger) : base("powershell")
     {
         _logger = logger;
-
-        _initialSessionState = InitialSessionState.CreateDefault2();
-        _initialSessionState.ExecutionPolicy = ExecutionPolicy.Bypass;
-
-        // Load powershell module
-        // from: https://github.com/PowerShell/PowerShell/issues/25793
-        var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-#if NET9_0
-        var modulesPath = Path.Combine(path ?? ".", "runtimes", "win", "lib", "net9.0", "Modules");
-#else
-        #error Target framework not supported
-#endif
-        Environment.SetEnvironmentVariable(
-            "PSModulePath",
-            $"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"WindowsPowerShell\v1.0\Modules")};" +
-            $"{modulesPath};" + // Import application auto-contained modules
-            Environment.GetEnvironmentVariable("PSModulePath"));
 
         _functionsSource.Add(
             new NativeChatFunction(
@@ -96,49 +76,76 @@ public class PowerShellPlugin : BuiltInChatPlugin
             new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
             detailBlock,
             cancellationToken);
-        if (!consent) return "User denied execution of the script.";
+        if (!consent)
+        {
+            throw new HandledException(
+                new UnauthorizedAccessException("User denied consent for PowerShell script execution."),
+                new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage),
+                showDetails: false);
+        }
 
         userInterface.DisplaySink.AppendBlocks(detailBlock.Children);
 
-        // Create a new runspace and PowerShell instance for each execution
-        // using the cached InitialSessionState. This ensures context isolation.
-        using var runspace = RunspaceFactory.CreateRunspace(_initialSessionState);
-        // Disable ReSharper warning as OpenAsync() cannot be awaited
-        // ReSharper disable once MethodHasAsyncOverload
-        runspace.Open();
+        var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".";
+        using var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = Path.GetFullPath(Path.Combine(path, "Everywhere.Windows.PowerShell.exe")),
+            RedirectStandardError = true,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        });
 
-        using var powerShell = PowerShell.Create(runspace);
-        powerShell.AddScript($"& {{ {script} }} | Out-String"); // Ensure results are returned as string
-        var invokeTask = powerShell.InvokeAsync();
+        if (process is null)
+        {
+            throw new SystemException("Failed to start PowerShell script execution process.");
+        }
 
         await using var registration = cancellationToken.Register(() =>
         {
-            try
+            // ReSharper disable once MethodSupportsCancellation
+            Task.Run(() =>
             {
-                // ReSharper disable once AccessToDisposedClosure
-                powerShell.Stop();
-            }
-            catch (ObjectDisposedException)
-            {
-                // ignore
-            }
+                try
+                {
+                    Process.Start(
+                        new ProcessStartInfo
+                        {
+                            FileName = "taskkill",
+                            // ReSharper disable once AccessToDisposedClosure
+                            Arguments = $"/PID {process.Id} /T /F",
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                        });
+                }
+                catch
+                {
+                    // ignore
+                }
+            });
         });
 
-        var results = await invokeTask;
-        if (powerShell.HadErrors)
+        await process.StandardInput.WriteAsync(script);
+        process.StandardInput.Close();
+
+        var result = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+        var errorOutput = await process.StandardError.ReadToEndAsync(cancellationToken);
+
+        await process.WaitForExitAsync(cancellationToken);
+        if (process.ExitCode != 0)
         {
-            var errorMessage = string.Join(Environment.NewLine, powerShell.Streams.Error.Select(e => e.ToString()));
             throw new HandledException(
-                new SystemException($"PowerShell script execution failed: {errorMessage}"),
+                new SystemException($"PowerShell script execution failed: {errorOutput}"),
                 new FormattedDynamicResourceKey(
                     LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
-                    new DirectResourceKey(errorMessage)));
+                    new DirectResourceKey(errorOutput)),
+                showDetails: false);
         }
 
-        var result = results.FirstOrDefault()?.ToString() ?? string.Empty;
-        if (result.EndsWith(Environment.NewLine)) result = result[..^Environment.NewLine.Length]; // Trim trailing new line
         userInterface.DisplaySink.AppendCodeBlock(result, "log");
-
         return result;
     }
 }

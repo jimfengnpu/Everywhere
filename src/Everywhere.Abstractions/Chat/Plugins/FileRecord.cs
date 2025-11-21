@@ -1,4 +1,6 @@
-﻿namespace Everywhere.Chat.Plugins;
+﻿using Everywhere.Utilities;
+
+namespace Everywhere.Chat.Plugins;
 
 /// <summary>
 /// Represents a file or directory record with metadata.
@@ -21,26 +23,13 @@ public readonly record struct FileRecord(
 {
     public string HumanizedSize => BytesSize switch
     {
-        >= 1024 => $"{BytesSize} bytes ({HumanizeBytes(BytesSize)})",
+        >= 1024 => $"{BytesSize} bytes ({FileUtilities.HumanizeBytes(BytesSize)})",
         > 0 => $"{BytesSize} bytes",
         0 => "0",
         _ => "<DIR>"
     };
 
     public const string Header = "Path\tSize\tCreated\tModified\tAttributes";
-
-    private static string HumanizeBytes(long bytes)
-    {
-        string[] sizes = ["B", "KB", "MB", "GB", "TB"];
-        double len = bytes;
-        var order = 0;
-        while (len >= 1024 && order < sizes.Length - 1)
-        {
-            order++;
-            len /= 1024;
-        }
-        return $"{len:0.##} {sizes[order]}";
-    }
 
     private static string HumanizeDate(DateTime? date) => date?.ToString("G") ?? "N/A";
 

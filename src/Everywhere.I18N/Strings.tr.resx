@@ -46,7 +46,7 @@
         <value>Aydınlık</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>Özel proxy kullan</value>
+        <value>Özel Proxy Kullan</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Sistem proxy'sini uygulamaya özgü bir proxy ile değiştirin.</value>
@@ -58,19 +58,19 @@
         <value>Proxy URI'sini girin, örneğin http://127.0.0.1:7890.</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>Yerel adresler için proxy'i atla</value>
+        <value>Yerel Adresleri Atla</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>İntranet ve loopback adreslerine istekleri doğrudan gönderin.</value>
     </data>
     <data name="ProxySettings_BypassList_Header" xml:space="preserve">
-        <value>Atlama listesi</value>
+        <value>Atlama Listesi</value>
     </data>
     <data name="ProxySettings_BypassList_Description" xml:space="preserve">
         <value>Opsiyonel. Her satıra bir desen; eşleşen hostlar proxy'i atlar.</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Header" xml:space="preserve">
-        <value>Proxy kimlik doğrulama</value>
+        <value>Proxy Kimlik Doğrulaması</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Description" xml:space="preserve">
         <value>Proxy kimlik doğrulama gerektirdiğinde kimlik bilgilerini etkinleştirin.</value>
@@ -114,21 +114,6 @@
     <data name="WebSearchEngineProvider_Description" xml:space="preserve">
         <value>Web arama motorları için servis sağlayıcısını seçin.</value>
     </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bing" xml:space="preserve">
-        <value>Bing</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_google" xml:space="preserve">
-        <value>Google</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_brave" xml:space="preserve">
-        <value>Brave</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_bocha" xml:space="preserve">
-        <value>Bocha</value>
-    </data>
-    <data name="SettingsSelectionItem_Model_WebSearchProvider_jina" xml:space="preserve">
-        <value>Jina</value>
-    </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
         <value>API Adresi</value>
     </data>
@@ -171,7 +156,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Tekrar üret</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Kopyala</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -191,6 +176,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Kapat (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>Dosyaları buraya bırakın</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>Ekleme için metni buraya bırakın</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>Bu öğe türü desteklenmiyor</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Görsel Elemanı Seç</value>
@@ -550,7 +544,7 @@
         <value>Sohbet bağlamında resim yükleyebilirsiniz. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Model görüntü girişini desteklemiyorsa bu özelliği etkinleştirmek hatalara yol açabilir.</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
-        <value>Araç Kullanımı Desteği</value>
+        <value>Araç Kullanım Desteği</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>Model, sohbet bağlamında yapılandırdığınız araçları kullanabilir. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Model fonksiyon çağrısını desteklemiyorsa bu özelliği etkinleştirmek hatalara yol açabilir.</value>
@@ -596,6 +590,18 @@
     </data>
     <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>Yeniden Başlat</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Header" xml:space="preserve">
+        <value>Hata Ayıklama Özellikleri</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
+        <value>Uygulama ayarları dosyasına ve günlüklerine erişin ve yönetin.</value>
+    </data>
+    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+        <value>Ayarlar Dosyasını Düzenle</value>
+    </data>
+    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+        <value>Günlükler Klasörünü Aç</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
         <value>Hata</value>
@@ -835,7 +841,7 @@
         <value>Telemetriyi etkinleştir</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Tanılama Verisi</value>
+        <value>Tanı Verileri</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>Bizim gelişmemizi desteklemek için anonim veri toplamak üzere “telemetri”ye ihtiyacımız var. Bu veriler yalnızca analiz amaçlıdır ve sizinle ilgili kişisel tanımlanabilir bilgi içermez veya çıkarılmasına izin vermez. Yalnızca gerekli veriyi göndermeyi seçebilirsiniz; bu seçenek temel işlevselliği etkilemeyecektir.</value>
@@ -865,7 +871,7 @@
         <value>API anahtarı eksik veya geçersiz.</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>API kullanım kotası aşıldı, veya mevcut modele erişim izni yok.</value>
+        <value>API kullanım kotalarını aşıyor, bu genellikle mevcut model için yetersiz bakiye veya erişim izinlerinin eksik olduğunu gösterir.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>İstek çok sık, hesap bakiyesi yetersiz veya ağ/bölge desteklenmiyor.</value>
@@ -882,11 +888,14 @@
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>Seçilen model istenen özelliği desteklemiyor.</value>
     </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>Seçilen model görüntü girişi desteklemiyor.</value>
+    </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>Servise yapılan istek zaman aşımına uğradı. Lütfen tekrar deneyin.</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Ağ hatası oluştu. Bağlantınızı kontrol edin ve tekrar deneyin.</value>
+        <value>Bir ağ hatası oluştu. Lütfen ağ veya proxy ayarlarınızı kontrol edin veya hizmet sağlayıcınız bölgenizi desteklemiyor olabilir.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Hizmet şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.</value>
@@ -967,7 +976,7 @@
         <value>Kabuk Betiğini Çalıştır</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Bağlam uzunluğu aşıldı.</value>
+        <value>Bağlam uzunluğu sınırı aşıldı. Yeni bir sohbet oluşturmayı veya daha uzun bir bağlamı olan bir modele geçmeyi deneyin.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>İşlem Erişimi</value>
@@ -1470,13 +1479,61 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="Common_None" xml:space="preserve">
         <value>Yok</value>
     </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
+    </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
     </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>Modelin sonuç döndürmesi için bekleme süresini ayarlayın, saniye cinsinden ölçülür. Daha yavaş modeller (düşünme modelleri ve yerel modeller gibi) için bu süreyi uygun şekilde uzatmayı düşünün.</value>
+    </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
+        <value>İstek Zaman Aşımı</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>Kullanıcı PowerShell betiği çalıştırma iznini reddetti.</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>Proxy sunucu adresi gereklidir.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>Proxy sunucu adresi geçersiz.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>Proxy sunucu şeması '{0}' desteklenmiyor.</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>Dosya boyutu ({0}), izin verilen maksimum boyutu ({1}) aşıyor.</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Yazı Tipi Boyutu</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Küresel yazı tipi görüntü boyutunu ayarlayın.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Kopyala</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Seçilen asistanı kopyala.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Kopyala</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Düzenle</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Mesaj düzenleniyor...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Düzenlemeyi İptal Et (Esc)</value>
     </data>
 </root>

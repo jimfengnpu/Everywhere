@@ -47,7 +47,7 @@
         <value>Hell</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>Benutzerdefinierten Proxy verwenden</value>
+        <value>Benutzerdefinierter Proxy verwenden</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Überschreibt den Systemproxy mit einem anwendungsspezifischen Proxy.</value>
@@ -59,7 +59,7 @@
         <value>Geben Sie die Proxy-URI ein, zum Beispiel http://127.0.0.1:7890.</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>Proxy für lokale Adressen umgehen</value>
+        <value>Lokale Adressen umgehen</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>Anfragen an Intranet- und Loopback-Adressen direkt senden.</value>
@@ -157,7 +157,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Erneuern</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Kopieren</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -177,6 +177,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Schließen (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>Dateien hier ablegen</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>Text hier ablegen, um ihn einzufügen</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>Dieser Elementtyp wird nicht unterstützt</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Visuelles Element auswählen</value>
@@ -530,13 +539,13 @@
         <value>Bei Online-Modellen müssen Sie dies vom entsprechenden Anbieter erhalten. Bitte beachten Sie die Anleitung für weitere Details.</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
-        <value>Bild-Eingabe unterstützen</value>
+        <value>Bildinput-Unterstützung</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
         <value>Sie können Bilder im Chat-Kontext hochladen. Wenn Sie nicht sicher sind, was Sie tun, behalten Sie den Standardwert bei. Wenn das Modell keine Bild-Eingaben unterstützt, kann das Aktivieren dieser Funktion Fehler verursachen.</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
-        <value>Tool-Nutzung unterstützen</value>
+        <value>Unterstützung für die Nutzung von Tools</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>Das Modell kann Tools verwenden, die Sie im Chat-Kontext konfiguriert haben. Wenn Sie nicht sicher sind, was Sie tun, behalten Sie den Standardwert bei. Wenn das Modell keine Funktionsaufrufe unterstützt, kann das Aktivieren dies zu Fehlern führen.</value>
@@ -545,7 +554,7 @@
         <value>Das Modell kann vor dem Antworten nachdenken. Wenn Sie nicht sicher sind, was Sie tun, belassen Sie den Standardwert. Wenn das Modell kein Deep Thinking unterstützt, kann die Aktivierung zu Fehlern führen.</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
-        <value>Tiefes Denken unterstützen</value>
+        <value>Unterstützung für tiefes Denken</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>Die maximale Kontextlänge eines einzelnen Chats. Wenn Sie nicht sicher sind, was Sie tun, belassen Sie den Standardwert. Ein größerer Wert als der Standardwert kann zu Fehlern führen.</value>
@@ -582,6 +591,18 @@
     </data>
     <data name="CommonSettings_RestartAsAdministrator_Button_Content" xml:space="preserve">
         <value>Neu starten</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Header" xml:space="preserve">
+        <value>Debug-Funktionen</value>
+    </data>
+    <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
+        <value>Zugriff auf und Verwaltung der Anwendungsdatei und Protokolle.</value>
+    </data>
+    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+        <value>Einstellungsdatei bearbeiten</value>
+    </data>
+    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+        <value>Protokollordner öffnen</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
         <value>Fehler</value>
@@ -851,7 +872,7 @@
         <value>API-Schlüssel fehlt oder ist ungültig.</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>API-Nutzungslimit überschritten oder fehlende Berechtigung für den Zugriff auf das aktuelle Modell.</value>
+        <value>Die API-Nutzungsquoten wurden überschritten, was typischerweise auf ein unzureichendes Guthaben oder fehlende Zugriffsberechtigungen für das aktuelle Modell hinweist.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Anfrage zu häufig, Kontostand unzureichend oder Netzwerk/Region nicht unterstützt.</value>
@@ -868,11 +889,14 @@
     <data name="HandledChatException_FeatureNotSupport" xml:space="preserve">
         <value>Das ausgewählte Modell unterstützt die angeforderte Funktion nicht.</value>
     </data>
+    <data name="HandledChatException_ImageNotSupport" xml:space="preserve">
+        <value>Das ausgewählte Modell unterstützt keine Bildeingabe.</value>
+    </data>
     <data name="HandledChatException_Timeout" xml:space="preserve">
         <value>Anforderung an den Dienst ist abgelaufen. Bitte versuchen Sie es erneut.</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>Ein Netzwerkfehler ist aufgetreten. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</value>
+        <value>Ein Netzwerkfehler ist aufgetreten. Bitte überprüfen Sie Ihre Netzwerk- oder Proxy-Einstellungen, oder Ihr Dienstanbieter unterstützt möglicherweise Ihre Region nicht.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Dienst ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.</value>
@@ -953,7 +977,7 @@
         <value>Shell-Skript ausführen</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Kontextlänge überschritten.</value>
+        <value>Die Kontextlänge überschreitet das Limit. Versuchen Sie, einen neuen Chat zu erstellen oder zu einem Modell mit längerer Kontextlänge zu wechseln.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Prozesszugriff</value>
@@ -1457,13 +1481,61 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     <data name="Common_None" xml:space="preserve">
         <value>Keines</value>
     </data>
+    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
+        <value>OpenAI</value>
+    </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
+    </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
     </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Description" xml:space="preserve">
+        <value>Legen Sie die Wartezeit fest, bis das Modell Ergebnisse zurückgibt, gemessen in Sekunden. Für langsamere Modelle (wie Denkmodelle und lokale Modelle) sollten Sie diese Zeit entsprechend verlängern.</value>
+    </data>
+    <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
+        <value>Anforderungszeitüberschreitung</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>Benutzer hat die Zustimmung zur Ausführung des PowerShell-Skripts verweigert.</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>Proxy-Server-Adresse ist erforderlich.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>Proxy-Server-Adresse ist ungültig.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>Proxy-Server-Schema '{0}' wird nicht unterstützt.</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>Die Dateigröße ({0}) überschreitet die maximal erlaubte Größe ({1}).</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Schriftgröße</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Passen Sie die globale Schriftanzeigengröße an.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Duplizieren</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Den ausgewählten Assistenten duplizieren.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Kopieren</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Bearbeiten</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Nachricht wird bearbeitet...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Bearbeitung abbrechen (Esc)</value>
     </data>
 </root>

@@ -59,7 +59,7 @@
         <value>Light</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
-        <value>Use custom proxy</value>
+        <value>Use Custom Proxy</value>
     </data>
     <data name="ProxySettings_IsEnabled_Description" xml:space="preserve">
         <value>Override the system proxy with an application-specific proxy.</value>
@@ -71,19 +71,19 @@
         <value>Enter the proxy URI, for example http://127.0.0.1:7890.</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Header" xml:space="preserve">
-        <value>Bypass proxy for local addresses</value>
+        <value>Bypass Local Addresses</value>
     </data>
     <data name="ProxySettings_BypassOnLocal_Description" xml:space="preserve">
         <value>Send requests to intranet and loopback addresses directly.</value>
     </data>
     <data name="ProxySettings_BypassList_Header" xml:space="preserve">
-        <value>Bypass list</value>
+        <value>Bypass List</value>
     </data>
     <data name="ProxySettings_BypassList_Description" xml:space="preserve">
         <value>Optional. One pattern per line; matching hosts bypass the proxy.</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Header" xml:space="preserve">
-        <value>Proxy authentication</value>
+        <value>Proxy Authentication</value>
     </data>
     <data name="ProxySettings_UseAuthentication_Description" xml:space="preserve">
         <value>Enable credentials when the proxy requires authentication.</value>
@@ -169,7 +169,7 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>Regenerate</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Assistant_Copy" xml:space="preserve">
+    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
         <value>Copy</value>
     </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
@@ -189,6 +189,15 @@
     </data>
     <data name="ChatWindow_Close_ToolTip" xml:space="preserve">
         <value>Close (Esc)</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropFilesHere" xml:space="preserve">
+        <value>Drop files here</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_DropTextHere" xml:space="preserve">
+        <value>Drop text here to insert</value>
+    </data>
+    <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
+        <value>This item type isn't supported</value>
     </data>
     <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement"
         xml:space="preserve">
@@ -545,13 +554,13 @@
         <value>For online models, you need to get from the corresponding official, please refer to the guide for details.</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
-        <value>Support Image Input</value>
+        <value>Image Input Support</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
         <value>You can upload images in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support image inputs, enabling this may cause failures.</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
-        <value>Support Tools Usage</value>
+        <value>Tools Usage Support</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
         <value>Model can use tools you configured in chat context. If you're not sure what you're doing, keep the default value. If the model doesn't support function calling, enabling this may cause failures.</value>
@@ -560,7 +569,7 @@
         <value>Model can think before replies. If you're not sure what you're doing, keep the default value. If the model doesn't support deep thinking, enabling this may cause failures.</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
-        <value>Support Deep Thinking</value>
+        <value>Deep Thinking Support</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
         <value>The maximum context length of single chat. If you're not sure what you're doing, keep the default value. Setting this larger than the default value may cause failures.</value>
@@ -851,7 +860,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Enable telemetry</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnostic data</value>
+        <value>Diagnostics</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
         <value>To help us improve, we need the “telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you. You may choose to send only necessary data; this option will not affect core functionality.</value>
@@ -881,7 +890,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>API key is missing or invalid.</value>
     </data>
     <data name="HandledChatException_QuotaExceeded" xml:space="preserve">
-        <value>Exceeded the API usage quota, or lacks permission to access the current model.</value>
+        <value>Exceeding API usage quotas, which typically indicates insufficient balance or lack of access permissions for the current model.</value>
     </data>
     <data name="HandledChatException_RateLimit" xml:space="preserve">
         <value>Request too frequent, insufficient account balance, or network/region not supported.</value>
@@ -905,7 +914,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Request to the service timed out. Please try again.</value>
     </data>
     <data name="HandledChatException_NetworkError" xml:space="preserve">
-        <value>A network error occurred. Please check your connection and try again.</value>
+        <value>A network error has occurred. Please check your network or proxy settings, or your service provider may not support your region.</value>
     </data>
     <data name="HandledChatException_ServiceUnavailable" xml:space="preserve">
         <value>Service is currently unavailable. Please try again later.</value>
@@ -986,7 +995,7 @@ My intelligence comes from powerful Large language models (LLMs), which are prov
         <value>Execute Shell Script</value>
     </data>
     <data name="HandledChatException_ContextLengthExceeded" xml:space="preserve">
-        <value>Context length exceeded.</value>
+        <value>The context length exceeds the limit. Try creating a new chat or switching to a model with a longer context.</value>
     </data>
     <data name="ChatFunctionPermissions_ProcessAccess" xml:space="preserve">
         <value>Access Process</value>
@@ -1496,6 +1505,9 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
     </data>
+    <data name="ModelProviderSchema_Google" xml:space="preserve">
+        <value>Google</value>
+    </data>
     <data name="ModelProviderSchema_Ollama" xml:space="preserve">
         <value>Ollama</value>
     </data>
@@ -1503,7 +1515,46 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>Set the wait time for the model to return results, measured in seconds. For slower models (such as thinking models and local models), consider extending this time appropriately.</value>
     </data>
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
-        <value>Request timeout duration</value>
+        <value>Request Timeout</value>
+    </data>
+    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+        <value>User denied consent for PowerShell script execution.</value>
+    </data>
+    <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
+        <value>Proxy server address is required.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointInvalid_ErrorMessage" xml:space="preserve">
+        <value>Proxy server address is invalid.</value>
+    </data>
+    <data name="DynamicWebProxy_CreateProxy_EndpointSchemeUnsupported_ErrorMessage" xml:space="preserve">
+        <value>Proxy server scheme '{0}' is not supported.</value>
+    </data>
+    <data name="ChatFileAttachment_Create_FileTooLarge" xml:space="preserve">
+        <value>File size ({0}) exceeds the maximum allowed size ({1}).</value>
+    </data>
+    <data name="CommonSettings_FontSize_Header" xml:space="preserve">
+        <value>Font Size</value>
+    </data>
+    <data name="CommonSettings_FontSize_Description" xml:space="preserve">
+        <value>Adjust the global font display size.</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_Content" xml:space="preserve">
+        <value>Duplicate</value>
+    </data>
+    <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
+        <value>Duplicate the selected assistant.</value>
+    </data>
+    <data name="Common_Copy" xml:space="preserve">
+        <value>Copy</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
+        <value>Edit</value>
+    </data>
+    <data name="ChatWindow_EditingTextBlock_Text" xml:space="preserve">
+        <value>Editing message...</value>
+    </data>
+    <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
+        <value>Cancel Editing (Esc)</value>
     </data>
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
         <value>MCP Server</value>

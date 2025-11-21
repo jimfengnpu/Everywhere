@@ -228,11 +228,21 @@ public record ModelProviderTemplate
             Id = "google",
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
-            Endpoint = "https://generativelanguage.googleapis.com/v1beta/openai",
+            Endpoint = "https://generativelanguage.googleapis.com/v1beta",
             IconUrl = "avares://Everywhere/Assets/Icons/google-color.svg",
-            Schema = ModelProviderSchema.OpenAI,
+            Schema = ModelProviderSchema.Google,
             ModelDefinitions =
             [
+                new ModelDefinitionTemplate
+                {
+                    Id = "gemini-3-pro-preview",
+                    ModelId = "gemini-3-pro-preview",
+                    DisplayName = "Gemini 3 Pro Preview",
+                    MaxTokens = 1_048_576,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
                 new ModelDefinitionTemplate
                 {
                     Id = "gemini-2.5-pro",

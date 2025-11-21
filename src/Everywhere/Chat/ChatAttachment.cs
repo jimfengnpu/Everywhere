@@ -42,6 +42,12 @@ public partial class ChatVisualElementAttachment : ChatAttachment
     [IgnoreMember]
     public bool IsFocusedElement { get; set; }
 
+    /// <summary>
+    /// Indicates whether the visual element is valid (i.e., its target is not null).
+    /// </summary>
+    [IgnoreMember]
+    public bool IsElementValid => Element?.Target is not null;
+
     [SerializationConstructor]
     private ChatVisualElementAttachment(DynamicResourceKeyBase headerKey, LucideIconKind icon) : base(headerKey)
     {
@@ -89,9 +95,9 @@ public partial class ChatFileAttachment(
     public string Sha256 { get; } = sha256;
 
     [Key(3)]
-    public string MimeType { get; } = MimeTypeUtilities.VerifyMimeType(mimeType);
+    public string MimeType { get; } = FileUtilities.VerifyMimeType(mimeType);
 
-    public bool IsImage => MimeTypeUtilities.IsImage(MimeType);
+    public bool IsImage => FileUtilities.IsOfCategory(MimeType, FileTypeCategory.Image);
 
     public Bitmap? Image
     {
@@ -148,6 +154,7 @@ public partial class ChatFileAttachment(
     /// <param name="filePath"></param>
     /// <param name="mimeType">null for auto-detection</param>
     /// <param name="maxBytesSize"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException">
     /// Thrown if the file does not exist.
@@ -158,20 +165,28 @@ public partial class ChatFileAttachment(
     public static Task<ChatFileAttachment> CreateAsync(
         string filePath,
         string? mimeType = null,
-        long maxBytesSize = 25L * 1024 * 1024) => Task.Run(async () =>
+        long maxBytesSize = 25L * 1024 * 1024,
+        CancellationToken cancellationToken = default) => Task.Run(async () =>
     {
         await using var stream = File.OpenRead(filePath);
         if (stream.Length > maxBytesSize)
         {
-            throw new NotSupportedException($"File size exceeds the maximum allowed size of {maxBytesSize} bytes.");
+            throw new HandledException(
+                new NotSupportedException($"File size exceeds the maximum allowed size of {maxBytesSize} bytes."),
+                new FormattedDynamicResourceKey(
+                    LocaleKey.ChatFileAttachment_Create_FileTooLarge,
+                    new DirectResourceKey(FileUtilities.HumanizeBytes(stream.Length)),
+                    new DirectResourceKey(FileUtilities.HumanizeBytes(maxBytesSize))),
+                showDetails: false);
         }
 
-        mimeType = await MimeTypeUtilities.EnsureMimeTypeAsync(mimeType, filePath);
+        mimeType = await FileUtilities.EnsureMimeTypeAsync(mimeType, filePath, cancellationToken);
 
-        var sha256 = await SHA256.HashDataAsync(stream);
+        var sha256 = await SHA256.HashDataAsync(stream, cancellationToken);
         var sha256String = Convert.ToHexString(sha256).ToLowerInvariant();
         return new ChatFileAttachment(new DirectResourceKey(Path.GetFileName(filePath)), filePath, sha256String, mimeType);
-    });
+    },
+    cancellationToken);
 
     private async static ValueTask<Bitmap> ResizeImageOnDemandAsync(Bitmap image, int maxWidth = 2560, int maxHeight = 2560)
     {

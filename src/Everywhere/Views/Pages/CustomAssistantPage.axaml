@@ -5,17 +5,25 @@
   xmlns:vm="clr-namespace:Everywhere.ViewModels" x:DataType="vm:CustomAssistantPageViewModel">
   <Grid
     ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*"
-    RowSpacing="16">
-    <Button
-      Classes="Primary" Grid.Row="0"
-      Grid.Column="0" HorizontalAlignment="Left"
-      Command="{Binding CreateNewCustomAssistantCommand}"
-      Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
-      ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}">
-      <shadui:ButtonAssist.Icon>
-        <LucideIcon Kind="Plus"/>
-      </shadui:ButtonAssist.Icon>
-    </Button>
+    RowSpacing="8">
+    <StackPanel
+      Grid.Row="0" Grid.Column="0"
+      Orientation="Horizontal" Spacing="5">
+      <Button
+        Classes="Primary"
+        shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
+        Command="{Binding CreateNewCustomAssistantCommand}"
+        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
+
+      <Button
+        Classes="Secondary"
+        shadui:ButtonAssist.Icon="{LucideIconContent Copy}"
+        Command="{Binding DuplicateCustomAssistantCommand}"
+        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_Content}}"
+        IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}"/>
+    </StackPanel>
 
     <ListBox
       Grid.Row="1" Grid.Column="0"
@@ -33,14 +41,16 @@
             HorizontalSpacing="12" LastChildFill="True">
             <v:IconPresenter
               DockPanel.Dock="Left" Width="40"
-              Height="40" CornerRadius="20"
-              FontSize="24"
+              Height="40"
+              CornerRadius="{DynamicResource FullCornerRadius}"
+              FontSize="{DynamicResource FontSize2Xl}"
               Icon="{Binding Icon}"
-              IconSize="24"/>
+              IconSize="{DynamicResource FontSize2Xl}"
+              LineHeight="{DynamicResource LineHeight2Xl}"/>
 
             <StackPanel VerticalAlignment="Center">
               <TextBlock
-                FontSize="15"
+                Classes="p"
                 Text="{Binding Name, FallbackValue={x:Null}}"
                 TextTrimming="CharacterEllipsis"
                 ToolTip.Tip="{Binding $self.Text}"/>
@@ -70,25 +80,19 @@
       <Button
         Classes="Primary" Height="34"
         VerticalAlignment="Center"
+        shadui:ButtonAssist.Icon="{LucideIconContent Unplug}"
         shadui:ButtonAssist.ShowProgress="{Binding CheckConnectivityCommand.IsRunning}"
         Command="{Binding CheckConnectivityCommand}"
         Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CheckConnectivityButton_Content}}"
         IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
-        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CheckConnectivityButton_ToolTip}}">
-        <shadui:ButtonAssist.Icon>
-          <LucideIcon Kind="Unplug"/>
-        </shadui:ButtonAssist.Icon>
-      </Button>
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CheckConnectivityButton_ToolTip}}"/>
       <Button
         Classes="Destructive" VerticalAlignment="Center"
+        shadui:ButtonAssist.Icon="{LucideIconContent Trash2}"
         Command="{Binding DeleteCustomAssistantCommand}"
         Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DeleteCustomAssistantButton_Content}}"
         IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
-        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DeleteCustomAssistantButton_ToolTip}}">
-        <shadui:ButtonAssist.Icon>
-          <LucideIcon Kind="Trash2"/>
-        </shadui:ButtonAssist.Icon>
-      </Button>
+        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DeleteCustomAssistantButton_ToolTip}}"/>
     </StackPanel>
 
     <ScrollViewer

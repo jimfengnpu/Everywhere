@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Chat.Permissions;
 using Lucide.Avalonia;
@@ -7,6 +8,10 @@ using ModelContextProtocol.Client;
 
 namespace Everywhere.Chat.Plugins;
 
+[DynamicallyAccessedMembers(
+    DynamicallyAccessedMemberTypes.PublicConstructors |
+    DynamicallyAccessedMemberTypes.PublicFields |
+    DynamicallyAccessedMemberTypes.PublicProperties)]
 public abstract partial class ChatFunction : ObservableObject
 {
     public virtual DynamicResourceKeyBase HeaderKey => new DirectResourceKey(KernelFunction.Name);
