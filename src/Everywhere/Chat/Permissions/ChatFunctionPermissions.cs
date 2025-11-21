@@ -1,7 +1,7 @@
 ﻿namespace Everywhere.Chat.Permissions;
 
 [Flags]
-public enum ChatFunctionPermissions
+public enum ChatFunctionPermissions : uint
 {
     /// <summary>
     /// No permissions granted. This is the default state.
@@ -64,5 +64,10 @@ public enum ChatFunctionPermissions
     [DynamicResourceKey(LocaleKey.ChatFunctionPermissions_ShellExecute)]
     ShellExecute = ScreenAccess | NetworkAccess | ClipboardAccess | FileAccess | ProcessAccess | 1 << 8,
 
-    AllAccess = ~0
+    /// <summary>
+    /// MCP tool permission, equivalent to ShellExecute (all permissions).
+    /// </summary>
+    MCP = ShellExecute | 1 << 9,
+
+    AllAccess = uint.MaxValue
 }

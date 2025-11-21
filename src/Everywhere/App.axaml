@@ -22,6 +22,7 @@
         <ResourceInclude Source="avares://Everywhere/Views/Controls/ConsentDecisionCard.axaml"/>
         <ResourceInclude Source="avares://Everywhere/Views/Controls/IconEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere/Views/Controls/IconPresenter.axaml"/>
+        <ResourceInclude Source="avares://Everywhere/Views/Controls/McpTransportConfigurationForm.axaml"/>
         <ResourceInclude Source="avares://Everywhere/Views/Controls/SettingsItemsControl.axaml"/>
         <ResourceInclude Source="avares://Everywhere/Views/Controls/TextDifferenceEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere/Views/Controls/TextDifferenceSummaryView.axaml"/>

@@ -1559,4 +1559,31 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
         <value>MCP Server</value>
     </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Regex" xml:space="preserve">
+        <value>Only numbers, letters, and the characters “-”, “_” are permitted.</value>
+    </data>
+    <data name="ValidationErrorMessage_Required" xml:space="preserve">
+        <value>This field is required.</value>
+    </data>
+    <data name="ValidationErrorMessage_MaxLength" xml:space="preserve">
+        <value>The length must not exceed {0} characters.</value>
+    </data>
+    <data name="ValidationErrorMessage_Url" xml:space="preserve">
+        <value>Must be a valid URL.</value>
+    </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Exists" xml:space="preserve">
+        <value>Cannot duplicate existing entries.</value>
+    </data>
+    <data name="ChatPluginConsentRequest_MCP_Header" xml:space="preserve">
+        <value>“{0}” is an MCP tool. Everywhere cannot verify its required permissions. Please ensure it comes from a trusted source, and Everywhere assumes no responsibility for its consequences.</value>
+    </data>
+    <data name="ValidationErrorMessage_DuplicateKey" xml:space="preserve">
+        <value>Duplicate entries are not permitted.</value>
+    </data>
+    <data name="ValidationErrorMessage_NullKey" xml:space="preserve">
+        <value>The item key cannot be empty.</value>
+    </data>
+    <data name="ValidationErrorMessage_NullValue" xml:space="preserve">
+        <value>The item value cannot be empty.</value>
+    </data>
 </root>

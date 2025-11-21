@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.Input;
 using Everywhere.AI;
 
 namespace Everywhere.Chat.Plugins;
@@ -11,18 +13,23 @@ public interface IChatPluginManager
     /// <summary>
     /// Gets the list of built-in chat plugins for Binding use in the UI.
     /// </summary>
-    IReadOnlyList<BuiltInChatPlugin> BuiltInPlugins { get; }
+    ReadOnlyObservableCollection<BuiltInChatPlugin> BuiltInPlugins { get; }
 
     /// <summary>
     /// Gets the list of MCP chat plugins for Binding use in the UI.
     /// </summary>
-    IReadOnlyList<McpChatPlugin> McpPlugins { get; }
+    ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
+
+    /// <summary>
+    /// Command to start an MCP plugin.
+    /// </summary>
+    IRelayCommand<McpChatPlugin> StartCommand { get; }
 
     /// <summary>
     /// Adds a new MCP plugin based on the provided configuration.
     /// </summary>
     /// <param name="configuration"></param>
-    void AddMcpPlugin(McpTransportConfiguration configuration);
+    McpChatPlugin AddMcpPlugin(McpTransportConfiguration configuration);
 
     /// <summary>
     /// Creates a new MCP client based on the provided configuration. If it's a local client, it will start the local server process.
@@ -40,7 +47,7 @@ public interface IChatPluginManager
     /// Functions in the scope must not have the same name.
     /// </summary>
     /// <returns></returns>
-    IChatPluginScope CreateScope(ChatContext chatContext, CustomAssistant customAssistant);
+    Task<IChatPluginScope> CreateScopeAsync(ChatContext chatContext, CustomAssistant customAssistant, CancellationToken cancellationToken);
 }
 
 /// <summary>

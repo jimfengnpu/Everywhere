@@ -34,6 +34,7 @@
             <TextBlock
               Classes="Muted" Grid.Row="1"
               Grid.Column="1" IsHitTestVisible="False"
+              IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
               Text="{Binding DescriptionKey^}"
               TextTrimming="CharacterEllipsis"/>
             <CheckBox
@@ -89,7 +90,57 @@
     ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*">
     <TabControl
       Grid.Row="0" Grid.RowSpan="2"
-      Grid.Column="0" ClipToBounds="False">
+      Grid.Column="0" Margin="0,0,16,0"
+      ClipToBounds="False">
+      <TabControl.Template>
+        <ControlTemplate TargetType="TabControl">
+          <Border
+            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+            <Grid
+              RowDefinitions="Auto,*" RowSpacing="8">
+              <DockPanel
+                Grid.Row="0" MinWidth="340"
+                HorizontalSpacing="8" LastChildFill="True">
+                <Button
+                  Classes="Primary" DockPanel.Dock="Right"
+                  MinHeight="36"
+                  shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
+                  Command="{Binding AddMcpPluginCommand}"
+                  Content="Add MCP"
+                  IsVisible="{Binding #McpTabItem.IsSelected}"/>
+
+                <LayoutTransformControl
+                  Name="LayoutTransform"
+                  DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                  HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+                  <Border
+                    Padding="2,4,2,0" HorizontalAlignment="Left"
+                    Background="{DynamicResource TabItemsBackgroundColor}"
+                    CornerRadius="{DynamicResource LgCornerRadius}">
+                    <ItemsPresenter
+                      Name="PART_ItemsPresenter"
+                      ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                  </Border>
+                </LayoutTransformControl>
+              </DockPanel>
+
+              <ContentPresenter
+                Name="PART_SelectedContentHost" Grid.Row="1"
+                Margin="0,4,0,0"
+                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                Content="{TemplateBinding SelectedContent}"
+                ContentTemplate="{TemplateBinding SelectedContentTemplate}"/>
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </TabControl.Template>
+
       <TabItem>
         <TabItem.Header>
           <StackPanel
@@ -106,7 +157,7 @@
           SelectedItem="{Binding SelectedPlugin}"/>
       </TabItem>
 
-      <TabItem>
+      <TabItem x:Name="McpTabItem">
         <TabItem.Header>
           <StackPanel
             Orientation="Horizontal" Spacing="4">
@@ -118,7 +169,7 @@
         </TabItem.Header>
 
         <ListBox
-          Classes="PluginListBox" Margin="0,0,16,0"
+          Classes="PluginListBox"
           ItemsSource="{Binding Manager.McpPlugins}"
           SelectedItem="{Binding SelectedPlugin}"/>
       </TabItem>
@@ -138,7 +189,7 @@
 
     <Grid
       Grid.Row="0" Grid.Column="2"
-      Margin="0,8" ColumnDefinitions="Auto,*"
+      Margin="0,8" ColumnDefinitions="Auto,*,Auto"
       RowDefinitions="Auto,Auto,Auto">
       <Image
         Grid.Row="0" Grid.RowSpan="3"
@@ -168,6 +219,18 @@
         Text="{Binding SelectedPlugin.DescriptionKey^, FallbackValue={x:Null}}"
         TextTrimming="CharacterEllipsis" TextWrapping="Wrap"
         ToolTip.Tip="{Binding $self.Text}"/>
+
+      <StackPanel
+        Grid.Row="0" Grid.RowSpan="3"
+        Grid.Column="2" VerticalAlignment="Bottom"
+        IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
+        Orientation="Horizontal">
+        <Button
+          Classes="Primary"
+          Command="{Binding Manager.StartCommand}"
+          CommandParameter="{Binding SelectedMcpPlugin}"
+          Content="{LucideIconContent Kind=Play}"/>
+      </StackPanel>
     </Grid>
 
     <TabControl
@@ -231,6 +294,61 @@
                   </Grid>
                 </DataTemplate>
               </ItemsControl.DataTemplates>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Logs">
+        <Border
+          Margin="0,0,12,0"
+          Background="{DynamicResource CardBackgroundColor}"
+          BorderBrush="{DynamicResource BorderColor}"
+          BorderThickness="1" CornerRadius="8">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl
+              Grid.IsSharedSizeScope="True"
+              IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
+              ItemsSource="{Binding SelectedMcpPlugin.LogEntries, FallbackValue={x:Null}}">
+              <ItemsControl.Styles>
+                <Style Selector="ContentPresenter:pointerover">
+                  <Setter Property="Background" Value="{DynamicResource SecondaryColor50}"/>
+                </Style>
+              </ItemsControl.Styles>
+
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="p:McpChatPlugin+LogEntry">
+                  <Grid
+                    Margin="8,2" Background="Transparent"
+                    ColumnSpacing="4">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition
+                        Width="Auto" SharedSizeGroup="Timestamp"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock.Foreground>
+                      <Binding Path="Level">
+                        <Binding.Converter>
+                          <vc:LogLevelToBrushConverter
+                            CriticalBrush="{DynamicResource ErrorColor}"
+                            DefaultBrush="{DynamicResource ForegroundColor}"
+                            ErrorBrush="{DynamicResource ErrorColor}"
+                            WarningBrush="{DynamicResource WarningColor}"/>
+                        </Binding.Converter>
+                      </Binding>
+                    </TextBlock.Foreground>
+
+                    <TextBlock
+                      Classes="Muted" Grid.Column="0"
+                      Text="{Binding Timestamp, StringFormat='[{0:yyyy-MM-dd HH:mm:ss}]'}"/>
+                    <SelectableTextBlock
+                      Grid.Column="1"
+                      Text="{Binding Message}"
+                      TextWrapping="Wrap"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
             </ItemsControl>
           </ScrollViewer>
         </Border>

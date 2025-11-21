@@ -30,7 +30,7 @@ using TextContent = Microsoft.SemanticKernel.TextContent;
 
 namespace Everywhere.Chat;
 
-public class ChatService(
+public sealed class ChatService(
     IChatContextManager chatContextManager,
     IChatPluginManager chatPluginManager,
     IKernelMixinFactory kernelMixinFactory,
@@ -41,7 +41,7 @@ public class ChatService(
     /// <summary>
     /// Context for function call invocations.
     /// </summary>
-    protected record FunctionCallContext(
+    private record FunctionCallContext(
         Kernel Kernel,
         ChatContext ChatContext,
         ChatPlugin Plugin,
@@ -306,7 +306,11 @@ public class ChatService(
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    private Kernel BuildKernel(IKernelMixin kernelMixin, ChatContext chatContext, CustomAssistant customAssistant)
+    private async Task<Kernel> BuildKernelAsync(
+        IKernelMixin kernelMixin,
+        ChatContext chatContext,
+        CustomAssistant customAssistant,
+        CancellationToken cancellationToken)
     {
         using var activity = _activitySource.StartActivity();
 
@@ -318,7 +322,7 @@ public class ChatService(
 
         if (kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled)
         {
-            var chatPluginScope = chatPluginManager.CreateScope(chatContext, customAssistant);
+            var chatPluginScope = await chatPluginManager.CreateScopeAsync(chatContext, customAssistant, cancellationToken);
             builder.Services.AddSingleton(chatPluginScope);
             activity?.SetTag("plugins.count", chatPluginScope.Plugins.AsValueEnumerable().Count());
 
@@ -345,7 +349,7 @@ public class ChatService(
             cancellationToken.ThrowIfCancellationRequested();
 
             var kernelMixin = CreateKernelMixin(customAssistant);
-            var kernel = BuildKernel(kernelMixin, chatContext, customAssistant);
+            var kernel = await BuildKernelAsync(kernelMixin, chatContext, customAssistant, cancellationToken);
 
             var chatHistory = new ChatHistory();
             // Because the custom assistant maybe changed, we need to re-render the system prompt.
@@ -740,13 +744,26 @@ public class ChatService(
             {
                 // The function requires permissions that are not granted.
                 var promise = new TaskCompletionSource<ConsentDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                FormattedDynamicResourceKey headerKey;
+                if (context.Function.Permissions.HasFlag(ChatFunctionPermissions.MCP))
+                {
+                    headerKey = new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginConsentRequest_MCP_Header,
+                        context.Function.HeaderKey);
+                }
+                else
+                {
+                    headerKey = new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginConsentRequest_Common_Header,
+                        context.Function.HeaderKey,
+                        new DirectResourceKey(context.Function.Permissions.I18N(LocaleResolver.Common_Comma, true)));
+                }
+
                 WeakReferenceMessenger.Default.Send(
                     new ChatPluginConsentRequest(
                         promise,
-                        new FormattedDynamicResourceKey(
-                            LocaleKey.ChatPluginConsentRequest_Common_Header,
-                            context.Function.HeaderKey,
-                            new DirectResourceKey(context.Function.Permissions.I18N(LocaleKey.Common_Comma.I18N(), true))),
+                        headerKey,
                         friendlyContent,
                         true,
                         cancellationToken));

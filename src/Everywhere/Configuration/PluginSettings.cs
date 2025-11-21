@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
@@ -6,7 +6,7 @@ using Everywhere.Collections;
 
 namespace Everywhere.Configuration;
 
-public class PluginSettings : ObservableObject
+public partial class PluginSettings : ObservableObject
 {
     /// <summary>
     /// Gets or sets whether each plugin is enabled.
@@ -27,7 +27,7 @@ public class PluginSettings : ObservableObject
     /// <summary>
     /// Gets or sets the list of MCP chat plugins.
     /// </summary>
-    public ObservableCollection<McpChatPlugin> McpPlugins { get; set; } = [];
+    [ObservableProperty] public partial IReadOnlyList<McpChatPluginEntity> McpChatPlugins { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the web search engine settings.
@@ -38,5 +38,41 @@ public class PluginSettings : ObservableObject
     {
         IsEnabledRecords.CollectionChanged += delegate { OnPropertyChanged(nameof(IsEnabledRecords)); };
         GrantedPermissions.CollectionChanged += delegate { OnPropertyChanged(nameof(GrantedPermissions)); };
+    }
+}
+
+/// <summary>
+/// MCP Plugin record for serialization/IConfiguration purposes.
+/// </summary>
+public class McpChatPluginEntity
+{
+    public Guid Id { get; set; }
+
+    public StdioMcpTransportConfiguration? Stdio { get; set; }
+
+    public HttpMcpTransportConfiguration? Http { get; set; }
+
+    [JsonConstructor]
+    public McpChatPluginEntity() { }
+
+    public McpChatPluginEntity(McpChatPlugin mcpChatPlugin)
+    {
+        Id = mcpChatPlugin.Id;
+        Stdio = mcpChatPlugin.TransportConfiguration as StdioMcpTransportConfiguration;
+        Http = mcpChatPlugin.TransportConfiguration as HttpMcpTransportConfiguration;
+    }
+
+    public McpChatPlugin? ToMcpChatPlugin()
+    {
+        var transportConfiguration = Stdio as McpTransportConfiguration ?? Http;
+        if (transportConfiguration == null)
+        {
+            return null;
+        }
+
+        return new McpChatPlugin(transportConfiguration)
+        {
+            Id = Id
+        };
     }
 }

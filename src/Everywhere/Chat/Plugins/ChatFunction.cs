@@ -68,7 +68,7 @@ public sealed class NativeChatFunction : ChatFunction
         }
         else
         {
-            HeaderKey = new DirectResourceKey(method.Method.Name.TrimEnd("Async"));
+            HeaderKey = new DirectResourceKey(method.Method.Name);
         }
 
         Icon = icon;
@@ -97,5 +97,7 @@ public sealed class NativeChatFunction : ChatFunction
 
 public class McpChatFunction(McpClientTool tool) : ChatFunction
 {
+    public override ChatFunctionPermissions Permissions => ChatFunctionPermissions.MCP;
+
     public override KernelFunction KernelFunction { get; } = tool.AsKernelFunction();
 }

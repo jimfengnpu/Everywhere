@@ -1546,4 +1546,31 @@
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
         <value>MCP 服务器</value>
     </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Regex" xml:space="preserve">
+        <value>仅允许数字、字母和“-”、“_”。</value>
+    </data>
+    <data name="ValidationErrorMessage_Required" xml:space="preserve">
+        <value>该项必填。</value>
+    </data>
+    <data name="ValidationErrorMessage_MaxLength" xml:space="preserve">
+        <value>长度不得超过 {0} 字符。</value>
+    </data>
+    <data name="ValidationErrorMessage_Url" xml:space="preserve">
+        <value>必须为有效的 URL。</value>
+    </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Exists" xml:space="preserve">
+        <value>不能和已存在的重复。</value>
+    </data>
+    <data name="ChatPluginConsentRequest_MCP_Header" xml:space="preserve">
+        <value>“{0}”是一个 MCP 工具，Everywhere 无法确认其所需权限，请确保它来自受信来源，且 Everywhere 不对其后果负责。</value>
+    </data>
+    <data name="ValidationErrorMessage_DuplicateKey" xml:space="preserve">
+        <value>不得包含重复项。</value>
+    </data>
+    <data name="ValidationErrorMessage_NullKey" xml:space="preserve">
+        <value>项目的键不能为空。</value>
+    </data>
+    <data name="ValidationErrorMessage_NullValue" xml:space="preserve">
+        <value>项目的值不能为空。</value>
+    </data>
 </root>
