@@ -690,12 +690,6 @@
     <data name="NativeChatPlugin_FileSystem_Description" xml:space="preserve">
         <value>Dosyalara erişim yeteneği sağlar; sayım, oluşturma, silme, yeniden adlandırma, okuma veya yazma gibi işlemleri içerir.</value>
     </data>
-    <data name="NativeChatPlugin_WindowsSystemApi_Header" xml:space="preserve">
-        <value>Windows Sistem API</value>
-    </data>
-    <data name="NativeChatPlugin_WindowsSystemApi_Description" xml:space="preserve">
-        <value>Asistanlar için kompakt bir Windows kontrol yüzeyi sağlar; Kontrol Paneli kısayolları, sayısal ve mantıksal sistem ayarı güncellemeleri ve bilgisayar uyumlu fare ve klavye eylemleri içerir.</value>
-    </data>
     <data name="FriendlyExceptionMessage_InvalidOperation" xml:space="preserve">
         <value>Geçersiz işlem.</value>
     </data>
@@ -1280,9 +1274,6 @@
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
         <value>🧐 {0}</value>
-    </data>
-    <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
-        <value>{0} URL'ler</value>
     </data>
     <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
         <value>Aşağıdaki terminal betiği çalıştırılacak</value>
