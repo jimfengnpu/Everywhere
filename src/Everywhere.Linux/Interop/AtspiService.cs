@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
@@ -21,6 +22,7 @@ public partial class AtspiService
     private readonly AtspiEventListenerCallback _eventCallback;
     private IntPtr _eventListener;
     private IntPtr _focusedElement;
+    private Lock _focusLock = new();
     
     public AtspiService(LinuxVisualElementContext context)
     {
@@ -72,34 +74,30 @@ public partial class AtspiService
         {
             var ev = Marshal.PtrToStructure<AtspiEvent>(atspiEventPtr);
             var eventType = Marshal.PtrToStringAnsi(ev.type) ?? string.Empty;
-            if (eventType.Contains("focused"))
+            if (eventType.Contains("focused") && ev.source != IntPtr.Zero)
             {
-                if (ev.detail1 == 1) // focus in
+                lock (_focusLock)
                 {
-                    var element = ev.source;
-                    if (element == IntPtr.Zero) return;
-                    if (_focusedElement != IntPtr.Zero)
+                    if (ev.detail1 == 1) // focus in
                     {
-                        g_object_unref(_focusedElement);
-                    }
-                    var appName = ElementName(ev.sender);
-                    if (IsAppNameDesktop(appName))
-                    {
-                        element = ev.sender;
-                    }
-                    _focusedElement = element;
-                    if (_focusedElement != IntPtr.Zero)
-                    { 
+                        var element = ev.source;
+                        if (_focusedElement != IntPtr.Zero)
+                        {
+                            g_object_unref(_focusedElement);
+                        }
+                        // var appName = Process.GetProcessById(ElementPid(element)).ProcessName;
+                        // _logger.LogInformation("Focus in: {app} - {Name}", appName, ElementName(element));
+                        _focusedElement = element;
                         g_object_ref(_focusedElement);
                     }
-                }
-                else
-                {
-                    if (_focusedElement != IntPtr.Zero)
+                    else
                     {
-                        g_object_unref(_focusedElement);
+                        if (_focusedElement != IntPtr.Zero)
+                        {
+                            g_object_unref(_focusedElement);
+                        }
+                        _focusedElement = IntPtr.Zero;
                     }
-                    _focusedElement = IntPtr.Zero;
                 }
             }
         }
@@ -126,6 +124,12 @@ public partial class AtspiService
         {
             return null;
         }
+    }
+
+    private static int ElementPid(IntPtr elem)
+    {
+        var pid = atspi_accessible_get_process_id(elem, IntPtr.Zero);
+        return pid;
     }
     
     private static PixelRect ElementBounds(IntPtr elem)
@@ -513,14 +517,7 @@ public partial class AtspiService
             }
         }
 
-        public int ProcessId
-        {
-            get
-            {
-                var pid = atspi_accessible_get_process_id(_element, IntPtr.Zero);
-                return pid;
-            }
-        }
+        public int ProcessId => ElementPid(_element);
 
         public nint NativeWindowHandle
         {

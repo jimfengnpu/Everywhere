@@ -8,7 +8,6 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using ShadUI;
-// using Point = System.Drawing.Point;
 using Window = Avalonia.Controls.Window;
 using Everywhere.Extensions;
 using Everywhere.I18N;
@@ -45,7 +44,6 @@ public partial class LinuxVisualElementContext
         private readonly Badge _screenPickModeBadge;
         private readonly Badge _windowPickModeBadge;
         private readonly Badge _elementPickModeBadge;
-        // private PixelRect _selectedRect;
         private Rect? _previousMaskRect;
         private IVisualElement? _selectedElement;
 

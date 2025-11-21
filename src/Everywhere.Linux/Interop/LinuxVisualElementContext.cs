@@ -20,10 +20,13 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         {
             try
             {
-                // use backend window focus element as fallback
-                var focused = _atspi.ElementFocused() 
-                    ?? _backend.GetFocusedWindowElement();
-                return focused;
+                // some app do not support atspi focus event
+                // ensure the app is correct by pid
+                // however, atspi element is more detailed, so return null when incorrect
+                // to let atspi pointer search do the work
+                var focused = _atspi.ElementFocused();
+                var focusedWindow =  _backend.GetFocusedWindowElement();
+                return focused?.ProcessId == focusedWindow?.ProcessId ? focused: null;
             }
             catch (Exception ex)
             {

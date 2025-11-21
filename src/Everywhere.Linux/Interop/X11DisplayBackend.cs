@@ -442,40 +442,13 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
             if (_display == IntPtr.Zero) return;
 
-            // 设置窗口类型为工具窗口，避免在任务栏显示和获得焦点
-            IntPtr atomType = XInternAtom(_display, "_NET_WM_WINDOW_TYPE", 0);
-            IntPtr atomUtility = XInternAtom(_display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
-            if (atomType != IntPtr.Zero && atomUtility != IntPtr.Zero)
-            {
-                ulong[] data = { (ulong)atomUtility };
-                XChangeProperty(_display, wnd, atomType, XInternAtom(_display, "ATOM", 0), 32, PropModeReplace, data, 1);
-            }
-
-            // 跳过任务栏
-            IntPtr atomState = XInternAtom(_display, "_NET_WM_STATE", 0);
-            IntPtr atomSkip = XInternAtom(_display, "_NET_WM_STATE_SKIP_TASKBAR", 0);
-            IntPtr atomSkipPager = XInternAtom(_display, "_NET_WM_STATE_SKIP_PAGER", 0);
-            if (atomState != IntPtr.Zero)
-            {
-                var stateData = new List<ulong>();
-                if (atomSkip != IntPtr.Zero) stateData.Add((ulong)atomSkip);
-                if (atomSkipPager != IntPtr.Zero) stateData.Add((ulong)atomSkipPager);
-
-                if (stateData.Count > 0)
-                {
-                    XChangeProperty(_display, wnd, atomState, XInternAtom(_display, "ATOM", 0), 32, PropModeReplace, stateData.ToArray(), stateData.Count);
-                }
-            }
-
-            // 设置窗口不接受输入焦点
             IntPtr atomHints = XInternAtom(_display, "WM_HINTS", 0);
             if (atomHints != IntPtr.Zero)
             {
-                // WM_HINTS结构：flags(32位) + input(32位) + 其他字段...
-                // 我们只设置flags和input字段
+                // WM_HINTS：flags(32 bit) + input(32 bit) + Others...
                 var hints = new ulong[2];
                 hints[0] = 1u << 0; // InputHint flag
-                hints[1] = (focusable) ? 1u : 0u;      // Input = False (不接受输入)
+                hints[1] = (focusable) ? 1u : 0u;
                 XChangeProperty(_display, wnd, atomHints, XInternAtom(_display, "WM_HINTS", 0), 32, PropModeReplace, hints, 2);
             }
 
@@ -616,7 +589,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     private Bitmap StandardXGetImageCapture(IntPtr drawable, PixelRect rect)
     {
-        // 验证drawable是否有效
         if (!IsValidDrawable(drawable))
         {
             _logger.LogError("Invalid drawable: {drawable}", drawable.ToString("X"));
@@ -639,8 +611,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         {
             var ximage = Marshal.PtrToStructure<XImage>(image);
 
-            // 检查像素格式
-            _logger.LogDebug("XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
+            // check pixel format
+            _logger.LogInformation("XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
                 ximage.depth, ximage.bits_per_pixel, ximage.bytes_per_line);
 
             var stride = ximage.bytes_per_line;
@@ -648,7 +620,6 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             byte[] pixelData = new byte[bufferSize];
             Marshal.Copy(ximage.data, pixelData, 0, bufferSize);
 
-            // 根据像素格式进行转换
             ConvertPixelFormat(pixelData, ximage, rect.Width, rect.Height, stride);
 
             unsafe
@@ -673,110 +644,89 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     private void ConvertPixelFormat(byte[] pixelData, XImage ximage, int width, int height, int stride)
     {
-        // 检查是否需要转换像素格式
-        bool needsConversion = false;
+        bool converted = false;
+        byte[] bgraData = new byte[height * stride];
 
-        // 常见的X11像素格式
-        if (ximage.bits_per_pixel == 24 && ximage.depth == 24)
+        if (ximage is { bits_per_pixel: 24, depth: 24 })
         {
-            // RGB 24位 -> BGRA 32位
-            ConvertRGB24ToBGRA32(pixelData, width, height, stride);
-            needsConversion = true;
+            // RGB 24bit -> BGRA 32bit
+            for (int y = 0; y < height; y++)
+            {
+                int srcRowStart = y * (width * 3);
+                int dstRowStart = y * stride;
+
+                for (int x = 0; x < width; x++)
+                {
+                    int srcPixel = srcRowStart + x * 3;
+                    int dstPixel = dstRowStart + x * 4;
+
+                    if (srcPixel + 2 < pixelData.Length && dstPixel + 3 < bgraData.Length)
+                    {
+                        byte r = pixelData[srcPixel];
+                        byte g = pixelData[srcPixel + 1];
+                        byte b = pixelData[srcPixel + 2];
+
+                        bgraData[dstPixel] = b;     // B
+                        bgraData[dstPixel + 1] = g; // G
+                        bgraData[dstPixel + 2] = r; // R
+                        bgraData[dstPixel + 3] = 255; // A
+                    }
+                }
+            }
+            converted = true;
         }
-        else if (ximage.bits_per_pixel == 32 && ximage.depth == 24)
+        else if (ximage is { bits_per_pixel: 32, depth: 24 })
         {
             // 32位格式，假设是RGBA或BGRA
             // 由于没有颜色掩码信息，我们暂时不进行转换
             _logger.LogDebug("Using 32-bit format as-is");
             return;
         }
-        else if (ximage.bits_per_pixel == 16 && ximage.depth == 16)
+        else if (ximage is { bits_per_pixel: 16, depth: 16 })
         {
-            // RGB16 565格式
-            ConvertRGB16ToBGRA32(pixelData, width, height, stride);
-            needsConversion = true;
+            // RGB16 565
+            for (int y = 0; y < height; y++)
+            {
+                int srcRowStart = y * (width * 2); // RGB16每行2字节
+                int dstRowStart = y * stride;
+
+                for (int x = 0; x < width; x++)
+                {
+                    int srcPixel = srcRowStart + x * 2;
+                    int dstPixel = dstRowStart + x * 4;
+
+                    if (srcPixel + 1 < pixelData.Length && dstPixel + 3 < bgraData.Length)
+                    {
+                        // RGB16 565格式
+                        ushort pixel = (ushort)(pixelData[srcPixel] | (pixelData[srcPixel + 1] << 8));
+
+                        byte r = (byte)((pixel >> 11) & 0x1F);
+                        byte g = (byte)((pixel >> 5) & 0x3F);
+                        byte b = (byte)(pixel & 0x1F);
+
+                        // 扩展到8位
+                        r = (byte)(r << 3 | r >> 2);
+                        g = (byte)(g << 2 | g >> 4);
+                        b = (byte)(b << 3 | b >> 2);
+
+                        bgraData[dstPixel] = b;     // B
+                        bgraData[dstPixel + 1] = g; // G
+                        bgraData[dstPixel + 2] = r; // R
+                        bgraData[dstPixel + 3] = 255; // A
+                    }
+                }
+            }
+            converted = true;
         }
 
-        if (!needsConversion)
+        if (converted)
+        {
+            Array.Copy(bgraData, 0, pixelData, 0, 
+                Math.Min(bgraData.Length, pixelData.Length));
+        } else
         {
             _logger.LogDebug("No pixel format conversion needed for {bpp} bits per pixel", ximage.bits_per_pixel);
         }
-    }
-
-    private void ConvertRGB24ToBGRA32(byte[] rgbData, int width, int height, int stride)
-    {
-        // 创建新的BGRA缓冲区
-        byte[] bgraData = new byte[height * stride];
-
-        for (int y = 0; y < height; y++)
-        {
-            int srcRowStart = y * (width * 3); // RGB24每行3字节
-            int dstRowStart = y * stride;
-
-            for (int x = 0; x < width; x++)
-            {
-                int srcPixel = srcRowStart + x * 3;
-                int dstPixel = dstRowStart + x * 4;
-
-                if (srcPixel + 2 < rgbData.Length && dstPixel + 3 < bgraData.Length)
-                {
-                    byte r = rgbData[srcPixel];
-                    byte g = rgbData[srcPixel + 1];
-                    byte b = rgbData[srcPixel + 2];
-
-                    bgraData[dstPixel] = b;     // B
-                    bgraData[dstPixel + 1] = g; // G
-                    bgraData[dstPixel + 2] = r; // R
-                    bgraData[dstPixel + 3] = 255; // A
-                }
-            }
-        }
-
-        // 复制回原数组
-        Array.Copy(bgraData, 0, rgbData, 0, Math.Min(bgraData.Length, rgbData.Length));
-        _logger.LogDebug("Converted RGB24 to BGRA32");
-    }
-
-    private void ConvertRGB16ToBGRA32(byte[] rgb16Data, int width, int height, int stride)
-    {
-        // 创建新的BGRA缓冲区
-        byte[] bgraData = new byte[height * stride];
-
-        for (int y = 0; y < height; y++)
-        {
-            int srcRowStart = y * (width * 2); // RGB16每行2字节
-            int dstRowStart = y * stride;
-
-            for (int x = 0; x < width; x++)
-            {
-                int srcPixel = srcRowStart + x * 2;
-                int dstPixel = dstRowStart + x * 4;
-
-                if (srcPixel + 1 < rgb16Data.Length && dstPixel + 3 < bgraData.Length)
-                {
-                    // RGB16 565格式
-                    ushort pixel = (ushort)(rgb16Data[srcPixel] | (rgb16Data[srcPixel + 1] << 8));
-
-                    byte r = (byte)((pixel >> 11) & 0x1F);
-                    byte g = (byte)((pixel >> 5) & 0x3F);
-                    byte b = (byte)(pixel & 0x1F);
-
-                    // 扩展到8位
-                    r = (byte)(r << 3 | r >> 2);
-                    g = (byte)(g << 2 | g >> 4);
-                    b = (byte)(b << 3 | b >> 2);
-
-                    bgraData[dstPixel] = b;     // B
-                    bgraData[dstPixel + 1] = g; // G
-                    bgraData[dstPixel + 2] = r; // R
-                    bgraData[dstPixel + 3] = 255; // A
-                }
-            }
-        }
-
-        // 复制回原数组
-        Array.Copy(bgraData, 0, rgb16Data, 0, Math.Min(bgraData.Length, rgb16Data.Length));
-        _logger.LogDebug("Converted RGB16 to BGRA32");
     }
 
     private bool IsValidDrawable(IntPtr drawable)
