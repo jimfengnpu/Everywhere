@@ -22,7 +22,6 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Patterns.Infrastructure;
 using FlaUI.UIA3;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using IDataObject = System.Windows.IDataObject;
@@ -639,7 +638,7 @@ public partial class VisualElementContext : IVisualElementContext
         }
 
         // BUG: For a minimized window, the captured image is buggy (but child elements are fine).
-        public Task<Bitmap> CaptureAsync()
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
             var rect = BoundingRectangle;
             if (rect.Width <= 0 || rect.Height <= 0)
@@ -658,7 +657,8 @@ public partial class VisualElementContext : IVisualElementContext
                     rect.X - windowRect.X,
                     rect.Y - windowRect.Y,
                     rect.Width,
-                    rect.Height));
+                    rect.Height),
+                cancellationToken);
         }
 
         #region Interop
@@ -838,7 +838,7 @@ public partial class VisualElementContext : IVisualElementContext
 
         public string? GetSelectionText() => null;
 
-        public Task<Bitmap> CaptureAsync()
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(CaptureScreen(BoundingRectangle));
         }

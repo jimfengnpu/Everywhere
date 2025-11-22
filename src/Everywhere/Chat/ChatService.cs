@@ -30,7 +30,7 @@ using TextContent = Microsoft.SemanticKernel.TextContent;
 
 namespace Everywhere.Chat;
 
-public class ChatService(
+public sealed partial class ChatService(
     IChatContextManager chatContextManager,
     IChatPluginManager chatPluginManager,
     IKernelMixinFactory kernelMixinFactory,
@@ -41,7 +41,7 @@ public class ChatService(
     /// <summary>
     /// Context for function call invocations.
     /// </summary>
-    protected record FunctionCallContext(
+    private record FunctionCallContext(
         Kernel Kernel,
         ChatContext ChatContext,
         ChatPlugin Plugin,
@@ -306,7 +306,11 @@ public class ChatService(
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    private Kernel BuildKernel(IKernelMixin kernelMixin, ChatContext chatContext, CustomAssistant customAssistant)
+    private async Task<Kernel> BuildKernelAsync(
+        IKernelMixin kernelMixin,
+        ChatContext chatContext,
+        CustomAssistant customAssistant,
+        CancellationToken cancellationToken)
     {
         using var activity = _activitySource.StartActivity();
 
@@ -318,7 +322,10 @@ public class ChatService(
 
         if (kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled)
         {
-            var chatPluginScope = chatPluginManager.CreateScope(chatContext, customAssistant);
+            var needToStartMcp = chatPluginManager.McpPlugins.AsValueEnumerable().Any(p => p is { IsEnabled: true, IsRunning: false });
+            using var _ = needToStartMcp ? chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_StartingMcp)) : null;
+
+            var chatPluginScope = await chatPluginManager.CreateScopeAsync(chatContext, customAssistant, cancellationToken);
             builder.Services.AddSingleton(chatPluginScope);
             activity?.SetTag("plugins.count", chatPluginScope.Plugins.AsValueEnumerable().Count());
 
@@ -345,7 +352,7 @@ public class ChatService(
             cancellationToken.ThrowIfCancellationRequested();
 
             var kernelMixin = CreateKernelMixin(customAssistant);
-            var kernel = BuildKernel(kernelMixin, chatContext, customAssistant);
+            var kernel = await BuildKernelAsync(kernelMixin, chatContext, customAssistant, cancellationToken);
 
             var chatHistory = new ChatHistory();
             // Because the custom assistant maybe changed, we need to re-render the system prompt.
@@ -353,6 +360,7 @@ public class ChatService(
 
             // Build the chat history from the chat context.
             foreach (var chatMessage in chatContext
+                         .AsValueEnumerable()
                          .Select(n => n.Message)
                          .Where(m => !ReferenceEquals(m, assistantChatMessage)) // exclude the current assistant message
                          .Where(m => m.Role.Label is "system" or "assistant" or "user" or "tool")
@@ -376,6 +384,7 @@ public class ChatService(
                     var functionCallContents = await GetStreamingChatMessageContentsAsync(
                         kernel,
                         kernelMixin,
+                        chatContext,
                         chatHistory,
                         customAssistant,
                         chatSpan,
@@ -432,8 +441,9 @@ public class ChatService(
     /// </summary>
     /// <param name="kernel"></param>
     /// <param name="kernelMixin"></param>
-    /// <param name="customAssistant"></param>
+    /// <param name="chatContext"></param>
     /// <param name="chatHistory"></param>
+    /// <param name="customAssistant"></param>
     /// <param name="chatSpan"></param>
     /// <param name="assistantChatMessage"></param>
     /// <param name="cancellationToken"></param>
@@ -441,6 +451,7 @@ public class ChatService(
     private async Task<IReadOnlyList<FunctionCallContent>> GetStreamingChatMessageContentsAsync(
         Kernel kernel,
         IKernelMixin kernelMixin,
+        ChatContext chatContext,
         ChatHistory chatHistory,
         CustomAssistant customAssistant,
         AssistantChatMessageSpan chatSpan,
@@ -455,7 +466,7 @@ public class ChatService(
 
         AuthorRole? authorRole = null;
         var assistantContentBuilder = new StringBuilder();
-        var functionCallContentBuilder = new FunctionCallContentBuilder();
+        var functionCallContentBuilder = new BetterFunctionCallContentBuilder();
         var promptExecutionSettings = kernelMixin.GetPromptExecutionSettings(
             kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled ?
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
@@ -466,111 +477,125 @@ public class ChatService(
         activity?.SetTag("llm.model.actual_id", customAssistant.ModelId.ActualValue);
         activity?.SetTag("llm.model.max_embedding", customAssistant.MaxTokens.ActualValue);
 
-        await foreach (var streamingContent in kernelMixin.ChatCompletionService.GetStreamingChatMessageContentsAsync(
-                           // They absolutely must modify this ChatHistory internally.
-                           // I can neither alter it nor inherit it.
-                           // Let's copy the chat history to avoid modifying the original one.
-                           new ChatHistory(chatHistory),
-                           promptExecutionSettings,
-                           kernel,
-                           cancellationToken))
+        IDisposable? callingToolsBusyMessage = null;
+
+        try
         {
-            if (streamingContent.Metadata?.TryGetValue("Usage", out var usage) is true && usage is not null)
+            await foreach (var streamingContent in kernelMixin.ChatCompletionService.GetStreamingChatMessageContentsAsync(
+                               // They absolutely must modify this ChatHistory internally.
+                               // I can neither alter it nor inherit it.
+                               // Let's copy the chat history to avoid modifying the original one.
+                               new ChatHistory(chatHistory),
+                               promptExecutionSettings,
+                               kernel,
+                               cancellationToken))
             {
-                switch (usage)
+                if (streamingContent.Metadata?.TryGetValue("Usage", out var usage) is true && usage is not null)
                 {
-                    case UsageContent usageContent:
+                    switch (usage)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, usageContent.Details.InputTokenCount ?? 0);
-                        outputTokenCount = Math.Max(outputTokenCount, usageContent.Details.OutputTokenCount ?? 0);
-                        totalTokenCount = Math.Max(totalTokenCount, usageContent.Details.TotalTokenCount ?? 0);
-                        break;
+                        case UsageContent usageContent:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, usageContent.Details.InputTokenCount ?? 0);
+                            outputTokenCount = Math.Max(outputTokenCount, usageContent.Details.OutputTokenCount ?? 0);
+                            totalTokenCount = Math.Max(totalTokenCount, usageContent.Details.TotalTokenCount ?? 0);
+                            break;
+                        }
+                        case UsageDetails usageDetails:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, usageDetails.InputTokenCount ?? 0);
+                            outputTokenCount = Math.Max(outputTokenCount, usageDetails.OutputTokenCount ?? 0);
+                            totalTokenCount = Math.Max(totalTokenCount, usageDetails.TotalTokenCount ?? 0);
+                            break;
+                        }
+                        case Usage anthropicUsage:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, anthropicUsage.InputTokens);
+                            outputTokenCount = Math.Max(outputTokenCount, anthropicUsage.OutputTokens);
+                            totalTokenCount = Math.Max(totalTokenCount, anthropicUsage.InputTokens + anthropicUsage.OutputTokens);
+                            break;
+                        }
+                        case ChatTokenUsage openAIUsage:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, openAIUsage.InputTokenCount);
+                            outputTokenCount = Math.Max(outputTokenCount, openAIUsage.OutputTokenCount);
+                            totalTokenCount = Math.Max(totalTokenCount, openAIUsage.TotalTokenCount);
+                            break;
+                        }
                     }
-                    case UsageDetails usageDetails:
+                }
+
+                foreach (var item in streamingContent.Items)
+                {
+                    switch (item)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, usageDetails.InputTokenCount ?? 0);
-                        outputTokenCount = Math.Max(outputTokenCount, usageDetails.OutputTokenCount ?? 0);
-                        totalTokenCount = Math.Max(totalTokenCount, usageDetails.TotalTokenCount ?? 0);
-                        break;
+                        case StreamingChatMessageContent { Content.Length: > 0 } chatMessageContent:
+                        {
+                            if (IsReasoningContent(chatMessageContent))
+                            {
+                                HandleReasoningMessage(chatMessageContent.Content);
+                            }
+                            else
+                            {
+                                await HandleTextMessage(chatMessageContent.Content);
+                            }
+                            break;
+                        }
+                        case StreamingTextContent { Text.Length: > 0 } textContent:
+                        {
+                            if (IsReasoningContent(textContent))
+                            {
+                                HandleReasoningMessage(textContent.Text);
+                            }
+                            else
+                            {
+                                await HandleTextMessage(textContent.Text);
+                            }
+                            break;
+                        }
+                        case StreamingReasoningContent reasoningContent:
+                        {
+                            HandleReasoningMessage(reasoningContent.Text);
+                            break;
+                        }
                     }
-                    case Usage anthropicUsage:
+
+                    bool IsReasoningContent(StreamingKernelContent content) =>
+                        streamingContent.Metadata?.TryGetValue("reasoning", out var reasoning) is true && reasoning is true ||
+                        content.Metadata?.TryGetValue("reasoning", out reasoning) is true && reasoning is true;
+
+                    DispatcherOperation<ObservableStringBuilder> HandleTextMessage(string text)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, anthropicUsage.InputTokens);
-                        outputTokenCount = Math.Max(outputTokenCount, anthropicUsage.OutputTokens);
-                        totalTokenCount = Math.Max(totalTokenCount, anthropicUsage.InputTokens + anthropicUsage.OutputTokens);
-                        break;
+                        // Mark the reasoning as finished when we receive the first content chunk.
+                        if (chatSpan.ReasoningOutput is not null && chatSpan.ReasoningFinishedAt is null)
+                        {
+                            chatSpan.ReasoningOutput = chatSpan.ReasoningOutput.TrimEnd();
+                            chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
+                        }
+
+                        assistantContentBuilder.Append(text);
+                        return Dispatcher.UIThread.InvokeAsync(() => chatSpan.MarkdownBuilder.Append(text));
                     }
-                    case ChatTokenUsage openAIUsage:
+
+                    void HandleReasoningMessage(string text)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, openAIUsage.InputTokenCount);
-                        outputTokenCount = Math.Max(outputTokenCount, openAIUsage.OutputTokenCount);
-                        totalTokenCount = Math.Max(totalTokenCount, openAIUsage.TotalTokenCount);
-                        break;
+                        if (chatSpan.ReasoningOutput is null) chatSpan.ReasoningOutput = text;
+                        else chatSpan.ReasoningOutput += text;
                     }
+                }
+
+                authorRole ??= streamingContent.Role;
+                functionCallContentBuilder.Append(streamingContent);
+
+                if (callingToolsBusyMessage is null && functionCallContentBuilder.Count > 0)
+                {
+                    callingToolsBusyMessage = chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_CallingTools));
                 }
             }
-
-            foreach (var item in streamingContent.Items)
-            {
-                switch (item)
-                {
-                    case StreamingChatMessageContent { Content.Length: > 0 } chatMessageContent:
-                    {
-                        if (IsReasoningContent(chatMessageContent))
-                        {
-                            HandleReasoningMessage(chatMessageContent.Content);
-                        }
-                        else
-                        {
-                            await HandleTextMessage(chatMessageContent.Content);
-                        }
-                        break;
-                    }
-                    case StreamingTextContent { Text.Length: > 0 } textContent:
-                    {
-                        if (IsReasoningContent(textContent))
-                        {
-                            HandleReasoningMessage(textContent.Text);
-                        }
-                        else
-                        {
-                            await HandleTextMessage(textContent.Text);
-                        }
-                        break;
-                    }
-                    case StreamingReasoningContent reasoningContent:
-                    {
-                        HandleReasoningMessage(reasoningContent.Text);
-                        break;
-                    }
-                }
-
-                bool IsReasoningContent(StreamingKernelContent content) =>
-                    streamingContent.Metadata?.TryGetValue("reasoning", out var reasoning) is true && reasoning is true ||
-                    content.Metadata?.TryGetValue("reasoning", out reasoning) is true && reasoning is true;
-
-                DispatcherOperation<ObservableStringBuilder> HandleTextMessage(string text)
-                {
-                    // Mark the reasoning as finished when we receive the first content chunk.
-                    if (chatSpan.ReasoningOutput is not null && chatSpan.ReasoningFinishedAt is null)
-                    {
-                        chatSpan.ReasoningOutput = chatSpan.ReasoningOutput.TrimEnd();
-                        chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
-                    }
-
-                    assistantContentBuilder.Append(text);
-                    return Dispatcher.UIThread.InvokeAsync(() => chatSpan.MarkdownBuilder.Append(text));
-                }
-
-                void HandleReasoningMessage(string text)
-                {
-                    if (chatSpan.ReasoningOutput is null) chatSpan.ReasoningOutput = text;
-                    else chatSpan.ReasoningOutput += text;
-                }
-            }
-
-            authorRole ??= streamingContent.Role;
-            functionCallContentBuilder.Append(streamingContent);
+        }
+        finally
+        {
+            callingToolsBusyMessage?.Dispose();
         }
 
         // Mark the reasoning as finished if we have any reasoning output.
@@ -618,17 +643,90 @@ public class ChatService(
         CancellationToken cancellationToken)
     {
         // Group function calls by plugin name, and create ActionChatMessages for each group.
+        // For example:
+        // AI calls multiple functions at once:
+        // {
+        //   "function_calls": [
+        //     { "function_name": "Function1", "parameters": { ... } },
+        //     { "function_name": "Function1", "parameters": { ... } },
+        //     { "function_name": "Function2", "parameters": { ... } }
+        //   ]
+        // }
+        //
+        // So we group them into:
+        // - Function1
+        //   - Call1
+        //   - Call2
+        // - Function2
+        //   - Call1
+        //
+        // And invoke them one by one.
+        // TODO: parallel invoke?
         var chatPluginScope = kernel.GetRequiredService<IChatPluginScope>();
         foreach (var functionCallContentGroup in functionCallContents.GroupBy(f => f.FunctionName))
         {
+            // 1. Grouped by function name.
+            // After grouping, we need to find the corresponding plugin and function.
+            // For example, in the above example,
+            // 1st functionCallContentGroup: Key = "Function1", Values = [Call1, Call2]
+            // 2nd functionCallContentGroup: Key = "Function2", Values = [Call1]
+
             cancellationToken.ThrowIfCancellationRequested();
 
+            // functionCallContentGroup.Key is the function name.
             if (!chatPluginScope.TryGetPluginAndFunction(
                     functionCallContentGroup.Key,
                     out var chatPlugin,
-                    out var chatFunction))
+                    out var chatFunction,
+                    out var similarFunctionNames))
             {
-                throw new InvalidOperationException($"Function '{functionCallContentGroup.Key}' is not available");
+                // Not found the function, tell AI.
+
+                var errorMessageBuilder = new StringBuilder();
+                errorMessageBuilder.Append("Function '").Append(functionCallContentGroup.Key).Append("' is not available.");
+
+                if (similarFunctionNames.Count > 0)
+                {
+                    errorMessageBuilder.Append("Did you mean: ");
+                    foreach (var similarFunctionName in similarFunctionNames)
+                    {
+                        errorMessageBuilder.Append(' ').AppendLine(similarFunctionName);
+                    }
+                }
+
+                // Display error in the chat span (UI).
+                var missingFunctionMessage = new FunctionCallChatMessage(
+                    LucideIconKind.X,
+                    new DirectResourceKey(functionCallContentGroup.Key));
+                chatSpan.AddFunctionCall(missingFunctionMessage);
+
+                // Add call message to the chat history.
+                var missingFunctionCallMessage = new ChatMessageContent(AuthorRole.Assistant, content: null);
+                missingFunctionCallMessage.Items.AddRange(functionCallContentGroup);
+                chatHistory.Add(missingFunctionCallMessage);
+
+                // Iterate through the function call contents in the group.
+                // Add the error message for each function call.
+                foreach (var functionCallContent in functionCallContentGroup)
+                {
+                    // Add the function call content to the missing function chat message for DB storage.
+                    missingFunctionMessage.Calls.Add(functionCallContent);
+
+                    // Create the corresponding function result content with the error message.
+                    var missingFunctionResultContent = new FunctionResultContent(functionCallContent, errorMessageBuilder.ToString());
+
+                    // Add the function result content to the missing function chat message for DB storage.
+                    missingFunctionMessage.Results.Add(missingFunctionResultContent);
+
+                    // Add the function result content to the chat history.
+                    chatHistory.Add(new ChatMessageContent(AuthorRole.Tool, [missingFunctionResultContent]));
+                }
+
+                missingFunctionMessage.ErrorMessageKey = new FormattedDynamicResourceKey(
+                    LocaleKey.ChatPlugin_Common_FunctionNotFound,
+                    new DirectResourceKey(functionCallContentGroup.Key));
+
+                continue;
             }
 
             var functionCallChatMessage = new FunctionCallChatMessage(
@@ -661,6 +759,7 @@ public class ChatService(
                     // All function calls must have an ID (returned from the LLM, or generated by us).
                     if (functionCallContent.Id.IsNullOrEmpty())
                     {
+                        // This should never happen.
                         throw new InvalidOperationException("Function call content must have an ID");
                     }
 
@@ -740,13 +839,26 @@ public class ChatService(
             {
                 // The function requires permissions that are not granted.
                 var promise = new TaskCompletionSource<ConsentDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                FormattedDynamicResourceKey headerKey;
+                if (context.Function.Permissions.HasFlag(ChatFunctionPermissions.MCP))
+                {
+                    headerKey = new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginConsentRequest_MCP_Header,
+                        context.Function.HeaderKey);
+                }
+                else
+                {
+                    headerKey = new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginConsentRequest_Common_Header,
+                        context.Function.HeaderKey,
+                        new DirectResourceKey(context.Function.Permissions.I18N(LocaleResolver.Common_Comma, true)));
+                }
+
                 WeakReferenceMessenger.Default.Send(
                     new ChatPluginConsentRequest(
                         promise,
-                        new FormattedDynamicResourceKey(
-                            LocaleKey.ChatPluginConsentRequest_Common_Header,
-                            context.Function.HeaderKey,
-                            new DirectResourceKey(context.Function.Permissions.I18N(LocaleKey.Common_Comma.I18N(), true))),
+                        headerKey,
                         friendlyContent,
                         true,
                         cancellationToken));

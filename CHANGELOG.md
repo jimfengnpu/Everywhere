@@ -1,3 +1,25 @@
+## [v0.5.0](https://github.com/DearVa/Everywhere/releases/tag/v0.5.0) - YYYY-MM-DD
+
+### ✨ Features
+- 🎉 **Major Update: Added support for MCP (Model Context Protocol)!** You can now add your own MCP tools, which will be automatically enabled when called by an assistant. Supports Stdio, Streamable HTTP, and SSE protocols.
+
+### 🚀 Improvements
+- Added trimming optimization, reducing the package size by approximately 50%.
+- When a tool called by an assistant is not found, it now performs a fuzzy match and informs the assistant, reducing model hallucinations.
+- (Windows) Added output display for `Everything` plugin.
+- (Windows) Removed `Windows System API` plugin.
+- Other UI adjustments and bug fixes.
+
+### 🐛 Bug Fixes
+- Fixed an issue where custom assistant avatars were stretched (#155).
+- Fixed an issue where Markdown content was difficult to select and could cause errors when copying (#91).
+- Fixed an issue where bold or italic text in Markdown would revert to normal font when selected (#114).
+- Fixed a bug where capturing a UI element could not be canceled.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.4.7...v0.5.0
+
+
+
 ## [v0.4.7](https://github.com/DearVa/Everywhere/releases/tag/v0.4.7) - 2025-11-19
 
 ### ✨ Features

@@ -32,7 +32,6 @@ public sealed partial class Direct3D11ScreenCapture : IAsyncDisposable
     private readonly DispatcherQueueController _dispatcherQueueController;
     private readonly IDCompositionDevice2 _dCompositionDevice2;
     private readonly IDirect3DDevice _direct3dDevice;
-    private readonly GraphicsCaptureItem _item;
     private readonly Direct3D11CaptureFramePool _framePool;
     private readonly GraphicsCaptureSession _session;
     private readonly IDCompositionVisual2 _dCompositionVisual;
@@ -119,8 +118,8 @@ public sealed partial class Direct3D11ScreenCapture : IAsyncDisposable
             new SizeInt32(relativeRect.Width, relativeRect.Height));
 
         // 7. Create the capture session
-        _item = GraphicsCaptureItem.CreateFromVisual(visual);
-        _session = _framePool.CreateCaptureSession(_item);
+        var item = GraphicsCaptureItem.CreateFromVisual(visual);
+        _session = _framePool.CreateCaptureSession(item);
         _session.IsCursorCaptureEnabled = false;
     }
 
@@ -168,7 +167,6 @@ public sealed partial class Direct3D11ScreenCapture : IAsyncDisposable
     {
         _session.Dispose();
         _framePool.Dispose();
-       // _item.Dispose();
         _dCompositionVisual.Dispose();
         _dCompositionDevice2.Dispose();
         _direct3dDevice.Dispose();

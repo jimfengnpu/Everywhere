@@ -706,12 +706,6 @@
     <data name="NativeChatPlugin_FileSystem_Description" xml:space="preserve">
         <value>Provides the ability to access files, such as enumerating, creating, deleting, renaming, reading, or writing.</value>
     </data>
-    <data name="NativeChatPlugin_WindowsSystemApi_Header" xml:space="preserve">
-        <value>Windows System API</value>
-    </data>
-    <data name="NativeChatPlugin_WindowsSystemApi_Description" xml:space="preserve">
-        <value>Provides a compact Windows control surface for assistants, including Control Panel shortcuts, numeric and boolean system setting updates, and computer-use compatible mouse and keyboard actions.</value>
-    </data>
     <data name="FriendlyExceptionMessage_InvalidOperation" xml:space="preserve">
         <value>Invalid operation.</value>
     </data>
@@ -1284,7 +1278,7 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
         <value>Edit File Content</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
-        <value>Searching: {0}</value>
+        <value>🔎 {0}</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>Web Search</value>
@@ -1299,10 +1293,10 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
         <value>Visit Webpage</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
-        <value>Visiting {0}</value>
+        <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
-        <value>{0} Urls</value>
+        <value>{0} Links</value>
     </data>
     <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
         <value>The following terminal script will be executed</value>
@@ -1418,7 +1412,7 @@ Content:
         <value>Cannot write to a binary file.</value>
     </data>
     <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Invalid parameters were provided when calling the tool.</value>
+        <value>The assistant passed incorrect parameters when invoking the tool, which is typically caused by model hallucination.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>File size is larger than 10 MB, replace operation is not supported.</value>
@@ -1555,5 +1549,137 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
         <value>Cancel Editing (Esc)</value>
+    </data>
+    <data name="ChatWindow_Title" xml:space="preserve">
+        <value>Chat</value>
+    </data>
+    <data name="NativeChatPlugin_Everything_SearchFiles_DetailMessage" xml:space="preserve">
+        <value>{0} Items Found</value>
+    </data>
+    <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
+        <value>MCP Server</value>
+    </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Regex" xml:space="preserve">
+        <value>Only numbers, letters, and the characters “-”, “_” are permitted.</value>
+    </data>
+    <data name="ValidationErrorMessage_Required" xml:space="preserve">
+        <value>This field is required.</value>
+    </data>
+    <data name="ValidationErrorMessage_MaxLength" xml:space="preserve">
+        <value>The length must not exceed {0} characters.</value>
+    </data>
+    <data name="ValidationErrorMessage_Url" xml:space="preserve">
+        <value>Must be a valid URL.</value>
+    </data>
+    <data name="McpTransportConfiguration_Name_ValidationErrorMessage_Exists" xml:space="preserve">
+        <value>Cannot duplicate existing entries.</value>
+    </data>
+    <data name="ChatPluginConsentRequest_MCP_Header" xml:space="preserve">
+        <value>“{0}” is an MCP tool. Everywhere cannot verify its required permissions. Please ensure it comes from a trusted source, and Everywhere assumes no responsibility for its consequences.</value>
+    </data>
+    <data name="ValidationErrorMessage_DuplicateKey" xml:space="preserve">
+        <value>Duplicate entries are not permitted.</value>
+    </data>
+    <data name="ValidationErrorMessage_NullKey" xml:space="preserve">
+        <value>The item key cannot be empty.</value>
+    </data>
+    <data name="ValidationErrorMessage_NullValue" xml:space="preserve">
+        <value>The item value cannot be empty.</value>
+    </data>
+    <data name="HttpTransportMode_AutoDetect" xml:space="preserve">
+        <value>Auto Detect</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
+    </data>
+    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
+        <value>The tool invoked by the assistant does not exist, which is typically caused by model hallucination.</value>
+    </data>
+    <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
+        <value>* Name</value>
+    </data>
+    <data name="McpTransportConfigurationForm_DescriptionTextBox_Label" xml:space="preserve">
+        <value>Description (For display and differentiation purposes only)</value>
+    </data>
+    <data name="McpTransportConfigurationForm_SchemeTabControl_Label" xml:space="preserve">
+        <value>* Scheme</value>
+    </data>
+    <data name="McpTransportConfigurationForm_CommandTextBox_Label" xml:space="preserve">
+        <value>* Command</value>
+    </data>
+    <data name="McpTransportConfigurationForm_ArgumentsTextBox_Label" xml:space="preserve">
+        <value>Command-line Arguments</value>
+    </data>
+    <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
+        <value>Working Directory</value>
+    </data>
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+        <value>Environment Variables</value>
+    </data>
+    <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
+        <value>* Endpoint</value>
+    </data>
+    <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
+        <value>Transport Mode</value>
+    </data>
+    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+        <value>Request Headers</value>
+    </data>
+    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
+        <value>Name (Key)</value>
+    </data>
+    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
+        <value>* Please input name</value>
+    </data>
+    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
+        <value>Value</value>
+    </data>
+    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
+        <value>* Please input value</value>
+    </data>
+    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
+        <value>Please input value (optional)</value>
+    </data>
+    <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
+        <value>Edit MCP Plugin (Fields marked with * are required)</value>
+    </data>
+    <data name="ChatPluginPageViewModel_AddMcpPlugin_DialogTitle" xml:space="preserve">
+        <value>Add MCP Plugin (Fields marked with * are required)</value>
+    </data>
+    <data name="ChatPluginPageViewModel_RemoveMcpPlugin_ConfirmationMessage" xml:space="preserve">
+        <value>Are you sure you want to remove “{0}”?</value>
+    </data>
+    <data name="ChatPluginPage_AddMCPPluginButton_Content" xml:space="preserve">
+        <value>Add</value>
+    </data>
+    <data name="ChatPluginPage_CopyLogsButton_ToolTip" xml:space="preserve">
+        <value>Copy all logs to clipboard</value>
+    </data>
+    <data name="ChatPluginPage_ShowTimestampTextBlock_Text" xml:space="preserve">
+        <value>Show Timestamp</value>
+    </data>
+    <data name="ChatPluginManager_Common_InvalidMcpTransportConfiguration" xml:space="preserve">
+        <value>Invalid MCP configuration.</value>
+    </data>
+    <data name="ChatPluginManager_Common_FailedToStartMcpPlugin" xml:space="preserve">
+        <value>Failed to start MCP plugin "{0}"</value>
+    </data>
+    <data name="ChatPluginPage_TabItem_Logs_Header" xml:space="preserve">
+        <value>Logs</value>
+    </data>
+    <data name="ChatPluginPage_PluginStatus_NotRunning_ToolTip" xml:space="preserve">
+        <value>Not Running</value>
+    </data>
+    <data name="ChatPluginPage_PluginStatus_Running_ToolTip" xml:space="preserve">
+        <value>Running</value>
+    </data>
+    <data name="ChatContext_BusyMessage_StartingMcp" xml:space="preserve">
+        <value>Starting MCP</value>
+    </data>
+    <data name="ChatContext_BusyMessage_CallingTools" xml:space="preserve">
+        <value>Tool invocation is generating</value>
     </data>
 </root>

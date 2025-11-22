@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Disposables;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using DynamicData;
@@ -78,6 +78,14 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
     /// </summary>
     [IgnoreMember]
     public Dictionary<string, ChatFunctionPermissions> GrantedPermissions { get; } = new();
+
+    /// <summary>
+    /// Resource key for the busy message to show when waiting for a response.
+    /// This can be set temporarily using <see cref="SetBusyMessage(DynamicResourceKeyBase?)"/>.
+    /// </summary>
+    [IgnoreMember]
+    [ObservableProperty]
+    public partial DynamicResourceKeyBase? BusyMessage { get; private set; }
 
     public ChatMessageNode this[int index] => _branchNodes.Items[index];
 
@@ -205,6 +213,18 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
         }
     }
 
+    /// <summary>
+    /// Sets the busy message resource key for the duration of the returned IDisposable.
+    /// </summary>
+    /// <param name="busyMessage"></param>
+    /// <returns></returns>
+    public IDisposable SetBusyMessage(DynamicResourceKeyBase? busyMessage)
+    {
+        var previous = BusyMessage;
+        BusyMessage = busyMessage;
+        return Disposable.Create(() => BusyMessage = previous);
+    }
+
     public IObservable<IChangeSet<ChatMessageNode>> Connect(Func<ChatMessageNode, bool>? predicate = null) => _branchNodes.Connect(predicate);
 
     public IObservable<IChangeSet<ChatMessageNode>> Preview(Func<ChatMessageNode, bool>? predicate = null) => _branchNodes.Preview(predicate);
@@ -285,157 +305,5 @@ public sealed partial class ChatContext : ObservableObject, IReadOnlyList<ChatMe
 
         _branchNodesWithoutSystemSubscription.Dispose();
         _branchNodes.Dispose();
-    }
-}
-
-/// <summary>Chat context metadata persisted along with the object graph.</summary>
-[MessagePackObject(AllowPrivate = true)]
-public partial class ChatContextMetadata(Guid id, DateTimeOffset dateCreated, DateTimeOffset dateModified, string? topic) : ObservableObject
-{
-    /// <summary>
-    /// Stable ID (Guid v7) to align with database primary key.
-    /// </summary>
-    [Key(0)]
-    public Guid Id { get; } = id;
-
-    [Key(1)]
-    public DateTimeOffset DateCreated { get; } = dateCreated;
-
-    [Key(2)]
-    [field: IgnoreMember]
-    public DateTimeOffset DateModified
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(LocalDateModified));
-        }
-    } = dateModified;
-
-    [IgnoreMember]
-    public DateTime LocalDateModified => DateModified.ToLocalTime().DateTime;
-
-    [Key(3)]
-    [field: IgnoreMember]
-    public string? Topic
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(ActualTopic));
-        }
-    } = topic;
-
-    [IgnoreMember]
-    public string? ActualTopic
-    {
-        get
-        {
-            if (IsTemporary) return LocaleKey.ChatContext_Temporary.I18N();
-            if (string.IsNullOrWhiteSpace(Topic)) return LocaleKey.ChatContext_Metadata_Topic_Default.I18N();
-            return Topic;
-        }
-        set => Topic = value?.Trim();
-    }
-
-    [IgnoreMember]
-    [ObservableProperty]
-    public partial bool IsTemporary { get; set; }
-
-    /// <summary>
-    /// Used for selection in UI lists.
-    /// </summary>
-    [IgnoreMember]
-    [ObservableProperty]
-    public partial bool IsSelected { get; set; }
-
-    [IgnoreMember]
-    [ObservableProperty]
-    public partial bool IsRenaming { get; set; }
-
-    public void StartRenaming() => IsRenaming = true;
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        // Notify listeners that metadata has changed.
-        WeakReferenceMessenger.Default.Send(new ChatContextMetadataChangedMessage(null, this, e.PropertyName));
-    }
-
-    public override bool Equals(object? obj) => obj is ChatContextMetadata other && Id == other.Id;
-
-    public override int GetHashCode() => Id.GetHashCode();
-}
-
-/// <summary>Tree node in the chat history. The current branch is resolved by ChoiceIndex per node.</summary>
-[MessagePackObject(AllowPrivate = true)]
-public sealed partial class ChatMessageNode : ObservableObject, IDisposable
-{
-    [Key(0)]
-    public Guid Id { get; }
-
-    [Key(1)]
-    public ChatMessage Message { get; }
-
-    [Key(2)]
-    public IReadOnlyList<Guid> Children => _children.Items;
-
-    /// <summary>
-    /// Index of the chosen child in <see cref="Children"/> (-1 when none).
-    /// When persisted, it should be mapped to the child's ID (ChoiceChildId) to avoid index drift under concurrent inserts.
-    /// </summary>
-    [Key(3)]
-    public int ChoiceIndex
-    {
-        get => Math.Min(field, Children.Count - 1);
-        set => SetProperty(ref field, Math.Clamp(value, -1, Children.Count - 1));
-    }
-
-    [IgnoreMember]
-    public int ChoiceCount => Children.Count;
-
-    [IgnoreMember]
-    public ChatMessageNode? Parent { get; internal set; }
-
-    [IgnoreMember]
-    [field: AllowNull, MaybeNull]
-    public ChatContext Context
-    {
-        get => field ?? throw new InvalidOperationException("This node is not attached to a ChatContext.");
-        internal set;
-    }
-
-    [IgnoreMember] private readonly SourceList<Guid> _children = new();
-    [IgnoreMember] private readonly IDisposable _childrenCountChangedSubscription;
-
-    public ChatMessageNode(Guid id, ChatMessage message)
-    {
-        Id = id;
-        Message = message ?? throw new ArgumentNullException(nameof(message)); // messagepack may pass null here so we guard against it
-        message.PropertyChanged += HandleMessagePropertyChanged;
-        _childrenCountChangedSubscription = _children.CountChanged.Subscribe(_ => OnPropertyChanged(nameof(ChoiceCount)));
-    }
-
-    private void HandleMessagePropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(Message));
-    }
-
-    public ChatMessageNode(ChatMessage message) : this(Guid.CreateVersion7(), message) { }
-
-    public void Add(Guid childId) => _children.Add(childId);
-
-    public void AddRange(IEnumerable<Guid> childIds) => _children.AddRange(childIds);
-
-    public void Clear() => _children.Clear();
-
-    internal static ChatMessageNode CreateRootNode(string systemPrompt) => new(Guid.Empty, new SystemChatMessage(systemPrompt));
-
-    public void Dispose()
-    {
-        Message.PropertyChanged -= HandleMessagePropertyChanged;
-        _childrenCountChangedSubscription.Dispose();
-        _children.Dispose();
     }
 }

@@ -60,9 +60,12 @@ public class VisualTreePlugin : BuiltInChatPlugin
     [DynamicResourceKey(
         LocaleKey.NativeChatPlugin_VisualTree_CaptureVisualElementById_Header,
         LocaleKey.NativeChatPlugin_VisualTree_CaptureVisualElementById_Description)]
-    private Task<ChatFileAttachment> CaptureVisualElementByIdAsync([FromKernelServices] ChatContext chatContext, int elementId)
+    private Task<ChatFileAttachment> CaptureVisualElementByIdAsync(
+        [FromKernelServices] ChatContext chatContext,
+        int elementId,
+        CancellationToken cancellationToken = default)
     {
-        return CaptureVisualElementAsync(ResolveVisualElement(chatContext, elementId, nameof(elementId)));
+        return CaptureVisualElementAsync(ResolveVisualElement(chatContext, elementId, nameof(elementId)), cancellationToken);
     }
 
     [KernelFunction("capture_full_screen")]
@@ -70,7 +73,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
     [DynamicResourceKey(
         LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_Header,
         LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_Description)]
-    private Task<ChatFileAttachment> CaptureFullScreenAsync()
+    private Task<ChatFileAttachment> CaptureFullScreenAsync(CancellationToken cancellationToken = default)
     {
         var visualElement = _visualElementContext.ElementFromPointer(PickElementMode.Screen);
         if (visualElement is null)
@@ -81,18 +84,18 @@ public class VisualTreePlugin : BuiltInChatPlugin
                 showDetails: false);
         }
 
-        return CaptureVisualElementAsync(visualElement);
+        return CaptureVisualElementAsync(visualElement, cancellationToken);
     }
 
-    private async Task<ChatFileAttachment> CaptureVisualElementAsync(IVisualElement visualElement)
+    private async Task<ChatFileAttachment> CaptureVisualElementAsync(IVisualElement visualElement, CancellationToken cancellationToken)
     {
-        var bitmap = await visualElement.CaptureAsync();
+        var bitmap = await visualElement.CaptureAsync(cancellationToken);
 
         BlobEntity blob;
         using (var stream = new MemoryStream())
         {
             bitmap.Save(stream, 100);
-            blob = await _blobStorage.StorageBlobAsync(stream, "image/png");
+            blob = await _blobStorage.StorageBlobAsync(stream, "image/png", cancellationToken);
         }
 
         return new ChatFileAttachment(

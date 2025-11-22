@@ -101,7 +101,7 @@ public sealed partial class SoftwareUpdater(
                 return;
             }
 
-            var assets = root.GetProperty("assets").Deserialize<List<AssetMetadata>>();
+            var assets = root.GetProperty("assets").Deserialize(JsonSerializerContext.Default.ListAssetMetadata);
             var isInstalled = nativeHelper.IsInstalled;
 
             // Determine asset type and construct download URL
@@ -128,8 +128,8 @@ public sealed partial class SoftwareUpdater(
             {
                 _notifiedVersion = LatestVersion;
                 new NativeHelper().ShowDesktopNotification(
-                    LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message.I18N(),
-                    LocaleKey.Common_Info.I18N());
+                    LocaleResolver.SoftwareUpdater_UpdateAvailable_Toast_Message,
+                    LocaleResolver.Common_Info);
             }
         }
         catch (Exception ex)
@@ -351,6 +351,9 @@ public sealed partial class SoftwareUpdater(
         [property: JsonPropertyName("digest")] string Digest,
         [property: JsonPropertyName("size")] long Size
     );
+
+    [JsonSerializable(typeof(List<AssetMetadata>))]
+    private partial class JsonSerializerContext : System.Text.Json.Serialization.JsonSerializerContext;
 
     [GeneratedRegex(@"-v(?<version>\d+\.\d+\.\d+(\.\d+)?)\.(exe|zip)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "zh-CN")]
     private static partial Regex VersionRegex();
