@@ -144,7 +144,7 @@ public partial class VisualTreeDebugger : UserControl
         try
         {
             if (VisualTreeView.SelectedItem is not IVisualElement selectedItem) return;
-            CaptureImage.Source = await selectedItem.CaptureAsync();
+            CaptureImage.Source = await selectedItem.CaptureAsync(CancellationToken.None);
         }
         catch (Exception ex)
         {

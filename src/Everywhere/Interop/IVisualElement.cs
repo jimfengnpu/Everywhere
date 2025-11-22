@@ -114,35 +114,38 @@ public interface IVisualElement
     // /// <returns></returns>
     // string? GetSelectionText();
 
-    Task<Bitmap> CaptureAsync();
+    Task<Bitmap> CaptureAsync(CancellationToken cancellationToken);
 }
 
 public static class VisualElementExtension
 {
-    public static IEnumerable<IVisualElement> GetDescendants(this IVisualElement element, bool includeSelf = false)
+    extension(IVisualElement element)
     {
-        if (includeSelf)
+        public IEnumerable<IVisualElement> GetDescendants(bool includeSelf = false)
         {
-            yield return element;
-        }
-
-        foreach (var child in element.Children)
-        {
-            yield return child;
-            foreach (var descendant in child.GetDescendants())
+            if (includeSelf)
             {
-                yield return descendant;
+                yield return element;
+            }
+
+            foreach (var child in element.Children)
+            {
+                yield return child;
+                foreach (var descendant in child.GetDescendants())
+                {
+                    yield return descendant;
+                }
             }
         }
-    }
 
-    public static IEnumerable<IVisualElement> GetAncestors(this IVisualElement element, bool includeSelf = false)
-    {
-        var current = includeSelf ? element : element.Parent;
-        while (current != null)
+        public IEnumerable<IVisualElement> GetAncestors(bool includeSelf = false)
         {
-            yield return current;
-            current = current.Parent;
+            var current = includeSelf ? element : element.Parent;
+            while (current != null)
+            {
+                yield return current;
+                current = current.Parent;
+            }
         }
     }
 }
