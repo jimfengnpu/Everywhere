@@ -81,3 +81,6 @@ WM_CLIPBOARDUPDATE
 
 CreateDispatcherQueueController
 SIZE
+
+CommandLineToArgv
+LocalFree

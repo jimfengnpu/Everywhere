@@ -1,4 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Http.Headers;
 using Avalonia.Threading;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -64,7 +66,7 @@ public sealed class NetworkInitializer : IAsyncInitializer
                 {
                     ServiceLocator
                         .Resolve<ToastManager>()
-                        .CreateToast(LocaleKey.Common_Error.I18N())
+                        .CreateToast(LocaleResolver.Common_Error)
                         .WithContent(ex.GetFriendlyMessage().ToTextBlock())
                         .DismissOnClick()
                         .OnBottomRight()
@@ -81,6 +83,12 @@ public sealed class NetworkInitializer : IAsyncInitializer
 public static class NetworkExtension
 {
     /// <summary>
+    /// The name for the HttpClient configured to handle JSON-RPC requests
+    /// by ensuring Content-Length is set, avoiding chunked encoding.
+    /// </summary>
+    public const string JsonRpcClientName = "JsonRpcClient";
+
+    /// <summary>
     /// Configures network services with proxy settings from the application settings.
     /// This method registers a singleton <see cref="DynamicWebProxy"/> to handle proxying HTTP requests.
     /// It also configures the default <see cref="HttpClient"/> to use this dynamic proxy.
@@ -88,24 +96,83 @@ public static class NetworkExtension
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureNetwork(this IServiceCollection services) => services
-        .AddSingleton<DynamicWebProxy>()
-        .AddSingleton<IWebProxy>(x => x.GetRequiredService<DynamicWebProxy>())
-        .AddHttpClient(
-            Options.DefaultName,
-            client =>
+    public static IServiceCollection ConfigureNetwork(this IServiceCollection services)
+    {
+        // Register DynamicWebProxy as a singleton to manage proxy settings.
+        services
+            .AddSingleton<DynamicWebProxy>()
+            .AddSingleton<IWebProxy>(x => x.GetRequiredService<DynamicWebProxy>())
+            .AddTransient<ContentLengthBufferingHandler>()
+            .AddTransient<IAsyncInitializer, NetworkInitializer>();
+
+        // Configure the default HttpClient to use the DynamicWebProxy.
+        services
+            .AddHttpClient(
+                Options.DefaultName,
+                client =>
+                {
+                    // Set a short timeout for HTTP requests.
+                    client.Timeout = TimeSpan.FromSeconds(10);
+                    var version = typeof(NetworkExtension).Assembly.GetName().Version ?? new Version(0, 0, 0, 0);
+                    client.DefaultRequestHeaders.Add(
+                        "User-Agent",
+                        $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Everywhere/{version}");
+                })
+            .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+                new HttpClientHandler
+                {
+                    // Resolve the singleton instance of DynamicWebProxy.
+                    Proxy = serviceProvider.GetRequiredService<IWebProxy>(),
+                    UseProxy = true,
+                    AllowAutoRedirect = true,
+                });
+
+        // This is a workaround for JSON-RPC servers that do not support chunked transfer encoding.
+        // e.g. MCP server of ModelScope
+        // We create a named HttpClient that includes a custom DelegatingHandler to buffer
+        // the request content and set the Content-Length header explicitly.
+        services
+            .AddHttpClient(
+                JsonRpcClientName,
+                client =>
+                {
+                    // You can copy or customize headers from the default client if needed.
+                    client.Timeout = TimeSpan.FromSeconds(30); // Maybe a longer timeout for RPC calls
+                })
+            .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+                new HttpClientHandler
+                {
+                    Proxy = serviceProvider.GetRequiredService<IWebProxy>(),
+                    UseProxy = true,
+                    AllowAutoRedirect = true,
+                })
+            // Add our custom handler to the pipeline for this named client.
+            .AddHttpMessageHandler<ContentLengthBufferingHandler>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// A delegating handler that buffers the request content to compute and set the
+    /// Content-Length header. This is useful for servers that do not support
+    /// chunked transfer encoding.
+    /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    private class ContentLengthBufferingHandler : DelegatingHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (request.Content is not null)
             {
-                // Set a short timeout for HTTP requests.
-                client.Timeout = TimeSpan.FromSeconds(10);
-            })
-        .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
-            new HttpClientHandler
-            {
-                // Resolve the singleton instance of DynamicWebProxy.
-                Proxy = serviceProvider.GetRequiredService<IWebProxy>(),
-                UseProxy = true,
-                AllowAutoRedirect = true
-            })
-        .Services
-        .AddTransient<IAsyncInitializer, NetworkInitializer>();
+                // By calling LoadIntoBufferAsync, we force the content to be buffered in memory.
+                // This allows the HttpContent instance to calculate its length, which then gets
+                // automatically set as the Content-Length header when the request is sent.
+                // This effectively disables chunked transfer encoding.
+                await request.Content.LoadIntoBufferAsync(cancellationToken).ConfigureAwait(false);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            }
+
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+    }
 }

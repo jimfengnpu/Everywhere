@@ -4,9 +4,7 @@ namespace Everywhere.Extensions;
 
 public static class I18NExtension
 {
-    public static string I18N(this string key) => DynamicResourceKey.Resolve(key);
-
-    public static string I18N(this string key, params DynamicResourceKeyBase[] args) => new FormattedDynamicResourceKey(key, args).ToString();
+    // public static string I18N(this string key, params DynamicResourceKeyBase[] args) => new FormattedDynamicResourceKey(key, args).ToString();
 
     /// <summary>
     /// Resolves the enum value to its internationalized string representation.

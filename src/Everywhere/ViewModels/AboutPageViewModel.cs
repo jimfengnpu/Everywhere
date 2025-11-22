@@ -2,7 +2,6 @@
 using Everywhere.Common;
 using Everywhere.Views;
 using Everywhere.Views.Pages;
-using ShadUI;
 
 namespace Everywhere.ViewModels;
 

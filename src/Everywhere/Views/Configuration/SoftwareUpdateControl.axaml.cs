@@ -45,7 +45,7 @@ public partial class SoftwareUpdateControl(
                     LocaleKey.CommonSettings_SoftwareUpdate_Toast_NewVersionFound,
                     new DirectResourceKey(SoftwareUpdater.LatestVersion));
             toastManager
-                .CreateToast(LocaleKey.Common_Info.I18N())
+                .CreateToast(LocaleResolver.Common_Info)
                 .WithContent(toastMessage)
                 .DismissOnClick()
                 .OnBottomRight()
@@ -71,8 +71,8 @@ public partial class SoftwareUpdateControl(
             var progress = new Progress<double>();
             var cts = new CancellationTokenSource();
             toastManager
-                .CreateToast(LocaleKey.Common_Info.I18N())
-                .WithContent(LocaleKey.CommonSettings_SoftwareUpdate_Toast_DownloadingUpdate.I18N())
+                .CreateToast(LocaleResolver.Common_Info)
+                .WithContent(LocaleResolver.CommonSettings_SoftwareUpdate_Toast_DownloadingUpdate)
                 .WithProgress(progress)
                 .WithCancellationTokenSource(cts)
                 .WithDelay(0d)
@@ -89,7 +89,7 @@ public partial class SoftwareUpdateControl(
     });
 
     private void ShowErrorToast(Exception ex) => toastManager
-        .CreateToast(LocaleKey.Common_Error.I18N())
+        .CreateToast(LocaleResolver.Common_Error)
         .WithContent(ex.GetFriendlyMessage())
         .DismissOnClick()
         .OnBottomRight()

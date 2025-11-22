@@ -1,37 +1,66 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Disposables;
+using System.Reflection;
 using DynamicData;
 using Everywhere.AI;
 using Everywhere.Common;
 using Everywhere.Configuration;
+using Everywhere.Initialization;
+using Everywhere.Interop;
 using Everywhere.Utilities;
 using Lucide.Avalonia;
+using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Client;
 using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
 
-public sealed class ChatPluginManager : IChatPluginManager, IDisposable
+public class ChatPluginManager : IChatPluginManager
 {
     public ReadOnlyObservableCollection<BuiltInChatPlugin> BuiltInPlugins { get; }
 
     public ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
 
+    private readonly IWatchdogManager _watchdogManager;
+    private readonly INativeHelper _nativeHelper;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger<ChatPluginManager> _logger;
+
+    private readonly CompositeDisposable _disposables = new();
     private readonly SourceList<BuiltInChatPlugin> _builtInPluginsSource = new();
     private readonly SourceList<McpChatPlugin> _mcpPluginsSource = new();
-    private readonly CompositeDisposable _disposables = new();
+    private readonly ConcurrentDictionary<Guid, RunningMcpClient> _runningMcpClients = [];
 
-    public ChatPluginManager(IEnumerable<BuiltInChatPlugin> builtInPlugins, Settings settings)
+    public ChatPluginManager(
+        IEnumerable<BuiltInChatPlugin> builtInPlugins,
+        IWatchdogManager watchdogManager,
+        INativeHelper nativeHelper,
+        IHttpClientFactory httpClientFactory,
+        ILoggerFactory loggerFactory,
+        Settings settings)
     {
         _builtInPluginsSource.AddRange(builtInPlugins);
+        _watchdogManager = watchdogManager;
+        _nativeHelper = nativeHelper;
+        _httpClientFactory = httpClientFactory;
+        _loggerFactory = loggerFactory;
+        _logger = loggerFactory.CreateLogger<ChatPluginManager>();
 
-        var isEnabledRecords = settings.Plugin.IsEnabled;
-        foreach (var builtInPlugin in _builtInPluginsSource.Items)
+        // Load MCP plugins from settings.
+        _mcpPluginsSource.AddRange(settings.Plugin.McpChatPlugins.Select(m => m.ToMcpChatPlugin()).OfType<McpChatPlugin>());
+
+        // Apply the enabled state from settings.
+        var isEnabledRecords = settings.Plugin.IsEnabledRecords;
+        foreach (var plugin in _builtInPluginsSource.Items.AsValueEnumerable().OfType<ChatPlugin>().Concat(_mcpPluginsSource.Items))
         {
-            builtInPlugin.IsEnabled = GetIsEnabled($"builtin.{builtInPlugin.Name}", false);
-            foreach (var function in builtInPlugin.Functions)
+            plugin.IsEnabled = GetIsEnabled(plugin.Key, false);
+            foreach (var function in plugin.Functions)
             {
-                function.IsEnabled = GetIsEnabled($"builtin.{builtInPlugin.Name}.{function.KernelFunction.Name}", true);
+                function.IsEnabled = GetIsEnabled($"{plugin.Key}.{function.KernelFunction.Name}", true);
             }
         }
 
@@ -39,41 +68,50 @@ public sealed class ChatPluginManager : IChatPluginManager, IDisposable
             .Connect()
             .ObserveOnDispatcher()
             .BindEx(_disposables);
+        _disposables.Add(_builtInPluginsSource);
+
         McpPlugins = _mcpPluginsSource
             .Connect()
             .ObserveOnDispatcher()
             .BindEx(_disposables);
-
-        _disposables.Add(_builtInPluginsSource);
         _disposables.Add(_mcpPluginsSource);
 
-        new ObjectObserver(HandleBuiltInPluginsChange).Observe(BuiltInPlugins);
+        settings.Plugin.McpChatPlugins = _mcpPluginsSource
+            .Connect()
+            .AutoRefresh(m => m.TransportConfiguration)
+            .ObserveOnDispatcher()
+            .Transform(m => new McpChatPluginEntity(m), transformOnRefresh: true)
+            .BindEx(_disposables);
 
+        new ObjectObserver((in e) => HandleChatPluginChanged(_builtInPluginsSource.Items, e)).Observe(BuiltInPlugins);
+        new ObjectObserver((in e) => HandleChatPluginChanged(_mcpPluginsSource.Items, e)).Observe(McpPlugins);
 
+        // Helper method to get the enabled state from settings.
         bool GetIsEnabled(string path, bool defaultValue)
         {
             return isEnabledRecords.TryGetValue(path, out var isEnabled) ? isEnabled : defaultValue;
         }
 
-        void HandleBuiltInPluginsChange(in ObjectObserverChangedEventArgs e)
+        // Handle changes to plugins and update settings accordingly.
+        void HandleChatPluginChanged<TPlugin>(IReadOnlyList<TPlugin> plugins, in ObjectObserverChangedEventArgs e) where TPlugin : ChatPlugin
         {
-            if (!e.Path.EndsWith("IsEnabled", StringComparison.Ordinal))
+            if (!e.Path.EndsWith(nameof(ChatFunction.IsEnabled), StringComparison.Ordinal))
             {
                 return;
             }
 
             var parts = e.Path.Split(':');
-            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= _builtInPluginsSource.Count)
+            if (parts.Length < 2 || !int.TryParse(parts[0], out var pluginIndex) || pluginIndex < 0 || pluginIndex >= plugins.Count)
             {
                 return;
             }
 
-            var plugin = _builtInPluginsSource.Items[pluginIndex];
+            var plugin = plugins[pluginIndex];
             switch (parts.Length)
             {
                 case 2:
                 {
-                    settings.Plugin.IsEnabled[$"builtin.{plugin.Name}"] = plugin.IsEnabled;
+                    isEnabledRecords[plugin.Key] = plugin.IsEnabled;
                     break;
                 }
                 case 4 when
@@ -82,29 +120,211 @@ public sealed class ChatPluginManager : IChatPluginManager, IDisposable
                     functionIndex < plugin.Functions.Count:
                 {
                     var function = plugin.Functions[functionIndex];
-                    settings.Plugin.IsEnabled[$"builtin.{plugin.Name}.{function.KernelFunction.Name}"] = function.IsEnabled;
+                    isEnabledRecords[$"{plugin.Key}.{function.KernelFunction.Name}"] = function.IsEnabled;
                     break;
                 }
             }
         }
     }
 
-    public void AddMcpPlugin(McpTransportConfiguration configuration)
+    public McpChatPlugin CreateMcpPlugin(McpTransportConfiguration configuration)
     {
-        throw new NotImplementedException();
+        if (configuration.HasErrors)
+        {
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
+        }
+
+        var mcpChatPlugin = new McpChatPlugin(configuration);
+        _mcpPluginsSource.Add(mcpChatPlugin);
+        return mcpChatPlugin;
     }
 
-    public IChatPluginScope CreateScope(ChatContext chatContext, CustomAssistant customAssistant)
+    public async Task UpdateMcpPluginAsync(McpChatPlugin mcpChatPlugin, McpTransportConfiguration configuration)
+    {
+        if (configuration.HasErrors)
+        {
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
+        }
+
+        var wasRunning = mcpChatPlugin.IsRunning;
+        if (wasRunning)
+        {
+            await StopMcpClientAsync(mcpChatPlugin);
+        }
+
+        mcpChatPlugin.TransportConfiguration = configuration;
+
+        if (wasRunning)
+        {
+            await StartMcpClientAsync(mcpChatPlugin, CancellationToken.None);
+        }
+    }
+
+    public async Task StopMcpClientAsync(McpChatPlugin mcpChatPlugin)
+    {
+        if (_runningMcpClients.TryRemove(mcpChatPlugin.Id, out var runningClient))
+        {
+            await runningClient.Client.DisposeAsync();
+            mcpChatPlugin.IsRunning = false;
+        }
+    }
+
+    public async Task RemoveMcpPluginAsync(McpChatPlugin mcpChatPlugin)
+    {
+        await StopMcpClientAsync(mcpChatPlugin);
+        _mcpPluginsSource.Remove(mcpChatPlugin);
+    }
+
+    public async Task StartMcpClientAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken)
+    {
+        if (mcpChatPlugin.TransportConfiguration is not { } transportConfiguration)
+        {
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not set."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
+        }
+
+        if (transportConfiguration.HasErrors)
+        {
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
+        }
+
+        if (_runningMcpClients.ContainsKey(mcpChatPlugin.Id)) return; // Just return without error if already running.
+
+        var loggerFactory = new McpLoggerFactory(mcpChatPlugin, _loggerFactory);
+        IClientTransport clientTransport = transportConfiguration switch
+        {
+            StdioMcpTransportConfiguration stdio => new StdioClientTransport(
+                new StdioClientTransportOptions
+                {
+                    Name = stdio.Name,
+                    Command = stdio.Command,
+                    Arguments = _nativeHelper.ParseArguments(stdio.Arguments),
+                    WorkingDirectory = stdio.WorkingDirectory,
+                    EnvironmentVariables = stdio.EnvironmentVariables?
+                        .AsValueEnumerable()
+                        .Where(kv => !kv.Key.IsNullOrWhiteSpace())
+                        .DistinctBy(kv => kv.Key)
+                        .ToDictionary(kv => kv.Key, kv => kv.Value),
+                },
+                loggerFactory),
+            HttpMcpTransportConfiguration sse => new HttpClientTransport(
+                new HttpClientTransportOptions
+                {
+                    Name = sse.Name,
+                    Endpoint = new Uri(sse.Endpoint, UriKind.Absolute),
+                    AdditionalHeaders = sse.Headers?
+                        .AsValueEnumerable()
+                        .Where(kv => !kv.Key.IsNullOrWhiteSpace() && !kv.Value.IsNullOrWhiteSpace())
+                        .DistinctBy(kv => kv.Key)
+                        .ToDictionary(kv => kv.Key, kv => kv.Value),
+                    TransportMode = sse.TransportMode
+                },
+                _httpClientFactory.CreateClient(NetworkExtension.JsonRpcClientName),
+                loggerFactory),
+            _ =>
+                throw new HandledException(
+                    new InvalidOperationException("Unsupported MCP transport configuration type."),
+                    new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration))
+        };
+
+        var client = await McpClient.CreateAsync(
+            clientTransport,
+            null,
+            loggerFactory,
+            cancellationToken);
+
+        // Store the running client.
+        _runningMcpClients[mcpChatPlugin.Id] = new RunningMcpClient(mcpChatPlugin, client);
+        mcpChatPlugin.IsRunning = true;
+
+        var processId = -1;
+        try
+        {
+            if (clientTransport is StdioClientTransport)
+            {
+                // Add the underlying process to the watchdog to ensure it is cleaned up properly.
+                // We need reflection here because StdioClientTransport does not expose the process directly.
+                // client is `ModelContextProtocol.Client.McpClientImpl`
+                var transportFieldInfo = client.GetType().GetField("_transport", BindingFlags.Instance | BindingFlags.NonPublic);
+                var transport = transportFieldInfo?.GetValue(client); // StdioClientSessionTransport : ITransport
+                var processFieldInfo = transport?.GetType().GetField("_process", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (processFieldInfo?.GetValue(transport) is Process { HasExited: false, Id: > 0 } process)
+                {
+                    process.Exited += HandleProcessExited;
+
+                    void HandleProcessExited(object? sender, EventArgs e)
+                    {
+                        mcpChatPlugin.IsRunning = false;
+                        _runningMcpClients.TryRemove(mcpChatPlugin.Id, out _);
+                        process.Exited -= HandleProcessExited;
+                    }
+
+                    await _watchdogManager.RegisterProcessAsync(process.Id);
+                    processId = process.Id;
+                }
+            }
+        }
+        finally
+        {
+            if (processId == -1 && transportConfiguration is StdioMcpTransportConfiguration stdio)
+            {
+                _logger.LogWarning(
+                    "MCP started with stdio transport, but failed to get the underlying process ID for watchdog registration. " +
+                    "Command: {Command}, Arguments: {Arguments}",
+                    stdio.Command,
+                    stdio.Arguments);
+            }
+        }
+
+        mcpChatPlugin.SetFunctions(
+            await client
+                .EnumerateToolsAsync(cancellationToken: cancellationToken)
+                .Select(t => new McpChatFunction(t))
+                .ToListAsync(cancellationToken));
+    }
+
+    public async Task<IChatPluginScope> CreateScopeAsync(
+        ChatContext chatContext,
+        CustomAssistant customAssistant,
+        CancellationToken cancellationToken)
     {
         // Ensure that functions in the scope do not have the same name.
         var functionNames = new HashSet<string>();
+
+        var builtInPlugins = _builtInPluginsSource.Items.AsValueEnumerable().Where(p => p.IsEnabled).ToList();
+
+        // Activate MCP plugins.
+        var mcpPlugins = new List<McpChatPlugin>();
+        foreach (var mcpPlugin in _mcpPluginsSource.Items.AsValueEnumerable().Where(p => p.IsEnabled).ToList())
+        {
+            try
+            {
+                await StartMcpClientAsync(mcpPlugin, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new HandledException(
+                    ex,
+                    new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginManager_Common_FailedToStartMcpPlugin,
+                        new DirectResourceKey(mcpPlugin.Name)));
+            }
+
+            mcpPlugins.Add(mcpPlugin);
+        }
+
         return new ChatPluginScope(
-            _builtInPluginsSource
-                .Items
+            builtInPlugins
                 .AsValueEnumerable()
                 .Cast<ChatPlugin>()
-                .Concat(_mcpPluginsSource.Items)
-                .Where(p => p.IsEnabled)
+                .Concat(mcpPlugins)
                 .Select(p => new ChatPluginSnapshot(p, chatContext, customAssistant, functionNames))
                 .ToList());
     }
@@ -116,7 +336,8 @@ public sealed class ChatPluginManager : IChatPluginManager, IDisposable
         public bool TryGetPluginAndFunction(
             string functionName,
             [NotNullWhen(true)] out ChatPlugin? plugin,
-            [NotNullWhen(true)] out ChatFunction? function)
+            [NotNullWhen(true)] out ChatFunction? function,
+            [NotNullWhen(false)] out IReadOnlyList<string>? similarFunctionNames)
         {
             foreach (var pluginSnapshot in pluginSnapshots)
             {
@@ -124,15 +345,30 @@ public sealed class ChatPluginManager : IChatPluginManager, IDisposable
                 if (function is not null)
                 {
                     plugin = pluginSnapshot;
+                    similarFunctionNames = null;
                     return true;
                 }
             }
 
             plugin = null;
             function = null;
+            similarFunctionNames = FuzzySharp.Process.ExtractTop(
+                    functionName,
+                    pluginSnapshots.SelectMany(p => p.Functions).Select(f => f.KernelFunction.Name),
+                    limit: 5)
+                .Where(r => r.Score >= 60)
+                .Select(r => r.Value)
+                .ToList();
             return false;
         }
     }
+
+    /// <summary>
+    /// Represents a running MCP client along with its configuration and process ID.
+    /// </summary>
+    /// <param name="Plugin"></param>
+    /// <param name="Client"></param>
+    private readonly record struct RunningMcpClient(McpChatPlugin Plugin, McpClient Client);
 
     private class ChatPluginSnapshot : ChatPlugin
     {
@@ -178,5 +414,46 @@ public sealed class ChatPluginManager : IChatPluginManager, IDisposable
     public void Dispose()
     {
         _disposables.Dispose();
+    }
+
+    /// <summary>
+    /// Used to create ILogger instances for MCP clients.
+    /// It logs to both the Everywhere logging system and the <see cref="McpChatPlugin"/>'s log entries.
+    /// </summary>
+    private sealed class McpLoggerFactory(McpChatPlugin mcpChatPlugin, ILoggerFactory innerLoggerFactory) : ILoggerFactory
+    {
+        public void AddProvider(ILoggerProvider provider)
+        {
+            innerLoggerFactory.AddProvider(provider);
+        }
+
+        public ILogger CreateLogger(string categoryName)
+        {
+            var innerLogger = innerLoggerFactory.CreateLogger(categoryName);
+            return new McpLogger(mcpChatPlugin, innerLogger);
+        }
+
+        public void Dispose()
+        {
+            innerLoggerFactory.Dispose();
+        }
+
+        private sealed class McpLogger(ILogger mcpChatPlugin, ILogger innerLogger) : ILogger
+        {
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull => innerLogger.BeginScope(state);
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
+            {
+                mcpChatPlugin.Log(logLevel, eventId, state, exception, formatter);
+                innerLogger.Log(logLevel, eventId, state, exception, formatter);
+            }
+        }
     }
 }

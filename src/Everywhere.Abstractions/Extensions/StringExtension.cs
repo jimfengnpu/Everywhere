@@ -5,41 +5,44 @@ namespace Everywhere.Extensions;
 
 public static class StringExtension
 {
-    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str) => string.IsNullOrEmpty(str);
-
-    public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str) => string.IsNullOrWhiteSpace(str);
-        
-    [return: NotNullIfNotNull(nameof(str))]
-    public static string? SafeSubstring(this string? str, int startIndex, int length)
+    extension([NotNullWhen(false)] string? str)
     {
-        if (str is null) return null;
-        if (startIndex < 0) startIndex = 0;
-        if (startIndex >= str.Length) return string.Empty;
-        if (length < 0) length = 0;
-        if (startIndex + length > str.Length) length = str.Length - startIndex;
-        return str.Substring(startIndex, length);
+        public bool IsNullOrEmpty() => string.IsNullOrEmpty(str);
+        public bool IsNullOrWhiteSpace() => string.IsNullOrWhiteSpace(str);
     }
 
-    /// <summary>
-    /// Force enumerate the source str
-    /// </summary>
     /// <param name="str"></param>
-    /// <param name="another"></param>
-    /// <returns></returns>
-    public static bool SafeEquals(this string? str, string? another)
+    extension(string? str)
     {
-        if (str is null) return another is null;
-        var match = true;
-        for (var i = 0; i < str.Length; i++)
+        [return: NotNullIfNotNull(nameof(str))]
+        public string? SafeSubstring(int startIndex, int length)
         {
-            if (!match) continue;
-            match = another != null && i < another.Length && str[i] == another[i];
+            if (str is null) return null;
+            if (startIndex < 0) startIndex = 0;
+            if (startIndex >= str.Length) return string.Empty;
+            if (length < 0) length = 0;
+            if (startIndex + length > str.Length) length = str.Length - startIndex;
+            return str.Substring(startIndex, length);
         }
 
-        return match;
+        /// <summary>
+        /// Force enumerate the source str
+        /// </summary>
+        /// <param name="another"></param>
+        /// <returns></returns>
+        public bool SafeEquals(string? another)
+        {
+            if (str is null) return another is null;
+            var match = true;
+            for (var i = 0; i < str.Length; i++)
+            {
+                if (!match) continue;
+                match = another != null && i < another.Length && str[i] == another[i];
+            }
+
+            return match;
+        }
     }
-    
-    public static string AppendIf(this string str, bool condition, string append) => condition ? str + append : str;
 
     public static StringBuilder TrimEnd(this StringBuilder sb)
     {
@@ -55,40 +58,53 @@ public static class StringExtension
         return sb;
     }
 
-    public static string TrimStart(this string str, params ReadOnlySpan<string> trimStrings)
+    extension(string str)
     {
-        if (string.IsNullOrEmpty(str)) return str;
-
-        var startIndex = 0;
-        foreach (var trimString in trimStrings)
+        public string TrimStart(params ReadOnlySpan<string> trimStrings)
         {
-            while (startIndex < str.Length && str.AsSpan(startIndex).StartsWith(trimString, StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(str)) return str;
+
+            var startIndex = 0;
+            foreach (var trimString in trimStrings)
             {
-                startIndex += trimString.Length;
+                while (startIndex < str.Length && str.AsSpan(startIndex).StartsWith(trimString, StringComparison.Ordinal))
+                {
+                    startIndex += trimString.Length;
+                }
             }
+
+            return str[startIndex..];
         }
 
-        return str[startIndex..];
-    }
-
-    public static string TrimEnd(this string str, params ReadOnlySpan<string> trimStrings)
-    {
-        if (string.IsNullOrEmpty(str)) return str;
-
-        var endIndex = str.Length;
-        foreach (var trimString in trimStrings)
+        public string TrimEnd(params ReadOnlySpan<string> trimStrings)
         {
-            while (endIndex > 0 && str.AsSpan(0, endIndex).EndsWith(trimString, StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(str)) return str;
+
+            var endIndex = str.Length;
+            foreach (var trimString in trimStrings)
             {
-                endIndex -= trimString.Length;
+                while (endIndex > 0 && str.AsSpan(0, endIndex).EndsWith(trimString, StringComparison.Ordinal))
+                {
+                    endIndex -= trimString.Length;
+                }
             }
+
+            return str[..endIndex];
         }
 
-        return str[..endIndex];
-    }
+        public string Trim(params ReadOnlySpan<string> trimStrings)
+        {
+            return str.TrimStart(trimStrings).TrimEnd(trimStrings);
+        }
 
-    public static string Trim(this string str, params ReadOnlySpan<string> trimStrings)
-    {
-        return string.IsNullOrEmpty(str) ? str : str.TrimStart(trimStrings).TrimEnd(trimStrings);
+        public string Format(object? arg)
+        {
+            return string.Format(str, arg);
+        }
+
+        public string Format(params object?[] args)
+        {
+            return string.Format(str, args);
+        }
     }
 }

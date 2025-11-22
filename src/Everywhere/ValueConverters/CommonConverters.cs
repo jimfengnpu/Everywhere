@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Everywhere.Common;
@@ -8,7 +9,7 @@ namespace Everywhere.ValueConverters;
 
 public static class CommonConverters
 {
-    public static IValueConverter TypeEquals { get; } = new ParameterizedFuncValueConverter<object?, bool>(
+    public static IValueConverter TypeEquals { get; } = new FuncValueConverter<object?, object?, bool>(
         convert: (x, parameter) => x?.GetType() == parameter as Type
     );
 
@@ -25,6 +26,31 @@ public static class CommonConverters
     public static IValueConverter FullPathToFileName { get; } = new FuncValueConverter<string, string?>(
         convert: x => Path.GetFileName(x) is { Length: > 0 } fileName ? fileName : x // return original if no file name found (e.g. Path root)
     );
+
+    /// <summary>
+    /// Converts an Enum Type to its values array.
+    /// </summary>
+    public static IValueConverter EnumTypeToValues { get; } = new FuncValueConverter<Type?, Type?, Array?>(
+        convert: (x, parameter) =>
+        {
+            var type = x ?? parameter;
+            return type?.IsEnum is true ? Enum.GetValues(type) : null;
+        });
+
+    /// <summary>
+    /// Converts an Enum value to its localized string representation.
+    /// </summary>
+    public static IValueConverter EnumI18N { get; } = new FuncValueConverter<object?, string?>(
+        convert: x =>
+        {
+            if (x?.GetType() is not { IsEnum: true } type) return null;
+
+            var enumName = Enum.GetName(type, x);
+            if (enumName is null) return null;
+
+            var key = type.GetField(enumName)?.GetCustomAttribute<DynamicResourceKeyAttribute>()?.HeaderKey ?? $"{type.Name}_{enumName}";
+            return DynamicResourceKey.Resolve(key);
+        });
 
     public static IMultiValueConverter DefaultMultiValue { get; } = new DefaultMultiValueConverter();
 

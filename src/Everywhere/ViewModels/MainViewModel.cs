@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Reflection;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -102,7 +101,7 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
     {
         if (!Settings.Internal.IsFirstTimeHideToTrayIcon) return;
 
-        ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotification(LocaleKey.MainView_EverywhereHasMinimizedToTray.I18N());
+        ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotification(LocaleResolver.MainView_EverywhereHasMinimizedToTray);
         Settings.Internal.IsFirstTimeHideToTrayIcon = false;
     }
 

@@ -1394,9 +1394,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>이진 파일에 쓸 수 없습니다.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>도구 호출 시 잘못된 매개변수가 제공되었습니다.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>파일 크기가 10MB를 초과하여 교체 작업이 지원되지 않습니다.</value>
     </data>
@@ -1535,5 +1532,11 @@
     </data>
     <data name="ChatWindow_Title" xml:space="preserve">
         <value>채팅</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
     </data>
 </root>

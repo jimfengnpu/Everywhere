@@ -375,7 +375,7 @@ public sealed partial class ChatWindowViewModel :
                     AllowMultiple = true,
                     FileTypeFilter =
                     [
-                        new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles.I18N())
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles)
                         {
                             Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
@@ -384,14 +384,14 @@ public sealed partial class ChatWindowViewModel :
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
-                        new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Images.I18N())
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_Images)
                         {
                             Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
-                        new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_Documents.I18N())
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_Documents)
                         {
                             Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Document)
                                 .AsValueEnumerable()
@@ -399,7 +399,7 @@ public sealed partial class ChatWindowViewModel :
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
-                        new FilePickerFileType(LocaleKey.ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles.I18N())
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles)
                         {
                             Patterns = ["*"]
                         }
@@ -440,7 +440,7 @@ public sealed partial class ChatWindowViewModel :
 
             _logger.LogError(ex, "Failed to load image from file: {FilePath}", filePath);
             ToastManager
-                .CreateToast(LocaleKey.Common_Error.I18N())
+                .CreateToast(LocaleResolver.Common_Error)
                 .WithContent(ex.GetFriendlyMessage())
                 .DismissOnClick()
                 .OnBottomRight()
@@ -631,20 +631,17 @@ public sealed partial class ChatWindowViewModel :
         if (!Settings.ChatWindow.AllowRunInBackground) _cancellationTokenSource.Cancel();
     }
 
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    protected override void OnIsBusyChanged()
     {
-        base.OnPropertyChanged(e);
+        base.OnIsBusyChanged();
 
-        if (e.PropertyName == nameof(IsBusy))
-        {
-            PickElementCommand.NotifyCanExecuteChanged();
-            AddClipboardCommand.NotifyCanExecuteChanged();
-            AddFileCommand.NotifyCanExecuteChanged();
-            SendMessageCommand.NotifyCanExecuteChanged();
-            EditCommand.NotifyCanExecuteChanged();
-            RetryCommand.NotifyCanExecuteChanged();
-            CancelCommand.NotifyCanExecuteChanged();
-        }
+        PickElementCommand.NotifyCanExecuteChanged();
+        AddClipboardCommand.NotifyCanExecuteChanged();
+        AddFileCommand.NotifyCanExecuteChanged();
+        SendMessageCommand.NotifyCanExecuteChanged();
+        EditCommand.NotifyCanExecuteChanged();
+        RetryCommand.NotifyCanExecuteChanged();
+        CancelCommand.NotifyCanExecuteChanged();
     }
 
     public void Receive(ChatPluginConsentRequest message)

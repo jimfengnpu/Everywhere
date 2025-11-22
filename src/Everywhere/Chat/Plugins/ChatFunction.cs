@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Chat.Permissions;
 using Lucide.Avalonia;
 using Microsoft.SemanticKernel;
+using ModelContextProtocol.Client;
 
 namespace Everywhere.Chat.Plugins;
 
@@ -67,7 +68,7 @@ public sealed class NativeChatFunction : ChatFunction
         }
         else
         {
-            HeaderKey = new DirectResourceKey(method.Method.Name.TrimEnd("Async"));
+            HeaderKey = new DirectResourceKey(method.Method.Name);
         }
 
         Icon = icon;
@@ -92,4 +93,11 @@ public sealed class NativeChatFunction : ChatFunction
         if (content.Arguments is not { Count: > 0 } arguments) return base.GetFriendlyCallContent(content);
         return _renderer?.Render(arguments) ?? base.GetFriendlyCallContent(content);
     }
+}
+
+public class McpChatFunction(McpClientTool tool) : ChatFunction
+{
+    public override ChatFunctionPermissions Permissions => ChatFunctionPermissions.MCP;
+
+    public override KernelFunction KernelFunction { get; } = tool.AsKernelFunction();
 }

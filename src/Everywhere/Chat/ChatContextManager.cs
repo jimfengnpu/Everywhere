@@ -208,7 +208,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         }
         catch (Exception ex)
         {
-            ServiceLocator.Resolve<ToastManager>().CreateToast(LocaleKey.Common_Error.I18N()).WithContent(ex.GetFriendlyMessage()).ShowError();
+            ServiceLocator.Resolve<ToastManager>().CreateToast(LocaleResolver.Common_Error).WithContent(ex.GetFriendlyMessage()).ShowError();
             _logger.LogError(ex, "Failed to update recent chat context history");
         }
     }
@@ -227,7 +227,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         }
         catch (Exception ex)
         {
-            ServiceLocator.Resolve<ToastManager>().CreateToast(LocaleKey.Common_Error.I18N()).WithContent(ex.GetFriendlyMessage()).ShowError();
+            ServiceLocator.Resolve<ToastManager>().CreateToast(LocaleResolver.Common_Error).WithContent(ex.GetFriendlyMessage()).ShowError();
             _logger.LogError(ex, "Failed to load more chat context history");
         }
     }
@@ -348,7 +348,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             {
                 ServiceLocator
                     .Resolve<ToastManager>()
-                    .CreateToast(LocaleKey.Common_Error.I18N())
+                    .CreateToast(LocaleResolver.Common_Error)
                     .WithContent(
                         new FormattedDynamicResourceKey(
                             LocaleKey.ChatContextManager_LoadChatContextFailedToast_Content,

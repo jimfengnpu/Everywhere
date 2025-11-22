@@ -49,13 +49,13 @@
       Grid.Column="1" LastChildFill="True">
       <Border DockPanel.Dock="Top">
         <TextBlock
-          Classes="h3" Margin="16,14,24,0"
+          Classes="h3" Margin="4,12,16,0"
           VerticalAlignment="Center" ClipToBounds="False"
           Text="{Binding #Sidebar.((v:IMainViewPage)CurrentRoute).Title^, FallbackValue={x:Null}}"/>
       </Border>
 
       <TransitioningContentControl
-        Margin="12,24,32,24"
+        Margin="0,24,16,24"
         Content="{Binding #Sidebar.CurrentRoute, FallbackValue={x:Null}}"/>
     </DockPanel>
   </Grid>

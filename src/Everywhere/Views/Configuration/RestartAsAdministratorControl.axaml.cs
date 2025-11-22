@@ -22,7 +22,7 @@ public partial class RestartAsAdministratorControl(INativeHelper nativeHelper, T
             ex = HandledSystemException.Handle(ex); // maybe blocked by UAC or antivirus, handle it gracefully
             logger.LogInformation(ex, "Failed to restart as administrator.");
             toastManager
-                .CreateToast(LocaleKey.Common_Error.I18N())
+                .CreateToast(LocaleResolver.Common_Error)
                 .WithContent(ex.GetFriendlyMessage())
                 .DismissOnClick()
                 .OnBottomRight()

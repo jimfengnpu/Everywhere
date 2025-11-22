@@ -388,7 +388,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                 {
                     e.DragEffects = DragDropEffects.None;
                     DragDropIcon.Kind = LucideIconKind.FileX;
-                    DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_Unsupported.I18N();
+                    DragDropText.Text = LocaleResolver.ChatWindow_DragDrop_Overlay_Unsupported;
                     DragDropOverlay.IsVisible = true;
                     return;
                 }
@@ -406,7 +406,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                     DragDropIcon.Kind = firstMimeType != null && FileUtilities.IsOfCategory(firstMimeType, FileTypeCategory.Image)
                         ? LucideIconKind.Image
                         : LucideIconKind.FileUp;
-                    DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropFilesHere.I18N();
+                    DragDropText.Text = LocaleResolver.ChatWindow_DragDrop_Overlay_DropFilesHere;
                     DragDropOverlay.IsVisible = true;
                     return;
                 }
@@ -418,7 +418,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         {
             e.DragEffects = DragDropEffects.Copy;
             DragDropIcon.Kind = LucideIconKind.TextCursorInput;
-            DragDropText.Text = LocaleKey.ChatWindow_DragDrop_Overlay_DropTextHere.I18N();
+            DragDropText.Text = LocaleResolver.ChatWindow_DragDrop_Overlay_DropTextHere;
             DragDropOverlay.IsVisible = true;
             return;
         }
