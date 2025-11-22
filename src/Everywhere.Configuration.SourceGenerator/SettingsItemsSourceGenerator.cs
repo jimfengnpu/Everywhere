@@ -351,7 +351,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         ApplyCommonMetadata(sb, itemName, metadata);
 
         // Apply IsEnabled/IsVisible bindings
-        ApplyItemBindings(sb, itemName, metadata);
+        ApplySettingsItemAttributes(sb, itemName, metadata);
 
         // Apply type-specific properties from attributes (e.g., MaxLength)
         ApplyTypeSpecificMetadata(sb, itemName, metadata);
@@ -487,12 +487,20 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyItemBindings(
+    private static void ApplySettingsItemAttributes(
         IndentedStringBuilder sb,
         string itemName,
         in PropertyMetadata metadata)
     {
         if (metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsItem) is not { } settingsItemAttribute) return;
+
+        if (settingsItemAttribute.GetNamedArgument("Classes") is { IsNull: false, Value: ImmutableArray<TypedConstant> classesArray })
+        {
+            var classes = classesArray
+                .Where(c => c.Value is string)
+                .Select(c => $"\"{c.Value!.ToString()!.Replace("\"", "\\\"")}\"");
+            sb.AppendLine($"{itemName}.Classes.AddRange(new string[] {{ {string.Join(", ", classes)} }});");
+        }
 
         if (settingsItemAttribute.GetNamedArgument("IsEnabledBindingPath") is { IsNull: false, Value: string isEnabledBindingPath })
         {

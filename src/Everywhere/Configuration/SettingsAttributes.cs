@@ -27,6 +27,11 @@ public class SettingsItemAttribute : Attribute
     /// Sets a binding path that will be used to determine if this item is enabled in the UI.
     /// </summary>
     public string? IsEnabledBindingPath { get; set; }
+
+    /// <summary>
+    /// Sets custom classes to apply to the settings item in the UI.
+    /// </summary>
+    public string[]? Classes { get; set; }
 }
 
 [AttributeUsage(AttributeTargets.Property)]

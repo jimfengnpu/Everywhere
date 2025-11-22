@@ -429,7 +429,7 @@
 
                 <Style Selector="ContentControl.ChatMessage">
                   <Setter Property="ClipToBounds" Value="False"/>
-                  <Setter Property="at:DataTemplatesAttach.DataTemplates">
+                  <Setter Property="at:BindingAssist.DataTemplates">
                     <DataTemplates>
                       <DataTemplate DataType="chat:AssistantChatMessage">
                         <StackPanel
