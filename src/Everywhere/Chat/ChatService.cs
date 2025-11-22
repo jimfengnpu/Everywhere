@@ -322,6 +322,9 @@ public sealed partial class ChatService(
 
         if (kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled)
         {
+            var needToStartMcp = chatPluginManager.McpPlugins.AsValueEnumerable().Any(p => p is { IsEnabled: true, IsRunning: false });
+            using var _ = needToStartMcp ? chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_StartingMcp)) : null;
+
             var chatPluginScope = await chatPluginManager.CreateScopeAsync(chatContext, customAssistant, cancellationToken);
             builder.Services.AddSingleton(chatPluginScope);
             activity?.SetTag("plugins.count", chatPluginScope.Plugins.AsValueEnumerable().Count());
@@ -381,6 +384,7 @@ public sealed partial class ChatService(
                     var functionCallContents = await GetStreamingChatMessageContentsAsync(
                         kernel,
                         kernelMixin,
+                        chatContext,
                         chatHistory,
                         customAssistant,
                         chatSpan,
@@ -437,8 +441,9 @@ public sealed partial class ChatService(
     /// </summary>
     /// <param name="kernel"></param>
     /// <param name="kernelMixin"></param>
-    /// <param name="customAssistant"></param>
+    /// <param name="chatContext"></param>
     /// <param name="chatHistory"></param>
+    /// <param name="customAssistant"></param>
     /// <param name="chatSpan"></param>
     /// <param name="assistantChatMessage"></param>
     /// <param name="cancellationToken"></param>
@@ -446,6 +451,7 @@ public sealed partial class ChatService(
     private async Task<IReadOnlyList<FunctionCallContent>> GetStreamingChatMessageContentsAsync(
         Kernel kernel,
         IKernelMixin kernelMixin,
+        ChatContext chatContext,
         ChatHistory chatHistory,
         CustomAssistant customAssistant,
         AssistantChatMessageSpan chatSpan,
@@ -471,111 +477,125 @@ public sealed partial class ChatService(
         activity?.SetTag("llm.model.actual_id", customAssistant.ModelId.ActualValue);
         activity?.SetTag("llm.model.max_embedding", customAssistant.MaxTokens.ActualValue);
 
-        await foreach (var streamingContent in kernelMixin.ChatCompletionService.GetStreamingChatMessageContentsAsync(
-                           // They absolutely must modify this ChatHistory internally.
-                           // I can neither alter it nor inherit it.
-                           // Let's copy the chat history to avoid modifying the original one.
-                           new ChatHistory(chatHistory),
-                           promptExecutionSettings,
-                           kernel,
-                           cancellationToken))
+        IDisposable? callingToolsBusyMessage = null;
+
+        try
         {
-            if (streamingContent.Metadata?.TryGetValue("Usage", out var usage) is true && usage is not null)
+            await foreach (var streamingContent in kernelMixin.ChatCompletionService.GetStreamingChatMessageContentsAsync(
+                               // They absolutely must modify this ChatHistory internally.
+                               // I can neither alter it nor inherit it.
+                               // Let's copy the chat history to avoid modifying the original one.
+                               new ChatHistory(chatHistory),
+                               promptExecutionSettings,
+                               kernel,
+                               cancellationToken))
             {
-                switch (usage)
+                if (streamingContent.Metadata?.TryGetValue("Usage", out var usage) is true && usage is not null)
                 {
-                    case UsageContent usageContent:
+                    switch (usage)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, usageContent.Details.InputTokenCount ?? 0);
-                        outputTokenCount = Math.Max(outputTokenCount, usageContent.Details.OutputTokenCount ?? 0);
-                        totalTokenCount = Math.Max(totalTokenCount, usageContent.Details.TotalTokenCount ?? 0);
-                        break;
+                        case UsageContent usageContent:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, usageContent.Details.InputTokenCount ?? 0);
+                            outputTokenCount = Math.Max(outputTokenCount, usageContent.Details.OutputTokenCount ?? 0);
+                            totalTokenCount = Math.Max(totalTokenCount, usageContent.Details.TotalTokenCount ?? 0);
+                            break;
+                        }
+                        case UsageDetails usageDetails:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, usageDetails.InputTokenCount ?? 0);
+                            outputTokenCount = Math.Max(outputTokenCount, usageDetails.OutputTokenCount ?? 0);
+                            totalTokenCount = Math.Max(totalTokenCount, usageDetails.TotalTokenCount ?? 0);
+                            break;
+                        }
+                        case Usage anthropicUsage:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, anthropicUsage.InputTokens);
+                            outputTokenCount = Math.Max(outputTokenCount, anthropicUsage.OutputTokens);
+                            totalTokenCount = Math.Max(totalTokenCount, anthropicUsage.InputTokens + anthropicUsage.OutputTokens);
+                            break;
+                        }
+                        case ChatTokenUsage openAIUsage:
+                        {
+                            inputTokenCount = Math.Max(inputTokenCount, openAIUsage.InputTokenCount);
+                            outputTokenCount = Math.Max(outputTokenCount, openAIUsage.OutputTokenCount);
+                            totalTokenCount = Math.Max(totalTokenCount, openAIUsage.TotalTokenCount);
+                            break;
+                        }
                     }
-                    case UsageDetails usageDetails:
+                }
+
+                foreach (var item in streamingContent.Items)
+                {
+                    switch (item)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, usageDetails.InputTokenCount ?? 0);
-                        outputTokenCount = Math.Max(outputTokenCount, usageDetails.OutputTokenCount ?? 0);
-                        totalTokenCount = Math.Max(totalTokenCount, usageDetails.TotalTokenCount ?? 0);
-                        break;
+                        case StreamingChatMessageContent { Content.Length: > 0 } chatMessageContent:
+                        {
+                            if (IsReasoningContent(chatMessageContent))
+                            {
+                                HandleReasoningMessage(chatMessageContent.Content);
+                            }
+                            else
+                            {
+                                await HandleTextMessage(chatMessageContent.Content);
+                            }
+                            break;
+                        }
+                        case StreamingTextContent { Text.Length: > 0 } textContent:
+                        {
+                            if (IsReasoningContent(textContent))
+                            {
+                                HandleReasoningMessage(textContent.Text);
+                            }
+                            else
+                            {
+                                await HandleTextMessage(textContent.Text);
+                            }
+                            break;
+                        }
+                        case StreamingReasoningContent reasoningContent:
+                        {
+                            HandleReasoningMessage(reasoningContent.Text);
+                            break;
+                        }
                     }
-                    case Usage anthropicUsage:
+
+                    bool IsReasoningContent(StreamingKernelContent content) =>
+                        streamingContent.Metadata?.TryGetValue("reasoning", out var reasoning) is true && reasoning is true ||
+                        content.Metadata?.TryGetValue("reasoning", out reasoning) is true && reasoning is true;
+
+                    DispatcherOperation<ObservableStringBuilder> HandleTextMessage(string text)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, anthropicUsage.InputTokens);
-                        outputTokenCount = Math.Max(outputTokenCount, anthropicUsage.OutputTokens);
-                        totalTokenCount = Math.Max(totalTokenCount, anthropicUsage.InputTokens + anthropicUsage.OutputTokens);
-                        break;
+                        // Mark the reasoning as finished when we receive the first content chunk.
+                        if (chatSpan.ReasoningOutput is not null && chatSpan.ReasoningFinishedAt is null)
+                        {
+                            chatSpan.ReasoningOutput = chatSpan.ReasoningOutput.TrimEnd();
+                            chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
+                        }
+
+                        assistantContentBuilder.Append(text);
+                        return Dispatcher.UIThread.InvokeAsync(() => chatSpan.MarkdownBuilder.Append(text));
                     }
-                    case ChatTokenUsage openAIUsage:
+
+                    void HandleReasoningMessage(string text)
                     {
-                        inputTokenCount = Math.Max(inputTokenCount, openAIUsage.InputTokenCount);
-                        outputTokenCount = Math.Max(outputTokenCount, openAIUsage.OutputTokenCount);
-                        totalTokenCount = Math.Max(totalTokenCount, openAIUsage.TotalTokenCount);
-                        break;
+                        if (chatSpan.ReasoningOutput is null) chatSpan.ReasoningOutput = text;
+                        else chatSpan.ReasoningOutput += text;
                     }
+                }
+
+                authorRole ??= streamingContent.Role;
+                functionCallContentBuilder.Append(streamingContent);
+
+                if (callingToolsBusyMessage is null && functionCallContentBuilder.Count > 0)
+                {
+                    callingToolsBusyMessage = chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_CallingTools));
                 }
             }
-
-            foreach (var item in streamingContent.Items)
-            {
-                switch (item)
-                {
-                    case StreamingChatMessageContent { Content.Length: > 0 } chatMessageContent:
-                    {
-                        if (IsReasoningContent(chatMessageContent))
-                        {
-                            HandleReasoningMessage(chatMessageContent.Content);
-                        }
-                        else
-                        {
-                            await HandleTextMessage(chatMessageContent.Content);
-                        }
-                        break;
-                    }
-                    case StreamingTextContent { Text.Length: > 0 } textContent:
-                    {
-                        if (IsReasoningContent(textContent))
-                        {
-                            HandleReasoningMessage(textContent.Text);
-                        }
-                        else
-                        {
-                            await HandleTextMessage(textContent.Text);
-                        }
-                        break;
-                    }
-                    case StreamingReasoningContent reasoningContent:
-                    {
-                        HandleReasoningMessage(reasoningContent.Text);
-                        break;
-                    }
-                }
-
-                bool IsReasoningContent(StreamingKernelContent content) =>
-                    streamingContent.Metadata?.TryGetValue("reasoning", out var reasoning) is true && reasoning is true ||
-                    content.Metadata?.TryGetValue("reasoning", out reasoning) is true && reasoning is true;
-
-                DispatcherOperation<ObservableStringBuilder> HandleTextMessage(string text)
-                {
-                    // Mark the reasoning as finished when we receive the first content chunk.
-                    if (chatSpan.ReasoningOutput is not null && chatSpan.ReasoningFinishedAt is null)
-                    {
-                        chatSpan.ReasoningOutput = chatSpan.ReasoningOutput.TrimEnd();
-                        chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
-                    }
-
-                    assistantContentBuilder.Append(text);
-                    return Dispatcher.UIThread.InvokeAsync(() => chatSpan.MarkdownBuilder.Append(text));
-                }
-
-                void HandleReasoningMessage(string text)
-                {
-                    if (chatSpan.ReasoningOutput is null) chatSpan.ReasoningOutput = text;
-                    else chatSpan.ReasoningOutput += text;
-                }
-            }
-
-            authorRole ??= streamingContent.Role;
-            functionCallContentBuilder.Append(streamingContent);
+        }
+        finally
+        {
+            callingToolsBusyMessage?.Dispose();
         }
 
         // Mark the reasoning as finished if we have any reasoning output.

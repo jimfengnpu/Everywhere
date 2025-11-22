@@ -618,8 +618,8 @@ public class HandledChatException(
     {
         switch (exception)
         {
-            case HandledChatException chatRequestException:
-                return chatRequestException;
+            case HandledException handledException:
+                return handledException;
             case AggregateException aggregateException:
                 return new AggregateException(aggregateException.Segregate().Select(e => Handle(e, modelProviderId, modelId)));
         }

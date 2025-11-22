@@ -806,7 +806,23 @@
           <StackPanel
             Orientation="Vertical" Spacing="4">
             <Border
-              Margin="-8,-8,-8,0" Padding="4,2"
+              Margin="-8,-8,-8,0" Padding="10,2"
+              Background="{DynamicResource SuccessColor20}"
+              BorderBrush="{DynamicResource BorderColor}"
+              BorderThickness="0,0,0,1"
+              IsVisible="{Binding ChatContextManager.Current.BusyMessage, Converter={x:Static ObjectConverters.IsNotNull}, Delay=200}">
+              <StackPanel
+                Orientation="Horizontal" Spacing="4">
+                <shadui:Loading
+                  Width="14" Height="14"/>
+                <TextBlock
+                  Classes="Small"
+                  Text="{Binding ChatContextManager.Current.BusyMessage}"/>
+              </StackPanel>
+            </Border>
+
+            <Border
+              Margin="-8,-8,-8,0" Padding="10,2"
               Background="{DynamicResource WarningColor20}"
               BorderBrush="{DynamicResource BorderColor}"
               BorderThickness="0,0,0,1"
@@ -821,7 +837,7 @@
                   <StackPanel Orientation="Horizontal">
                     <LucideIcon
                       Margin="0,1,0,-1" Kind="X"
-                      Size="12"/>
+                      Size="14"/>
                     <TextBlock
                       Classes="Small"
                       Text="{I18N {x:Static LocaleKey.Common_Cancel}}"/>

@@ -13,6 +13,8 @@ partial class ChatService
     /// </summary>
     public sealed class BetterFunctionCallContentBuilder
     {
+        public int Count => _functionNamesByIndex?.Count ?? 0;
+
         private Dictionary<string, string>? _functionCallIdsByIndex;
         private Dictionary<string, string>? _functionNamesByIndex;
         private Dictionary<string, StringBuilder>? _functionArgumentBuildersByIndex;

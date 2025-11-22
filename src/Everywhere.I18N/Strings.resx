@@ -1676,4 +1676,10 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ChatPluginPage_PluginStatus_Running_ToolTip" xml:space="preserve">
         <value>Running</value>
     </data>
+    <data name="ChatContext_BusyMessage_StartingMcp" xml:space="preserve">
+        <value>Starting MCP</value>
+    </data>
+    <data name="ChatContext_BusyMessage_CallingTools" xml:space="preserve">
+        <value>Tool invocation is generating</value>
+    </data>
 </root>
