@@ -1405,7 +1405,7 @@
         <value>无法写入二进制文件。</value>
     </data>
     <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>模型在调用工具时传入了错误的参数。</value>
+        <value>助手在调用工具时传入了错误的参数，这通常是由模型幻觉导致。</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>文件大小超过 10 MB，无法替换内容。</value>
@@ -1572,5 +1572,17 @@
     </data>
     <data name="ValidationErrorMessage_NullValue" xml:space="preserve">
         <value>项目的值不能为空。</value>
+    </data>
+    <data name="HttpTransportMode_AutoDetect" xml:space="preserve">
+        <value>自动检测</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
+    </data>
+    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
+        <value>助手调用的工具不存在，这通常是由模型幻觉导致。</value>
     </data>
 </root>

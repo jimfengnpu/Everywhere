@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="using:Everywhere.Views">
+  xmlns:mcp="clr-namespace:ModelContextProtocol.Client;assembly=ModelContextProtocol.Core" xmlns:plugins="clr-namespace:Everywhere.Chat.Plugins"
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="using:Everywhere.Views"
+  xmlns:vc="clr-namespace:Everywhere.ValueConverters">
   <Design.PreviewWith>
     <v:McpTransportConfigurationForm/>
   </Design.PreviewWith>
@@ -70,7 +72,7 @@
                                 <Grid
                                   Background="Transparent" ColumnDefinitions="*,Auto">
                                   <TextBlock
-                                    Margin="{TemplateBinding Padding}"
+                                    Margin="16,0" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
                                     Opacity="0.5" Text="Please input name"/>
@@ -104,7 +106,7 @@
                                 <Grid
                                   Background="Transparent" ColumnDefinitions="*,Auto">
                                   <TextBlock
-                                    Margin="{TemplateBinding Padding}"
+                                    Margin="16,0" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
                                     Opacity="0.5" Text="Please input value (can be empty)"/>
@@ -136,7 +138,8 @@
                       Classes="Ghost Compact"
                       Command="{Binding StdioConfiguration.RemoveEnvironmentVariableCommand, RelativeSource={RelativeSource TemplatedParent}}"
                       CommandParameter="{Binding #EnvironmentVariablesDataGrid.SelectedItem}"
-                      Content="{LucideIconContent Minus, Size=18}"/>
+                      Content="{LucideIconContent Minus, Size=18}"
+                      IsEnabled="{Binding #EnvironmentVariablesDataGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                   </StackPanel>
                 </StackPanel>
               </TabItem>
@@ -145,6 +148,18 @@
                   <TextBox
                     shadui:ControlAssist.Label="Endpoint"
                     Text="{Binding HttpConfiguration.Endpoint, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"/>
+                  <TextBlock
+                    Classes="Small" Text="Transport Mode"/>
+                  <ComboBox
+                    x:DataType="plugins:HttpMcpTransportConfiguration"
+                    ItemsSource="{Binding Converter={x:Static vc:CommonConverters.EnumTypeToValues}, Source={x:Type mcp:HttpTransportMode}}"
+                    SelectedItem="{Binding HttpConfiguration.TransportMode, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Converter={x:Static vc:CommonConverters.EnumI18N}}"/>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
                   <TextBlock
                     Classes="Small" Text="Headers"/>
                   <shadui:DataValidationGrid
@@ -164,7 +179,7 @@
                                 <Grid
                                   Background="Transparent" ColumnDefinitions="*,Auto">
                                   <TextBlock
-                                    Margin="{TemplateBinding Padding}"
+                                    Margin="16,0" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
                                     Opacity="0.5" Text="Please input name"/>
@@ -198,7 +213,7 @@
                                 <Grid
                                   Background="Transparent" ColumnDefinitions="*,Auto">
                                   <TextBlock
-                                    Margin="{TemplateBinding Padding}"
+                                    Margin="16,0" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
                                     Opacity="0.5" Text="Please input value"/>
@@ -230,7 +245,8 @@
                       Classes="Ghost Compact"
                       Command="{Binding HttpConfiguration.RemoveHeaderCommand, RelativeSource={RelativeSource TemplatedParent}}"
                       CommandParameter="{Binding #HeadersDataGrid.SelectedItem}"
-                      Content="{LucideIconContent Minus, Size=18}"/>
+                      Content="{LucideIconContent Minus, Size=18}"
+                      IsEnabled="{Binding #HeadersDataGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                   </StackPanel>
                 </StackPanel>
               </TabItem>

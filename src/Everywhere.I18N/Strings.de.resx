@@ -1399,9 +1399,6 @@ Inhalt:
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>Kann nicht in eine Binärdatei schreiben.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Ungültige Parameter wurden beim Aufruf des Tools bereitgestellt.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Die Dateigröße ist größer als 10 MB, der Ersetzungsvorgang wird nicht unterstützt.</value>
     </data>
@@ -1537,5 +1534,11 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     </data>
     <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
         <value>Bearbeitung abbrechen (Esc)</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
     </data>
 </root>

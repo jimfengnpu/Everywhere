@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using CommunityToolkit.Mvvm.Input;
 using Everywhere.AI;
 
 namespace Everywhere.Chat.Plugins;
@@ -21,15 +20,18 @@ public interface IChatPluginManager
     ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
 
     /// <summary>
-    /// Command to start an MCP plugin.
-    /// </summary>
-    IRelayCommand<McpChatPlugin> StartCommand { get; }
-
-    /// <summary>
-    /// Adds a new MCP plugin based on the provided configuration.
+    /// Creates a new MCP plugin based on the provided configuration.
     /// </summary>
     /// <param name="configuration"></param>
-    McpChatPlugin AddMcpPlugin(McpTransportConfiguration configuration);
+    McpChatPlugin CreateMcpPlugin(McpTransportConfiguration configuration);
+
+    /// <summary>
+    /// Updates an existing MCP plugin with a new configuration.
+    /// </summary>
+    /// <param name="mcpChatPlugin"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    Task UpdateMcpPluginAsync(McpChatPlugin mcpChatPlugin, McpTransportConfiguration configuration);
 
     /// <summary>
     /// Creates a new MCP client based on the provided configuration. If it's a local client, it will start the local server process.
@@ -37,9 +39,20 @@ public interface IChatPluginManager
     /// <param name="mcpChatPlugin"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task CreateMcpClientAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken);
+    Task StartMcpClientAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken);
 
-    IAsyncEnumerable<McpChatFunction> ListMcpFunctionsAsync(McpChatPlugin mcpChatPlugin, CancellationToken cancellationToken);
+    /// <summary>
+    /// Stops and disposes the MCP client. If it's a local client, it will stop the local server process.
+    /// </summary>
+    /// <param name="mcpChatPlugin"></param>
+    /// <returns></returns>
+    Task StopMcpClientAsync(McpChatPlugin mcpChatPlugin);
+
+    /// <summary>
+    /// Stops and removes the MCP plugin.
+    /// </summary>
+    /// <param name="mcpChatPlugin"></param>
+    Task RemoveMcpPluginAsync(McpChatPlugin mcpChatPlugin);
 
     /// <summary>
     /// Creates a new scope for available chat plugins and their functions.
@@ -55,10 +68,22 @@ public interface IChatPluginManager
 /// </summary>
 public interface IChatPluginScope
 {
+    /// <summary>
+    /// Gets all plugins in this scope.
+    /// </summary>
     IEnumerable<ChatPlugin> Plugins { get; }
 
+    /// <summary>
+    /// Tries to get the plugin and function by function name. Returns similar function names if not found.
+    /// </summary>
+    /// <param name="functionName"></param>
+    /// <param name="plugin"></param>
+    /// <param name="function"></param>
+    /// <param name="similarFunctionNames"></param>
+    /// <returns></returns>
     bool TryGetPluginAndFunction(
         string functionName,
         [NotNullWhen(true)] out ChatPlugin? plugin,
-        [NotNullWhen(true)] out ChatFunction? function);
+        [NotNullWhen(true)] out ChatFunction? function,
+        [NotNullWhen(false)] out IReadOnlyList<string>? similarFunctionNames);
 }

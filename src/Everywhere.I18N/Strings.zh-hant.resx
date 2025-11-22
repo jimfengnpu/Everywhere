@@ -1403,9 +1403,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>無法寫入二進位檔案。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>調用工具時提供了無效的參數。</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>檔案大小超過 10 MB，不支援替換操作。</value>
     </data>
@@ -1541,5 +1538,11 @@
     </data>
     <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
         <value>取消編輯 (Esc)</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
     </data>
 </root>

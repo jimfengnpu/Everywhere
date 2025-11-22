@@ -1,12 +1,13 @@
 ﻿<UserControl
   x:Class="Everywhere.Views.Pages.ChatPluginPage" xmlns="https://github.com/avaloniaui"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
-  xmlns:p="clr-namespace:Everywhere.Chat.Plugins" xmlns:permissions="clr-namespace:Everywhere.Chat.Permissions"
-  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views"
-  xmlns:vc="clr-namespace:Everywhere.ValueConverters" xmlns:vm="clr-namespace:Everywhere.ViewModels"
-  d:DesignHeight="450" d:DesignWidth="800"
-  x:DataType="vm:ChatPluginPageViewModel" mc:Ignorable="d">
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:be="clr-namespace:Everywhere.Behaviors"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia" xmlns:p="clr-namespace:Everywhere.Chat.Plugins"
+  xmlns:permissions="clr-namespace:Everywhere.Chat.Permissions" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  xmlns:v="clr-namespace:Everywhere.Views" xmlns:vc="clr-namespace:Everywhere.ValueConverters"
+  xmlns:vm="clr-namespace:Everywhere.ViewModels" d:DesignHeight="450"
+  d:DesignWidth="800" x:DataType="vm:ChatPluginPageViewModel"
+  mc:Ignorable="d">
   <UserControl.Styles>
     <Style Selector="ListBox.PluginListBox">
       <Style Selector="^ &gt; Border">
@@ -224,12 +225,32 @@
         Grid.Row="0" Grid.RowSpan="3"
         Grid.Column="2" VerticalAlignment="Bottom"
         IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
-        Orientation="Horizontal">
+        Orientation="Horizontal" Spacing="8">
         <Button
           Classes="Primary"
-          Command="{Binding Manager.StartCommand}"
+          Command="{Binding StartMcpPluginCommand}"
           CommandParameter="{Binding SelectedMcpPlugin}"
-          Content="{LucideIconContent Kind=Play}"/>
+          Content="{LucideIconContent Kind=Play}"
+          IsVisible="{Binding !SelectedMcpPlugin.IsRunning, FallbackValue=false}"/>
+        <Button
+          Classes="Primary"
+          Command="{Binding StopMcpPluginCommand}"
+          CommandParameter="{Binding SelectedMcpPlugin}"
+          Content="{LucideIconContent Kind=Square}"
+          IsVisible="{Binding SelectedMcpPlugin.IsRunning, FallbackValue=false}"/>
+
+        <Button
+          Classes="Secondary"
+          Command="{Binding EditMcpPluginCommand}"
+          CommandParameter="{Binding SelectedMcpPlugin}"
+          Content="{LucideIconContent Kind=SquarePen}"/>
+
+        <Button
+          Classes="Destructive"
+          Command="{Binding RemoveMcpPluginCommand}"
+          CommandParameter="{Binding SelectedMcpPlugin}">
+          <LucideIcon Kind="Trash2"/>
+        </Button>
       </StackPanel>
     </Grid>
 
@@ -306,6 +327,10 @@
           BorderBrush="{DynamicResource BorderColor}"
           BorderThickness="1" CornerRadius="8">
           <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <Interaction.Behaviors>
+              <be:AutoScrollBehavior/>
+            </Interaction.Behaviors>
+
             <ItemsControl
               Grid.IsSharedSizeScope="True"
               IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"

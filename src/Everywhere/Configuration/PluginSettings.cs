@@ -44,13 +44,15 @@ public partial class PluginSettings : ObservableObject
 /// <summary>
 /// MCP Plugin record for serialization/IConfiguration purposes.
 /// </summary>
-public class McpChatPluginEntity
+public partial class McpChatPluginEntity : ObservableObject
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public StdioMcpTransportConfiguration? Stdio { get; set; }
+    [ObservableProperty]
+    public partial StdioMcpTransportConfiguration? Stdio { get; set; }
 
-    public HttpMcpTransportConfiguration? Http { get; set; }
+    [ObservableProperty]
+    public partial HttpMcpTransportConfiguration? Http { get; set; }
 
     [JsonConstructor]
     public McpChatPluginEntity() { }

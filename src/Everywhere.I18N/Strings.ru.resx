@@ -1403,9 +1403,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>Невозможно записать в бинарный файл.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Предоставлены недействительные параметры при вызове инструмента.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Размер файла больше 10 МБ, операция замены не поддерживается.</value>
     </data>
@@ -1541,5 +1538,8 @@
     </data>
     <data name="ChatWindow_CancelEditingButton_ToolTip" xml:space="preserve">
         <value>Отменить редактирование (Esc)</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
     </data>
 </root>

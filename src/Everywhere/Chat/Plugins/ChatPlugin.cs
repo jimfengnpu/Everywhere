@@ -125,14 +125,18 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     public override DynamicResourceKey DescriptionKey { get; }
 
     public override LucideIconKind? Icon => LucideIconKind.Hammer;
-
-    public McpTransportConfiguration? TransportConfiguration { get; set; }
+    
+    [ObservableProperty]
+    public partial McpTransportConfiguration? TransportConfiguration { get; set; }
 
     /// <summary>
     /// For MCP plugins, we cannot get the permission of each function. So we use a default permission for all functions.
     /// </summary>
     [ObservableProperty]
     public partial ChatFunctionPermissions DefaultPermissions { get; set; } = ChatFunctionPermissions.AllAccess;
+
+    [ObservableProperty]
+    public partial bool IsRunning { get; set; }
 
     /// <summary>
     /// Gets the log entries of this plugin.

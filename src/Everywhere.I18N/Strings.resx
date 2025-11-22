@@ -1418,7 +1418,7 @@ Content:
         <value>Cannot write to a binary file.</value>
     </data>
     <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Invalid parameters were provided when calling the tool.</value>
+        <value>The assistant passed incorrect parameters when invoking the tool, which is typically caused by model hallucination.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>File size is larger than 10 MB, replace operation is not supported.</value>
@@ -1585,5 +1585,17 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="ValidationErrorMessage_NullValue" xml:space="preserve">
         <value>The item value cannot be empty.</value>
+    </data>
+    <data name="HttpTransportMode_AutoDetect" xml:space="preserve">
+        <value>Auto Detect</value>
+    </data>
+    <data name="HttpTransportMode_StreamableHttp" xml:space="preserve">
+        <value>Streamable HTTP</value>
+    </data>
+    <data name="HttpTransportMode_Sse" xml:space="preserve">
+        <value>SSE</value>
+    </data>
+    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
+        <value>The tool invoked by the assistant does not exist, which is typically caused by model hallucination.</value>
     </data>
 </root>

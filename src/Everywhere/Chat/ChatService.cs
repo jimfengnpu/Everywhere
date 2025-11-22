@@ -30,7 +30,7 @@ using TextContent = Microsoft.SemanticKernel.TextContent;
 
 namespace Everywhere.Chat;
 
-public sealed class ChatService(
+public sealed partial class ChatService(
     IChatContextManager chatContextManager,
     IChatPluginManager chatPluginManager,
     IKernelMixinFactory kernelMixinFactory,
@@ -459,7 +459,7 @@ public sealed class ChatService(
 
         AuthorRole? authorRole = null;
         var assistantContentBuilder = new StringBuilder();
-        var functionCallContentBuilder = new FunctionCallContentBuilder();
+        var functionCallContentBuilder = new BetterFunctionCallContentBuilder();
         var promptExecutionSettings = kernelMixin.GetPromptExecutionSettings(
             kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled ?
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
@@ -622,17 +622,90 @@ public sealed class ChatService(
         CancellationToken cancellationToken)
     {
         // Group function calls by plugin name, and create ActionChatMessages for each group.
+        // For example:
+        // AI calls multiple functions at once:
+        // {
+        //   "function_calls": [
+        //     { "function_name": "Function1", "parameters": { ... } },
+        //     { "function_name": "Function1", "parameters": { ... } },
+        //     { "function_name": "Function2", "parameters": { ... } }
+        //   ]
+        // }
+        //
+        // So we group them into:
+        // - Function1
+        //   - Call1
+        //   - Call2
+        // - Function2
+        //   - Call1
+        //
+        // And invoke them one by one.
+        // TODO: parallel invoke?
         var chatPluginScope = kernel.GetRequiredService<IChatPluginScope>();
         foreach (var functionCallContentGroup in functionCallContents.GroupBy(f => f.FunctionName))
         {
+            // 1. Grouped by function name.
+            // After grouping, we need to find the corresponding plugin and function.
+            // For example, in the above example,
+            // 1st functionCallContentGroup: Key = "Function1", Values = [Call1, Call2]
+            // 2nd functionCallContentGroup: Key = "Function2", Values = [Call1]
+
             cancellationToken.ThrowIfCancellationRequested();
 
+            // functionCallContentGroup.Key is the function name.
             if (!chatPluginScope.TryGetPluginAndFunction(
                     functionCallContentGroup.Key,
                     out var chatPlugin,
-                    out var chatFunction))
+                    out var chatFunction,
+                    out var similarFunctionNames))
             {
-                throw new InvalidOperationException($"Function '{functionCallContentGroup.Key}' is not available");
+                // Not found the function, tell AI.
+
+                var errorMessageBuilder = new StringBuilder();
+                errorMessageBuilder.Append("Function '").Append(functionCallContentGroup.Key).Append("' is not available.");
+
+                if (similarFunctionNames.Count > 0)
+                {
+                    errorMessageBuilder.Append("Did you mean: ");
+                    foreach (var similarFunctionName in similarFunctionNames)
+                    {
+                        errorMessageBuilder.Append(' ').AppendLine(similarFunctionName);
+                    }
+                }
+
+                // Display error in the chat span (UI).
+                var missingFunctionMessage = new FunctionCallChatMessage(
+                    LucideIconKind.X,
+                    new DirectResourceKey(functionCallContentGroup.Key));
+                chatSpan.AddFunctionCall(missingFunctionMessage);
+
+                // Add call message to the chat history.
+                var missingFunctionCallMessage = new ChatMessageContent(AuthorRole.Assistant, content: null);
+                missingFunctionCallMessage.Items.AddRange(functionCallContentGroup);
+                chatHistory.Add(missingFunctionCallMessage);
+
+                // Iterate through the function call contents in the group.
+                // Add the error message for each function call.
+                foreach (var functionCallContent in functionCallContentGroup)
+                {
+                    // Add the function call content to the missing function chat message for DB storage.
+                    missingFunctionMessage.Calls.Add(functionCallContent);
+
+                    // Create the corresponding function result content with the error message.
+                    var missingFunctionResultContent = new FunctionResultContent(functionCallContent, errorMessageBuilder.ToString());
+
+                    // Add the function result content to the missing function chat message for DB storage.
+                    missingFunctionMessage.Results.Add(missingFunctionResultContent);
+
+                    // Add the function result content to the chat history.
+                    chatHistory.Add(new ChatMessageContent(AuthorRole.Tool, [missingFunctionResultContent]));
+                }
+
+                missingFunctionMessage.ErrorMessageKey = new FormattedDynamicResourceKey(
+                    LocaleKey.ChatPlugin_Common_FunctionNotFound,
+                    new DirectResourceKey(functionCallContentGroup.Key));
+
+                continue;
             }
 
             var functionCallChatMessage = new FunctionCallChatMessage(
@@ -665,6 +738,7 @@ public sealed class ChatService(
                     // All function calls must have an ID (returned from the LLM, or generated by us).
                     if (functionCallContent.Id.IsNullOrEmpty())
                     {
+                        // This should never happen.
                         throw new InvalidOperationException("Function call content must have an ID");
                     }
 

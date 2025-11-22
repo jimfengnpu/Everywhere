@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Data;
 using Avalonia.Platform.Storage;
 using Everywhere.Chat.Plugins;
 
@@ -89,10 +88,5 @@ public class McpTransportConfigurationForm : TemplatedControl
 
         var result = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions());
         StdioConfiguration.WorkingDirectory = result.FirstOrDefault()?.Path.LocalPath;
-    }
-
-    protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception? error)
-    {
-        base.UpdateDataValidation(property, state, error);
     }
 }

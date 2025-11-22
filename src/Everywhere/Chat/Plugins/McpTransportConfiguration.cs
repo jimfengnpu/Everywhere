@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
+using ModelContextProtocol.Client;
 
 namespace Everywhere.Chat.Plugins;
 
@@ -64,8 +65,27 @@ public sealed partial class StdioMcpTransportConfiguration : McpTransportConfigu
     [ObservableProperty]
     public partial string? WorkingDirectory { get; set; }
 
+    public IReadOnlyDictionary<string, string?>? SerializableEnvironmentVariables
+    {
+        get => EnvironmentVariables?.DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        set
+        {
+            if (value is null)
+            {
+                EnvironmentVariables = null;
+            }
+            else
+            {
+                EnvironmentVariables = new ObservableCollection<ObservableKeyValuePair<string, string?>>(
+                    value.Select(kvp => new ObservableKeyValuePair<string, string?>(kvp.Key, kvp.Value)));
+            }
+        }
+    }
+
+    [JsonIgnore]
     [ObservableProperty]
     [NotifyDataErrorInfo]
+    [NotifyPropertyChangedFor(nameof(SerializableEnvironmentVariables))]
     [CustomValidation(typeof(StdioMcpTransportConfiguration), nameof(ValidateEnvironmentVariables))]
     public partial ObservableCollection<ObservableKeyValuePair<string, string?>>? EnvironmentVariables { get; set; } = [];
 
@@ -105,10 +125,32 @@ public sealed partial class HttpMcpTransportConfiguration : McpTransportConfigur
     [Required(ErrorMessageResourceType = typeof(LocaleResolver), ErrorMessageResourceName = LocaleKey.ValidationErrorMessage_Required)]
     public partial string Endpoint { get; set; } = string.Empty;
 
+    public IReadOnlyDictionary<string, string>? SerializableHeaders
+    {
+        get => Headers?.DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        set
+        {
+            if (value is null)
+            {
+                Headers = null;
+            }
+            else
+            {
+                Headers = new ObservableCollection<ObservableKeyValuePair<string, string>>(
+                    value.Select(kvp => new ObservableKeyValuePair<string, string>(kvp.Key, kvp.Value)));
+            }
+        }
+    }
+
+    [JsonIgnore]
     [ObservableProperty]
     [NotifyDataErrorInfo]
+    [NotifyPropertyChangedFor(nameof(SerializableHeaders))]
     [CustomValidation(typeof(HttpMcpTransportConfiguration), nameof(ValidateHeaders))]
     public partial ObservableCollection<ObservableKeyValuePair<string, string>>? Headers { get; set; } = [];
+
+    [ObservableProperty]
+    public partial HttpTransportMode TransportMode { get; set; }
 
     [RelayCommand]
     private void AddEmptyHeader() => Headers?.Add(new ObservableKeyValuePair<string, string>(string.Empty, string.Empty));
@@ -142,3 +184,6 @@ public sealed partial class HttpMcpTransportConfiguration : McpTransportConfigur
         return ValidationResult.Success;
     }
 }
+
+[JsonSerializable(typeof(McpTransportConfiguration))]
+public partial class McpTransportConfigurationJsonSerializerContext : JsonSerializerContext;
