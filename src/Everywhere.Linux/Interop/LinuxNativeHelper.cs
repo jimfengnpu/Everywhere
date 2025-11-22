@@ -93,4 +93,9 @@ public class LinuxNativeHelper : INativeHelper
         var args = $"\"{fullPath}\"";
         Process.Start(new ProcessStartInfo("xdg-open", args) { UseShellExecute = true });
     }
+
+    public string[] ParseArguments(string? commandLine)
+    {
+        throw new NotImplementedException();
+    }
 }

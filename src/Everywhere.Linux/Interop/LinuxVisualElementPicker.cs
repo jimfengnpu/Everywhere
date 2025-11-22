@@ -121,7 +121,7 @@ public partial class LinuxVisualElementContext
                             new TextBlock
                             {
                                 Foreground = Brushes.White,
-                                Text = LocaleKey.VisualElementPicker_ToolTipWindow_TipTextBlock_Text.I18N()
+                                Text = LocaleKey.VisualElementPicker_ToolTipWindow_TipTextBlock_Text
                             },
                             new StackPanel
                             {
@@ -132,17 +132,17 @@ public partial class LinuxVisualElementContext
                                     (_screenPickModeBadge = new Badge
                                     {
                                         Background = Brushes.DimGray,
-                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content.I18N()
+                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content
                                     }),
                                     (_windowPickModeBadge = new Badge
                                     {
                                         Background = Brushes.DimGray,
-                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content.I18N()
+                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content
                                     }),
                                     (_elementPickModeBadge = new Badge
                                     {
                                         Background = Brushes.DimGray,
-                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content.I18N()
+                                        Content = LocaleKey.VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content
                                     })
                                 }
                             }
@@ -287,7 +287,7 @@ public partial class LinuxVisualElementContext
 
         private string? GetElementDescription(IVisualElement? element)
         {
-            if (element is null) return LocaleKey.Common_None.I18N();
+            if (element is null) return LocaleKey.Common_None;
 
             DynamicResourceKey key;
             var elementTypeKey = new DynamicResourceKey($"VisualElementType_{element.Type}");

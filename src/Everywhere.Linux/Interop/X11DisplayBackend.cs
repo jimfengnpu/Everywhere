@@ -927,7 +927,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             throw new NotImplementedException();
         }
 
-        public Task<Bitmap> CaptureAsync() => Task.FromResult(backend.Capture(this, BoundingRectangle));
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => Task.FromResult(backend.Capture(this, BoundingRectangle));
     }
 
     private class X11ScreenVisualElement(
@@ -980,7 +980,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         public void SendShortcut(KeyboardShortcut shortcut) { } // no op
 
-        public Task<Bitmap> CaptureAsync() => Task.FromResult(backend.Capture(this, BoundingRectangle));
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => Task.FromResult(backend.Capture(this, BoundingRectangle));
     }
 
     private void XThreadProcessEvent(IntPtr eventPtr)

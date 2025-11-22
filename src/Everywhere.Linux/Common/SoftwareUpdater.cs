@@ -125,8 +125,8 @@ public sealed partial class SoftwareUpdater(
             {
                 _notifiedVersion = LatestVersion;
                 new LinuxNativeHelper().ShowDesktopNotification(
-                    LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message.I18N(),
-                    LocaleKey.Common_Info.I18N());
+                    LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message,
+                    LocaleKey.Common_Info);
             }
         }
         catch (Exception ex)

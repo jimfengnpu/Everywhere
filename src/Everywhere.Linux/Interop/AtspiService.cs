@@ -615,7 +615,7 @@ public partial class AtspiService
                 return rect;
             }
         }
-        public Task<Bitmap> CaptureAsync()
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(atspi._context._backend.Capture(this, BoundingRectangle));
         }
