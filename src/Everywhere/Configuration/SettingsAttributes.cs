@@ -42,6 +42,7 @@ public class SettingsStringItemAttribute : Attribute
     public bool IsMultiline { get; set; }
     public bool IsPassword { get; set; }
     public double Height { get; set; } = double.NaN;
+    public double MinWidth { get; set; } = 320d;
 }
 
 [AttributeUsage(AttributeTargets.Property)]

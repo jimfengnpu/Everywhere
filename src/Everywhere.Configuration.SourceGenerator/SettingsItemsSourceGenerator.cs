@@ -421,6 +421,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                     $"{itemName}.TextWrapping = {GetNamedArgValue(attribute, "IsMultiline", false, "global::Avalonia.Media.TextWrapping.Wrap", "global::Avalonia.Media.TextWrapping.NoWrap")};");
                 sb.AppendLine($"{itemName}.PasswordChar = {GetNamedArgValue(attribute, "IsPassword", false, "'*'", "'\\0'")};");
                 sb.AppendLine($"{itemName}.Height = {GetNamedArgValue(attribute, "Height", "double.NaN")};");
+                sb.AppendLine($"{itemName}.MinWidth = {GetNamedArgValue(attribute, "MinWidth", "320d")};");
                 break;
             }
             case ItemKind.Int when metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsIntegerItem) is { } attribute:
@@ -494,7 +495,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
     {
         if (metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsItem) is not { } settingsItemAttribute) return;
 
-        if (settingsItemAttribute.GetNamedArgument("Classes") is { IsNull: false, Value: ImmutableArray<TypedConstant> classesArray })
+        if (settingsItemAttribute.GetNamedArgument("Classes") is { IsNull: false, Values: { Length: > 0 } classesArray })
         {
             var classes = classesArray
                 .Where(c => c.Value is string)

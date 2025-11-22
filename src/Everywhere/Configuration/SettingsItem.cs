@@ -129,6 +129,14 @@ public class SettingsStringItem : SettingsItem
         get => GetValue(HeightProperty);
         set => SetValue(HeightProperty, value);
     }
+
+    public static readonly StyledProperty<double> MinWidthProperty = AvaloniaProperty.Register<SettingsStringItem, double>(nameof(MinWidth));
+
+    public double MinWidth
+    {
+        get => GetValue(MinWidthProperty);
+        set => SetValue(MinWidthProperty, value);
+    }
 }
 
 public class SettingsIntegerItem : SettingsItem

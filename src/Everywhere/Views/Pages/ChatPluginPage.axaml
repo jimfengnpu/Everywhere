@@ -96,12 +96,16 @@
     </Style>
   </UserControl.Styles>
 
-  <Grid
-    ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*">
+  <Grid RowDefinitions="Auto,*">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition
+        Width="*" MinWidth="370"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="3*"/>
+    </Grid.ColumnDefinitions>
     <TabControl
       Grid.Row="0" Grid.RowSpan="2"
-      Grid.Column="0" Margin="0,0,16,0"
-      ClipToBounds="False">
+      Grid.Column="0" ClipToBounds="False">
       <TabControl.Template>
         <ControlTemplate TargetType="TabControl">
           <Border
@@ -116,14 +120,6 @@
               <DockPanel
                 Grid.Row="0" MinWidth="340"
                 HorizontalSpacing="8" LastChildFill="True">
-                <Button
-                  Classes="Primary" DockPanel.Dock="Right"
-                  MinHeight="36"
-                  shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
-                  Command="{Binding AddMcpPluginCommand}"
-                  Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMCPPluginButton_Content}}"
-                  IsVisible="{Binding #McpTabItem.IsSelected}"/>
-
                 <LayoutTransformControl
                   Name="LayoutTransform"
                   DockPanel.Dock="{TemplateBinding TabStripPlacement}"
@@ -177,11 +173,32 @@
             <TextBlock Text="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_MCP_Header}}"/>
           </StackPanel>
         </TabItem.Header>
+        <Panel>
+          <ListBox
+            Classes="PluginListBox"
+            ItemsSource="{Binding Manager.McpPlugins}"
+            SelectedItem="{Binding SelectedPlugin}"/>
 
-        <ListBox
-          Classes="PluginListBox"
-          ItemsSource="{Binding Manager.McpPlugins}"
-          SelectedItem="{Binding SelectedPlugin}"/>
+          <StackPanel
+            Margin="0,0,24,24" HorizontalAlignment="Right"
+            VerticalAlignment="Bottom" Orientation="Vertical"
+            Spacing="10">
+            <StackPanel.Styles>
+              <Style Selector="Button.Rounded">
+                <Setter Property="Padding" Value="12"/>
+                <Style Selector="^ /template/ LucideIcon">
+                  <Setter Property="Size" Value="{DynamicResource FontSizeM}"/>
+                </Style>
+              </Style>
+            </StackPanel.Styles>
+            <Button
+              Classes="Primary Rounded" DockPanel.Dock="Right"
+              MinHeight="36"
+              Command="{Binding AddMcpPluginCommand}"
+              Content="{LucideIconContent Plus}"
+              IsVisible="{Binding #McpTabItem.IsSelected}"/>
+          </StackPanel>
+        </Panel>
       </TabItem>
     </TabControl>
 
