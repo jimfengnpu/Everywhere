@@ -33,11 +33,11 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
     public partial int PluginDetailsTabSelectedIndex { get; set; }
 
     [RelayCommand]
-    private async Task AddMcpPlugin()
+    private async Task AddMcpPluginAsync()
     {
         var form = new McpTransportConfigurationForm();
         var result = await DialogManager
-            .CreateDialog(form, "Add MCP Plugin")
+            .CreateDialog(form, LocaleResolver.ChatPluginPageViewModel_AddMcpPlugin_DialogTitle)
             .WithPrimaryButton(
                 LocaleResolver.Common_OK,
                 (_, e) => e.Cancel = !form.Configuration.Validate())
@@ -56,59 +56,101 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
         }
     }
 
-    [RelayCommand]
-    private Task StartMcpPluginAsync(McpChatPlugin plugin, CancellationToken cancellationToken) => ExecuteBusyTaskAsync(
-        token => Task.Run(() => manager.StartMcpClientAsync(plugin, token), token),
-        ToastExceptionHandler,
-        cancellationToken: cancellationToken);
+    [RelayCommand(CanExecute = nameof(IsNotBusy))]
+    private Task StartMcpPluginAsync(McpChatPlugin? plugin, CancellationToken cancellationToken)
+    {
+        if (plugin is null) return Task.CompletedTask;
 
-    [RelayCommand]
-    private Task StopMcpPluginAsync(McpChatPlugin plugin, CancellationToken cancellationToken) => ExecuteBusyTaskAsync(
-        token => Task.Run(() => manager.StopMcpClientAsync(plugin), token),
-        ToastExceptionHandler,
-        cancellationToken: cancellationToken);
+        return ExecuteBusyTaskAsync(
+            token => Task.Run(() => manager.StartMcpClientAsync(plugin, token), token),
+            ToastExceptionHandler,
+            cancellationToken: cancellationToken);
+    }
 
-    [RelayCommand]
-    private Task EditMcpPluginAsync(McpChatPlugin plugin, CancellationToken cancellationToken) => ExecuteBusyTaskAsync(
-        async token =>
-        {
-            var form = new McpTransportConfigurationForm
+    [RelayCommand(CanExecute = nameof(IsNotBusy))]
+    private Task StopMcpPluginAsync(McpChatPlugin? plugin, CancellationToken cancellationToken)
+    {
+        if (plugin is null) return Task.CompletedTask;
+
+        return ExecuteBusyTaskAsync(
+            token => Task.Run(() => manager.StopMcpClientAsync(plugin), token),
+            ToastExceptionHandler,
+            cancellationToken: cancellationToken);
+    }
+
+    [RelayCommand(CanExecute = nameof(IsNotBusy))]
+    private Task EditMcpPluginAsync(McpChatPlugin? plugin, CancellationToken cancellationToken)
+    {
+        if (plugin is null) return Task.CompletedTask;
+
+        return ExecuteBusyTaskAsync(
+            async token =>
             {
-                Configuration = JsonSerializer.Deserialize(
-                    JsonSerializer.Serialize(
-                        plugin.TransportConfiguration,
-                        McpTransportConfigurationJsonSerializerContext.Default.McpTransportConfiguration),
-                    McpTransportConfigurationJsonSerializerContext.Default.McpTransportConfiguration) ?? new StdioMcpTransportConfiguration()
-            };
-            var result = await DialogManager
-                .CreateDialog(form, "Edit MCP Plugin")
-                .WithPrimaryButton(
-                    LocaleResolver.Common_OK,
-                    (_, e) => e.Cancel = !form.Configuration.Validate())
-                .WithCancelButton(LocaleResolver.Common_Cancel)
-                .ShowAsync(token);
-            if (result != DialogResult.Primary) return;
-            if (form.Configuration.HasErrors) return;
+                var form = new McpTransportConfigurationForm
+                {
+                    Configuration = JsonSerializer.Deserialize(
+                        JsonSerializer.Serialize(
+                            plugin.TransportConfiguration,
+                            McpTransportConfigurationJsonSerializerContext.Default.McpTransportConfiguration),
+                        McpTransportConfigurationJsonSerializerContext.Default.McpTransportConfiguration) ?? new StdioMcpTransportConfiguration()
+                };
+                var result = await DialogManager
+                    .CreateDialog(form, LocaleResolver.ChatPluginPageViewModel_EditMcpPlugin_DialogTitle)
+                    .WithPrimaryButton(
+                        LocaleResolver.Common_OK,
+                        (_, e) => e.Cancel = !form.Configuration.Validate())
+                    .WithCancelButton(LocaleResolver.Common_Cancel)
+                    .ShowAsync(token);
+                if (result != DialogResult.Primary) return;
+                if (form.Configuration.HasErrors) return;
 
-            await Task.Run(() => manager.UpdateMcpPluginAsync(plugin, form.Configuration), token);
-        },
-        ToastExceptionHandler,
-        cancellationToken: cancellationToken);
+                await Task.Run(() => manager.UpdateMcpPluginAsync(plugin, form.Configuration), token);
+            },
+            ToastExceptionHandler,
+            cancellationToken: cancellationToken);
+    }
+
+    [RelayCommand(CanExecute = nameof(IsNotBusy))]
+    private Task RemoveMcpPluginAsync(McpChatPlugin? plugin, CancellationToken cancellationToken)
+    {
+        if (plugin is null) return Task.CompletedTask;
+
+        return ExecuteBusyTaskAsync(
+            async token =>
+            {
+                var result = await DialogManager
+                    .CreateDialog(LocaleResolver.ChatPluginPageViewModel_RemoveMcpPlugin_ConfirmationMessage.Format(plugin.HeaderKey))
+                    .WithPrimaryButton(LocaleResolver.Common_Yes)
+                    .WithCancelButton(LocaleResolver.Common_No)
+                    .ShowAsync(token);
+                if (result != DialogResult.Primary) return;
+
+                await Task.Run(() => manager.RemoveMcpPluginAsync(plugin), token);
+
+                if (SelectedPlugin == plugin) SelectedPlugin = null;
+            },
+            ToastExceptionHandler,
+            cancellationToken: cancellationToken);
+    }
 
     [RelayCommand]
-    private Task RemoveMcpPluginAsync(McpChatPlugin plugin, CancellationToken cancellationToken) => ExecuteBusyTaskAsync(
-        async token =>
-        {
-            var result = await DialogManager.CreateDialog("Are you sure you want to delete this MCP plugin?")
-                .WithPrimaryButton(LocaleResolver.Common_Yes)
-                .WithCancelButton(LocaleResolver.Common_No)
-                .ShowAsync(token);
-            if (result != DialogResult.Primary) return;
+    private async Task CopyLogsAsync(McpChatPlugin? plugin)
+    {
+        if (plugin is null) return;
 
-            await Task.Run(() => manager.RemoveMcpPluginAsync(plugin), token);
+        await Clipboard.SetTextAsync(string.Join('\n', plugin.LogEntries));
+        ToastManager
+            .CreateToast("Logs copied to clipboard.")
+            .OnBottomRight()
+            .ShowSuccess();
+    }
 
-            if (SelectedPlugin == plugin) SelectedPlugin = null;
-        },
-        ToastExceptionHandler,
-        cancellationToken: cancellationToken);
+    protected override void OnIsBusyChanged()
+    {
+        base.OnIsBusyChanged();
+        StartMcpPluginCommand.NotifyCanExecuteChanged();
+        StopMcpPluginCommand.NotifyCanExecuteChanged();
+        EditMcpPluginCommand.NotifyCanExecuteChanged();
+        RemoveMcpPluginCommand.NotifyCanExecuteChanged();
+    }
 }

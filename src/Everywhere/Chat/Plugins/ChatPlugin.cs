@@ -111,7 +111,13 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     /// <param name="Timestamp"></param>
     /// <param name="Level"></param>
     /// <param name="Message"></param>
-    public record LogEntry(DateTime Timestamp, LogLevel Level, string Message);
+    public record LogEntry(DateTime Timestamp, LogLevel Level, string Message)
+    {
+        public override string ToString()
+        {
+            return $"[{Level}] ({Timestamp:yyyy-MM-dd HH:mm:ss}) {Message}";
+        }
+    }
 
     /// <summary>
     /// Gets or sets the unique identifier of this MCP plugin.
@@ -120,13 +126,21 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
 
     public override string Key => $"mcp.{Id}";
 
-    public override DynamicResourceKey HeaderKey { get; }
+    public override DynamicResourceKey HeaderKey => new DirectResourceKey(TransportConfiguration?.Name ?? string.Empty);
 
-    public override DynamicResourceKey DescriptionKey { get; }
+    public override DynamicResourceKey DescriptionKey => new DirectResourceKey(TransportConfiguration?.Description ?? string.Empty);
 
-    public override LucideIconKind? Icon => LucideIconKind.Hammer;
+    public override LucideIconKind? Icon => TransportConfiguration switch
+    {
+        StdioMcpTransportConfiguration => LucideIconKind.SquareTerminal,
+        HttpMcpTransportConfiguration => LucideIconKind.Server,
+        _ => null
+    };
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeaderKey))]
+    [NotifyPropertyChangedFor(nameof(DescriptionKey))]
+    [NotifyPropertyChangedFor(nameof(Icon))]
     public partial McpTransportConfiguration? TransportConfiguration { get; set; }
 
     /// <summary>
@@ -155,8 +169,6 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration) :
         base(Guid.CreateVersion7().ToString("N")) // use GUID to avoid name conflicts
     {
-        HeaderKey = new DirectResourceKey(mcpTransportConfiguration.Name);
-        DescriptionKey = new DirectResourceKey(mcpTransportConfiguration.Description ?? string.Empty);
         TransportConfiguration = mcpTransportConfiguration;
 
         LogEntries = _logEntriesSource

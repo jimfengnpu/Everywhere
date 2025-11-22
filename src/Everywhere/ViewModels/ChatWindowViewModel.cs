@@ -631,20 +631,17 @@ public sealed partial class ChatWindowViewModel :
         if (!Settings.ChatWindow.AllowRunInBackground) _cancellationTokenSource.Cancel();
     }
 
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    protected override void OnIsBusyChanged()
     {
-        base.OnPropertyChanged(e);
+        base.OnIsBusyChanged();
 
-        if (e.PropertyName == nameof(IsBusy))
-        {
-            PickElementCommand.NotifyCanExecuteChanged();
-            AddClipboardCommand.NotifyCanExecuteChanged();
-            AddFileCommand.NotifyCanExecuteChanged();
-            SendMessageCommand.NotifyCanExecuteChanged();
-            EditCommand.NotifyCanExecuteChanged();
-            RetryCommand.NotifyCanExecuteChanged();
-            CancelCommand.NotifyCanExecuteChanged();
-        }
+        PickElementCommand.NotifyCanExecuteChanged();
+        AddClipboardCommand.NotifyCanExecuteChanged();
+        AddFileCommand.NotifyCanExecuteChanged();
+        SendMessageCommand.NotifyCanExecuteChanged();
+        EditCommand.NotifyCanExecuteChanged();
+        RetryCommand.NotifyCanExecuteChanged();
+        CancelCommand.NotifyCanExecuteChanged();
     }
 
     public void Receive(ChatPluginConsentRequest message)

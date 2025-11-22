@@ -180,4 +180,12 @@ public abstract partial class BusyViewModelBase : ReactiveViewModelBase
         exceptionHandler,
         flags,
         cancellationToken);
+
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnIsBusyChanged(bool value) => OnIsBusyChanged();
+
+    /// <summary>
+    /// Invoked when the value of <see cref="IsBusy"/> changes.
+    /// </summary>
+    protected virtual void OnIsBusyChanged() { }
 }

@@ -20,27 +20,36 @@
       <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
       <Setter Property="ItemTemplate">
         <DataTemplate DataType="p:ChatPlugin">
-          <Grid
-            ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+          <Grid ColumnDefinitions="Auto,*,Auto,Auto">
             <LucideIcon
-              Grid.Row="0" Grid.RowSpan="2"
               Grid.Column="0" Margin="0,0,12,0"
               Kind="{Binding Icon}"/>
-            <TextBlock
-              Classes="p" Grid.Row="0"
-              Grid.Column="1" Margin="0,-8,0,0"
-              IsHitTestVisible="False"
-              Text="{Binding HeaderKey^}"
-              TextTrimming="CharacterEllipsis"/>
-            <TextBlock
-              Classes="Muted" Grid.Row="1"
-              Grid.Column="1" IsHitTestVisible="False"
-              IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-              Text="{Binding DescriptionKey^}"
-              TextTrimming="CharacterEllipsis"/>
+            <StackPanel Grid.Column="1">
+              <TextBlock
+                Classes="p" IsHitTestVisible="False"
+                Text="{Binding HeaderKey^}"
+                TextTrimming="CharacterEllipsis"/>
+              <TextBlock
+                Classes="Muted" IsHitTestVisible="False"
+                IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                MaxLines="2"
+                Text="{Binding DescriptionKey^}"
+                TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+            <Border
+              Grid.Column="2" Width="8"
+              Height="8" Background="Gray"
+              CornerRadius="8"
+              IsVisible="{Binding !(p:McpChatPlugin).IsRunning, FallbackValue=false}"
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_NotRunning_ToolTip}}"/>
+            <Border
+              Grid.Column="2" Width="8"
+              Height="8" Background="Green"
+              CornerRadius="8"
+              IsVisible="{Binding (p:McpChatPlugin).IsRunning, FallbackValue=false}"
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_Running_ToolTip}}"/>
             <CheckBox
-              Grid.Row="0" Grid.RowSpan="2"
-              Grid.Column="2" Margin="16,0,0,0"
+              Grid.Column="3" Margin="16,0,0,0"
               IsChecked="{Binding IsEnabled}"/>
           </Grid>
         </DataTemplate>
@@ -112,7 +121,7 @@
                   MinHeight="36"
                   shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
                   Command="{Binding AddMcpPluginCommand}"
-                  Content="Add MCP"
+                  Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMCPPluginButton_Content}}"
                   IsVisible="{Binding #McpTabItem.IsSelected}"/>
 
                 <LayoutTransformControl
@@ -190,65 +199,76 @@
 
     <Grid
       Grid.Row="0" Grid.Column="2"
-      Margin="0,8" ColumnDefinitions="Auto,*,Auto"
-      RowDefinitions="Auto,Auto,Auto">
+      Margin="0,0,0,8" ColumnDefinitions="Auto,*,Auto">
       <Image
-        Grid.Row="0" Grid.RowSpan="3"
-        Grid.Column="0" Width="128"
-        Height="128" Margin="0,0,16,0"
+        Grid.Column="0" Width="64"
+        Height="64" Margin="0,0,16,0"
         md:AsyncImageLoader.SizeToContent="Manual"
         md:AsyncImageLoader.Source="{Binding SelectedPlugin.BeautifulIcon, FallbackValue={x:Null}}"
         IsVisible="{Binding SelectedPlugin.BeautifulIcon, FallbackValue=false, Converter={x:Static ObjectConverters.IsNotNull}}"
         Stretch="Uniform"/>
       <LucideIcon
-        Grid.Row="0" Grid.RowSpan="3"
         Grid.Column="0" Margin="0,0,16,0"
         IsVisible="{Binding SelectedPlugin.BeautifulIcon, FallbackValue=false, Converter={x:Static ObjectConverters.IsNull}}"
         Kind="{Binding SelectedPlugin.Icon, FallbackValue=Hammer}"
-        Size="128"/>
-
-      <TextBlock
-        Classes="h2" Grid.Row="1"
-        Grid.Column="1"
-        Text="{Binding SelectedPlugin.HeaderKey^, FallbackValue={x:Null}}"
-        TextTrimming="CharacterEllipsis"
-        ToolTip.Tip="{Binding $self.Text}"/>
-
-      <TextBlock
-        Grid.Row="2" Grid.Column="1"
-        MaxLines="2"
-        Text="{Binding SelectedPlugin.DescriptionKey^, FallbackValue={x:Null}}"
-        TextTrimming="CharacterEllipsis" TextWrapping="Wrap"
-        ToolTip.Tip="{Binding $self.Text}"/>
+        Size="64"/>
 
       <StackPanel
-        Grid.Row="0" Grid.RowSpan="3"
+        Grid.Column="1" Orientation="Vertical">
+        <TextBlock
+          Classes="h2"
+          Text="{Binding SelectedPlugin.HeaderKey^, FallbackValue={x:Null}}"
+          TextTrimming="CharacterEllipsis"
+          ToolTip.Tip="{Binding $self.Text}"/>
+
+        <ScrollViewer
+          MaxHeight="42" HorizontalScrollBarVisibility="Disabled">
+          <TextBlock
+            Text="{Binding SelectedPlugin.DescriptionKey^, FallbackValue={x:Null}}"
+            TextTrimming="CharacterEllipsis" TextWrapping="Wrap"
+            ToolTip.Tip="{Binding $self.Text}"/>
+        </ScrollViewer>
+      </StackPanel>
+
+      <StackPanel
         Grid.Column="2" VerticalAlignment="Bottom"
         IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
-        Orientation="Horizontal" Spacing="8">
+        Orientation="Horizontal">
         <Button
-          Classes="Primary"
+          Classes="Outline Secondary"
+          shadui:ButtonAssist.HoverBackground="{DynamicResource SuccessColor20}"
+          shadui:ButtonAssist.ShowProgress="{Binding IsBusy}"
+          Background="{DynamicResource SuccessColor60}"
+          BorderThickness="1,1,0,1"
           Command="{Binding StartMcpPluginCommand}"
           CommandParameter="{Binding SelectedMcpPlugin}"
           Content="{LucideIconContent Kind=Play}"
+          CornerRadius="6,0,0,6"
           IsVisible="{Binding !SelectedMcpPlugin.IsRunning, FallbackValue=false}"/>
         <Button
-          Classes="Primary"
+          Classes="Outline Secondary"
+          shadui:ButtonAssist.HoverBackground="{DynamicResource WarningColor20}"
+          shadui:ButtonAssist.ShowProgress="{Binding IsBusy}"
+          Background="{DynamicResource WarningColor60}"
+          BorderThickness="1,1,0,1"
           Command="{Binding StopMcpPluginCommand}"
           CommandParameter="{Binding SelectedMcpPlugin}"
           Content="{LucideIconContent Kind=Square}"
+          CornerRadius="6,0,0,6"
           IsVisible="{Binding SelectedMcpPlugin.IsRunning, FallbackValue=false}"/>
 
         <Button
-          Classes="Secondary"
+          Classes="Outline Secondary" BorderThickness="1,1,0,1"
           Command="{Binding EditMcpPluginCommand}"
           CommandParameter="{Binding SelectedMcpPlugin}"
-          Content="{LucideIconContent Kind=SquarePen}"/>
+          Content="{LucideIconContent Kind=SquarePen}"
+          CornerRadius="0"/>
 
         <Button
-          Classes="Destructive"
+          Classes="Outline Destructive"
           Command="{Binding RemoveMcpPluginCommand}"
-          CommandParameter="{Binding SelectedMcpPlugin}">
+          CommandParameter="{Binding SelectedMcpPlugin}"
+          CornerRadius="0,6,6,0">
           <LucideIcon Kind="Trash2"/>
         </Button>
       </StackPanel>
@@ -264,15 +284,12 @@
         IsVisible="{Binding !!SelectedPlugin.SettingsItems.Count, FallbackValue=false}">
         <ScrollViewer
           CornerRadius="8" HorizontalScrollBarVisibility="Disabled">
-          <v:SettingsItemsControl
-            Margin="0,0,12,0"
-            ItemsSource="{Binding SelectedPlugin.SettingsItems, FallbackValue={x:Null}}"/>
+          <v:SettingsItemsControl ItemsSource="{Binding SelectedPlugin.SettingsItems, FallbackValue={x:Null}}"/>
         </ScrollViewer>
       </TabItem>
 
       <TabItem Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Functions_Header}}">
         <Border
-          Margin="0,0,12,0"
           Background="{DynamicResource CardBackgroundColor}"
           BorderBrush="{DynamicResource BorderColor}"
           BorderThickness="1" CornerRadius="8">
@@ -320,62 +337,84 @@
         </Border>
       </TabItem>
 
-      <TabItem Header="Logs">
+      <TabItem Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Logs_Header}}">
         <Border
-          Margin="0,0,12,0"
           Background="{DynamicResource CardBackgroundColor}"
           BorderBrush="{DynamicResource BorderColor}"
-          BorderThickness="1" CornerRadius="8">
-          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-            <Interaction.Behaviors>
-              <be:AutoScrollBehavior/>
-            </Interaction.Behaviors>
+          BorderThickness="1" ClipToBounds="True"
+          CornerRadius="8">
+          <DockPanel LastChildFill="True">
+            <Border
+              DockPanel.Dock="Top"
+              Background="{DynamicResource BorderColor}">
+              <StackPanel Orientation="Horizontal">
+                <Button
+                  Classes="Ghost" Width="32"
+                  Padding="0"
+                  Command="{Binding CopyLogsCommand}"
+                  CommandParameter="{Binding SelectedMcpPlugin}"
+                  Content="{LucideIconContent Copy, Size=16}"
+                  ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_CopyLogsButton_ToolTip}}"/>
+                <ToggleSwitch
+                  x:Name="ShowTimestampToggle" VerticalAlignment="Center"/>
+                <TextBlock
+                  Margin="8,0,0,0" VerticalAlignment="Center"
+                  Text="{I18N {x:Static LocaleKey.ChatPluginPage_ShowTimestampTextBlock_Text}}"/>
+              </StackPanel>
+            </Border>
 
-            <ItemsControl
-              Grid.IsSharedSizeScope="True"
-              IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
-              ItemsSource="{Binding SelectedMcpPlugin.LogEntries, FallbackValue={x:Null}}">
-              <ItemsControl.Styles>
-                <Style Selector="ContentPresenter:pointerover">
-                  <Setter Property="Background" Value="{DynamicResource SecondaryColor50}"/>
-                </Style>
-              </ItemsControl.Styles>
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <Interaction.Behaviors>
+                <be:AutoScrollBehavior/>
+              </Interaction.Behaviors>
 
-              <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="p:McpChatPlugin+LogEntry">
-                  <Grid
-                    Margin="8,2" Background="Transparent"
-                    ColumnSpacing="4">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition
-                        Width="Auto" SharedSizeGroup="Timestamp"/>
-                      <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+              <ItemsControl
+                Grid.IsSharedSizeScope="True"
+                IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}"
+                ItemsSource="{Binding SelectedMcpPlugin.LogEntries, FallbackValue={x:Null}}">
+                <ItemsControl.Styles>
+                  <Style Selector="ContentPresenter:pointerover">
+                    <Setter Property="Background" Value="{DynamicResource SecondaryColor50}"/>
+                  </Style>
+                </ItemsControl.Styles>
 
-                    <TextBlock.Foreground>
-                      <Binding Path="Level">
-                        <Binding.Converter>
-                          <vc:LogLevelToBrushConverter
-                            CriticalBrush="{DynamicResource ErrorColor}"
-                            DefaultBrush="{DynamicResource ForegroundColor}"
-                            ErrorBrush="{DynamicResource ErrorColor}"
-                            WarningBrush="{DynamicResource WarningColor}"/>
-                        </Binding.Converter>
-                      </Binding>
-                    </TextBlock.Foreground>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="p:McpChatPlugin+LogEntry">
+                    <Grid
+                      Margin="8,2" Background="Transparent"
+                      ColumnSpacing="4">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                          Width="Auto" SharedSizeGroup="Timestamp"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
 
-                    <TextBlock
-                      Classes="Muted" Grid.Column="0"
-                      Text="{Binding Timestamp, StringFormat='[{0:yyyy-MM-dd HH:mm:ss}]'}"/>
-                    <SelectableTextBlock
-                      Grid.Column="1"
-                      Text="{Binding Message}"
-                      TextWrapping="Wrap"/>
-                  </Grid>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
+                      <TextBlock.Foreground>
+                        <Binding Path="Level">
+                          <Binding.Converter>
+                            <vc:LogLevelToBrushConverter
+                              CriticalBrush="{DynamicResource ErrorColor}"
+                              DefaultBrush="{DynamicResource ForegroundColor}"
+                              ErrorBrush="{DynamicResource ErrorColor}"
+                              WarningBrush="{DynamicResource WarningColor}"/>
+                          </Binding.Converter>
+                        </Binding>
+                      </TextBlock.Foreground>
+
+                      <TextBlock
+                        Classes="Muted" Grid.Column="0"
+                        IsVisible="{Binding #ShowTimestampToggle.IsChecked}"
+                        Text="{Binding Timestamp, StringFormat='[{0:yyyy-MM-dd HH:mm:ss}]'}"/>
+                      <SelectableTextBlock
+                        Grid.Column="1"
+                        Text="{Binding Message}"
+                        TextWrapping="Wrap"/>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </DockPanel>
         </Border>
       </TabItem>
     </TabControl>

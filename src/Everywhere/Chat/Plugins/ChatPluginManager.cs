@@ -131,7 +131,9 @@ public class ChatPluginManager : IChatPluginManager
     {
         if (configuration.HasErrors)
         {
-            throw new InvalidOperationException("MCP transport configuration is not valid.");
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
         }
 
         var mcpChatPlugin = new McpChatPlugin(configuration);
@@ -143,7 +145,9 @@ public class ChatPluginManager : IChatPluginManager
     {
         if (configuration.HasErrors)
         {
-            throw new InvalidOperationException("MCP transport configuration is not valid.");
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
         }
 
         var wasRunning = mcpChatPlugin.IsRunning;
@@ -179,12 +183,16 @@ public class ChatPluginManager : IChatPluginManager
     {
         if (mcpChatPlugin.TransportConfiguration is not { } transportConfiguration)
         {
-            throw new InvalidOperationException("MCP transport configuration is not set.");
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not set."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
         }
 
         if (transportConfiguration.HasErrors)
         {
-            throw new InvalidOperationException("MCP transport configuration is not valid.");
+            throw new HandledException(
+                new InvalidOperationException("MCP transport configuration is not valid."),
+                new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration));
         }
 
         if (_runningMcpClients.ContainsKey(mcpChatPlugin.Id)) return; // Just return without error if already running.
@@ -220,7 +228,10 @@ public class ChatPluginManager : IChatPluginManager
                 },
                 _httpClientFactory.CreateClient(NetworkExtension.JsonRpcClientName),
                 loggerFactory),
-            _ => throw new NotSupportedException("Unsupported MCP transport configuration type."),
+            _ =>
+                throw new HandledException(
+                    new InvalidOperationException("Unsupported MCP transport configuration type."),
+                    new DynamicResourceKey(LocaleKey.ChatPluginManager_Common_InvalidMcpTransportConfiguration))
         };
 
         var client = await McpClient.CreateAsync(
@@ -301,7 +312,9 @@ public class ChatPluginManager : IChatPluginManager
             {
                 throw new HandledException(
                     ex,
-                    new DirectResourceKey($"Failed to start MCP plugin '{mcpPlugin.Name}'")); // TODO: I18N
+                    new FormattedDynamicResourceKey(
+                        LocaleKey.ChatPluginManager_Common_FailedToStartMcpPlugin,
+                        new DirectResourceKey(mcpPlugin.Name)));
             }
 
             mcpPlugins.Add(mcpPlugin);
