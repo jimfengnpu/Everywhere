@@ -7,6 +7,8 @@
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IsDeploymentTarget>true</IsDeploymentTarget>
+    <PublishTrimmed>true</PublishTrimmed>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,10 +26,6 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Win32"/>
     <PackageReference Include="Vortice.Direct3D11"/>
     <PackageReference Include="Vortice.DirectComposition"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.WindowsDesktop.App"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +52,52 @@
     <AvaloniaResource Include="Assets\Icons\PowerShell.svg" />
     <None Remove="Assets\Icons\Windows11.svg" />
     <AvaloniaResource Include="Assets\Icons\Windows11.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Everywhere"/>
+    <TrimmerRootAssembly Include="Everywhere.I18N"/>
+    <TrimmerRootAssembly Include="Everywhere.Windows"/>
+    <TrimmerRootAssembly Include="Anthropic.SDK"/>
+    <TrimmerRootAssembly Include="Azure.AI.OpenAI"/>
+    <TrimmerRootAssembly Include="Azure.Core"/>
+    <TrimmerRootAssembly Include="CSharpMath.Avalonia"/>
+    <TrimmerRootAssembly Include="DirectWriteForwarder"/>
+    <TrimmerRootAssembly Include="ExCSS"/>
+    <TrimmerRootAssembly Include="FlaUI.Core"/>
+    <TrimmerRootAssembly Include="FlaUI.UIA3"/>
+    <TrimmerRootAssembly Include="Google.Apis.*"/>
+    <TrimmerRootAssembly Include="Google.Apis"/>
+    <TrimmerRootAssembly Include="Interop.UIAutomationClient"/>
+    <TrimmerRootAssembly Include="MessagePack"/>
+    <TrimmerRootAssembly Include="MicroCom.Runtime"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Abstractions"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Relational"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Google"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Ollama"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.OpenAI"/>
+    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Plugins.Web"/>
+    <TrimmerRootAssembly Include="ModelContextProtocol"/>
+    <TrimmerRootAssembly Include="ModelContextProtocol.Core"/>
+    <TrimmerRootAssembly Include="Newtonsoft.Json"/>
+    <TrimmerRootAssembly Include="OllamaSharp"/>
+    <TrimmerRootAssembly Include="OpenAI"/>
+    <TrimmerRootAssembly Include="PuppeteerSharp"/>
+    <TrimmerRootAssembly Include="Serilog"/>
+    <TrimmerRootAssembly Include="ShadUI"/>
+    <TrimmerRootAssembly Include="SharpGen.Runtime"/>
+    <TrimmerRootAssembly Include="SharpGen.Runtime.COM"/>
+    <TrimmerRootAssembly Include="Vortice.Direct2D1"/>
+    <TrimmerRootAssembly Include="Vortice.Direct3D11"/>
+    <TrimmerRootAssembly Include="Vortice.DirectComposition"/>
+    <TrimmerRootAssembly Include="Vortice.DirectX"/>
+    <TrimmerRootAssembly Include="Vortice.DXGI"/>
+    <TrimmerRootAssembly Include="WinRT.Runtime"/>
+    <TrimmerRootAssembly Include="WritableJsonConfiguration"/>
   </ItemGroup>
 
   <Import Project="..\Build.Watchdog.targets"/>
