@@ -58,6 +58,7 @@
     <TrimmerRootAssembly Include="Everywhere"/>
     <TrimmerRootAssembly Include="Everywhere.I18N"/>
     <TrimmerRootAssembly Include="Everywhere.Windows"/>
+    <TrimmerRootAssembly Include="Everywhere.Windows.PowerShell"/>
     <TrimmerRootAssembly Include="Anthropic.SDK"/>
     <TrimmerRootAssembly Include="Azure.AI.OpenAI"/>
     <TrimmerRootAssembly Include="Azure.Core"/>
@@ -75,6 +76,11 @@
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Abstractions"/>
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Relational"/>
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Diagnostics"/>
+    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Management"/>
+    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Utility"/>
+    <TrimmerRootAssembly Include="Microsoft.PowerShell.ConsoleHost"/>
+    <TrimmerRootAssembly Include="Microsoft.PowerShell.SDK"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Google"/>
@@ -91,6 +97,8 @@
     <TrimmerRootAssembly Include="ShadUI"/>
     <TrimmerRootAssembly Include="SharpGen.Runtime"/>
     <TrimmerRootAssembly Include="SharpGen.Runtime.COM"/>
+    <TrimmerRootAssembly Include="System.Management"/>
+    <TrimmerRootAssembly Include="System.Management.Automation"/>
     <TrimmerRootAssembly Include="Vortice.Direct2D1"/>
     <TrimmerRootAssembly Include="Vortice.Direct3D11"/>
     <TrimmerRootAssembly Include="Vortice.DirectComposition"/>
@@ -101,5 +109,18 @@
   </ItemGroup>
 
   <Import Project="..\Build.Watchdog.targets"/>
+
+  <PropertyGroup>
+    <DeleteAfterPublishScript>$(MSBuildThisFileDirectory)..\DeleteAfterPublish.ps1</DeleteAfterPublishScript>
+    <DeleteAfterPublishList>$(MSBuildThisFileDirectory)\DeleteAfterPublish.txt</DeleteAfterPublishList>
+    <DeleteAfterPublishDir>$(ProjectDir)\$(PublishDir)</DeleteAfterPublishDir>
+  </PropertyGroup>
+
+  <Target Name="RunDeleteAfterPublishScript"
+          AfterTargets="Publish">
+    <Message Text="Pruning publish output via $(DeleteAfterPublishScript) on $(DeleteAfterPublishOutputEscaped)" Importance="High" />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)"
+          Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(DeleteAfterPublishScript)&quot; -PublishDir &quot;$(PublishDir)\&quot; -PruneListFile &quot;$(DeleteAfterPublishList)&quot;" />
+  </Target>
 
 </Project>
