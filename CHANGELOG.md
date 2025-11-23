@@ -1,10 +1,9 @@
-## [v0.5.0](https://github.com/DearVa/Everywhere/releases/tag/v0.5.0) - YYYY-MM-DD
+## [v0.5.0](https://github.com/DearVa/Everywhere/releases/tag/v0.5.0) - 2025-11-22
 
 ### ✨ Features
 - 🎉 **Major Update: Added support for MCP (Model Context Protocol)!** You can now add your own MCP tools, which will be automatically enabled when called by an assistant. Supports Stdio, Streamable HTTP, and SSE protocols.
 
-### 🚀 Improvements
-- Added trimming optimization, reducing the package size by approximately 50%.
+### 🚀 Improvements\
 - When a tool called by an assistant is not found, it now performs a fuzzy match and informs the assistant, reducing model hallucinations.
 - (Windows) Added output display for `Everything` plugin.
 - (Windows) Removed `Windows System API` plugin.

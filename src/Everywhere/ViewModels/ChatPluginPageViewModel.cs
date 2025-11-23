@@ -1,8 +1,11 @@
 ﻿using System.Text.Json;
+using Avalonia.Controls;
+using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat.Plugins;
 using Everywhere.Views;
+using Lucide.Avalonia;
 using ShadUI;
 
 namespace Everywhere.ViewModels;

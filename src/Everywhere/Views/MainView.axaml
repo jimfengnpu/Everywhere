@@ -55,7 +55,7 @@
       </Border>
 
       <TransitioningContentControl
-        Margin="0,24,16,24"
+        Margin="0,24,16,24" ClipToBounds="False"
         Content="{Binding #Sidebar.CurrentRoute, FallbackValue={x:Null}}"/>
     </DockPanel>
   </Grid>

@@ -36,7 +36,9 @@
     <Setter Property="ItemTemplate">
       <DataTemplate DataType="c:SettingsItem">
         <Expander
-          Classes="LeftIcon" Background="Transparent"
+          Classes="LeftIcon"
+          at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
+          Background="Transparent"
           BorderBrush="{Binding $parent[v:SettingsItemsControl].BorderBrush}"
           BorderThickness="{Binding $parent[v:SettingsItemsControl].BorderThickness}"
           Classes.NotExpandable="{Binding !IsExpandable}"
@@ -45,11 +47,12 @@
           IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
           <Expander.Styles>
             <Style Selector="ContentControl#PART_SettingsItemContentControl">
-              <Setter Property="at:DataTemplatesAttach.DataTemplates">
+              <Setter Property="at:BindingAssist.DataTemplates">
                 <DataTemplates>
                   <DataTemplate DataType="c:SettingsBooleanItem">
                     <ToggleSwitch
                       Margin="0,0,4,0"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
                       IsChecked="{Binding Value, Mode=TwoWay}"
                       IsThreeState="{Binding IsNullable}"/>
                   </DataTemplate>
@@ -58,6 +61,7 @@
                     <TextBox
                       MinWidth="320" MinHeight="32"
                       HorizontalAlignment="Left"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
                       shadui:ControlAssist.Height="{Binding Height}"
                       AcceptsReturn="{Binding IsMultiline}"
                       MaxLength="{Binding MaxLength}"
@@ -69,8 +73,9 @@
 
                   <DataTemplate DataType="c:SettingsIntegerItem">
                     <StackPanel
-                      HorizontalAlignment="Left" Orientation="Horizontal"
-                      Spacing="8">
+                      HorizontalAlignment="Left"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
+                      Orientation="Horizontal" Spacing="8">
                       <Slider
                         Width="320" VerticalAlignment="Center"
                         IsSnapToTickEnabled="True"
@@ -89,8 +94,9 @@
 
                   <DataTemplate DataType="c:SettingsDoubleItem">
                     <StackPanel
-                      HorizontalAlignment="Left" Orientation="Horizontal"
-                      Spacing="8">
+                      HorizontalAlignment="Left"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
+                      Orientation="Horizontal" Spacing="8">
                       <Slider
                         Width="320" VerticalAlignment="Center"
                         IsSnapToTickEnabled="True"
@@ -108,8 +114,9 @@
 
                   <DataTemplate DataType="c:SettingsCustomizableItem">
                     <DockPanel
-                      HorizontalAlignment="Left" HorizontalSpacing="8"
-                      LastChildFill="True">
+                      HorizontalAlignment="Left"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
+                      HorizontalSpacing="8" LastChildFill="True">
                       <Button
                         Classes="Ghost" DockPanel.Dock="Right"
                         Width="36" Padding="0"
@@ -131,6 +138,7 @@
                     <ComboBox
                       MinWidth="320" MinHeight="32"
                       HorizontalAlignment="Left"
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
                       ItemsSource="{Binding ItemsSource}"
                       SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
                       <ComboBox.ItemTemplate>
@@ -145,12 +153,15 @@
 
                   <DataTemplate DataType="c:SettingsTypedItem">
                     <ContentControl
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
                       Content="{Binding}"
                       ContentTemplate="{Binding DataTemplate}"/>
                   </DataTemplate>
 
                   <DataTemplate DataType="c:SettingsControlItem">
-                    <ContentControl Content="{Binding Control}"/>
+                    <ContentControl
+                      at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
+                      Content="{Binding Control}"/>
                   </DataTemplate>
                 </DataTemplates>
               </Setter>
@@ -162,11 +173,11 @@
               <TextBlock
                 Classes="p" Margin="0,-8,0,0"
                 IsHitTestVisible="False"
-                Text="{Binding HeaderKey^}"
+                Text="{Binding HeaderKey^, FallbackValue={x:Null}}"
                 TextWrapping="Wrap"/>
               <TextBlock
                 Classes="Muted" IsHitTestVisible="False"
-                Text="{Binding DescriptionKey^}"
+                Text="{Binding DescriptionKey^, FallbackValue={x:Null}}"
                 TextWrapping="Wrap"/>
               <ContentControl
                 x:Name="PART_SettingsItemContentControl" Margin="0,8,0,0"

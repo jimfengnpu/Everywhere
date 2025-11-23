@@ -2,71 +2,88 @@
   x:Class="Everywhere.Views.Pages.CustomAssistantPage" xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ai="clr-namespace:Everywhere.AI"
   xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views"
-  xmlns:vm="clr-namespace:Everywhere.ViewModels" x:DataType="vm:CustomAssistantPageViewModel">
+  xmlns:vm="clr-namespace:Everywhere.ViewModels" x:DataType="vm:CustomAssistantPageViewModel"
+  ClipToBounds="False">
   <Grid
-    ColumnDefinitions="*,8,3*" RowDefinitions="Auto,*"
-    RowSpacing="8">
-    <StackPanel
-      Grid.Row="0" Grid.Column="0"
-      Orientation="Horizontal" Spacing="5">
-      <Button
-        Classes="Primary"
-        shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
-        Command="{Binding CreateNewCustomAssistantCommand}"
-        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_Content}}"
-        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
+    RowDefinitions="Auto,*" RowSpacing="8">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition
+        Width="*" MinWidth="250"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="3*"/>
+    </Grid.ColumnDefinitions>
 
-      <Button
-        Classes="Secondary"
-        shadui:ButtonAssist.Icon="{LucideIconContent Copy}"
-        Command="{Binding DuplicateCustomAssistantCommand}"
-        Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_Content}}"
-        IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
-        ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}"/>
-    </StackPanel>
+    <Panel
+      Grid.Row="0" Grid.RowSpan="2"
+      Grid.Column="0">
+      <ListBox
+        ItemsSource="{Binding CustomAssistants}"
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+        SelectedItem="{Binding SelectedCustomAssistant, Mode=TwoWay}">
+        <ListBox.Styles>
+          <Style Selector="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.DataTemplates>
+          <DataTemplate DataType="ai:CustomAssistant">
+            <DockPanel
+              HorizontalSpacing="12" LastChildFill="True">
+              <v:IconPresenter
+                DockPanel.Dock="Left" Width="40"
+                Height="40"
+                CornerRadius="{DynamicResource FullCornerRadius}"
+                FontSize="{DynamicResource FontSize2Xl}"
+                Icon="{Binding Icon}"
+                IconSize="{DynamicResource FontSize2Xl}"
+                LineHeight="{DynamicResource LineHeight2Xl}"/>
 
-    <ListBox
-      Grid.Row="1" Grid.Column="0"
-      ItemsSource="{Binding CustomAssistants}"
-      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-      SelectedItem="{Binding SelectedCustomAssistant, Mode=TwoWay}">
-      <ListBox.Styles>
-        <Style Selector="Border">
-          <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
-        </Style>
-      </ListBox.Styles>
-      <ListBox.DataTemplates>
-        <DataTemplate DataType="ai:CustomAssistant">
-          <DockPanel
-            HorizontalSpacing="12" LastChildFill="True">
-            <v:IconPresenter
-              DockPanel.Dock="Left" Width="40"
-              Height="40"
-              CornerRadius="{DynamicResource FullCornerRadius}"
-              FontSize="{DynamicResource FontSize2Xl}"
-              Icon="{Binding Icon}"
-              IconSize="{DynamicResource FontSize2Xl}"
-              LineHeight="{DynamicResource LineHeight2Xl}"/>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock
+                  Classes="p"
+                  Text="{Binding Name, FallbackValue={x:Null}}"
+                  TextTrimming="CharacterEllipsis"
+                  ToolTip.Tip="{Binding $self.Text}"/>
 
-            <StackPanel VerticalAlignment="Center">
-              <TextBlock
-                Classes="p"
-                Text="{Binding Name, FallbackValue={x:Null}}"
-                TextTrimming="CharacterEllipsis"
-                ToolTip.Tip="{Binding $self.Text}"/>
+                <TextBlock
+                  Classes="Muted"
+                  IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                  MaxLines="2"
+                  Text="{Binding Description}"
+                  TextTrimming="CharacterEllipsis"
+                  ToolTip.Tip="{Binding $self.Text}"/>
+              </StackPanel>
+            </DockPanel>
+          </DataTemplate>
+        </ListBox.DataTemplates>
+      </ListBox>
 
-              <TextBlock
-                Classes="Muted"
-                IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                MaxLines="2"
-                Text="{Binding Description}"
-                TextTrimming="CharacterEllipsis"
-                ToolTip.Tip="{Binding $self.Text}"/>
-            </StackPanel>
-          </DockPanel>
-        </DataTemplate>
-      </ListBox.DataTemplates>
-    </ListBox>
+      <StackPanel
+        Margin="0,0,24,24" HorizontalAlignment="Right"
+        VerticalAlignment="Bottom" Orientation="Vertical"
+        Spacing="10">
+        <StackPanel.Styles>
+          <Style Selector="Button.Rounded">
+            <Setter Property="Padding" Value="12"/>
+            <Style Selector="^ /template/ LucideIcon">
+              <Setter Property="Size" Value="{DynamicResource FontSizeM}"/>
+            </Style>
+          </Style>
+        </StackPanel.Styles>
+        <Button
+          Classes="Secondary Rounded"
+          Command="{Binding DuplicateCustomAssistantCommand}"
+          Content="{LucideIconContent Copy}"
+          IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}"/>
+
+        <Button
+          Classes="Primary Rounded"
+          Command="{Binding CreateNewCustomAssistantCommand}"
+          Content="{LucideIconContent Plus}"
+          ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip}}"/>
+      </StackPanel>
+    </Panel>
 
     <GridSplitter
       Grid.Row="0" Grid.RowSpan="2"
@@ -75,8 +92,8 @@
 
     <StackPanel
       Grid.Row="0" Grid.Column="2"
-      HorizontalAlignment="Right" Orientation="Horizontal"
-      Spacing="8">
+      Margin="0,-50,12,0" HorizontalAlignment="Right"
+      Orientation="Horizontal" Spacing="8">
       <Button
         Classes="Primary" Height="34"
         VerticalAlignment="Center"
@@ -97,7 +114,7 @@
 
     <ScrollViewer
       Grid.Row="1" Grid.Column="2"
-      HorizontalScrollBarVisibility="Disabled">
+      Margin="0,-8,0,0" HorizontalScrollBarVisibility="Disabled">
       <v:SettingsItemsControl
         Margin="0,0,12,0"
         ItemsSource="{Binding SelectedCustomAssistant.SettingsItems, FallbackValue={x:Null}}"/>

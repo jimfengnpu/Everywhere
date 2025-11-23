@@ -24,7 +24,7 @@
       </ControlTemplate>
     </Setter>
 
-    <Setter Property="at:DataTemplatesAttach.DataTemplates">
+    <Setter Property="at:BindingAssist.DataTemplates">
       <DataTemplates>
         <DataTemplate DataType="plugins:ChatPluginContainerDisplayBlock">
           <ItemsControl ItemsSource="{Binding Children}">
