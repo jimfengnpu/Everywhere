@@ -66,16 +66,12 @@ public class ChatWindowInitializer(
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     var chatWindow = ServiceLocator.Resolve<ChatWindow>();
-                    if (chatWindow.IsFocused)
+                    if (chatWindow.IsFocused || chatWindow.TryGetPlatformHandle() is { } handle && handle.Handle == hWnd)
                     {
                         chatWindow.ViewModel.IsOpened = false; // Hide chat window if it's already focused
                     }
                     else
                     {
-                        // Avoid focusing on an element inside the chat window
-                        // But we still allow showing the chat window without focusing if hWnd is null
-                        if (chatWindow.TryGetPlatformHandle() is { } handle && handle.Handle == hWnd) element = null;
-
                         chatWindow.ViewModel.ShowAsync(element).Detach(logger.ToExceptionHandler());
                     }
                 });

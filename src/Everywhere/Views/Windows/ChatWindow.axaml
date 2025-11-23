@@ -15,7 +15,7 @@
   IsOpened="{Binding IsOpened, Mode=OneWayToSource}"
   IsTitleBarVisible="False"
   RequestedThemeVariant="{x:Static themes:ThemeVariants.Acrylic}"
-  ShowActivated="False" SizeToContent="WidthAndHeight"
+  ShowActivated="True" SizeToContent="WidthAndHeight"
   SystemDecorations="BorderOnly" TransparencyLevelHint="AcrylicBlur"
   WindowStartupLocation="CenterScreen">
 
@@ -265,7 +265,7 @@
             </Panel.Styles>
 
             <StackPanel
-              Margin="0,0,0,8"
+              Margin="8,0,8,8"
               IsVisible="{Binding ChatContextManager.Current.BranchNodesWithoutSystem.Count, Converter={x:Static vc:Int32Converters.NotGreaterThan}, ConverterParameter=1}"
               Spacing="8">
               <ToggleSwitch
