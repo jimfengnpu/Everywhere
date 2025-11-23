@@ -17,7 +17,7 @@ public class LinuxShortcutListener : IShortcutListener
         ArgumentNullException.ThrowIfNull(handler);
         var id = _backend?.GrabKey(hotkey, handler)??0;
         return id != 0
-            ? new Disposer(() => _backend?.Ungrab(id))
+            ? new Disposer(() => _backend?.UngrabKey(id))
             : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 

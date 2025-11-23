@@ -167,7 +167,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         return tcs.Task.GetAwaiter().GetResult();
     }
 
-    public void Ungrab(int id)
+    public void UngrabKey(int id)
     {
         if (_display == IntPtr.Zero) return;
         XThreadAction(() =>
@@ -201,6 +201,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             XSetInputFocus(_display, _rootWindow, RevertToParent, CurrentTime);
             XFlush(_display);
         });
+    }
+
+    public void SendKeyboardShortcut(KeyboardShortcut shortcut)
+    {
+        //TODO
     }
 
     public int GrabMouse(MouseShortcut hotkey, Action handler)
@@ -502,6 +507,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     public bool GetEffectiveVisible(Window window)
     {
+        // TODO
         throw new NotImplementedException();
     }
 
@@ -981,7 +987,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         public void SendShortcut(KeyboardShortcut shortcut) { } // no op
 
-        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => Task.FromResult(backend.Capture(this, BoundingRectangle));
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => 
+            Task.FromResult(backend.Capture(this, BoundingRectangle)).WaitAsync(cancellationToken);
     }
 
     private void XThreadProcessEvent(IntPtr eventPtr)
@@ -1063,7 +1070,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         var buf = new byte[4];
         try
         {
-            int xfd = XConnectionNumber(_display);
+            var xfd = XConnectionNumber(_display);
             var fds = new PollFd[2];
             fds[0].fd = xfd; fds[0].events = POLLIN;
             fds[1].fd = _wakePipeR; fds[1].events = POLLIN;
@@ -1082,13 +1089,12 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                 }
 
                 // wait for either X fd or wake pipe
-                int rc = poll(fds, 2, -1);
+                var rc = poll(fds, 2, -1);
                 if (rc <= 0) continue;
 
                 // wake pipe signaled -> drain and process ops
                 if ((fds[1].revents & POLLIN) != 0)
                 {
-                    _logger.LogDebug("Poll: wakePipe readable (fd={fd})", _wakePipeR);
                     try
                     {
                         while (true)
@@ -1128,8 +1134,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
                     {
                         lock (evLock)
                         {
-                                XNextEvent(_display, evPtr);
-                                XThreadProcessEvent(evPtr);
+                            XNextEvent(_display, evPtr);
+                            XThreadProcessEvent(evPtr);
                         }
                     }
                 }

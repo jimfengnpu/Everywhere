@@ -530,45 +530,84 @@ public partial class AtspiService
 
         public string? GetText(int maxLength = -1)
         {
-            if (atspi_accessible_is_text(_element) == 1)
+            if (atspi_accessible_is_text(_element) == 0) return null;
+            var objTextCount = atspi_accessible_get_child_count(_element, IntPtr.Zero);
+            if (objTextCount > 0)
             {
-                var objTextCount = atspi_accessible_get_child_count(_element, IntPtr.Zero);
-                if (objTextCount > 0)
-                {
-                    // in this case, libatspi return objTextCount char “obj char” (U+FFFC), we just simply return null
-                    return null;
-                }
-                var count = atspi_text_get_character_count(_element, IntPtr.Zero);
-                var rawText = atspi_text_get_text(_element, 0, maxLength == -1? count: maxLength, IntPtr.Zero);
+                // in this case, libatspi return objTextCount char “obj char” (U+FFFC), we just simply return null
+                return null;
+            }
+            var count = atspi_text_get_character_count(_element, IntPtr.Zero);
+            var rawText = atspi_text_get_text(_element, 0, maxLength == -1? count: maxLength, IntPtr.Zero);
+            if (rawText == IntPtr.Zero)
+            {
+                return null;
+            }
+            var text = Marshal.PtrToStringUTF8(rawText);
+            g_free(rawText);
+            return text;
+        }
+
+        public string? GetSelectionText()
+        {
+            if (atspi_accessible_is_text(_element) == 0) return null;
+            var nSelections = atspi_text_get_n_selections(_element,  IntPtr.Zero);
+            String selected = "";
+            for (var i = 0; i < nSelections; i++)
+            {
+                var rawRange = atspi_text_get_selection(_element, i, IntPtr.Zero);
+                var range = Marshal.PtrToStructure<AtspiRange>(rawRange);
+                var rawText = atspi_text_get_text(_element, range.start, range.end, IntPtr.Zero);
                 if (rawText == IntPtr.Zero)
                 {
                     return null;
                 }
                 var text = Marshal.PtrToStringUTF8(rawText);
+                selected += text;
                 g_free(rawText);
-                return text;
+                g_free(rawRange);
             }
-            return null;
-        }
-
-        public string? GetSelectionText()
-        {
-            throw new NotImplementedException();
+            return selected;
         }
 
         public void Invoke()
         {
-            throw new NotImplementedException();
+            if (atspi_accessible_is_action(_element) == 0)
+            {
+                return;
+            }
+            var nAction = atspi_action_get_n_actions(_element, IntPtr.Zero);
+            if (nAction == 0)
+            {
+                return;
+            }
+            atspi_action_do_action(_element, 0, IntPtr.Zero);
         }
 
         public void SetText(string text)
         {
-            throw new NotImplementedException();
+            if (States.HasFlag(VisualElementStates.ReadOnly))
+            {
+                return;
+            }
+            if (atspi_accessible_is_editable_text(_element) == 0)
+            {
+                return;
+            }
+            atspi_editable_text_set_text_contents(_element, Marshal.StringToCoTaskMemUTF8(text), IntPtr.Zero);
         }
 
         public void SendShortcut(KeyboardShortcut shortcut)
         {
-            throw new NotImplementedException();
+            if (atspi_accessible_is_component(_element) == 0)
+            {
+                return;
+            }
+            if (atspi_component_grab_focus(_element, IntPtr.Zero) == 0)
+            {
+                return;
+            }
+            atspi._context._backend.SendKeyboardShortcut(shortcut);
         }
 
         private static int LayerOrder(int layer)
@@ -781,6 +820,13 @@ public partial class AtspiService
         public byte[] anyValueData;
         public IntPtr sender;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct AtspiRange
+    {
+        public int start;
+        public int end;
+    }
     
     public delegate void AtspiEventListenerCallback(IntPtr atspiEvent, IntPtr userData);
 
@@ -852,12 +898,32 @@ public partial class AtspiService
     public static partial IntPtr atspi_component_get_extents(IntPtr component, int coordType, IntPtr error);
     [LibraryImport(LibAtspi)]
     public static partial short atspi_component_get_mdi_z_order(IntPtr component, IntPtr error);
+
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_component_grab_focus(IntPtr component, IntPtr error);
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_text(IntPtr accessible);
     [LibraryImport(LibAtspi)]
-    public static partial int atspi_text_get_character_count(IntPtr accessible, IntPtr error);
+    public static partial int atspi_text_get_character_count(IntPtr text, IntPtr error);
     [LibraryImport(LibAtspi)]
-    public static partial IntPtr atspi_text_get_text(IntPtr accessible, int start, int end, IntPtr error);
+    public static partial IntPtr atspi_text_get_text(IntPtr text, int start, int end, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_text_get_n_selections(IntPtr text, IntPtr error);
+
+    [LibraryImport(LibAtspi)]
+    public static partial IntPtr atspi_text_get_selection(IntPtr text, int selectionNum, IntPtr error);
+    
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_accessible_is_editable_text(IntPtr accessible);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_editable_text_set_text_contents(IntPtr editable, IntPtr text, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_accessible_is_action(IntPtr accessible);
+
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_action_get_n_actions(IntPtr action, IntPtr error);
+    [LibraryImport(LibAtspi)]
+    public static partial int atspi_action_do_action(IntPtr action, int i, IntPtr error);
     [LibraryImport("libgobject-2.0.so.0")]
     public static partial IntPtr g_object_ref(IntPtr obj);
     [LibraryImport("libgobject-2.0.so.0")]

@@ -45,11 +45,13 @@ public interface ILinuxDisplayBackend: IWindowHelper
     int GrabKey(KeyboardShortcut hotkey, Action handler);
 
     /// <summary>Ungrab a previously grabbed key by id.</summary>
-    void Ungrab(int id);
+    void UngrabKey(int id);
 
     void GrabKeyHook(Action<KeyboardShortcut, EventType> hook);
-
+    
     void UngrabKeyHook();
+    
+    void SendKeyboardShortcut(KeyboardShortcut shortcut);
     
     int GrabMouse(MouseShortcut hotkey, Action handler);
     
