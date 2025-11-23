@@ -549,8 +549,44 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     public bool GetEffectiveVisible(Window window)
     {
-        // TODO
-        throw new NotImplementedException();
+        var ph = window.TryGetPlatformHandle();
+        if (ph is null) return false;
+        IntPtr wnd = ph.Handle;
+        XGetWindowAttributes(_display, wnd, out var attr);
+        if (attr.map_state != IsViewable)
+        {
+            return false;
+        }
+        var xaAtom = XInternAtom(_display, "ATOM", 0);
+        if (xaAtom == IntPtr.Zero) return false;
+
+        var hiddenAtom = XInternAtom(_display, "_NET_WM_STATE_HIDDEN", 0);
+        if (hiddenAtom == IntPtr.Zero) return false;
+
+        bool isHidden = false;
+
+        XGetProperty(
+            window: wnd,
+            propertyName: "_NET_WM_STATE",
+            length: -1,
+            reqType: xaAtom,
+            propertyCallback: (actualType, actualFormat, nItems, bytesAfter, data) =>
+            {
+                if (actualType != xaAtom || actualFormat != 32 || nItems == 0 || data == IntPtr.Zero)
+                    return;
+
+                // check any _NET_WM_STATE_HIDDEN
+                for (ulong i = 0; i < nItems; i++)
+                {
+                    uint atomValue = (uint)Marshal.ReadInt32(data, (int)(i * 4));
+                    if (atomValue == (uint)hiddenAtom)
+                    {
+                        isHidden = true;
+                        break;
+                    }
+                }
+            });
+        return !isHidden;
     }
 
     public void SetCloaked(Window window, bool cloaked)
