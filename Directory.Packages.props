@@ -82,6 +82,7 @@
     <PackageVersion Include="Xaml.Behaviors.Avalonia" Version="$(XamlBehaviorsVersion)" />
     <PackageVersion Include="Xaml.Behaviors.Interactivity" Version="$(XamlBehaviorsVersion)" />
     <!-- Windows packages -->
+    <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.5.4" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.248">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
