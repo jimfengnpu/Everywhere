@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Extensions;
@@ -15,14 +16,15 @@ public class LinuxNativeHelper : INativeHelper
         get
         {
             string? home = Environment.GetEnvironmentVariable("HOME");
-            return string.IsNullOrEmpty(home) ? throw new InvalidOperationException("HOME environment variable is not set.") 
-                : Path.Combine(home, ".config/systemd/user/Everywhere.service");
+            return string.IsNullOrEmpty(home) ?
+                throw new InvalidOperationException("HOME environment variable is not set.") :
+                Path.Combine(home, ".config/systemd/user/Everywhere.service");
         }
     }
     public bool IsInstalled => false; // implement proper detection if needed
 
     public bool IsAdministrator => false; // Linux elevation detection omitted
-    
+
     // About Startup setting:
     // Most modern Linux Use Systemd to manage this feature.
     // For easy use, we attach a service config file in Installation dir.
@@ -64,7 +66,7 @@ public class LinuxNativeHelper : INativeHelper
             var action = value ? "enable" : "disable";
             Process.Start(new ProcessStartInfo("systemctl", $"--user {action} Everywhere.service"))?.WaitForExit();
         }
-        
+
     }
 
     public bool IsAdministratorStartupEnabled { get; set; }
@@ -96,6 +98,50 @@ public class LinuxNativeHelper : INativeHelper
 
     public string[] ParseArguments(string? commandLine)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(commandLine))
+        {
+            return [];
+        }
+        var args = new List<string>();
+        var current = new StringBuilder();
+        bool inSingleQuote = false;
+        bool inDoubleQuote = false;
+        bool escapeNext = false;
+        foreach (char c in commandLine)
+        {
+            if (escapeNext)
+            {
+                current.Append(c);
+                escapeNext = false;
+            }
+            else if (c == '\\')
+            {
+                escapeNext = true;
+            }
+            else if (c == '\'' && !inDoubleQuote)
+            {
+                inSingleQuote = !inSingleQuote;
+            }
+            else if (c == '"' && !inSingleQuote)
+            {
+                inDoubleQuote = !inDoubleQuote;
+            }
+            else if (char.IsWhiteSpace(c) && !inSingleQuote && !inDoubleQuote)
+            {
+                if (current.Length > 0)
+                {
+                    args.Add(current.ToString());
+                    current.Clear();
+                }
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+        if (current.Length > 0)
+            args.Add(current.ToString());
+
+        return args.ToArray();
     }
 }

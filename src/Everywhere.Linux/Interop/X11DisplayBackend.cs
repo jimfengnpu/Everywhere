@@ -927,7 +927,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
             throw new NotImplementedException();
         }
 
-        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => Task.FromResult(backend.Capture(this, BoundingRectangle));
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => 
+            Task.FromResult(backend.Capture(this, BoundingRectangle)).WaitAsync(cancellationToken);
     }
 
     private class X11ScreenVisualElement(
