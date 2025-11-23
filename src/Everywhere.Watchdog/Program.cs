@@ -101,7 +101,8 @@ public static class Program
                 if (!pair.Value.HasExited)
                 {
                     Console.WriteLine($"Killing process '{pair.Value.ProcessName}' (ID: {pair.Key}).");
-                    pair.Value.Kill(entireProcessTree: true);
+                    TerminateProcessTree(pair.Value.Id);
+                    pair.Value.Dispose();
                 }
             }
             catch (Exception ex)
@@ -111,5 +112,30 @@ public static class Program
         }
 
         MonitoredProcesses.Clear();
+    }
+
+    private static void TerminateProcessTree(int pid)
+    {
+#if WINDOWS
+        // Use taskkill to terminate the process tree on Windows
+        // /T: terminate child processes, /F: force termination
+        Process.Start(
+            new ProcessStartInfo
+            {
+                FileName = "taskkill",
+                Arguments = $"/PID {pid} /T /F",
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            })?.WaitForExit();
+#else
+        // Use kill with negative PID to terminate the process group on Unix-like systems
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "/bin/sh",
+            Arguments = $"-c \"kill -9 -$(ps -o pgid= -p {pid} | tr -d ' ')\"",
+            CreateNoWindow = true,
+            UseShellExecute = false
+        })?.WaitForExit();
+#endif
     }
 }
