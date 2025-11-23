@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32811.315
@@ -26,7 +26,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		DATA_AND_PRIVACY.md = DATA_AND_PRIVACY.md
 		global.json = global.json
 		nuget.config = nuget.config
-		src\Build.Watchdog.targets = src\Build.Watchdog.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd", "3rd", "{53D93485-1520-4753-81CE-DA1CFF334372}"
@@ -80,7 +79,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Watchdog", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Abstractions", "src\Everywhere.Abstractions\Everywhere.Abstractions.csproj", "{EF3FC306-C1CC-4E26-B49D-9E0E1FB9891E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WritableJsonConfiguration.Tests", "3rd\WritableJsonConfiguration\WritableJsonConfiguration.Tests\WritableJsonConfiguration.Tests.csproj", "{6B85590F-763A-472E-84B9-091D6F68D28D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WritableJsonConfiguration.Tests", "3rd\WritableJsonConfiguration\src\WritableJsonConfiguration.Tests\WritableJsonConfiguration.Tests.csproj", "{6B85590F-763A-472E-84B9-091D6F68D28D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadUI.Demo", "3rd\shad-ui\src\ShadUI.Demo\ShadUI.Demo.csproj", "{BFCCE248-E8A1-4690-A4A0-B42DB06B7B88}"
 EndProject
@@ -99,6 +98,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.I18N", "src\Everywhere.I18N\Everywhere.I18N.csproj", "{86706D25-90AA-49CF-99B0-FE90F31A2BCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Windows.PowerShell", "src\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj", "{8F99D00A-320D-4813-AE2C-13F903B39F80}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{1759E8BE-00FC-4797-8F24-FC2B1242E1F0}"
+	ProjectSection(SolutionItems) = preProject
+		src\Build.Watchdog.targets = src\Build.Watchdog.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
