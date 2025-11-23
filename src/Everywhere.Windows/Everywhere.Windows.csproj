@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\3rd\EverythingNetCore\EverythingNet\EverythingNet.csproj"/>
-    <ProjectReference Include="..\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj"/>
     <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
   </ItemGroup>
 
@@ -76,11 +75,6 @@
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Abstractions"/>
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Relational"/>
     <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Sqlite"/>
-    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Diagnostics"/>
-    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Management"/>
-    <TrimmerRootAssembly Include="Microsoft.PowerShell.Commands.Utility"/>
-    <TrimmerRootAssembly Include="Microsoft.PowerShell.ConsoleHost"/>
-    <TrimmerRootAssembly Include="Microsoft.PowerShell.SDK"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Google"/>
@@ -97,8 +91,6 @@
     <TrimmerRootAssembly Include="ShadUI"/>
     <TrimmerRootAssembly Include="SharpGen.Runtime"/>
     <TrimmerRootAssembly Include="SharpGen.Runtime.COM"/>
-    <TrimmerRootAssembly Include="System.Management"/>
-    <TrimmerRootAssembly Include="System.Management.Automation"/>
     <TrimmerRootAssembly Include="Vortice.Direct2D1"/>
     <TrimmerRootAssembly Include="Vortice.Direct3D11"/>
     <TrimmerRootAssembly Include="Vortice.DirectComposition"/>

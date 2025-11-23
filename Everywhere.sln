@@ -97,8 +97,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Configuration.So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.I18N", "src\Everywhere.I18N\Everywhere.I18N.csproj", "{86706D25-90AA-49CF-99B0-FE90F31A2BCA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Windows.PowerShell", "src\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj", "{8F99D00A-320D-4813-AE2C-13F903B39F80}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{1759E8BE-00FC-4797-8F24-FC2B1242E1F0}"
 	ProjectSection(SolutionItems) = preProject
 		src\Build.Watchdog.targets = src\Build.Watchdog.targets
@@ -186,10 +184,6 @@ Global
 		{86706D25-90AA-49CF-99B0-FE90F31A2BCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86706D25-90AA-49CF-99B0-FE90F31A2BCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86706D25-90AA-49CF-99B0-FE90F31A2BCA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F99D00A-320D-4813-AE2C-13F903B39F80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F99D00A-320D-4813-AE2C-13F903B39F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F99D00A-320D-4813-AE2C-13F903B39F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F99D00A-320D-4813-AE2C-13F903B39F80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
