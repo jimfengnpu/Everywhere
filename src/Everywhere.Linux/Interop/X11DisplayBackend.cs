@@ -205,7 +205,49 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
     public void SendKeyboardShortcut(KeyboardShortcut shortcut)
     {
-        //TODO
+        int Modifier2Keycode(KeyModifiers mod)
+        {
+            var key = mod switch
+            {
+                KeyModifiers.Meta => Key.LWin,
+                KeyModifiers.Control => Key.LeftCtrl,
+                KeyModifiers.Shift => Key.LeftShift,
+                KeyModifiers.Alt => Key.LeftAlt,
+                _ => Key.None
+            };
+            return key == Key.None ? 0 : XKeycode(key);
+        }
+
+        List<int> keycodes = [];
+        List<KeyModifiers> mods = [KeyModifiers.Meta, KeyModifiers.Control, KeyModifiers.Shift, KeyModifiers.Alt];
+        keycodes.AddRange(from m in mods where shortcut.Modifiers.HasFlag(m) 
+            select Modifier2Keycode(m) into code where code != 0 select code);
+        keycodes.Add(XKeycode(shortcut.Key));
+        XThreadAction(() =>
+        {
+            foreach(var k in keycodes)
+            {
+                if (k == 0)
+                {
+                    _logger.LogWarning("invalid key?");
+                    continue;
+                }
+                XTestFakeKeyEvent(_display, k, 1, 0);
+                Thread.Sleep(10);
+            }
+            keycodes.Reverse();
+            foreach(var k in keycodes)
+            {
+                if (k == 0)
+                {
+                    _logger.LogWarning("invalid key?");
+                    continue;
+                }
+                XTestFakeKeyEvent(_display, k, 0, 0);
+                Thread.Sleep(10);
+            }
+            XFlush(_display);
+        });
     }
 
     public int GrabMouse(MouseShortcut hotkey, Action handler)
@@ -930,7 +972,8 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
 
         public void SendShortcut(KeyboardShortcut shortcut)
         {
-            throw new NotImplementedException();
+            XSetInputFocus(backend._display, windowHandle, RevertToParent, CurrentTime);
+            backend.SendKeyboardShortcut(shortcut);
         }
 
         public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken) => 

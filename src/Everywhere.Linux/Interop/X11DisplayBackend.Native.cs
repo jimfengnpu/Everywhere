@@ -54,7 +54,6 @@ public partial class X11DisplayBackend
 
     // Atoms and Properties
     [LibraryImport(LibX11)] private static partial UIntPtr XStringToKeysym([MarshalAs(UnmanagedType.LPStr)] string s);
-    [LibraryImport(LibX11)] private static partial int XKeysymToKeycode(IntPtr display, UIntPtr keysym);
     [LibraryImport(LibX11)] private static partial IntPtr XInternAtom(IntPtr display, [MarshalAs(UnmanagedType.LPStr)] string atomName, int onlyIfExists);
 
     // Events and Input
@@ -66,6 +65,7 @@ public partial class X11DisplayBackend
     [LibraryImport(LibX11)] private static partial int XConnectionNumber(IntPtr display);
 
     // Keyboard and Mouse
+    [LibraryImport(LibX11)] private static partial int XKeysymToKeycode(IntPtr display, UIntPtr keysym);
     [LibraryImport(LibX11)] private static partial UIntPtr XKeycodeToKeysym(IntPtr display, int keycode, int index);
     [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(UIntPtr keysym);
     [LibraryImport(LibX11)] private static partial void XQueryKeymap(IntPtr display, byte[] keymap);
@@ -124,17 +124,7 @@ public partial class X11DisplayBackend
     [LibraryImport("libXfixes.so.3")] private static partial void XFixesDestroyRegion(IntPtr display, IntPtr region);
     [LibraryImport("libXfixes.so.3")] private static partial void XFixesSetWindowShapeRegion(IntPtr display, IntPtr window, int shapeKind, int xOffset, int yOffset, IntPtr region);
     [LibraryImport("libXfixes.so.3")] private static partial int XFixesQueryExtension(IntPtr display, out int eventBase, out int errorBase);
-    [LibraryImport("libXext.so.6")] private static partial int XShapeQueryExtension(IntPtr display, out int eventBase, out int errorBase);
-    [LibraryImport("libXext.so.6")] private static partial void XShapeCombineMask(IntPtr display, IntPtr window, int shapeKind, int xOff, int yOff, IntPtr mask, int operation);
-
-    // Graphics and drawing
-    [LibraryImport(LibX11)] private static partial IntPtr XCreatePixmap(IntPtr display, IntPtr drawable, uint width, uint height, uint depth);
-    [LibraryImport(LibX11)] private static partial IntPtr XCreateGC(IntPtr display, IntPtr drawable, ulong valuemask, IntPtr values);
-    [LibraryImport(LibX11)] private static partial void XFreeGC(IntPtr display, IntPtr gc);
-    [LibraryImport(LibX11)] private static partial void XSetForeground(IntPtr display, IntPtr gc, ulong color);
-    [LibraryImport(LibX11)] private static partial void XFillRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height);
-    [LibraryImport(LibX11)] private static partial void XFillArc(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height, int angle1, int angle2);
-    [LibraryImport(LibX11)] private static partial void XFreePixmap(IntPtr display, IntPtr pixmap);
+    [LibraryImport("libXtst.so.6")] private static partial int XTestFakeKeyEvent(IntPtr display, int keycode, int press, uint delay);
 
     // System calls for pipes and polling
     [LibraryImport("libc", SetLastError = true)] private static partial int pipe([MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] int[] fds);
