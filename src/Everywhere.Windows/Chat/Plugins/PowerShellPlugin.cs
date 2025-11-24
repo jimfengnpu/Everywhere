@@ -53,7 +53,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
         string? consentKey;
         var trimmedScript = script.AsSpan().Trim();
-        if (trimmedScript.Count('\n') == 0)
+        if (!trimmedScript.Contains('\n'))
         {
             // single line script, confirm with user
             var command = trimmedScript[trimmedScript.Split(' ').FirstOrDefault(new Range(0, trimmedScript.Length))].ToString();
@@ -84,7 +84,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
                 showDetails: false);
         }
 
-        userInterface.DisplaySink.AppendBlocks(detailBlock.Children);
+        userInterface.DisplaySink.AppendBlocks(detailBlock);
 
         var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".";
         var psi = new ProcessStartInfo
