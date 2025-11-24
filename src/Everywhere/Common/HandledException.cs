@@ -634,9 +634,9 @@ public class HandledChatException(
                         HttpOperationExceptionParser>>>>().TryParse(ref context);
 
         // Second layer: general network/socket exceptions
-        new ParserChain<SocketExceptionParser,
-            ParserChain<HttpStatusCodeParser,
-                GeneralExceptionParser>>().TryParse(ref context);
+        new ParserChain<GeneralExceptionParser,
+            ParserChain<SocketExceptionParser,
+                HttpStatusCodeParser>>().TryParse(ref context);
 
         return new HandledChatException(
             originalException: exception,
@@ -824,7 +824,6 @@ public class HandledChatException(
                 AuthenticationException => HandledChatExceptionType.InvalidApiKey,
                 UriFormatException => HandledChatExceptionType.InvalidEndpoint,
                 OperationCanceledException => HandledChatExceptionType.OperationCancelled,
-                HttpIOException => HandledChatExceptionType.NetworkError,
                 _ => null
             };
             return context.ExceptionType.HasValue;
