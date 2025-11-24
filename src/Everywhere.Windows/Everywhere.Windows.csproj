@@ -37,6 +37,7 @@
   <ItemGroup>
     <None Include="..\..\img\Everywhere.ico">
       <Link>Everywhere.ico</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="$(WatchdogExecutable)">
       <Link>Everywhere.Watchdog.exe</Link>

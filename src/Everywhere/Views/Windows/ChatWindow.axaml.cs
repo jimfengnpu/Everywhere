@@ -403,9 +403,9 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                     }
 
                     e.DragEffects = DragDropEffects.Copy;
-                    DragDropIcon.Kind = firstMimeType != null && FileUtilities.IsOfCategory(firstMimeType, FileTypeCategory.Image)
-                        ? LucideIconKind.Image
-                        : LucideIconKind.FileUp;
+                    DragDropIcon.Kind = firstMimeType != null && FileUtilities.IsOfCategory(firstMimeType, FileTypeCategory.Image) ?
+                        LucideIconKind.Image :
+                        LucideIconKind.FileUp;
                     DragDropText.Text = LocaleResolver.ChatWindow_DragDrop_Overlay_DropFilesHere;
                     DragDropOverlay.IsVisible = true;
                     return;

@@ -161,15 +161,9 @@ public class WindowHelper : IWindowHelper
                 PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
             }
 
-            var exStyle = PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-            if ((exStyle & (int)WINDOW_EX_STYLE.WS_EX_NOACTIVATE) != 0)
-            {
-                PInvoke.SetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, exStyle & ~(int)WINDOW_EX_STYLE.WS_EX_NOACTIVATE);
-            }
-
             // Just to be sure, SHOW our hwnd.
             window.Show();
-            if (window.IsLoaded) PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW);
+            if (window.IsLoaded) PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWNA);
 
             // Once we're done, uncloak to avoid all animations
             Uncloak(hWnd);

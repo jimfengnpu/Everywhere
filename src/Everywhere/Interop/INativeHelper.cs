@@ -40,11 +40,11 @@ public interface INativeHelper
     bool GetKeyState(Key key);
 
     /// <summary>
-    /// Show a desktop notification with the given message and optional title.
+    /// Show a desktop notification with the given message and optional title. returns true if the notification was clicked or confirmed by the user.
     /// </summary>
     /// <param name="message"></param>
     /// <param name="title"></param>
-    void ShowDesktopNotification(string message, string? title = null);
+    Task<bool> ShowDesktopNotificationAsync(string message, string? title = null);
 
     /// <summary>
     /// Open the file location in the system file explorer and select the file.

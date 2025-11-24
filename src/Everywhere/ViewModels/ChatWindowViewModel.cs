@@ -662,6 +662,16 @@ public sealed partial class ChatWindowViewModel :
             DialogManager
                 .CreateCustomDialog(card)
                 .ShowAsync(message.CancellationToken);
+
+            if (!IsOpened)
+            {
+                _nativeHelper
+                    .ShowDesktopNotificationAsync(message.HeaderKey.ToString() ?? LocaleResolver.Common_Info)
+                    .ContinueWith(r =>
+                    {
+                        if (r is { IsFaulted: false, Result: true }) Dispatcher.UIThread.Invoke(() => IsOpened = true);
+                    });
+            }
         });
     }
 }
