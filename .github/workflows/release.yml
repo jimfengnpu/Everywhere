@@ -19,15 +19,7 @@ jobs:
         fetch-depth: 0
         submodules: true
         lfs: true
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
-
+    
     - name: Get version from tag
       id: get_version
       shell: pwsh
@@ -61,23 +53,27 @@ jobs:
         echo $releaseBody | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "$delimiter" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-    - name: Restore
-      shell: pwsh
-      run: |
-        dotnet restore Everywhere.Windows.slnf -r win-x64
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
 
-    - name: Publish Everywhere.Windows
-      shell: pwsh
-      run: |
-        dotnet publish src/Everywhere.Windows/Everywhere.Windows.csproj -c Release --self-contained true -p:AssemblyVersion=$env:VERSION -p:FileVersion=$env:VERSION -o ./publish --no-restore
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
     - name: Install SimplySignDesktop
       shell: pwsh
       run: |
         $msiPath = "tools/sign_windows/SimplySignDesktop-9.3.3.71-64-bit-en.msi"
-        $logPath = "install.log"
-        Write-Host "Installing SimplySignDesktop..."
-        $process = Start-Process msiexec -ArgumentList "/i `"$msiPath`" /passive /norestart /l*v `"$logPath`"" -Wait -PassThru
+        if (-not (Test-Path $msiPath)) {
+            Write-Error "MSI file not found at: $msiPath"
+            exit 1
+        }
+        $absMsiPath = Convert-Path $msiPath
+        $logPath = "$PWD\install.log"
+        
+        Write-Host "Installing SimplySignDesktop from $absMsiPath..."
+        $process = Start-Process msiexec -ArgumentList "/i `"$absMsiPath`" /passive /norestart /l*v `"$logPath`"" -Wait -PassThru
         
         if ($process.ExitCode -ne 0) {
             Write-Error "SimplySignDesktop installation failed with exit code $($process.ExitCode)"
@@ -93,6 +89,16 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
+
+    - name: Restore
+      shell: pwsh
+      run: |
+        dotnet restore Everywhere.Windows.slnf -r win-x64
+
+    - name: Publish Everywhere.Windows
+      shell: pwsh
+      run: |
+        dotnet publish src/Everywhere.Windows/Everywhere.Windows.csproj -c Release --self-contained true -p:AssemblyVersion=$env:VERSION -p:FileVersion=$env:VERSION -o ./publish --no-restore
 
     - name: Login and Sign
       shell: pwsh
