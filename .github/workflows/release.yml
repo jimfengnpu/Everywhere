@@ -69,17 +69,24 @@ jobs:
             Write-Error "MSI file not found at: $msiPath"
             exit 1
         }
+
         $absMsiPath = Convert-Path $msiPath
         $logPath = "$PWD\install.log"
-        
+
         Write-Host "Installing SimplySignDesktop from $absMsiPath..."
-        $process = Start-Process msiexec -ArgumentList "/i `"$absMsiPath`" /passive /norestart /l*v `"$logPath`"" -Wait -PassThru
+        # Use /qn for completely silent installation (no UI) and ALLUSERS=1 to force machine-wide install
+        $process = Start-Process msiexec -ArgumentList "/i `"$absMsiPath`" /qn /norestart ALLUSERS=1 /l*v `"$logPath`"" -Wait -PassThru
         
         if ($process.ExitCode -ne 0) {
-            Write-Error "SimplySignDesktop installation failed with exit code $($process.ExitCode)"
+            Write-Host "SimplySignDesktop installation failed with exit code $($process.ExitCode)"
             if (Test-Path $logPath) {
+                Write-Host "----------------------------------------------------------------"
                 Write-Host "Install Log Content:"
+                Write-Host "----------------------------------------------------------------"
                 Get-Content $logPath
+                Write-Host "----------------------------------------------------------------"
+            } else {
+                Write-Host "Log file not found at $logPath"
             }
             exit $process.ExitCode
         }
