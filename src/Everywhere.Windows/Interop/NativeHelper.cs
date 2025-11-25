@@ -5,11 +5,11 @@ using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
-using Everywhere.Windows.Extensions;
 using Microsoft.Win32;
 
 namespace Everywhere.Windows.Interop;
@@ -118,9 +118,13 @@ public class NativeHelper : INativeHelper
         Environment.Exit(0); // Exit the current process
     }
 
-    public bool GetKeyState(Key key)
+    public bool GetKeyState(KeyModifiers keyModifiers)
     {
-        return PInvoke.GetAsyncKeyState((int)key.ToVirtualKey()) != 0;
+        var result = false;
+        if (keyModifiers.HasFlag(KeyModifiers.Control)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_CONTROL) != 0;
+        if (keyModifiers.HasFlag(KeyModifiers.Shift)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_SHIFT) != 0;
+        if (keyModifiers.HasFlag(KeyModifiers.Alt)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_MENU) != 0;
+        return result;
     }
 
     public Task<bool> ShowDesktopNotificationAsync(string message, string? title)

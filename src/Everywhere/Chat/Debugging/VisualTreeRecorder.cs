@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Everywhere.Interop;
 using ZLinq;
 
@@ -9,14 +8,14 @@ public class VisualTreeRecorder(
     int tokenLimit,
     string algorithmName)
 {
-    private readonly List<DebugVisualNode> allNodes = [];
-    private readonly List<DebugTraversalStep> steps = [];
-    private readonly HashSet<string> knownIds = [];
-    private int stepCounter = 0;
+    private readonly List<DebugVisualNode> _allNodes = [];
+    private readonly List<DebugTraversalStep> _steps = [];
+    private readonly HashSet<string> _knownIds = [];
+    private int _stepCounter;
 
     public void RegisterNode(IVisualElement element)
     {
-        if (!knownIds.Add(element.Id)) return;
+        if (!_knownIds.Add(element.Id)) return;
 
         IList<string> childrenIds;
         try 
@@ -29,7 +28,7 @@ public class VisualTreeRecorder(
         }
 
         var rect = element.BoundingRectangle;
-        allNodes.Add(new DebugVisualNode(
+        _allNodes.Add(new DebugVisualNode(
             element.Id,
             element.Type.ToString(),
             element.Name,
@@ -41,8 +40,8 @@ public class VisualTreeRecorder(
 
     public void RecordStep(IVisualElement node, string action, double score, string reason, int currentTokens, int queueSize)
     {
-        steps.Add(new DebugTraversalStep(
-            stepCounter++,
+        _steps.Add(new DebugTraversalStep(
+            _stepCounter++,
             node.Id,
             action,
             score,
@@ -55,8 +54,8 @@ public class VisualTreeRecorder(
     public void SaveSession(string filePath)
     {
         var session = new DebugSession(
-            [.. allNodes],
-            [.. steps],
+            [.. _allNodes],
+            [.. _steps],
             algorithmName,
             tokenLimit
         );

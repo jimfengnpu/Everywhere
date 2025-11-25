@@ -7,10 +7,13 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Interop;
+using ZLinq;
 
 namespace Everywhere.Views;
 
@@ -23,15 +26,6 @@ public partial class VisualTreeDebugger : UserControl
         .Select(p => new VisualElementProperty(p))
         .ToReadOnlyList();
     private readonly OverlayWindow _treeViewPointerOverOverlayWindow;
-
-#if DEBUG
-    [Obsolete("This constructor is for design time only.", true)]
-    public VisualTreeDebugger()
-    {
-        _visualElementContext = ServiceLocator.Resolve<IVisualElementContext>();
-        _treeViewPointerOverOverlayWindow = new OverlayWindow();
-    }
-#endif
 
     public VisualTreeDebugger(
         IShortcutListener shortcutListener,
@@ -150,6 +144,29 @@ public partial class VisualTreeDebugger : UserControl
         {
             CaptureImage.Source = null;
             Debug.WriteLine(ex);
+        }
+    }
+
+    private async void HandleBuildXmlButtonClicked(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var tokenLimit = int.Parse(TokenLimitTextBox.Text ?? "8000");
+            var xmlBuilder = new VisualTreeXmlBuilder(
+                VisualTreeView.SelectedItems.AsValueEnumerable().OfType<IVisualElement>().ToList(),
+                tokenLimit,
+                0,
+                VisualTreeDetailLevel.Compact);
+            var xml = await Task.Run(() => xmlBuilder.BuildXml(CancellationToken.None));
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var filename = $"visual_tree_{timestamp}.xml";
+            var xmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            await File.WriteAllTextAsync(xmlPath, xml);
+            await ServiceLocator.Resolve<ILauncher>().LaunchFileInfoAsync(new FileInfo(xmlPath));
+        }
+        catch
+        {
+            // ignored
         }
     }
 }

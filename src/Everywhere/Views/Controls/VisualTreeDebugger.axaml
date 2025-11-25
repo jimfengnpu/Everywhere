@@ -5,10 +5,6 @@
   xmlns:v="clr-namespace:Everywhere.Views" d:DesignHeight="450"
   d:DesignWidth="800" mc:Ignorable="d">
 
-  <Design.PreviewWith>
-    <v:VisualTreeDebugger/>
-  </Design.PreviewWith>
-
   <Grid
     Margin="8,4,8,8" ColumnDefinitions="3*,1,1*"
     RowDefinitions="Auto,*">
@@ -55,7 +51,7 @@
 
     <Grid
       Grid.Row="1" Grid.Column="2"
-      Margin="4,0" RowDefinitions="4*,1,*">
+      Margin="4,0" RowDefinitions="4*,1,Auto,*">
       <ScrollViewer
         Grid.Row="0" HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
@@ -90,14 +86,27 @@
         Background="{DynamicResource BorderColor}"
         IsHitTestVisible="False"/>
 
+      <DockPanel Grid.Row="2">
+        <Button
+          DockPanel.Dock="Right" Click="HandleBuildXmlButtonClicked"
+          Content="Build XML"/>
+        <TextBox
+          x:Name="TokenLimitTextBox" Text="8000"
+          Watermark="Token limit"/>
+      </DockPanel>
+
       <Button
-        Classes="Basic" Grid.Row="2"
-        Click="HandleCaptureButtonClicked" Cursor="Hand">
+        Grid.Row="3" Click="HandleCaptureButtonClicked"
+        Cursor="Hand">
         <Panel>
           <TextBlock
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Text="Click to Capture"/>
-          <Image x:Name="CaptureImage"/>
+          <Image x:Name="CaptureImage">
+            <ToolTip.Tip>
+              <Image Source="{Binding $parent[Image].Source}"/>
+            </ToolTip.Tip>
+          </Image>
         </Panel>
       </Button>
     </Grid>
