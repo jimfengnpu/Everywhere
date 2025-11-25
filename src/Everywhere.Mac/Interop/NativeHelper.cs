@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using Avalonia.Media.Imaging;
+using Avalonia.Input;
 using Everywhere.Interop;
+using UserNotifications;
 
 namespace Everywhere.Mac.Interop;
 
@@ -109,54 +110,64 @@ public partial class NativeHelper : INativeHelper
         }
     }
 
-    /// <summary>
-    /// Gets a bitmap from the clipboard using the native NSPasteboard API.
-    /// </summary>
-    public Task<WriteableBitmap?> GetClipboardBitmapAsync()
+    public bool GetKeyState(KeyModifiers keyModifiers)
     {
-        var pasteboard = NSPasteboard.GeneralPasteboard;
-        // Find the best available image type on the clipboard.
-        var imageType = pasteboard.GetAvailableTypeFromArray([NSPasteboard.NSTiffType]);
-
-        if (imageType is not { Length: > 0 })
-        {
-            return Task.FromResult<WriteableBitmap?>(null);
-        }
-
-        // Create an NSImage from the clipboard data.
-        var image = new NSImage(pasteboard);
-        if (image.Size.Width <= 0 || image.Size.Height <= 0)
-        {
-            return Task.FromResult<WriteableBitmap?>(null);
-        }
-
-        // Convert NSImage to a format Avalonia can use (e.g., TIFF).
-        var tiffData = image.AsTiff();
-        if (tiffData == null)
-        {
-            return Task.FromResult<WriteableBitmap?>(null);
-        }
-
-        // Load the TIFF data into a WriteableBitmap.
-        using var stream = tiffData.AsStream();
-        var writeableBitmap = WriteableBitmap.Decode(stream);
-        return Task.FromResult<WriteableBitmap?>(writeableBitmap);
+        var flags = keyModifiers.ToCGEventFlags();
+        var flagsState = CGEventSource.GetFlagsState(CGEventSourceStateID.HidSystem);
+        return (flagsState & flags) == flags;
     }
 
     /// <summary>
-    /// Shows a desktop notification using the UserNotifications framework.
+    /// Shows a desktop notification using the UserNotifications framework (UNNotification).
+    /// If user clicks or approves the notification, returns true. Otherwise, false.
     /// </summary>
-    public void ShowDesktopNotification(string message, string? title = null)
+    public Task<bool> ShowDesktopNotificationAsync(string message, string? title = null)
     {
-        var notification = new NSUserNotification
-        {
-            Title = title ?? "Everywhere",
-            InformativeText = message,
-            SoundName = NSUserNotification.NSUserNotificationDefaultSoundName,
-            Identifier = Guid.NewGuid().ToString() // Unique ID
-        };
+        var tcs = new TaskCompletionSource<bool>();
 
-        NSUserNotificationCenter.DefaultUserNotificationCenter.DeliverNotification(notification);
+        var center = UNUserNotificationCenter.Current;
+        center.RequestAuthorization(
+            UNAuthorizationOptions.Alert,
+            (granted, error) =>
+            {
+                // nullable annotation is not correct here
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                if (!granted || error is not null)
+                {
+                    tcs.SetResult(false);
+                    return;
+                }
+
+                var content = new UNMutableNotificationContent
+                {
+                    Title = title ?? "Everywhere",
+                    Body = message,
+                    Sound = UNNotificationSound.Default
+                };
+
+                var request = UNNotificationRequest.FromIdentifier(
+                    Guid.CreateVersion7().ToString(),
+                    content,
+                    null);
+
+                center.AddNotificationRequest(
+                    request,
+                    err =>
+                    {
+                        // nullable annotation is not correct here
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                        if (err is not null)
+                        {
+                            tcs.SetResult(false);
+                            return;
+                        }
+
+                        // Handle user interaction
+                        center.Delegate = new NotificationDelegate(tcs);
+                    });
+            });
+
+        return tcs.Task;
     }
 
     /// <summary>
@@ -177,10 +188,129 @@ public partial class NativeHelper : INativeHelper
         }
     }
 
+    /// <summary>
+    /// Parses a command line string into arguments, following POSIX shell quoting rules.
+    /// Handles single quotes ('...'), double quotes ("..."), and backslash escapes (\).
+    /// </summary>
+    public string[] ParseArguments(string? commandLine)
+    {
+        if (string.IsNullOrWhiteSpace(commandLine))
+        {
+            return [];
+        }
+
+        var args = new List<string>();
+        var currentArg = new System.Text.StringBuilder();
+        var inDoubleQuotes = false;
+        var inSingleQuotes = false;
+        var escaped = false;
+        var hasStartedArg = false;
+
+        foreach (var c in commandLine)
+        {
+            if (escaped)
+            {
+                currentArg.Append(c);
+                escaped = false;
+                hasStartedArg = true;
+                continue;
+            }
+
+            if (inSingleQuotes)
+            {
+                if (c == '\'')
+                {
+                    inSingleQuotes = false;
+                }
+                else
+                {
+                    currentArg.Append(c);
+                }
+                continue;
+            }
+
+            if (c == '\\')
+            {
+                escaped = true;
+                continue;
+            }
+
+            if (inDoubleQuotes)
+            {
+                if (c == '"')
+                {
+                    inDoubleQuotes = false;
+                }
+                else
+                {
+                    currentArg.Append(c);
+                }
+                continue;
+            }
+
+            switch (c)
+            {
+                case '\'':
+                    inSingleQuotes = true;
+                    hasStartedArg = true;
+                    break;
+                case '"':
+                    inDoubleQuotes = true;
+                    hasStartedArg = true;
+                    break;
+                case var _ when char.IsWhiteSpace(c):
+                    if (hasStartedArg)
+                    {
+                        args.Add(currentArg.ToString());
+                        currentArg.Clear();
+                        hasStartedArg = false;
+                    }
+                    break;
+                default:
+                    currentArg.Append(c);
+                    hasStartedArg = true;
+                    break;
+            }
+        }
+
+        if (hasStartedArg)
+        {
+            args.Add(currentArg.ToString());
+        }
+
+        return args.ToArray();
+    }
+
     // Helper for the IsAdministrator check.
     private static partial class LibC
     {
         [LibraryImport("libc")]
         internal static partial uint geteuid();
+    }
+
+    private class NotificationDelegate(TaskCompletionSource<bool> tcs) : UNUserNotificationCenterDelegate
+    {
+        public override void DidReceiveNotificationResponse(
+            UNUserNotificationCenter center,
+            UNNotificationResponse response,
+            Action completionHandler)
+        {
+            tcs.TrySetResult(true);
+            completionHandler();
+        }
+
+        public override void OpenSettings(UNUserNotificationCenter center, UNNotification? notification)
+        {
+            // just override to avoid base method throwing NotImplementedException
+        }
+
+        public override void WillPresentNotification(
+            UNUserNotificationCenter center,
+            UNNotification notification,
+            Action<UNNotificationPresentationOptions> completionHandler)
+        {
+            // Show the notification even if the app is in the foreground.
+            completionHandler(UNNotificationPresentationOptions.List | UNNotificationPresentationOptions.Banner);
+        }
     }
 }

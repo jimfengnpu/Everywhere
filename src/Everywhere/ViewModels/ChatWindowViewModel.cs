@@ -596,7 +596,7 @@ public sealed partial class ChatWindowViewModel :
         string? text;
         if (chatMessage is UserChatMessage userChatMessage)
         {
-            var isShiftPressed = _nativeHelper.GetKeyState(Key.LeftShift) || _nativeHelper.GetKeyState(Key.RightShift);
+            var isShiftPressed = _nativeHelper.GetKeyState(KeyModifiers.Shift);
             if (isShiftPressed) text = userChatMessage.UserPrompt; // Get full text with attachments info
             else text = userChatMessage.Inlines.Text; // Get only the message text
         }

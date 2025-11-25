@@ -35,9 +35,9 @@ public interface INativeHelper
     /// <summary>
     /// Get the current state of the given key. True if the key is currently pressed down, false otherwise.
     /// </summary>
-    /// <param name="key"></param>
+    /// <param name="keyModifiers"></param>
     /// <returns></returns>
-    bool GetKeyState(Key key);
+    bool GetKeyState(KeyModifiers keyModifiers);
 
     /// <summary>
     /// Show a desktop notification with the given message and optional title. returns true if the notification was clicked or confirmed by the user.

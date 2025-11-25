@@ -116,5 +116,5 @@ file class ScreenVisualElementImpl : IVisualElement
     public void SetText(string text) { }
     public void SendShortcut(KeyboardShortcut shortcut) { }
     public string? GetSelectionText() => null;
-    public Task<Avalonia.Media.Imaging.Bitmap> CaptureAsync() => throw new NotImplementedException();
+    public Task<Avalonia.Media.Imaging.Bitmap> CaptureAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
 }

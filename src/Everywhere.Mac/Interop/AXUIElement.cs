@@ -160,7 +160,7 @@ public partial class AXUIElement : NSObject, IVisualElement
 
     public string? GetSelectionText() => GetAttribute<NSString>(AXAttributeConstants.SelectedText);
 
-    public Task<Bitmap> CaptureAsync()
+    public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
     {
         // Use CoreGraphics CGWindowListCreateImage for capturing.
         throw new NotImplementedException();

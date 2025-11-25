@@ -131,7 +131,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
 
             if (_keyboardHandlers.TryGetValue(shortcut, out var registeredHandlers))
             {
-                handlers = new List<Action>(registeredHandlers);
+                handlers = [.. registeredHandlers];
             }
         }
 
