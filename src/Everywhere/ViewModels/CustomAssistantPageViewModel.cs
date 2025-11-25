@@ -71,8 +71,9 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
 
+        var temp = JsonSerializer.Serialize(customAssistant, CustomAssistantJsonSerializerContext.Default.CustomAssistant);
         var duplicatedAssistant = JsonSerializer.Deserialize(
-            JsonSerializer.Serialize(customAssistant, CustomAssistantJsonSerializerContext.Default.CustomAssistant),
+            temp,
             CustomAssistantJsonSerializerContext.Default.CustomAssistant).NotNull();
 
         duplicatedAssistant.Id = Guid.CreateVersion7();
@@ -115,7 +116,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
         var result = await DialogManager.CreateDialog(
-                LocaleKey.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.Format(customAssistant.Name),
+                LocaleResolver.CustomAssistantPageViewModel_DeleteCustomAssistant_Dialog_Message.Format(customAssistant.Name),
                 LocaleResolver.Common_Warning)
             .WithPrimaryButton(LocaleResolver.Common_Yes)
             .WithCancelButton(LocaleResolver.Common_No)
