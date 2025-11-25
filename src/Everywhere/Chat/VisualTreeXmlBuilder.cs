@@ -73,6 +73,10 @@ public partial class VisualTreeXmlBuilder(
     private StringBuilder? _visualTreeXmlBuilder;
     private bool _detailLevelApplied;
 
+#if DEBUG
+    private readonly Debugging.VisualTreeRecorder? recorder;
+#endif
+
     private const VisualElementStates InteractiveStates = VisualElementStates.Focused | VisualElementStates.Selected;
 
     public string BuildXml(CancellationToken cancellationToken)
@@ -81,6 +85,12 @@ public partial class VisualTreeXmlBuilder(
 
         if (_visualTreeXmlBuilder != null) return _visualTreeXmlBuilder.ToString();
         cancellationToken.ThrowIfCancellationRequested();
+
+#if DEBUG
+        // Initialize recorder if needed
+        // We use a local variable to avoid field initialization issues if the recorder is not used
+        var debugRecorder = recorder ?? new Debugging.VisualTreeRecorder(coreElements, approximateTokenLimit, "BFS");
+#endif
 
         var buildQueue = new Queue<QueuedElement>(coreElements.Select(e => new QueuedElement(e, QueueOrigin.CoreElement, e.Parent?.Id)));
         var visitedElements = new Dictionary<string, XmlVisualElement>();
@@ -91,11 +101,35 @@ public partial class VisualTreeXmlBuilder(
 
             var accumulatedTokenCount = visitedElements.Values.Sum(e => e.TokenCount);
             var remainingTokenCount = approximateTokenLimit - accumulatedTokenCount;
-            if (remainingTokenCount <= 0) break;
+            
+#if DEBUG
+            // Record queue state before processing
+            // Note: This is expensive as it iterates the queue, but acceptable for debugging
+            // We just record the size here for simplicity
+#endif
+
+            if (remainingTokenCount <= 0) 
+            {
+#if DEBUG
+                debugRecorder.RecordStep(buildQueue.Peek().Element, "Stop", 0, "Token limit reached", accumulatedTokenCount, buildQueue.Count);
+#endif
+                break;
+            }
 
             var (element, queueOrigin, parentId) = buildQueue.Dequeue();
             var id = element.Id;
-            if (visitedElements.ContainsKey(id)) continue;
+
+#if DEBUG
+            debugRecorder.RegisterNode(element);
+#endif
+
+            if (visitedElements.ContainsKey(id)) 
+            {
+#if DEBUG
+                debugRecorder.RecordStep(element, "Skip", 0, "Already visited", accumulatedTokenCount, buildQueue.Count);
+#endif
+                continue;
+            }
 
             string? description = null;
             string? content = null;
@@ -127,6 +161,11 @@ public partial class VisualTreeXmlBuilder(
             };
 
             var xmlElement = visitedElements[element.Id] = new XmlVisualElement(element, description, contents, tokenCount);
+            
+#if DEBUG
+            debugRecorder.RecordStep(element, "Visit", 0, $"Origin: {queueOrigin}", accumulatedTokenCount + tokenCount, buildQueue.Count);
+#endif
+
             if (parentId != null && visitedElements.TryGetValue(parentId, out var parentXmlElement))
             {
                 if (queueOrigin == QueueOrigin.PreviousSibling) parentXmlElement.Children.Insert(0, xmlElement);
@@ -143,6 +182,9 @@ public partial class VisualTreeXmlBuilder(
                 if (parent != null)
                 {
                     buildQueue.Enqueue(new QueuedElement(parent, QueueOrigin.Parent, parent.Parent?.Id));
+#if DEBUG
+                    debugRecorder.RecordStep(parent, "Enqueue", 0, "Parent", accumulatedTokenCount, buildQueue.Count);
+#endif
                 }
             }
 
@@ -152,6 +194,9 @@ public partial class VisualTreeXmlBuilder(
                 if (previousSibling != null && !visitedElements.ContainsKey(previousSibling.Id))
                 {
                     buildQueue.Enqueue(new QueuedElement(previousSibling, QueueOrigin.PreviousSibling, parentId));
+#if DEBUG
+                    debugRecorder.RecordStep(previousSibling, "Enqueue", 0, "PreviousSibling", accumulatedTokenCount, buildQueue.Count);
+#endif
                 }
             }
 
@@ -161,6 +206,9 @@ public partial class VisualTreeXmlBuilder(
                 if (nextSibling != null && !visitedElements.ContainsKey(nextSibling.Id))
                 {
                     buildQueue.Enqueue(new QueuedElement(nextSibling, QueueOrigin.NextSibling, parentId));
+#if DEBUG
+                    debugRecorder.RecordStep(nextSibling, "Enqueue", 0, "NextSibling", accumulatedTokenCount, buildQueue.Count);
+#endif
                 }
             }
 
@@ -170,6 +218,9 @@ public partial class VisualTreeXmlBuilder(
                 if (firstChild != null && !visitedElements.ContainsKey(firstChild.Id))
                 {
                     buildQueue.Enqueue(new QueuedElement(firstChild, QueueOrigin.FirstChild, id));
+#if DEBUG
+                    debugRecorder.RecordStep(firstChild, "Enqueue", 0, "FirstChild", accumulatedTokenCount, buildQueue.Count);
+#endif
                 }
             }
         }
@@ -187,6 +238,23 @@ public partial class VisualTreeXmlBuilder(
         _visualTreeXmlBuilder = new StringBuilder();
         foreach (var rootElement in _rootElements) InternalBuildXml(rootElement, 0);
         _visualTreeXmlBuilder.TrimEnd();
+
+#if DEBUG
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        var filename = $"visual_tree_debug_{timestamp}.json";
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+        debugRecorder.SaveSession(path);
+        // Also try to save to project root if possible, for easier access
+        try 
+        {
+            var projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../"));
+            if (Directory.Exists(projectRoot))
+            {
+                debugRecorder.SaveSession(Path.Combine(projectRoot, filename));
+            }
+        }
+        catch {}
+#endif
 
         string TruncateIfNeeded(string text, int maxLength)
         {

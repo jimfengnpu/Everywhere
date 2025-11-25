@@ -35,8 +35,45 @@ public partial class AXUIElement : NSObject, IVisualElement
     }
 
     // Sibling navigation is not directly supported by AX API, it must be inferred from parent's children list.
-    public IVisualElement? PreviousSibling => null; // To be implemented
-    public IVisualElement? NextSibling => null; // To be implemented
+    // Note: This operation is O(N) and involves IPC calls to fetch the children list.
+    public IVisualElement? PreviousSibling
+    {
+        get
+        {
+            if (Parent is not AXUIElement parent) return null;
+
+            using var children = parent.GetAttribute<NSArray>(AXAttributeConstants.Children);
+            if (children is null) return null;
+
+            // AXUIElement equality is handled by the underlying system (CFEqual/isEqual:)
+            var index = children.IndexOf(this);
+            if (index != nuint.MaxValue && index > 0)
+            {
+                return children.GetItem<AXUIElement>(index - 1);
+            }
+
+            return null;
+        }
+    }
+
+    public IVisualElement? NextSibling
+    {
+        get
+        {
+            if (Parent is not AXUIElement parent) return null;
+
+            using var children = parent.GetAttribute<NSArray>(AXAttributeConstants.Children);
+            if (children is null) return null;
+
+            var index = children.IndexOf(this);
+            if (index != nuint.MaxValue && index < children.Count - 1)
+            {
+                return children.GetItem<AXUIElement>(index + 1);
+            }
+
+            return null;
+        }
+    }
 
     public AXRoleAttribute Role { get; }
 
@@ -89,7 +126,7 @@ public partial class AXUIElement : NSObject, IVisualElement
             var states = VisualElementStates.None;
             if (GetAttribute<NSNumber>(AXAttributeConstants.Enabled)?.BoolValue == false) states |= VisualElementStates.Disabled;
             if (GetAttribute<NSNumber>(AXAttributeConstants.Focused)?.BoolValue == true) states |= VisualElementStates.Focused;
-            // ... add more state checks
+            // TODO: add more state checks?
             return states;
         }
     }
@@ -127,8 +164,8 @@ public partial class AXUIElement : NSObject, IVisualElement
         }
     }
 
-    // NativeWindowHandle doesn't have a direct equivalent. An AXUIElement doesn't always map to a window.
-    public nint NativeWindowHandle => IntPtr.Zero;
+    // TODO: Get the native window handle if applicable, otherwise return 0.
+    public nint NativeWindowHandle => 0;
 
     private AXUIElement(NativeHandle handle) : base(handle, true)
     {
@@ -143,6 +180,7 @@ public partial class AXUIElement : NSObject, IVisualElement
         return maxLength > 0 && text.Length > maxLength ? text[..maxLength] : text;
     }
 
+    // TODO: Is press enough?
     public void Invoke() => PerformAction(AXAttributeConstants.Press);
 
     public void SetText(string text)
