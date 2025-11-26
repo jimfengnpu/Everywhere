@@ -5,6 +5,7 @@
   <Application.Styles>
     <shadui:ShadTheme/>
     <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
+    <StyleInclude Source="avares://Everywhere/Assets/Styles.axaml"/>
   </Application.Styles>
 
   <Application.Resources>
