@@ -7,9 +7,9 @@
     <OpenTelemetryVersion>1.14.0</OpenTelemetryVersion>
     <SentryVersion>5.16.2</SentryVersion>
     <AvaloniaVersion>11.3.9</AvaloniaVersion>
-    <LiveMarkdownVersion>1.5.0</LiveMarkdownVersion>
+    <LiveMarkdownVersion>1.5.1</LiveMarkdownVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
-    <XamlBehaviorsVersion>11.3.8.2</XamlBehaviorsVersion>
+    <XamlBehaviorsVersion>11.3.9</XamlBehaviorsVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Base packages -->
@@ -40,7 +40,7 @@
     <PackageVersion Include="Sentry.OpenTelemetry" Version="$(SentryVersion)" />
     <PackageVersion Include="Sentry.Serilog" Version="$(SentryVersion)" />
     <PackageVersion Include="Serilog" Version="4.3.0" />
-    <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.2" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="System.Drawing.Common" Version="$(MicrosoftPackageVersion)" />
