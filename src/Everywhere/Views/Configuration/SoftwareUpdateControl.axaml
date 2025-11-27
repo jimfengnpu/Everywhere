@@ -32,18 +32,15 @@
               <TextBlock Text="{Binding Settings.Common.LastUpdateCheckTime, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static conv:CommonConverters.DateTimeOffsetToString}, ConverterParameter=G, Mode=OneWay}"/>
             </StackPanel>
 
-            <Button
-              x:Name="ShowReleaseNotesButton" Classes="Ghost"
-              HorizontalAlignment="Left"
-              Command="{Binding ShowReleaseNotesCommand, RelativeSource={RelativeSource TemplatedParent}}"
-              CornerRadius="1">
+            <HyperlinkButton
+              x:Name="ShowReleaseNotesButton" HorizontalAlignment="Left"
+              Command="{Binding ShowReleaseNotesCommand, RelativeSource={RelativeSource TemplatedParent}}">
               <TextBlock>
                 <Run
                   Foreground="{DynamicResource InfoColor}"
-                  Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text}}"
-                  TextDecorations="Underline"/>
+                  Text="{I18N {x:Static LocaleKey.CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text}}"/>
               </TextBlock>
-            </Button>
+            </HyperlinkButton>
           </StackPanel>
 
           <Button
