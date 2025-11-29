@@ -85,7 +85,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
             return cgEventRef;
         }
 
-        var cgEvent = InteropHelper.CGEventFromHandle(cgEventRef);
+        var cgEvent = CoreFoundationInterop.CGEventFromHandle(cgEventRef);
         switch (type)
         {
             case CGEventType.KeyDown:

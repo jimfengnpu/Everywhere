@@ -102,6 +102,7 @@ file class ScreenVisualElementImpl : IVisualElement
     public IVisualElementContext Context => throw new NotImplementedException();
     public string Id => throw new NotImplementedException();
     public IVisualElement? Parent => throw new NotImplementedException();
+    public VisualElementSiblingAccessor SiblingAccessor => throw new NotImplementedException();
     public IEnumerable<IVisualElement> Children => throw new NotImplementedException();
     public IVisualElement? PreviousSibling => throw new NotImplementedException();
     public IVisualElement? NextSibling => throw new NotImplementedException();

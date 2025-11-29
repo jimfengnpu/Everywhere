@@ -1,7 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using CoreFoundation;
 using Everywhere.Interop;
+using ImageIO;
 using ObjCRuntime;
 
 namespace Everywhere.Mac.Interop;
@@ -11,67 +13,26 @@ namespace Everywhere.Mac.Interop;
 /// </summary>
 public partial class AXUIElement : NSObject, IVisualElement
 {
-    // A unique and stable identifier is harder on macOS. PID + description might be a starting point.
-    public string Id => $"{ProcessId}:{DebugDescription}";
+    public string Id => $"{ProcessId}.{NativeWindowHandle}.{CoreFoundationInterop.CFHash(Handle)}";
 
-    public IVisualElement? Parent => GetWithCache(ref field, () => GetAttributeAsElement(AXAttributeConstants.Parent));
+    public IVisualElement? Parent => field ??= GetAttributeAsElement(AXAttributeConstants.Parent);
+
+    public VisualElementSiblingAccessor SiblingAccessor => new SiblingAccessorImpl(this);
 
     public IEnumerable<IVisualElement> Children
     {
         get
         {
-            if (GetAttribute<NSArray>(AXAttributeConstants.Children) is { } children)
+            var children = GetAttribute<NSArray>(AXAttributeConstants.Children);
+            if (children is null) yield break;
+
+            for (nuint i = 0; i < children.Count; i++)
             {
-                for (nuint i = 0; i < children.Count; i++)
+                if (children.GetItem<AXUIElement>(i) is { } child)
                 {
-                    var child = children.GetItem<AXUIElement>(i);
-                    if (child is not null)
-                    {
-                        yield return child;
-                    }
+                    yield return child;
                 }
             }
-        }
-    }
-
-    // Sibling navigation is not directly supported by AX API, it must be inferred from parent's children list.
-    // Note: This operation is O(N) and involves IPC calls to fetch the children list.
-    public IVisualElement? PreviousSibling
-    {
-        get
-        {
-            if (Parent is not AXUIElement parent) return null;
-
-            using var children = parent.GetAttribute<NSArray>(AXAttributeConstants.Children);
-            if (children is null) return null;
-
-            // AXUIElement equality is handled by the underlying system (CFEqual/isEqual:)
-            var index = children.IndexOf(this);
-            if (index != nuint.MaxValue && index > 0)
-            {
-                return children.GetItem<AXUIElement>(index - 1);
-            }
-
-            return null;
-        }
-    }
-
-    public IVisualElement? NextSibling
-    {
-        get
-        {
-            if (Parent is not AXUIElement parent) return null;
-
-            using var children = parent.GetAttribute<NSArray>(AXAttributeConstants.Children);
-            if (children is null) return null;
-
-            var index = children.IndexOf(this);
-            if (index != nuint.MaxValue && index < children.Count - 1)
-            {
-                return children.GetItem<AXUIElement>(index + 1);
-            }
-
-            return null;
         }
     }
 
@@ -105,12 +66,15 @@ public partial class AXUIElement : NSObject, IVisualElement
                 AXRoleAttribute.AXBusyIndicator or
                     AXRoleAttribute.AXProgressIndicator or
                     AXRoleAttribute.AXValueIndicator => VisualElementType.ProgressBar,
-                AXRoleAttribute.AXDrawer or
+                AXRoleAttribute.AXColumn or
+                    AXRoleAttribute.AXDrawer or
                     AXRoleAttribute.AXGrid or
                     AXRoleAttribute.AXGroup or
                     AXRoleAttribute.AXGrowArea or
                     AXRoleAttribute.AXPage or
                     AXRoleAttribute.AXScrollArea or
+                    AXRoleAttribute.AXSplitGroup or
+                    AXRoleAttribute.AXSplitter or
                     AXRoleAttribute.AXWebArea => VisualElementType.Panel,
                 AXRoleAttribute.AXApplication or AXRoleAttribute.AXWindow => VisualElementType.TopLevel,
                 // TODO: ... add more mappings
@@ -155,17 +119,15 @@ public partial class AXUIElement : NSObject, IVisualElement
         }
     }
 
-    public int ProcessId
-    {
-        get
-        {
-            GetPid(Handle, out var pid);
-            return pid;
-        }
-    }
+    public int ProcessId => GetPid(Handle, out var pid) == AXError.Success ? pid : 0;
 
-    // TODO: Get the native window handle if applicable, otherwise return 0.
-    public nint NativeWindowHandle => 0;
+    public nint NativeWindowHandle => GetWindow(Handle, out var windowId) == AXError.Success ? (nint)windowId : 0;
+
+    static AXUIElement()
+    {
+        // default timeout for AX calls is 6s, which is too long for our use case.
+        AXUIElementSetMessagingTimeout(SystemWide.Handle.Handle, 1f);
+    }
 
     private AXUIElement(NativeHandle handle) : base(handle, true)
     {
@@ -175,8 +137,11 @@ public partial class AXUIElement : NSObject, IVisualElement
 
     public string? GetText(int maxLength = -1)
     {
-        var text = GetAttribute<NSString>(AXAttributeConstants.Value)?.ToString();
+        var text = GetAttribute<NSObject>(AXAttributeConstants.Value)?.ToString();
         if (string.IsNullOrEmpty(text)) return null;
+
+        if (Role == AXRoleAttribute.AXCheckBox) return text == "0" ? "false" : "true"; // don't apply trim
+
         return maxLength > 0 && text.Length > maxLength ? text[..maxLength] : text;
     }
 
@@ -200,23 +165,85 @@ public partial class AXUIElement : NSObject, IVisualElement
 
     public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
     {
-        // Use CoreGraphics CGWindowListCreateImage for capturing.
-        throw new NotImplementedException();
+        var bounds = BoundingRectangle;
+        var rect = new CGRect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        var windowId = NativeWindowHandle;
+
+#pragma warning disable CA1422 // Type or member is obsolete
+        // we use CGSHWCaptureWindowList because it can screenshot minimized windows, which CGWindowListCreateImage can't
+        using var cgImage = SkyLightInterop.HardwareCaptureWindowList(
+            [(uint)windowId],
+            SkyLightInterop.CGSWindowCaptureOptions.IgnoreGlobalCLipShape |
+            SkyLightInterop.CGSWindowCaptureOptions.FullSize);
+#pragma warning restore CA1422
+
+        if (cgImage is null)
+        {
+            return Task.FromException<Bitmap>(new InvalidOperationException("Failed to capture screen image."));
+        }
+
+        using var data = new NSMutableData();
+        using var dest = CGImageDestination.Create(data, "public.png", 1);
+
+        if (dest is null)
+        {
+            return Task.FromException<Bitmap>(new InvalidOperationException("Failed to create image destination."));
+        }
+
+        if (!rect.IsEmpty)
+        {
+            var screen = NSScreen.Screens.FirstOrDefault(s => s.Frame.IntersectsWith(rect));
+            var scale = screen?.BackingScaleFactor ?? 1.0;
+            using var croppedImage = cgImage.WithImageInRect(new CGRect(
+                rect.X * scale,
+                rect.Y * scale,
+                rect.Width * scale,
+                rect.Height * scale));
+
+            if (croppedImage is null)
+            {
+                return Task.FromException<Bitmap>(new InvalidOperationException("Failed to crop image."));
+            }
+
+            dest.AddImage(croppedImage);
+            dest.Close();
+
+            // after this, we can safely dispose data
+            return Task.FromResult(new Bitmap(data.AsStream()));
+        }
+
+        dest.AddImage(cgImage);
+        dest.Close();
+
+        // after this, we can safely dispose data
+        return Task.FromResult(new Bitmap(data.AsStream()));
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is AXUIElement element && CFType.Equal(Handle, element.Handle);
+    }
+
+    public override int GetHashCode()
+    {
+        return CoreFoundationInterop.CFHash(Handle).GetHashCode();
     }
 
     #region Helpers
+
+    private IEnumerable<string> GetAttributeNames()
+    {
+        var error = CopyAttributeNames(Handle, out var namesHandle);
+        if (error != AXError.Success || namesHandle == 0) return [];
+
+        var namesArray = CFArray.StringArrayFromHandle(namesHandle);
+        return namesArray?.OfType<string>() ?? [];
+    }
 
     private T? GetAttribute<T>(NSString attributeName) where T : NSObject
     {
         var error = CopyAttributeValue(Handle, attributeName.Handle, out var value);
         return error == AXError.Success ? Runtime.GetNSObject<T>(value) : null;
-    }
-
-    private static IVisualElement? GetWithCache(ref IVisualElement? cache, Func<AXUIElement?> factory)
-    {
-        if (cache is not null) return cache;
-        cache = factory();
-        return cache;
     }
 
     private AXUIElement? GetAttributeAsElement(NSString attributeName)
@@ -261,19 +288,81 @@ public partial class AXUIElement : NSObject, IVisualElement
     [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyElementAtPosition")]
     private static partial AXError CopyElementAtPosition(nint application, float x, float y, out nint element);
 
-    [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyAttributeValue", StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyAttributeNames")]
+    private static partial AXError CopyAttributeNames(nint element, out nint names);
+
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyAttributeValue")]
     private static partial AXError CopyAttributeValue(nint element, nint attribute, out nint value);
 
-    [LibraryImport(AppServices, EntryPoint = "AXUIElementPerformAction", StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementPerformAction")]
     private static partial AXError PerformAction(nint element, nint action);
 
     [LibraryImport(AppServices, EntryPoint = "AXUIElementSetAttributeValue")]
     private static partial AXError SetAttributeValue(nint element, nint attribute, nint value);
 
+    /// <summary>
+    /// Private API from https://github.com/lwouis/alt-tab-macos/blob/9761bb91e97646f1c30b43842c4694615e9ad39b/src/api-wrappers/private-apis/ApplicationServices.HIServices.framework.swift#L5
+    /// </summary>
+    [LibraryImport(AppServices, EntryPoint = "_AXUIElementGetWindow")]
+    private static partial AXError GetWindow(nint element, out uint cgWindowId);
+
     [LibraryImport(AppServices, EntryPoint = "AXUIElementGetPid")]
     private static partial AXError GetPid(nint element, out int pid);
 
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementSetMessagingTimeout")]
+    private static partial AXError AXUIElementSetMessagingTimeout(nint element, float timeoutInSeconds);
+
     #endregion
+
+    private class SiblingAccessorImpl(AXUIElement origin) : VisualElementSiblingAccessor
+    {
+        private NSArray? _siblings;
+        private nint _index;
+
+        protected override void EnsureResources()
+        {
+            if (_siblings is not null) return;
+            if (origin.Parent is not AXUIElement parent) return;
+
+            _siblings = parent.GetAttribute<NSArray>(AXAttributeConstants.Children);
+            _index = _siblings is not null ? (nint)_siblings.IndexOf(origin) : nint.MaxValue;
+        }
+
+        protected override void ReleaseResources()
+        {
+            if (_siblings is null) return;
+
+            _siblings.Dispose();
+            _siblings = null;
+        }
+
+        protected override IEnumerator<IVisualElement> CreateForwardEnumerator()
+        {
+            if (_siblings is not { } siblings || _index == nint.MaxValue) yield break;
+
+            var count = (nint)siblings.Count;
+            for (var i = _index + 1; i < count; i++)
+            {
+                if (siblings.GetItem<AXUIElement>((nuint)i) is { } sibling)
+                {
+                    yield return sibling;
+                }
+            }
+        }
+
+        protected override IEnumerator<IVisualElement> CreateBackwardEnumerator()
+        {
+            if (_siblings is not { } siblings || _index == nint.MaxValue) yield break;
+
+            for (var i = _index - 1; i >= 0; i--)
+            {
+                if (siblings.GetItem<AXUIElement>((nuint)i) is { } sibling)
+                {
+                    yield return sibling;
+                }
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -298,6 +387,7 @@ public static class AXAttributeConstants
     public static readonly NSString FocusedUIElement = new("AXFocusedUIElement");
     public static readonly NSString SelectedText = new("AXSelectedText");
     public static readonly NSString NumberOfCharacters = new("AXNumberOfCharacters");
+    public static readonly NSString WindowNumber = new("AXWindowNumber");
 
     // Actions
     public static readonly NSString Press = new("AXPress");

@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Everywhere.Extensions;
 using ObjCRuntime;
 
 namespace Everywhere.Mac.Interop;
 
-public static class InteropHelper
+internal static partial class CoreFoundationInterop
 {
     // ReSharper disable once InconsistentNaming
     [field: AllowNull, MaybeNull]
@@ -24,4 +25,9 @@ public static class InteropHelper
         return CGEventConstructorInfo.Invoke([new NativeHandle(cgEventRef), false]) as CGEvent
                ?? throw new InvalidOperationException("Failed to create CGEvent from handle.");
     }
+
+    private const string CoreFoundation = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+
+    [LibraryImport(CoreFoundation)]
+    public static partial nuint CFHash(nint cf);
 }

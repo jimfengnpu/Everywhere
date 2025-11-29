@@ -4,9 +4,11 @@ using System.Text.Json.Serialization;
 namespace Everywhere.Chat.Debugging;
 
 public record DebugVisualNode(
+    float Score,
     string Id,
     string Type,
     string? Name,
+    string? Text,
     int[] Rect, // [x, y, w, h]
     IList<string> ChildrenIds,
     bool IsCore
@@ -15,7 +17,7 @@ public record DebugVisualNode(
 public record DebugTraversalStep(
     int StepIndex,
     string NodeId,
-    string Action, // "Enqueue", "Visit", "Skip", "Prune"
+    string Action, // "Enqueue", "Visit", "Skip", "Stop"
     double Score,
     string Reason,
     int CurrentTokens,
@@ -34,7 +36,8 @@ public record DebugSession(
         var options = new JsonSerializerOptions
         {
             WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
         };
         return JsonSerializer.Serialize(this, options);
     }

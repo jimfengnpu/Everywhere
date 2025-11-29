@@ -174,19 +174,15 @@ public partial class VisualTreeDebugger : UserControl
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 internal class DebuggerVisualElement(IVisualElement element) : ObservableObject
 {
-    public string? Name => element.Name;
+    public string? Name { get; } = element.Name;
 
-    public VisualElementType Type => element.Type;
+    public VisualElementType Type { get; } = element.Type;
 
     public VisualElementStates States => element.States;
     
-    public IVisualElement? Parent => element.Parent;
+    public IVisualElement? Parent { get; } = element.Parent;
 
-    public IVisualElement? PreviousSibling => element.PreviousSibling;
-
-    public IVisualElement? NextSibling => element.NextSibling;
-
-    public int ProcessId => element.ProcessId;
+    public int ProcessId { get; } = element.ProcessId;
 
     public string ProcessName
     {
@@ -204,7 +200,7 @@ internal class DebuggerVisualElement(IVisualElement element) : ObservableObject
         }
     }
 
-    public nint NativeWindowHandle => element.NativeWindowHandle;
+    public nint NativeWindowHandle { get; } = element.NativeWindowHandle;
 
     public PixelRect BoundingRectangle => element.BoundingRectangle;
 

@@ -55,6 +55,12 @@
       x:Name="TitleBarBorder" Grid.Row="0"
       Height="44" Padding="8,0"
       Background="Transparent">
+      <Border.FlowDirection>
+        <OnPlatform
+          x:TypeArguments="FlowDirection" Linux="LeftToRight"
+          Windows="LeftToRight" macOS="RightToLeft"/>
+      </Border.FlowDirection>
+
       <DockPanel LastChildFill="True">
         <Viewbox
           DockPanel.Dock="Left" Width="36"
@@ -124,6 +130,7 @@
             x:Name="HistoryButton" Classes="Ghost TitleBar"
             Command="{Binding ChatContextManager.UpdateRecentHistoryCommand}"
             Content="{LucideIconContent History}"
+            FlowDirection="LeftToRight"
             IsVisible="{Binding !IsViewingHistory}"
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
             <Button.Flyout>

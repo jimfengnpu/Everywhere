@@ -1,6 +1,7 @@
 <Application
   x:Class="Everywhere.App" xmlns="https://github.com/avaloniaui"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI">
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  x:Name="Everywhere">
 
   <Application.Styles>
     <shadui:ShadTheme/>
@@ -53,4 +54,8 @@
       </TrayIcon>
     </TrayIcons>
   </TrayIcon.Icons>
+
+  <NativeMenu.Menu>
+    <NativeMenu/>
+  </NativeMenu.Menu>
 </Application>

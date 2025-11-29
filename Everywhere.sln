@@ -73,6 +73,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{30A74410
 		tools\build_vcproj.ps1 = tools\build_vcproj.ps1
 		tools\installer.iss = tools\installer.iss
 		tools\sync_i18n.py = tools\sync_i18n.py
+		tools\visual_tree_debugger.html = tools\visual_tree_debugger.html
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Everywhere.Watchdog", "src\Everywhere.Watchdog\Everywhere.Watchdog.csproj", "{2BACDFDD-0944-41E3-94C2-6B7B6626C845}"
