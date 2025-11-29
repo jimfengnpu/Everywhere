@@ -422,15 +422,6 @@
 
             <ToggleButton
               Classes="Outline Rounded" Focusable="False"
-              IsChecked="{Binding IsImageEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-              IsVisible="{TemplateBinding IsImageSupported}"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ImageButton_ToolTip}}">
-              <LucideIcon
-                Kind="Image" Size="16"/>
-            </ToggleButton>
-
-            <ToggleButton
-              Classes="Outline Rounded" Focusable="False"
               HotKey="Ctrl+T"
               IsChecked="{Binding IsToolCallEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
               IsVisible="{TemplateBinding IsToolCallSupported}"
