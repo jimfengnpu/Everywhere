@@ -1023,12 +1023,6 @@
     <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
         <value>Model Tanımlama Şablonu</value>
     </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Model kimliği, görüntü girişi desteği, araç kullanımı desteği gibi seçeneklerin varsayılan değerlerini otomatik olarak ayarlamak için bir şablon seçin. Tanımsız ayarlara geri dönmek için Sıfırla düğmesine tıklayın.</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>API çağrı adresi ve API modu gibi seçeneklerin varsayılan değerlerini otomatik olarak ayarlamak için bir şablon seçin. Tanımsız ayarlara geri dönmek için Sıfırla düğmesine tıklayın.</value>
-    </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>A genel G/Ç hatası oluştu. Bu, dosya okuma veya yazma sorunu nedeniyle olabilir.</value>
     </data>

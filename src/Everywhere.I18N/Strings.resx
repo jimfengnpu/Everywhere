@@ -1044,10 +1044,10 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
         <value>Model Definition Template</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Select a template to automatically set default values for options such as model ID, image input support, tool usage support, and more. Click the Reset button to revert to undefined settings.</value>
+        <value>Select a template to automatically populate options such as “Model ID, Support Image Input, Support Tool Usage.” You can modify these settings as needed.</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Select a template to automatically set default values for options such as the API call address and API mode. Click the Reset button to revert to undefined settings.</value>
+        <value>Select a template to automatically populate options such as “API Address and API Schema.” You can modify these settings as needed.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>A general I/O error occurred. This might be due to a problem with reading or writing a file.</value>

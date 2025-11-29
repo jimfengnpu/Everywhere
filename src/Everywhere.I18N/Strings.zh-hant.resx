@@ -116,7 +116,7 @@
         <value>選擇網頁搜尋引擎的服務提供者。</value>
     </data>
     <data name="WebSearchEngineProvider_EndPoint_Header" xml:space="preserve">
-        <value>API Url</value>
+        <value>API 網址</value>
     </data>
     <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>如果不確定該如何設定，請保持預設。必須以 &quot;http(s)://&quot; 開頭。</value>
@@ -566,11 +566,8 @@
     <data name="SettingsPage_Reset_Button_ToolTip" xml:space="preserve">
         <value>重置</value>
     </data>
-    <data name="CustomAssistant_Schema_Header" xml:space="preserve">
-        <value>API Schema</value>
-    </data>
     <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>選擇 API schema。如果不確定該如何設置，請保持默認。</value>
+        <value>選擇 API 協議。如果不確定該如何設置，請保持默認。</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>開機時啟動</value>
@@ -1028,12 +1025,6 @@
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
         <value>模型定義範本</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>選擇一個範本以自動設置模型 ID、影像輸入支持、工具使用支持等選項的默認值。點擊重置按鈕可恢復為未定義設置。</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>選擇一個範本以自動設置 API 呼叫地址和 API 模式等選項的默認值。點擊重置按鈕可恢復為未定義設置。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>發生了一般的 I/O 錯誤。這可能是由於讀寫文件時出現問題。</value>

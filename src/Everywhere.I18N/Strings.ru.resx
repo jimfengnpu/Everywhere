@@ -1029,12 +1029,6 @@
     <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
         <value>Шаблон определения модели</value>
     </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Выберите шаблон для автоматической установки значений по умолчанию для таких опций, как ID модели, поддержка ввода изображений, поддержка использования инструментов и других. Нажмите кнопку Сброс, чтобы вернуться к неопределённым настройкам.</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Выберите шаблон для автоматической установки значений по умолчанию для таких опций, как адрес вызова API и режим API. Нажмите кнопку Сброс, чтобы вернуться к неопределённым настройкам.</value>
-    </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>Произошла общая ошибка ввода-вывода. Это может быть связано с проблемой чтения или записи файла.</value>
     </data>

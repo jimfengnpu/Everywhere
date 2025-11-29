@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -87,7 +88,7 @@ public partial class CustomAssistant : ObservableObject
     }
 
     [JsonIgnore]
-    [System.ComponentModel.DefaultValue(null)]
+    [DefaultValue(null)]
     [DynamicResourceKey(
         LocaleKey.CustomAssistant_ModelProviderTemplate_Header,
         LocaleKey.CustomAssistant_ModelProviderTemplate_Description)]
@@ -155,7 +156,7 @@ public partial class CustomAssistant : ObservableObject
     }
 
     [JsonIgnore]
-    [System.ComponentModel.DefaultValue(null)]
+    [DefaultValue(null)]
     [DynamicResourceKey(
         LocaleKey.CustomAssistant_ModelDefinitionTemplate_Header,
         LocaleKey.CustomAssistant_ModelDefinitionTemplate_Description)]
