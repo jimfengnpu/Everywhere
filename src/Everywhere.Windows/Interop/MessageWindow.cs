@@ -4,6 +4,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Everywhere.Extensions;
 using Everywhere.Utilities;
+using ZLinq;
 
 namespace Everywhere.Windows.Interop;
 
@@ -76,18 +77,17 @@ internal sealed class MessageWindow
         if (HWnd.IsNull)
             throw new InvalidOperationException("Failed to create message window.");
 
-
         MSG msg;
+        List<MessageHandler> snapshot = [];
         while (PInvoke.GetMessage(&msg, HWND.Null, 0, 0) != 0)
         {
             // Dispatch to registered handlers first
-            List<MessageHandler> snapshot = [];
             lock (_lock)
             {
                 if (_handlers.TryGetValue(msg.message, out var list) && list.Count > 0)
                     snapshot.Reset(list);
             }
-            foreach (var h in snapshot)
+            foreach (var h in snapshot.AsValueEnumerable())
             {
                 try { h(in msg); } catch { /* swallow */ }
             }
