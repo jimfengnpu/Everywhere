@@ -1,0 +1,142 @@
+﻿using Windows.Win32;
+using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.UI.WindowsAndMessaging;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using Everywhere.Interop;
+
+namespace Everywhere.Windows.Interop;
+
+public partial class VisualElementContext
+{
+    private unsafe class ScreenVisualElementImpl(HMONITOR hMonitor) : IVisualElement
+    {
+        public string Id => $"Screen:{_hMonitor}";
+
+        public IVisualElement? Parent => null;
+
+        /// <summary>
+        /// Gets first window on the screen.
+        /// </summary>
+        public IEnumerable<IVisualElement> Children
+        {
+            get
+            {
+                List<IVisualElement> result = [];
+                PInvoke.EnumWindows(
+                    (hWnd, _) =>
+                    {
+                        if (PInvoke.GetAncestor(hWnd, GET_ANCESTOR_FLAGS.GA_ROOTOWNER) != hWnd) return true; // ignore child windows
+                        if (!PInvoke.IsWindowVisible(hWnd)) return true;
+
+                        var windowPlacement = new WINDOWPLACEMENT();
+                        if (!PInvoke.GetWindowPlacement(hWnd, ref windowPlacement) ||
+                            windowPlacement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED) return true;
+
+                        if (PInvoke.MonitorFromWindow(hWnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONULL) != _hMonitor) return true;
+
+                        if (TryCreateVisualElement(() => Automation.FromHandle(hWnd), false) is not { } visualElement) return true;
+
+                        result.Add(visualElement);
+                        return true; // continue enumeration
+                    },
+                    0);
+                return result;
+            }
+        }
+
+        public VisualElementSiblingAccessor SiblingAccessor => new SiblingAccessorImpl(this);
+
+        public VisualElementType Type => VisualElementType.Screen;
+
+        public VisualElementStates States => VisualElementStates.None;
+
+        public string? Name => null;
+
+        public PixelRect BoundingRectangle
+        {
+            get
+            {
+                var mi = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFO) };
+                return PInvoke.GetMonitorInfo(_hMonitor, ref mi) ?
+                    new PixelRect(
+                        mi.rcMonitor.X,
+                        mi.rcMonitor.Y,
+                        mi.rcMonitor.Width,
+                        mi.rcMonitor.Height) :
+                    default;
+            }
+        }
+
+        public int ProcessId => 0;
+
+        public nint NativeWindowHandle => 0;
+
+        private readonly HMONITOR _hMonitor = hMonitor;
+
+        public string? GetText(int maxLength = -1) => null;
+
+        public void Invoke() => throw new InvalidOperationException();
+
+        public void SetText(string text) => throw new InvalidOperationException();
+
+        public void SendShortcut(KeyboardShortcut shortcut) => throw new InvalidOperationException();
+
+        public string? GetSelectionText() => null;
+
+        public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(CaptureScreen(BoundingRectangle));
+        }
+
+        private sealed class SiblingAccessorImpl(ScreenVisualElementImpl visualElement) : VisualElementSiblingAccessor
+        {
+            private List<HMONITOR>? _monitors;
+            private int _startingIndex;
+
+            protected override void EnsureResources()
+            {
+                if (_monitors is not null) return;
+
+                _monitors = (List<HMONITOR>)[];
+                PInvoke.EnumDisplayMonitors(
+                    HDC.Null,
+                    null,
+                    (hMonitor, _, _, _) =>
+                    {
+                        _monitors.Add(hMonitor);
+                        return true;
+                    },
+                    0);
+
+                _startingIndex = _monitors.IndexOf(visualElement._hMonitor);
+            }
+
+            protected override void ReleaseResources() => _monitors = null;
+
+            protected override IEnumerator<IVisualElement> CreateForwardEnumerator()
+            {
+                if (_monitors is not { } monitors) yield break;
+
+                var currentIndex = _startingIndex;
+                while (currentIndex < monitors.Count)
+                {
+                    yield return new ScreenVisualElementImpl(monitors[currentIndex]);
+                    currentIndex++;
+                }
+            }
+
+            protected override IEnumerator<IVisualElement> CreateBackwardEnumerator()
+            {
+                if (_monitors is not { } monitors) yield break;
+
+                var currentIndex = _startingIndex;
+                while (currentIndex >= 0)
+                {
+                    yield return new ScreenVisualElementImpl(monitors[currentIndex]);
+                    currentIndex--;
+                }
+            }
+        }
+    }
+}

@@ -264,7 +264,12 @@ public partial class VisualElementContext
                         blockNext = true;
 
                         var delta = (int)hookStruct.mouseData >> 16;
-                        _pickMode = (PickElementMode)((int)(_pickMode + (delta > 0 ? -1 : 1)) % 3);
+                        _pickMode = (PickElementMode)((int)(_pickMode + (delta > 0 ? -1 : 1)) switch
+                        {
+                            > 2 => 0,
+                            < 0 => 2,
+                            var v => v
+                        });
                         HandlePickModeChanged();
                         break;
                     }
