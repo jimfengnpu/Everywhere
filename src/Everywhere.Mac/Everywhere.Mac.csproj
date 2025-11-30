@@ -25,7 +25,7 @@
       <Link>Everywhere.ico</Link>
     </None>
     <Content Include="$(WatchdogExecutable)">
-      <Link>Everywhere.Watchdog</Link>
+      <Link>..\MacOS\Everywhere.Watchdog</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
@@ -38,13 +38,30 @@
 
   <Import Project="..\Build.Watchdog.targets"/>
 
-  <Target Name="AdHocSign" AfterTargets="Build">
+  <!-- Code Signing Configuration -->
+  <PropertyGroup>
+    <!-- Default to Ad-Hoc signing ('-') if no identity is provided -->
+    <CodeSignIdentity Condition="'$(CodeSignIdentity)' == ''">-</CodeSignIdentity>
+    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
+  </PropertyGroup>
+
+  <Target Name="SignAppBundle" AfterTargets="OrganizeBundle">
     <PropertyGroup>
       <AppBundlePath>$(OutputPath)$(ProjectName).app</AppBundlePath>
+      <!-- Enable Hardened Runtime and Timestamp only when using a real certificate -->
+      <SignOptions Condition="'$(CodeSignIdentity)' != '-'">--options runtime --timestamp</SignOptions>
     </PropertyGroup>
 
-    <Exec Command="xattr -cr &quot;$(AppBundlePath)&quot;"/>
-    <Exec Command="codesign --force --deep --sign - &quot;$(AppBundlePath)&quot;"/>
+    <Message Text="Signing $(AppBundlePath) with identity '$(CodeSignIdentity)'..." Importance="High" />
+
+    <!-- 1. Ensure Watchdog has executable permissions -->
+    <Exec Command="chmod +x &quot;$(AppBundlePath)/Contents/Helpers/Everywhere.Watchdog&quot;" Condition="Exists('$(AppBundlePath)/Contents/Helpers/Everywhere.Watchdog')" />
+
+    <!-- 2. Remove quarantine attributes to allow local execution -->
+    <Exec Command="xattr -cr &quot;$(AppBundlePath)&quot;" />
+    
+    <!-- 3. Sign the bundle with entitlements (using deep to sign nested helpers) -->
+    <Exec Command="codesign --force --deep $(SignOptions) --entitlements &quot;$(CodeSignEntitlements)&quot; --sign &quot;$(CodeSignIdentity)&quot; &quot;$(AppBundlePath)&quot;" />
   </Target>
 
 </Project>
