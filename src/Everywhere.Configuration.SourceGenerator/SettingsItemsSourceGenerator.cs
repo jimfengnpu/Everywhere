@@ -347,8 +347,8 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
             }
         }
 
-        // Apply common properties (Header, Description, Value, etc.)
-        ApplyCommonMetadata(sb, itemName, metadata);
+        // Apply header and description
+        ApplyHeaderAndDescription(sb, itemName, metadata);
 
         // Apply IsEnabled/IsVisible bindings
         ApplySettingsItemAttributes(sb, itemName, metadata);
@@ -378,6 +378,8 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
             }
             sb.AppendLine("});");
 
+            ApplyHeaderAndDescription(sb, wrapperItemName, metadata);
+
             // Replace itemName with the wrapper
             itemName = wrapperItemName;
         }
@@ -389,7 +391,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
+    private static void ApplyHeaderAndDescription(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
     {
         var headerExpr = string.IsNullOrWhiteSpace(metadata.HeaderKey) ?
             "null" :
