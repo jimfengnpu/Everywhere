@@ -27,7 +27,7 @@ internal static partial class SkyLightInterop
             options,
             out var imageOut);
 
-        if (result != 0 || imageOut == 0)
+        if (result != AXError.Success || imageOut == 0)
             return null;
 
         return Runtime.GetINativeObject<CGImage>(imageOut, true);
@@ -62,7 +62,7 @@ internal static partial class SkyLightInterop
     private static partial uint CGSMainConnectionID();
 
     [LibraryImport(SkyLight)]
-    private static unsafe partial int CGSCaptureWindowsContentsToRectWithOptions(
+    private static unsafe partial AXError CGSCaptureWindowsContentsToRectWithOptions(
         uint cid,
         uint* wid,
         [MarshalAs(UnmanagedType.Bool)] bool windowOnly,

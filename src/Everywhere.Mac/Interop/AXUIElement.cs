@@ -282,8 +282,17 @@ public partial class AXUIElement : NSObject, IVisualElement
         return error == AXError.Success && value != 0 ? new AXUIElement(value) : null;
     }
 
+    public static AXUIElement? ElementFromPid(int pid)
+    {
+        var handle = CreateApplication(pid);
+        return handle != 0 ? new AXUIElement(handle) : null;
+    }
+
     [LibraryImport(AppServices, EntryPoint = "AXUIElementCreateSystemWide")]
     private static partial nint CreateSystemWide();
+
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementSetMessagingTimeout")]
+    private static partial AXError AXUIElementSetMessagingTimeout(nint element, float timeoutInSeconds);
 
     [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyElementAtPosition")]
     private static partial AXError CopyElementAtPosition(nint application, float x, float y, out nint element);
@@ -309,8 +318,8 @@ public partial class AXUIElement : NSObject, IVisualElement
     [LibraryImport(AppServices, EntryPoint = "AXUIElementGetPid")]
     private static partial AXError GetPid(nint element, out int pid);
 
-    [LibraryImport(AppServices, EntryPoint = "AXUIElementSetMessagingTimeout")]
-    private static partial AXError AXUIElementSetMessagingTimeout(nint element, float timeoutInSeconds);
+    [LibraryImport(AppServices, EntryPoint = "AXUIElementCreateApplication")]
+    private static partial nint CreateApplication(int pid);
 
     #endregion
 
@@ -363,117 +372,4 @@ public partial class AXUIElement : NSObject, IVisualElement
             }
         }
     }
-}
-
-/// <summary>
-/// Defines common accessibility attribute and action constants.
-/// </summary>
-public static class AXAttributeConstants
-{
-    public static readonly NSString Role = new("AXRole");
-    public static readonly NSString Subrole = new("AXSubrole");
-    public static readonly NSString Parent = new("AXParent");
-    public static readonly NSString Children = new("AXChildren");
-    public static readonly NSString VisibleChildren = new("AXVisibleChildren");
-    public static readonly NSString Title = new("AXTitle");
-    public static readonly NSString Description = new("AXDescription");
-    public static readonly NSString Value = new("AXValue");
-    public static readonly NSString Position = new("AXPosition");
-    public static readonly NSString Size = new("AXSize");
-    public static readonly NSString Enabled = new("AXEnabled");
-    public static readonly NSString Focused = new("AXFocused");
-    public static readonly NSString Window = new("AXWindow");
-    public static readonly NSString TopLevelUIElement = new("AXTopLevelUIElement");
-    public static readonly NSString FocusedUIElement = new("AXFocusedUIElement");
-    public static readonly NSString SelectedText = new("AXSelectedText");
-    public static readonly NSString NumberOfCharacters = new("AXNumberOfCharacters");
-    public static readonly NSString WindowNumber = new("AXWindowNumber");
-
-    // Actions
-    public static readonly NSString Press = new("AXPress");
-}
-
-/// <summary>
-/// from NSAccessibilityRoles
-/// </summary>
-public enum AXRoleAttribute
-{
-    AXUnknown,
-    AXApplication,
-    AXBrowser,
-    AXBusyIndicator,
-    AXButton,
-    AXCell,
-    AXCheckBox,
-    AXColorWell,
-    AXColumn,
-    AXComboBox,
-    AXDisclosureTriangle,
-    AXDrawer,
-    AXGrid,
-    AXGroup,
-    AXGrowArea,
-    AXHandle,
-    AXHelpTag,
-    AXImage,
-    AXIncrementor,
-    AXLayoutArea,
-    AXLayoutItem,
-    AXLevelIndicator,
-    AXLink,
-    AXList,
-    AXMatte,
-    AXMenuBar,
-    AXMenuBarItem,
-    AXMenuButton,
-    AXMenuItem,
-    AXMenu,
-    AXOutline,
-    AXPage,
-    AXPopUpButton,
-    AXPopover,
-    AXProgressIndicator,
-    AXRadioButton,
-    AXRadioGroup,
-    AXRelevanceIndicator,
-    AXRow,
-    AXRulerMarker,
-    AXRuler,
-    AXScrollArea,
-    AXScrollBar,
-    AXSheet,
-    AXSlider,
-    AXSplitGroup,
-    AXSplitter,
-    AXStaticText,
-    AXSystemWide,
-    AXTabGroup,
-    AXTable,
-    AXTextArea,
-    AXTextField,
-    AXToolbar,
-    AXValueIndicator,
-    AXWindow,
-    AXWebArea
-}
-
-// Define AXError enum based on documentation
-public enum AXError
-{
-    Success = 0,
-    Failure = -25200,
-    IllegalArgument = -25201,
-    InvalidUIElement = -25202,
-    InvalidUIElementObserver = -25203,
-    CannotComplete = -25204,
-    AttributeUnsupported = -25205,
-    ActionUnsupported = -25206,
-    NotificationUnsupported = -25207,
-    NotImplemented = -25208,
-    NotificationAlreadyRegistered = -25209,
-    NotificationNotRegistered = -25210,
-    APIDisabled = -25211,
-    NoValue = -25212,
-    ParameterizedAttributeUnsupported = -25213,
-    NotEnoughPrecision = -25214
 }
