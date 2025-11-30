@@ -11,12 +11,12 @@ using Microsoft.Extensions.Logging;
 namespace Everywhere.Linux.Interop;
 
 
-public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
+public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEventHelper
 {
     private IntPtr _display;
     private IntPtr _rootWindow;
     private IntPtr _scanSkipWindowHandle = IntPtr.Zero;
-    private readonly ILogger<X11DisplayBackend> _logger = ServiceLocator.Resolve<ILogger<X11DisplayBackend>>();
+    private readonly ILogger<X11WindowEventHelper> _logger = ServiceLocator.Resolve<ILogger<X11WindowEventHelper>>();
     private readonly ConcurrentDictionary<int, RegInfo> _regs = new();
     private int _nextId = 1;
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
@@ -32,12 +32,11 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     public bool IsAvailable => _display != IntPtr.Zero;
     public IVisualElementContext? Context { get; set; }
 
-    public bool Open()
-    {
-
+    public X11WindowEventHelper()
+    { 
         XInitThreads();
         _display = XOpenDisplay(IntPtr.Zero);
-        if (_display == IntPtr.Zero) return false;
+        if (_display == IntPtr.Zero) return;
         _rootWindow = XDefaultRootWindow(_display);
         // select key events on root window so we receive KeyPress/KeyRelease
         XSelectInput(_display, _rootWindow,
@@ -74,10 +73,9 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
         _running = true;
         _xThread = new Thread(XThreadMain) { IsBackground = true, Name = "X11DisplayThread" };
         _xThread.Start();
-        return true;
     }
 
-    public void Close()
+    ~X11WindowEventHelper()
     {
         _running = false;
         try
@@ -829,7 +827,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     }
 
     private class X11WindowVisualElement(
-        X11DisplayBackend backend,
+        X11WindowEventHelper backend,
         IntPtr windowHandle
     ) : IVisualElement
     {
@@ -1017,7 +1015,7 @@ public sealed partial class X11DisplayBackend : ILinuxDisplayBackend
     }
 
     private class X11ScreenVisualElement(
-        X11DisplayBackend backend,
+        X11WindowEventHelper backend,
         int index
     ) : IVisualElement
     {

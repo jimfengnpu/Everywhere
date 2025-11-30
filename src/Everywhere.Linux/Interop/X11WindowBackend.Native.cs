@@ -7,7 +7,7 @@ namespace Everywhere.Linux.Interop;
 /// <summary>
 /// X11 Backend Impl
 /// </summary>
-public partial class X11DisplayBackend
+public partial class X11WindowBackend
 {
     #region X11 P/Invoke Declarations
 
