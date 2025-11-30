@@ -149,15 +149,6 @@ partial class ChatService
                 {
                     arguments = JsonSerializer.Deserialize<KernelArguments>(argumentsString);
                 }
-
-                if (arguments is { Count: > 0 })
-                {
-                    var names = arguments.Names.ToArray();
-                    foreach (var name in names)
-                    {
-                        arguments[name] = arguments[name]?.ToString();
-                    }
-                }
             }
             catch (JsonException ex)
             {
