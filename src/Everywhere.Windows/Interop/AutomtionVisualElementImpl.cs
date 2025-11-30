@@ -1,23 +1,25 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
+using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
+using Windows.Win32.UI.WindowsAndMessaging;
+using Avalonia;
 using Avalonia.Input;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Everywhere.Extensions;
+using Everywhere.Interop;
 using Everywhere.Windows.Extensions;
+using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Patterns;
+using FlaUI.UIA3.Patterns;
 using IDataObject = System.Windows.IDataObject;
 using INPUT = Windows.Win32.UI.Input.KeyboardAndMouse.INPUT;
 using KEYBDINPUT = Windows.Win32.UI.Input.KeyboardAndMouse.KEYBDINPUT;
-using Everywhere.Interop;
-using Windows.Win32;
-using Windows.Win32.Graphics.Gdi;
-using FlaUI.Core.AutomationElements;
-using Avalonia;
-using Windows.Win32.UI.WindowsAndMessaging;
-using Avalonia.Media.Imaging;
 
 namespace Everywhere.Windows.Interop;
 
@@ -127,13 +129,18 @@ public partial class VisualElementContext
                 try
                 {
                     var states = VisualElementStates.None;
-                    if (_element.Properties.IsOffscreen.ValueOrDefault) states |= VisualElementStates.Offscreen;
-                    if (!_element.Properties.IsEnabled.ValueOrDefault) states |= VisualElementStates.Disabled;
-                    if (_element.Properties.HasKeyboardFocus.ValueOrDefault) states |= VisualElementStates.Focused;
-                    if (_element.Patterns.SelectionItem.TryGetPattern() is { IsSelected.ValueOrDefault: true })
+                    if (_element.Properties.IsOffscreen.ValueOrDefault)
+                        states |= VisualElementStates.Offscreen;
+                    if (!_element.Properties.IsEnabled.ValueOrDefault)
+                        states |= VisualElementStates.Disabled;
+                    if (_element.Properties.HasKeyboardFocus.ValueOrDefault)
+                        states |= VisualElementStates.Focused;
+                    if (_element.TryGetSelectionItemPattern() is { IsSelected.ValueOrDefault: true })
                         states |= VisualElementStates.Selected;
-                    if (_element.Patterns.Value.TryGetPattern() is { IsReadOnly.ValueOrDefault: true }) states |= VisualElementStates.ReadOnly;
-                    if (_element.Properties.IsPassword.ValueOrDefault) states |= VisualElementStates.Password;
+                    if (_element.TryGetValuePattern() is { IsReadOnly.ValueOrDefault: true })
+                        states |= VisualElementStates.ReadOnly;
+                    if (_element.Properties.IsPassword.ValueOrDefault)
+                        states |= VisualElementStates.Password;
                     return states;
                 }
                 catch (COMException)
@@ -150,7 +157,7 @@ public partial class VisualElementContext
                 try
                 {
                     if (_element.Properties.Name.TryGetValue(out var name)) return name;
-                    if (_element.Patterns.LegacyIAccessible.TryGetPattern() is { } accessiblePattern) return accessiblePattern.Name;
+                    if (_element.TryGetLegacyIAccessiblePattern() is { } accessiblePattern) return accessiblePattern.Name;
                     return null;
                 }
                 catch
@@ -190,9 +197,9 @@ public partial class VisualElementContext
         {
             try
             {
-                if (_element.Patterns.Value.TryGetPattern() is { } valuePattern) return valuePattern.Value;
-                if (_element.Patterns.Text.TryGetPattern() is { } textPattern) return textPattern.DocumentRange.GetText(maxLength);
-                if (_element.Patterns.LegacyIAccessible.TryGetPattern() is { } accessiblePattern) return accessiblePattern.Value;
+                if (_element.TryGetValuePattern() is { } valuePattern) return valuePattern.Value;
+                if (_element.TryGetTextPattern() is { } textPattern) return textPattern.DocumentRange.GetText(maxLength);
+                if (_element.TryGetLegacyIAccessiblePattern() is { } accessiblePattern) return accessiblePattern.Value;
                 return null;
             }
             catch
@@ -217,25 +224,25 @@ public partial class VisualElementContext
         {
             try
             {
-                if (_element.Patterns.Invoke.TryGetPattern() is { } invokePattern)
+                if (_element.TryGetInvokePattern() is { } invokePattern)
                 {
                     invokePattern.Invoke();
                     return;
                 }
 
-                if (_element.Patterns.Toggle.TryGetPattern() is { } togglePattern)
+                if (_element.TryGetTogglePattern() is { } togglePattern)
                 {
                     togglePattern.Toggle();
                     return;
                 }
 
-                if (_element.Patterns.SelectionItem.TryGetPattern() is { } selectionItemPattern)
+                if (_element.TryGetSelectionItemPattern() is { } selectionItemPattern)
                 {
                     selectionItemPattern.Select();
                     return;
                 }
 
-                if (_element.Patterns.ExpandCollapse.TryGetPattern() is { } expandCollapsePattern)
+                if (_element.TryGetExpandCollapsePattern() is { } expandCollapsePattern)
                 {
                     var state = expandCollapsePattern.ExpandCollapseState.ValueOrDefault;
                     if (state is ExpandCollapseState.Collapsed or ExpandCollapseState.PartiallyExpanded)
@@ -250,7 +257,7 @@ public partial class VisualElementContext
                     return;
                 }
 
-                if (_element.Patterns.LegacyIAccessible.TryGetPattern() is { } legacyPattern)
+                if (_element.TryGetLegacyIAccessiblePattern() is { } legacyPattern)
                 {
                     legacyPattern.DoDefaultAction();
                 }
@@ -271,7 +278,7 @@ public partial class VisualElementContext
         {
             try
             {
-                if (_element.Patterns.Value.TryGetPattern() is { } valuePattern)
+                if (_element.TryGetValuePattern() is { } valuePattern)
                 {
                     if (valuePattern.IsReadOnly.ValueOrDefault)
                     {
@@ -350,7 +357,7 @@ public partial class VisualElementContext
             try
             {
                 // 1) Prefer UIA TextPattern selection text
-                if (_element.Patterns.Text.TryGetPattern() is { } textPattern)
+                if (_element.TryGetTextPattern() is { } textPattern)
                 {
                     var ranges = textPattern.GetSelection();
                     if (ranges is { Length: > 0 })
@@ -362,7 +369,7 @@ public partial class VisualElementContext
                 }
 
                 // 2) Fallback to SelectionItemPattern (if selected, return element's text)
-                if (_element.Patterns.SelectionItem.TryGetPattern() is { } selectionItemPattern)
+                if (_element.TryGetSelectionItemPattern() is { } selectionItemPattern)
                 {
                     if (selectionItemPattern.IsSelected.ValueOrDefault)
                     {

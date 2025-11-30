@@ -2,7 +2,6 @@
 using System.Drawing.Imaging;
 using Windows.Win32;
 using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.Platform;
 using Everywhere.Common;

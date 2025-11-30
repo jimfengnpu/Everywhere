@@ -20,6 +20,7 @@ namespace Everywhere.Views;
 public partial class VisualTreeDebugger : UserControl
 {
     private readonly IVisualElementContext _visualElementContext;
+    private readonly IWindowHelper _windowHelper;
     private readonly ObservableCollection<IVisualElement> _rootElements = [];
     private readonly IReadOnlyList<VisualElementProperty> _properties = typeof(DebuggerVisualElement)
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -29,9 +30,11 @@ public partial class VisualTreeDebugger : UserControl
 
     public VisualTreeDebugger(
         IShortcutListener shortcutListener,
-        IVisualElementContext visualElementContext)
+        IVisualElementContext visualElementContext,
+        IWindowHelper windowHelper)
     {
         _visualElementContext = visualElementContext;
+        _windowHelper = windowHelper;
 
         InitializeComponent();
 
@@ -117,8 +120,13 @@ public partial class VisualTreeDebugger : UserControl
         }
     }
 
+    // ReSharper disable once AsyncVoidEventHandlerMethod
+    // SetCloaked won't throw, so it's safe here.
     private async void HandlePickElementButtonClicked(object? sender, RoutedEventArgs e)
     {
+        var window = TopLevel.GetTopLevel(this) as Window;
+        if (window is not null) _windowHelper.SetCloaked(window, true);
+
         try
         {
             _rootElements.Clear();
@@ -131,6 +139,8 @@ public partial class VisualTreeDebugger : UserControl
         {
             // ignored
         }
+
+        if (window is not null) _windowHelper.SetCloaked(window, false);
     }
 
     private async void HandleCaptureButtonClicked(object? sender, RoutedEventArgs e)
