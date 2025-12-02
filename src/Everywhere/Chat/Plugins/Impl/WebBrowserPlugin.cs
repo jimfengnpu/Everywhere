@@ -10,8 +10,6 @@ using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Utilities;
-using Google.Apis.Http;
-using Google.Apis.Services;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
@@ -149,17 +147,14 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         (_connector, _maxSearchCount) = provider.Id.ToLower() switch
         {
             "google" => (new GoogleConnector(
-                new BaseClientService.Initializer
-                {
-                    ApiKey = EnsureApiKey(provider.ApiKey),
-                    BaseUri = uri.AbsoluteUri,
-                    HttpClientFactory = new ProxiedGoogleHttpClientFactory(_webProxy)
-                },
+                EnsureApiKey(provider.ApiKey),
                 provider.SearchEngineId ??
                 throw new HandledException(
                     new UnauthorizedAccessException("Search Engine ID is not set."),
                     new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage),
                     showDetails: false),
+                _httpClientFactory.CreateClient(),
+                uri,
                 _loggerFactory) as IWebSearchEngineConnector, 10),
             "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
             "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
@@ -378,8 +373,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             _browserLock.Release();
         }
     }
-
-    private sealed class ProxiedGoogleHttpClientFactory(IWebProxy proxy) : HttpClientFactory(proxy);
 
     private sealed record IndexedWebPage(
         [property: JsonPropertyName("index")] int Index,
