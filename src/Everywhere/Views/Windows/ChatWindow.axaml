@@ -1072,32 +1072,7 @@
                     <ListBox.Styles>
                       <Style Selector="ListBoxItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="ContextMenu">
-                          <Setter.Value>
-                            <ContextMenu
-                              x:DataType="chat:ChatContextMetadata"
-                              CornerRadius="{DynamicResource LgCornerRadius}">
-                              <MenuItem
-                                Command="{Binding StartRenaming}"
-                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_RenameMenuItem_Header}}"
-                                Icon="{LucideIconContent Pencil}"
-                                IsVisible="{Binding !IsTemporary}"/>
-                              <MenuItem
-                                Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
-                                CommandParameter="{Binding}"
-                                Foreground="{DynamicResource DestructiveColor}"
-                                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_DeleteMenuItem_Header}}">
-                                <MenuItem.Icon>
-                                  <LucideIcon
-                                    Foreground="{DynamicResource DestructiveColor}"
-                                    Kind="Trash2"/>
-                                </MenuItem.Icon>
-                              </MenuItem>
-                            </ContextMenu>
-                          </Setter.Value>
-                        </Setter>
                       </Style>
-
                       <Style Selector="LucideIcon">
                         <Setter Property="Size" Value="14"/>
                       </Style>
@@ -1147,6 +1122,11 @@
                                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_RenameMenuItem_Header}}"
                                   Icon="{LucideIconContent Pencil}"
                                   IsVisible="{Binding !IsTemporary}"/>
+                                <MenuItem
+                                  Command="{Binding $parent[v:ChatWindow].ViewModel.ExportMarkdownCommand}"
+                                  CommandParameter="{Binding}"
+                                  Header="{I18N {x:Static LocaleKey.ChatWindow_ChatHistory_ExportMarkdownMenuItem_Header}}"
+                                  Icon="{LucideIconContent Upload}"/>
                                 <MenuItem
                                   Command="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.RemoveCommand}"
                                   CommandParameter="{Binding}"

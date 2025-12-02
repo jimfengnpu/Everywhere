@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive.Disposables;
+using System.Text;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
@@ -399,7 +400,7 @@ public sealed partial class ChatWindowViewModel :
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
-                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles)
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_FilePickerFileType_AllFiles)
                         {
                             Patterns = ["*"]
                         }
@@ -612,6 +613,169 @@ public sealed partial class ChatWindowViewModel :
     private void SwitchViewingHistory(object? value)
     {
         IsViewingHistory = Convert.ToBoolean(value);
+    }
+
+
+    [RelayCommand]
+    private async Task ExportMarkdownAsync(ChatContextMetadata metadata)
+    {
+        var chatContext = await ChatContextManager.LoadChatContextAsync(metadata, _cancellationTokenSource.Token);
+        if (chatContext is null)
+        {
+            ToastManager
+                .CreateToast(LocaleResolver.Common_Error)
+                .WithContent(LocaleResolver.ChatWindowViewModel_ExportMarkdown_FailedToLoadChatContext)
+                .DismissOnClick()
+                .OnBottomRight()
+                .ShowError();
+            return;
+        }
+
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        var safeTopicName = string.Join("_", (metadata.Topic ?? "chat").Split(Path.GetInvalidFileNameChars()));
+        var suggestedFileName = $"{safeTopicName}_{timestamp}.md";
+        var exportPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), suggestedFileName);
+
+        IsPickingFiles = true;
+        IStorageFile? storageFile;
+        try
+        {
+            storageFile = await StorageProvider.SaveFilePickerAsync(
+                new FilePickerSaveOptions
+                {
+                    SuggestedFileName = suggestedFileName,
+                    FileTypeChoices =
+                    [
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_ExportMarkdown_FilePickerFileType_Markdown)
+                        {
+                            Patterns = ["*.md"]
+                        },
+                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_FilePickerFileType_AllFiles)
+                        {
+                            Patterns = ["*"]
+                        }
+                    ],
+                    DefaultExtension = ".md",
+                    SuggestedStartLocation = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
+                });
+        }
+        finally
+        {
+            IsPickingFiles = false;
+        }
+
+        if (storageFile is null) return;
+
+        var markdownBuilder = new StringBuilder();
+
+        var topic = metadata.Topic ?? LocaleResolver.ChatContext_Metadata_Topic_Default;
+        markdownBuilder.AppendLine($"# {topic}");
+        markdownBuilder.AppendLine();
+        markdownBuilder.AppendLine($"**{LocaleResolver.ChatWindowViewModel_ExportMarkdown_DateCreated}:** {metadata.DateCreated:F}");
+        markdownBuilder.AppendLine($"**{LocaleResolver.ChatWindowViewModel_ExportMarkdown_DateModified}:** {metadata.DateModified:F}");
+        markdownBuilder.AppendLine();
+        markdownBuilder.AppendLine("---");
+        markdownBuilder.AppendLine();
+
+        foreach (var chatMessage in chatContext
+                     .GetAllNodes()
+                     .AsValueEnumerable()
+                     .Select(node => node.Message))
+        {
+            switch (chatMessage)
+            {
+                case UserChatMessage user:
+                {
+                    markdownBuilder.AppendLine($"## 👤 {LocaleResolver.ChatWindowViewModel_ExportMarkdown_UserRole}");
+                    markdownBuilder.AppendLine();
+                    markdownBuilder.AppendLine(user.Inlines.Text);
+
+                    if (user.Attachments.Any())
+                    {
+                        markdownBuilder.AppendLine();
+                        markdownBuilder.AppendLine($"**{LocaleResolver.ChatWindowViewModel_ExportMarkdown_UserAttachments}:**");
+                        foreach (var attachment in user.Attachments)
+                        {
+                            markdownBuilder.AppendLine($"- {attachment.HeaderKey}");
+                        }
+                    }
+
+                    markdownBuilder.AppendLine();
+                    break;
+                }
+                case AssistantChatMessage assistant:
+                {
+                    if (assistant.Spans.AsValueEnumerable().All(span => span.MarkdownBuilder.Length == 0 && span.FunctionCalls.Count == 0))
+                        break;
+                    markdownBuilder.AppendLine($"## 🤖 {LocaleResolver.ChatWindowViewModel_ExportMarkdown_AssistantRole}");
+                    markdownBuilder.AppendLine();
+
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    // foreach would create an enumerator object, which will cause thread lock issues.
+                    for (var spanIndex = 0; spanIndex < assistant.Spans.Count; spanIndex++)
+                    {
+                        var span = assistant.Spans[spanIndex];
+                        if (span.MarkdownBuilder.Length > 0)
+                        {
+                            markdownBuilder.AppendLine(span.MarkdownBuilder.ToString());
+                        }
+
+                        // ReSharper disable once ForCanBeConvertedToForeach
+                        // foreach would create an enumerator object, which will cause thread lock issues.
+                        for (var callIndex = 0; callIndex < span.FunctionCalls.Count; callIndex++)
+                        {
+                            var functionCall = span.FunctionCalls[callIndex];
+                            markdownBuilder.AppendLine(
+                                $"***{LocaleResolver.ChatWindowViewModel_ExportMarkdown_FunctionCall}:** {functionCall.HeaderKey}*");
+
+                            if (functionCall.ErrorMessageKey is not null)
+                            {
+                                markdownBuilder.AppendLine();
+                                markdownBuilder.AppendLine(
+                                    $"**{LocaleResolver.ChatWindowViewModel_ExportMarkdown_ErrorMessage}:** {functionCall.ErrorMessageKey}");
+                            }
+                        }
+                    }
+
+                    markdownBuilder.AppendLine();
+                    break;
+                }
+            }
+        }
+
+        var markdownContent = markdownBuilder.ToString();
+
+        try
+        {
+            await using var stream = await storageFile.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream, Encoding.UTF8);
+            await writer.WriteAsync(markdownContent);
+            exportPath = storageFile.TryGetLocalPath() ?? exportPath;
+        }
+        catch (Exception e)
+        {
+            e = HandledSystemException.Handle(e);
+
+            _logger.LogError(e, "Failed to export chat context to markdown file.");
+
+            ToastManager
+                .CreateToast(LocaleResolver.ChatWindowViewModel_ExportMarkdown_FailedToSaveFile)
+                .WithContent(e.GetFriendlyMessage())
+                .DismissOnClick()
+                .OnBottomRight()
+                .ShowError();
+            return;
+        }
+
+        // Show success toast and open file
+        ToastManager
+            .CreateToast(LocaleResolver.ChatWindowViewModel_ExportMarkdown_ExportSuccess)
+            .WithContent(exportPath)
+            .DismissOnClick()
+            .OnBottomRight()
+            .ShowSuccess();
+
+        await ServiceLocator.Resolve<ILauncher>().LaunchFileInfoAsync(new FileInfo(exportPath));
     }
 
     public void Receive(ChatContextMetadataChangedMessage message)

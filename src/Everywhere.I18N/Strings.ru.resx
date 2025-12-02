@@ -1311,7 +1311,7 @@
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
         <value>Изображения</value>
     </data>
-    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
+    <data name="ChatWindowViewModel_FilePickerFileType_AllFiles" xml:space="preserve">
         <value>Все файлы</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">

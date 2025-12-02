@@ -1311,7 +1311,7 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
         <value>Images</value>
     </data>
-    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
+    <data name="ChatWindowViewModel_FilePickerFileType_AllFiles" xml:space="preserve">
         <value>Tous les fichiers</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
