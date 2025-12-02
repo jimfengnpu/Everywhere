@@ -15,6 +15,10 @@ using Everywhere.Common;
 using Everywhere.Interop;
 using ZLinq;
 
+#if DEBUG
+using JetBrains.Profiler.Api;
+#endif
+
 namespace Everywhere.Views;
 
 public partial class VisualTreeDebugger : UserControl
@@ -41,16 +45,18 @@ public partial class VisualTreeDebugger : UserControl
         VisualTreeView.ItemsSource = _rootElements;
         PropertyItemsControl.ItemsSource = _properties;
 
-        shortcutListener.Register(new KeyboardShortcut(Key.C, KeyModifiers.Control | KeyModifiers.Shift), () =>
-        {
-            _rootElements.Clear();
-            var element = visualElementContext.ElementFromPointer();
-            if (element == null) return;
-            element = element
-                .GetAncestors()
-                .LastOrDefault() ?? element;
-            _rootElements.Add(element);
-        });
+        shortcutListener.Register(
+            new KeyboardShortcut(Key.C, KeyModifiers.Control | KeyModifiers.Shift),
+            () =>
+            {
+                _rootElements.Clear();
+                var element = visualElementContext.ElementFromPointer();
+                if (element == null) return;
+                element = element
+                    .GetAncestors()
+                    .LastOrDefault() ?? element;
+                _rootElements.Add(element);
+            });
 
         _treeViewPointerOverOverlayWindow = new OverlayWindow
         {
@@ -167,7 +173,15 @@ public partial class VisualTreeDebugger : UserControl
                 tokenLimit,
                 0,
                 VisualTreeDetailLevel.Compact);
-            var xml = await Task.Run(() => xmlBuilder.BuildXml(CancellationToken.None));
+#if DEBUG
+            // use profiler to measure xml building time in debug mode
+            // run on UI thread to capture more realistic performance
+            MeasureProfiler.StartCollectingData("BuildXml");
+            var xml = xmlBuilder.BuildXml(CancellationToken.None);
+            MeasureProfiler.SaveData("BuildXml");
+#else
+            var xml = xmlBuilder.BuildXml(CancellationToken.None);
+#endif
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             var filename = $"visual_tree_{timestamp}.xml";
             var xmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
@@ -189,7 +203,7 @@ internal class DebuggerVisualElement(IVisualElement element) : ObservableObject
     public VisualElementType Type { get; } = element.Type;
 
     public VisualElementStates States => element.States;
-    
+
     public IVisualElement? Parent { get; } = element.Parent;
 
     public int ProcessId { get; } = element.ProcessId;
