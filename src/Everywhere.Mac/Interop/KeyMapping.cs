@@ -27,6 +27,25 @@ public static class KeyMapping
     }
 
     /// <summary>
+    /// Converts Avalonia's KeyModifiers to CGEventFlags.
+    /// </summary>
+    /// <param name="flags"></param>
+    /// <returns></returns>
+    public static CGEventFlags ToCGEventFlags(this KeyModifiers flags)
+    {
+        var modifiers = default(CGEventFlags);
+        if (flags.HasFlag(KeyModifiers.Shift))
+            modifiers |= CGEventFlags.Shift;
+        if (flags.HasFlag(KeyModifiers.Control))
+            modifiers |= CGEventFlags.Control;
+        if (flags.HasFlag(KeyModifiers.Alt))
+            modifiers |= CGEventFlags.Alternate;
+        if (flags.HasFlag(KeyModifiers.Meta))
+            modifiers |= CGEventFlags.Command;
+        return modifiers;
+    }
+
+    /// <summary>
     /// Converts NSEventModifierMask to Avalonia's KeyModifiers.
     /// </summary>
     public static KeyModifiers ToAvaloniaKeyModifiers(this NSEventModifierMask flags)

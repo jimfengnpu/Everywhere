@@ -596,7 +596,7 @@ public sealed partial class ChatWindowViewModel :
         string? text;
         if (chatMessage is UserChatMessage userChatMessage)
         {
-            var isShiftPressed = _nativeHelper.GetKeyState(Key.LeftShift) || _nativeHelper.GetKeyState(Key.RightShift);
+            var isShiftPressed = _nativeHelper.GetKeyState(KeyModifiers.Shift);
             if (isShiftPressed) text = userChatMessage.UserPrompt; // Get full text with attachments info
             else text = userChatMessage.Inlines.Text; // Get only the message text
         }
@@ -662,6 +662,16 @@ public sealed partial class ChatWindowViewModel :
             DialogManager
                 .CreateCustomDialog(card)
                 .ShowAsync(message.CancellationToken);
+
+            if (!IsOpened)
+            {
+                _nativeHelper
+                    .ShowDesktopNotificationAsync(message.HeaderKey.ToString() ?? LocaleResolver.Common_Info)
+                    .ContinueWith(r =>
+                    {
+                        if (r is { IsFaulted: false, Result: true }) Dispatcher.UIThread.Invoke(() => IsOpened = true);
+                    });
+            }
         });
     }
 }

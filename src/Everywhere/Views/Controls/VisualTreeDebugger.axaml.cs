@@ -7,16 +7,20 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Interop;
+using ZLinq;
 
 namespace Everywhere.Views;
 
 public partial class VisualTreeDebugger : UserControl
 {
     private readonly IVisualElementContext _visualElementContext;
+    private readonly IWindowHelper _windowHelper;
     private readonly ObservableCollection<IVisualElement> _rootElements = [];
     private readonly IReadOnlyList<VisualElementProperty> _properties = typeof(DebuggerVisualElement)
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -24,20 +28,13 @@ public partial class VisualTreeDebugger : UserControl
         .ToReadOnlyList();
     private readonly OverlayWindow _treeViewPointerOverOverlayWindow;
 
-#if DEBUG
-    [Obsolete("This constructor is for design time only.", true)]
-    public VisualTreeDebugger()
-    {
-        _visualElementContext = ServiceLocator.Resolve<IVisualElementContext>();
-        _treeViewPointerOverOverlayWindow = new OverlayWindow();
-    }
-#endif
-
     public VisualTreeDebugger(
         IShortcutListener shortcutListener,
-        IVisualElementContext visualElementContext)
+        IVisualElementContext visualElementContext,
+        IWindowHelper windowHelper)
     {
         _visualElementContext = visualElementContext;
+        _windowHelper = windowHelper;
 
         InitializeComponent();
 
@@ -123,8 +120,13 @@ public partial class VisualTreeDebugger : UserControl
         }
     }
 
+    // ReSharper disable once AsyncVoidEventHandlerMethod
+    // SetCloaked won't throw, so it's safe here.
     private async void HandlePickElementButtonClicked(object? sender, RoutedEventArgs e)
     {
+        var window = TopLevel.GetTopLevel(this) as Window;
+        if (window is not null) _windowHelper.SetCloaked(window, true);
+
         try
         {
             _rootElements.Clear();
@@ -137,6 +139,8 @@ public partial class VisualTreeDebugger : UserControl
         {
             // ignored
         }
+
+        if (window is not null) _windowHelper.SetCloaked(window, false);
     }
 
     private async void HandleCaptureButtonClicked(object? sender, RoutedEventArgs e)
@@ -152,24 +156,43 @@ public partial class VisualTreeDebugger : UserControl
             Debug.WriteLine(ex);
         }
     }
+
+    private async void HandleBuildXmlButtonClicked(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var tokenLimit = int.Parse(TokenLimitTextBox.Text ?? "8000");
+            var xmlBuilder = new VisualTreeXmlBuilder(
+                VisualTreeView.SelectedItems.AsValueEnumerable().OfType<IVisualElement>().ToList(),
+                tokenLimit,
+                0,
+                VisualTreeDetailLevel.Compact);
+            var xml = await Task.Run(() => xmlBuilder.BuildXml(CancellationToken.None));
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var filename = $"visual_tree_{timestamp}.xml";
+            var xmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            await File.WriteAllTextAsync(xmlPath, xml);
+            await ServiceLocator.Resolve<ILauncher>().LaunchFileInfoAsync(new FileInfo(xmlPath));
+        }
+        catch
+        {
+            // ignored
+        }
+    }
 }
 
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 internal class DebuggerVisualElement(IVisualElement element) : ObservableObject
 {
-    public string? Name => element.Name;
+    public string? Name { get; } = element.Name;
 
-    public VisualElementType Type => element.Type;
+    public VisualElementType Type { get; } = element.Type;
 
     public VisualElementStates States => element.States;
     
-    public IVisualElement? Parent => element.Parent;
+    public IVisualElement? Parent { get; } = element.Parent;
 
-    public IVisualElement? PreviousSibling => element.PreviousSibling;
-
-    public IVisualElement? NextSibling => element.NextSibling;
-
-    public int ProcessId => element.ProcessId;
+    public int ProcessId { get; } = element.ProcessId;
 
     public string ProcessName
     {
@@ -187,7 +210,7 @@ internal class DebuggerVisualElement(IVisualElement element) : ObservableObject
         }
     }
 
-    public nint NativeWindowHandle => element.NativeWindowHandle;
+    public nint NativeWindowHandle { get; } = element.NativeWindowHandle;
 
     public PixelRect BoundingRectangle => element.BoundingRectangle;
 

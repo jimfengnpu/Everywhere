@@ -35,16 +35,16 @@ public interface INativeHelper
     /// <summary>
     /// Get the current state of the given key. True if the key is currently pressed down, false otherwise.
     /// </summary>
-    /// <param name="key"></param>
+    /// <param name="keyModifiers"></param>
     /// <returns></returns>
-    bool GetKeyState(Key key);
+    bool GetKeyState(KeyModifiers keyModifiers);
 
     /// <summary>
-    /// Show a desktop notification with the given message and optional title.
+    /// Show a desktop notification with the given message and optional title. returns true if the notification was clicked or confirmed by the user.
     /// </summary>
     /// <param name="message"></param>
     /// <param name="title"></param>
-    void ShowDesktopNotification(string message, string? title = null);
+    Task<bool> ShowDesktopNotificationAsync(string message, string? title = null);
 
     /// <summary>
     /// Open the file location in the system file explorer and select the file.

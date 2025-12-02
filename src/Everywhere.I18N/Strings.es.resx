@@ -1030,10 +1030,10 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
         <value>Plantilla de definición del modelo</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Seleccione una plantilla para establecer automáticamente valores predeterminados para opciones como ID del modelo, soporte de entrada de imagen, soporte de uso de herramientas y más. Haga clic en el botón Restablecer para volver a configuraciones no definidas.</value>
+        <value>Selecciona una plantilla para rellenar automáticamente opciones como “ID del modelo, Soporte de entrada de imagen, Soporte de uso de herramientas.” Puedes modificar estos ajustes según sea necesario.</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Seleccione una plantilla para establecer automáticamente valores predeterminados para opciones como la dirección de llamada de API y el modo de API. Haga clic en el botón Restablecer para volver a configuraciones no definidas.</value>
+        <value>Selecciona una plantilla para rellenar automáticamente opciones como “Dirección de API y Esquema de API.” Puedes modificar estos ajustes según sea necesario.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>Ocurrió un error general de E/S. Esto podría deberse a un problema al leer o escribir un archivo.</value>

@@ -1,0 +1,40 @@
+﻿<Styles
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--  ListBox  -->
+  <Style Selector=":is(ListBox).Draggable">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel Orientation="Vertical"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style Selector=":is(ListBox).Draggable &gt; :is(ListBoxItem)">
+    <Setter Property="ZIndex" Value="0"/>
+    <Setter Property="(Interaction.Behaviors)">
+      <BehaviorCollectionTemplate>
+        <BehaviorCollection>
+          <ItemDragBehavior
+            HorizontalDragThreshold="3" Orientation="Vertical"
+            VerticalDragThreshold="3"/>
+        </BehaviorCollection>
+      </BehaviorCollectionTemplate>
+    </Setter>
+    <Style Selector="^:not(:dragging)">
+      <Setter Property="Transitions">
+        <Setter.Value>
+          <Transitions>
+            <TransformOperationsTransition
+              Property="RenderTransform" Duration="0:0:0.1"/>
+          </Transitions>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Style>
+
+  <Style Selector=":is(ListBox).draggableVirtualizing &gt; :is(ListBoxItem):pressed">
+    <Setter Property="ZIndex" Value="1"/>
+  </Style>
+</Styles>

@@ -5,17 +5,12 @@ using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
-using Avalonia;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
-using Everywhere.Windows.Extensions;
 using Microsoft.Win32;
-using Vector = Avalonia.Vector;
 
 namespace Everywhere.Windows.Interop;
 
@@ -123,28 +118,25 @@ public class NativeHelper : INativeHelper
         Environment.Exit(0); // Exit the current process
     }
 
-    public bool GetKeyState(Key key)
+    public bool GetKeyState(KeyModifiers keyModifiers)
     {
-        return PInvoke.GetAsyncKeyState((int)key.ToVirtualKey()) != 0;
+        var result = false;
+        if (keyModifiers.HasFlag(KeyModifiers.Control)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_CONTROL) != 0;
+        if (keyModifiers.HasFlag(KeyModifiers.Shift)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_SHIFT) != 0;
+        if (keyModifiers.HasFlag(KeyModifiers.Alt)) result &= PInvoke.GetAsyncKeyState((int)VIRTUAL_KEY.VK_MENU) != 0;
+        return result;
     }
 
-    public void ShowDesktopNotification(string message, string? title)
+    public Task<bool> ShowDesktopNotificationAsync(string message, string? title)
     {
-        var registryKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\AppUserModelId");
-        const string ModelId = "{D66EA41B-8DEB-4E5A-9D32-AB4F8305F664}/Everywhere";
-        var tempFilePath = Path.Combine(Path.GetTempPath(), "D66EA41B-8DEB-4E5A-9D32-AB4F8305F664-Everywhere.ico");
-
-        using (var subKey = registryKey.CreateSubKey(ModelId))
+        const string ModelId = "com.Sylinko.Everywhere";
+        try
         {
-            subKey.SetValue("DisplayName", "Everywhere");
-
-            var iconResource = AssetLoader.Open(new Uri("avares://Everywhere/Assets/Everywhere.ico"));
-            using (var fs = File.Create(tempFilePath))
-            {
-                iconResource.CopyTo(fs);
-            }
-
-            subKey.SetValue("IconUri", tempFilePath);
+            EnsureAumidRegistered();
+        }
+        catch
+        {
+            // ignore
         }
 
         var xml =
@@ -163,20 +155,21 @@ public class NativeHelper : INativeHelper
 
         var toast = new ToastNotification(xmlDocument);
         ToastNotificationManager.CreateToastNotifier(ModelId).Show(toast);
+        var tcs = new TaskCompletionSource<bool>();
 
-        toast.Dismissed += delegate
+        toast.Activated += (_, _) => tcs.SetResult(true);
+        toast.Dismissed += (_, _) => tcs.SetResult(false);
+        toast.Failed += (_, _) => tcs.SetResult(false);
+
+        return tcs.Task;
+
+        void EnsureAumidRegistered()
         {
-            try
-            {
-                registryKey.DeleteSubKey(ModelId);
-                registryKey.Dispose();
-                File.Delete(tempFilePath);
-            }
-            catch
-            {
-                // ignore
-            }
-        };
+            var iconFilePath = Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location)!, "Everywhere.ico");
+            using var registryKey = Registry.CurrentUser.CreateSubKey(Path.Combine(@"Software\Classes\AppUserModelId", ModelId));
+            registryKey.SetValue("DisplayName", "Everywhere");
+            registryKey.SetValue("IconUri", iconFilePath);
+        }
     }
 
     public void OpenFileLocation(string fullPath)

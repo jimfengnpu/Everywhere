@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Tree Traversal Debugger</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #sidebar {
+      width: 300px;
+      min-width: 200px;
+      background: #f5f5f7;
+      border-right: 1px solid #d1d1d6;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    #graph-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+      min-width: 200px;
+    }
+
+    #details-panel {
+      width: 300px;
+      min-width: 200px;
+      border-left: 1px solid #d1d1d6;
+      background: #f9f9f9;
+      padding: 10px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .resizer {
+      width: 5px;
+      background: #ddd;
+      cursor: col-resize;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .resizer:hover {
+      background: #bbb;
+    }
+
+    #controls {
+      padding: 10px;
+      border-bottom: 1px solid #d1d1d6;
+      background: #fff;
+    }
+
+    #step-info {
+      padding: 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .node rect {
+      stroke: #333;
+      stroke-width: 1.5px;
+      cursor: pointer;
+    }
+
+    .node circle {
+      fill: #fff;
+      stroke: #333;
+      stroke-width: 1.5px;
+      cursor: pointer;
+    }
+
+    .node text {
+      font-size: 10px;
+      pointer-events: none;
+      font-family: monospace;
+    }
+
+    .link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 1.5px;
+    }
+
+    .status-visited {
+      fill: #e1f5fe;
+      stroke: #0288d1;
+    }
+
+    .status-enqueued {
+      fill: #fff9c4;
+      stroke: #fbc02d;
+    }
+
+    .status-core {
+      stroke: #d32f2f;
+      stroke-width: 3px;
+    }
+
+    .status-current {
+      fill: #c8e6c9 !important;
+      stroke: #388e3c !important;
+      stroke-width: 3px;
+    }
+
+    .step-item {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .step-item:hover {
+      background: #f0f0f0;
+    }
+
+    .step-item.active {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+
+    #drop-zone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-size: 24px;
+      color: #666;
+      border: 4px dashed #ccc;
+      margin: 20px;
+      display: none;
+      pointer-events: none;
+    }
+  </style>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+<div id="sidebar">
+  <div id="controls">
+    <h3>Traversal Debugger</h3>
+    <input type="file" id="file-input" accept=".json"/>
+    <div style="margin-top: 10px; display: flex; gap: 5px;">
+      <button id="btn-reset">Reset</button>
+      <button id="btn-prev">Prev</button>
+      <button id="btn-play">Play</button>
+      <button id="btn-next">Next</button>
+    </div>
+    <div style="margin-top: 5px;">
+      Step: <span id="lbl-step">0</span> / <span id="lbl-total">0</span>
+    </div>
+    <div style="margin-top: 5px;">
+      Tokens: <span id="lbl-tokens">0</span> / <span id="lbl-limit">0</span>
+    </div>
+    <div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
+      <button id="btn-collapse-all">Collapse All</button>
+      <button id="btn-expand-all">Expand All</button>
+    </div>
+    <div style="margin-top: 5px;">
+      <label><input type="checkbox" id="chk-follow" checked> Follow Construction</label>
+    </div>
+  </div>
+  <div id="step-info">
+    <!-- Step list goes here -->
+  </div>
+</div>
+
+<div class="resizer" id="resizer-left"></div>
+<div id="graph-container"></div>
+<div class="resizer" id="resizer-right"></div>
+
+<div id="details-panel">
+  <strong>Node Details</strong>
+  <pre id="node-details-content">Select a node to see details...</pre>
+</div>
+
+<div id="drop-zone">Drop debug_session.json here</div>
+
+<script>
+  let sessionData = null;
+  let currentStepIndex = -1;
+  let simulationTimer = null;
+  let rootData = null; // D3 hierarchy root
+
+  // D3 setup
+  const svg = d3.select("#graph-container").append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%");
+  const g = svg.append("g");
+
+  const zoom = d3.zoom().on("zoom", (e) => g.attr("transform", e.transform));
+  svg.call(zoom);
+
+  // Resizing Logic
+  const resizerLeft = document.getElementById('resizer-left');
+  const sidebar = document.getElementById('sidebar');
+  const resizerRight = document.getElementById('resizer-right');
+  const detailsPanel = document.getElementById('details-panel');
+
+  function initResizers() {
+    const makeResizable = (resizer, targetElement, isLeft) => {
+      let startX = 0;
+      let startWidth = 0;
+
+      const onMouseMove = (e) => {
+        const dx = e.clientX - startX;
+        if (isLeft) {
+          targetElement.style.width = `${startWidth + dx}px`;
+        } else {
+          targetElement.style.width = `${startWidth - dx}px`;
+        }
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        resizer.style.background = '#ddd';
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = '';
+      };
+
+      resizer.addEventListener('mousedown', (e) => {
+        startX = e.clientX;
+        startWidth = targetElement.getBoundingClientRect().width;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        resizer.style.background = '#999';
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+    };
+
+    makeResizable(resizerLeft, sidebar, true);
+    makeResizable(resizerRight, detailsPanel, false);
+  }
+
+  initResizers();
+
+  // Data structures for graph
+  let nodes = [];
+  let links = [];
+  let nodeMap = new Map();
+
+  function loadData(json) {
+    sessionData = json;
+    document.getElementById("lbl-limit").innerText = sessionData.tokenLimit;
+    document.getElementById("lbl-total").innerText = sessionData.steps.length;
+
+    // Build tree structure from AllNodes
+    nodes = sessionData.allNodes.map(n => ({
+      id: n.id,
+      data: n
+    }));
+
+    nodeMap = new Map(nodes.map(n => [n.id, n]));
+    links = [];
+
+    nodes.forEach(n => {
+      if (n.data.childrenIds) {
+        n.data.childrenIds.forEach(childId => {
+          if (nodeMap.has(childId)) {
+            links.push({source: n.id, target: childId});
+          }
+        });
+      }
+    });
+
+    // Layout (using d3-hierarchy for tree layout)
+    const childIds = new Set(links.map(l => l.target));
+    const roots = nodes.filter(n => !childIds.has(n.id));
+
+    if (roots.length > 1) {
+      // set a dummy root
+      const rootNode = {id: "root", data: {type: "Root"}};
+      nodes.push(rootNode);
+      roots.forEach(r => links.push({source: "root", target: r.id}));
+    }
+
+    rootData = d3.stratify()
+      .id(d => d.id)
+      .parentId(d => {
+        const parentLink = links.find(l => l.target === d.id);
+        return parentLink ? parentLink.source : null;
+      })
+      (nodes);
+
+    rootData.x0 = 0;
+    rootData.y0 = 0;
+
+    // Collapse all by default
+    if (rootData.children) {
+      rootData.children.forEach(collapse);
+    }
+
+    update(rootData);
+
+    // Reset steps
+    setStep(-1);
+    renderStepList();
+
+    // Center view
+    const svgBounds = svg.node().getBoundingClientRect();
+    svg.call(zoom.transform, d3.zoomIdentity.translate(50, svgBounds.height / 2).scale(1));
+  }
+
+  function collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+  }
+
+  function expand(d) {
+    if (d._children) {
+      d.children = d._children;
+      d.children.forEach(expand);
+      d._children = null;
+    }
+  }
+
+  function update(source) {
+    const treeLayout = d3.tree().nodeSize([40, 150]);
+    const treeData = treeLayout(rootData);
+
+    const nodes = treeData.descendants();
+    const links = treeData.links();
+
+    // Update Nodes
+    const node = g.selectAll('g.node')
+      .data(nodes, d => d.id);
+
+    const nodeEnter = node.enter().append('g')
+      .attr('class', 'node')
+      .attr('transform', d => `translate(${source.y0},${source.x0})`);
+
+    nodeEnter.append('rect')
+      .attr('width', 140)
+      .attr('height', 30)
+      .attr('x', -10)
+      .attr('y', -15)
+      .attr('rx', 4)
+      .attr('fill', '#fff')
+      .on('click', (e, d) => {
+        showNodeDetails(d.data);
+      });
+
+    nodeEnter.append('circle')
+      .attr('cx', 130)
+      .attr('cy', 0)
+      .attr('r', 6)
+      .style("fill", d => d._children ? "lightsteelblue" : "#fff")
+      .style("display", d => (d.children || d._children) ? "inline" : "none")
+      .on('click', (e, d) => {
+        // Toggle children on click
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
+        }
+        update(d);
+      });
+
+    nodeEnter.append('text')
+      .attr('dy', '0.35em')
+      .attr('x', 0)
+      .attr('text-anchor', 'start')
+      .style('font-weight', 'bold')
+      .text(d => {
+        let label = `(${Number(d.data.data.score).toFixed(2)}) ${d.data.data.type}`;
+        if (d.data.data.name) label += ":" + d.data.data.name;
+        return label;
+      });
+
+    const nodeUpdate = node.merge(nodeEnter);
+
+    nodeUpdate.transition()
+      .duration(200)
+      .attr('transform', d => `translate(${d.y},${d.x})`);
+
+    nodeUpdate.select('rect')
+      .attr('fill', d => {
+        // We'll handle color in setStep, but here we set default
+        return "#fff";
+      })
+      .attr('stroke', '#333')
+      .attr('stroke-width', 1.5);
+
+    nodeUpdate.select('circle')
+      .style("fill", d => d._children ? "lightsteelblue" : "#fff")
+      .style("display", d => (d.children || d._children) ? "inline" : "none");
+
+    // Update Links
+    const link = g.selectAll('path.link')
+      .data(links, d => d.target.id);
+
+    const linkEnter = link.enter().insert('path', "g")
+      .attr("class", "link")
+      .attr('d', d => {
+        const o = {x: source.x0, y: source.y0};
+        return d3.linkHorizontal()
+          .x(d => d.y)
+          .y(d => d.x)
+          ({source: o, target: o});
+      });
+
+    const linkUpdate = link.merge(linkEnter);
+
+    linkUpdate.transition()
+      .duration(200)
+      .attr('d', d3.linkHorizontal()
+        .x(d => d.y)
+        .y(d => d.x));
+
+    // Store the old positions for transition.
+    nodes.forEach(d => {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+
+    // Re-apply colors if step is active
+    if (currentStepIndex >= 0) {
+      updateNodeColors();
+    }
+  }
+
+  function showNodeDetails(nodeData) {
+    document.getElementById("node-details-content").innerText = JSON.stringify(nodeData, null, 2);
+  }
+
+  function updateNodeColors() {
+    const step = currentStepIndex >= 0 ? sessionData.steps[currentStepIndex] : null;
+    const visited = new Set();
+    const enqueued = new Set();
+
+    for (let i = 0; i <= currentStepIndex; i++) {
+      const s = sessionData.steps[i];
+      if (s.action === "Visit") visited.add(s.nodeId);
+      if (s.action === "Enqueue") enqueued.add(s.nodeId);
+    }
+
+    g.selectAll(".node rect")
+      .attr("fill", d => {
+        if (d.data.id === (step ? step.nodeId : null)) return "#c8e6c9"; // Current
+        if (visited.has(d.data.id)) return "#e1f5fe";
+        if (enqueued.has(d.data.id)) return "#fff9c4";
+        return "#fff";
+      })
+      .attr("stroke", d => {
+        if (d.data.id === (step ? step.nodeId : null)) return "#388e3c";
+        if (d.data.data.isCore) return "#d32f2f";
+        if (visited.has(d.data.id)) return "#0288d1";
+        if (enqueued.has(d.data.id)) return "#fbc02d";
+        return "#333";
+      })
+      .attr("stroke-width", d => {
+        if (d.data.id === (step ? step.nodeId : null)) return 3;
+        if (d.data.data.isCore) return 3;
+        return 1.5;
+      });
+  }
+
+  function setStep(index) {
+    currentStepIndex = index;
+    document.getElementById("lbl-step").innerText = index + 1;
+
+    // Update UI
+    const step = index >= 0 ? sessionData.steps[index] : null;
+    if (step) {
+      document.getElementById("lbl-tokens").innerText = step.currentTokens;
+      // Auto-show details for current step node
+      const node = nodeMap.get(step.nodeId);
+      if (node) showNodeDetails(node.data);
+
+      // Follow Construction
+      if (document.getElementById('chk-follow').checked) {
+        // Find the d3 node for this step
+        let targetD3Node = null;
+        rootData.each(d => {
+          if (d.data.id === step.nodeId) targetD3Node = d;
+        });
+
+        if (targetD3Node) {
+          // Expand ancestors
+          let p = targetD3Node.parent;
+          let needsUpdate = false;
+          while (p) {
+            if (p._children) {
+              p.children = p._children;
+              p._children = null;
+              needsUpdate = true;
+            }
+            p = p.parent;
+          }
+          if (needsUpdate) update(rootData);
+
+          // Now center on targetD3Node
+          const transform = d3.zoomIdentity
+            .translate(svg.node().clientWidth / 2 - targetD3Node.y, svg.node().clientHeight / 2 - targetD3Node.x)
+            .scale(1);
+
+          svg.transition().duration(200).call(zoom.transform, transform);
+        }
+      }
+    } else {
+      document.getElementById("lbl-tokens").innerText = 0;
+    }
+
+    updateNodeColors();
+
+    // Scroll step list
+    const list = document.getElementById("step-info");
+    const activeItem = list.children[index];
+    if (activeItem) {
+      activeItem.scrollIntoView({block: "center", behavior: "smooth"});
+      Array.from(list.children).forEach(c => c.classList.remove("active"));
+      activeItem.classList.add("active");
+    }
+  }
+
+  function renderStepList() {
+    const list = document.getElementById("step-info");
+    list.innerHTML = "";
+    sessionData.steps.forEach((step, i) => {
+      const div = document.createElement("div");
+      div.className = "step-item";
+      div.innerHTML = `
+                <div style="font-weight:bold">${i + 1}. ${step.action}</div>
+                <div style="font-size:0.9em">${step.nodeId}</div>
+                <div style="font-size:0.8em;color:#666">Score: ${Number(step.score).toFixed(2)} | Tokens: ${step.currentTokens}</div>
+                <div style="font-size:0.8em;color:#888">${step.reason}</div>
+            `;
+      div.onclick = () => setStep(i);
+      list.appendChild(div);
+    });
+  }
+
+  // Controls
+  document.getElementById("btn-reset").onclick = () => {
+    if (sessionData) setStep(0);
+  };
+  document.getElementById("btn-next").onclick = () => {
+    if (sessionData && currentStepIndex < sessionData.steps.length - 1) setStep(currentStepIndex + 1);
+  };
+  document.getElementById("btn-prev").onclick = () => {
+    if (sessionData && currentStepIndex > -1) setStep(currentStepIndex - 1);
+  };
+  document.getElementById("btn-play").onclick = () => {
+    if (simulationTimer) {
+      clearInterval(simulationTimer);
+      simulationTimer = null;
+      document.getElementById("btn-play").innerText = "Play";
+    } else {
+      simulationTimer = setInterval(() => {
+        if (sessionData && currentStepIndex < sessionData.steps.length - 1) {
+          setStep(currentStepIndex + 1);
+        } else {
+          clearInterval(simulationTimer);
+          simulationTimer = null;
+          document.getElementById("btn-play").innerText = "Play";
+        }
+      }, 200);
+      document.getElementById("btn-play").innerText = "Pause";
+    }
+  };
+
+  document.getElementById("btn-collapse-all").onclick = () => {
+    if (rootData) {
+      rootData.children.forEach(collapse);
+      update(rootData);
+    }
+  };
+
+  document.getElementById("btn-expand-all").onclick = () => {
+    if (rootData) {
+      rootData.children.forEach(expand);
+      update(rootData);
+    }
+  };
+
+  // File handling
+  document.getElementById("file-input").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => loadData(JSON.parse(e.target.result));
+    reader.readAsText(file);
+  };
+
+  // Drag and drop
+  window.ondragover = (e) => {
+    e.preventDefault();
+    document.getElementById("drop-zone").style.display = "flex";
+  };
+  window.ondragleave = (e) => {
+    // Only hide if we are leaving the window, not entering a child
+    if (e.relatedTarget === null || e.relatedTarget.nodeName === "HTML") {
+      e.preventDefault();
+      document.getElementById("drop-zone").style.display = "none";
+    }
+  };
+  window.ondrop = (e) => {
+    e.preventDefault();
+    document.getElementById("drop-zone").style.display = "none";
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => loadData(JSON.parse(e.target.result));
+      reader.readAsText(file);
+    }
+  };
+</script>
+</body>
+</html>

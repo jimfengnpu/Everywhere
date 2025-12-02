@@ -127,7 +127,7 @@ public sealed partial class SoftwareUpdater(
             if (_notifiedVersion != LatestVersion && LatestVersion is not null)
             {
                 _notifiedVersion = LatestVersion;
-                new NativeHelper().ShowDesktopNotification(
+                new NativeHelper().ShowDesktopNotificationAsync(
                     LocaleResolver.SoftwareUpdater_UpdateAvailable_Toast_Message,
                     LocaleResolver.Common_Info);
             }

@@ -42,6 +42,10 @@ public abstract partial class ChatPluginDisplayBlock : ObservableObject
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
 public sealed partial class ChatPluginContainerDisplayBlock : ChatPluginDisplayBlock, IEnumerable<ChatPluginDisplayBlock>, IDisposable
 {
+    /// <summary>
+    /// Gets the child display blocks of this container for MVVM binding.
+    /// WARNING that this collection is not strongly synchronized, but it is observed on the UI dispatcher.
+    /// </summary>
     [IgnoreMember]
     public ReadOnlyObservableCollection<ChatPluginDisplayBlock> Children { get; }
 

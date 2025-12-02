@@ -53,7 +53,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
         string? consentKey;
         var trimmedScript = script.AsSpan().Trim();
-        if (trimmedScript.Count('\n') == 0)
+        if (!trimmedScript.Contains('\n'))
         {
             // single line script, confirm with user
             var command = trimmedScript[trimmedScript.Split(' ').FirstOrDefault(new Range(0, trimmedScript.Length))].ToString();
@@ -84,10 +84,10 @@ public class PowerShellPlugin : BuiltInChatPlugin
                 showDetails: false);
         }
 
-        userInterface.DisplaySink.AppendBlocks(detailBlock.Children);
+        userInterface.DisplaySink.AppendBlocks(detailBlock);
 
         var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".";
-        using var process = Process.Start(new ProcessStartInfo
+        var psi = new ProcessStartInfo
         {
             FileName = Path.GetFullPath(Path.Combine(path, "Everywhere.Windows.PowerShell.exe")),
             RedirectStandardError = true,
@@ -95,54 +95,58 @@ public class PowerShellPlugin : BuiltInChatPlugin
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-        });
+        };
 
-        if (process is null)
+        string result;
+        using (var process = Process.Start(psi))
         {
-            throw new SystemException("Failed to start PowerShell script execution process.");
-        }
-
-        await using var registration = cancellationToken.Register(() =>
-        {
-            // ReSharper disable once MethodSupportsCancellation
-            Task.Run(() =>
+            if (process is null)
             {
-                try
+                throw new SystemException("Failed to start PowerShell script execution process.");
+            }
+
+            var pid = process.Id;
+            await using var registration = cancellationToken.Register(() =>
+            {
+                // ReSharper disable once MethodSupportsCancellation
+                Task.Run(() =>
                 {
-                    Process.Start(
-                        new ProcessStartInfo
-                        {
-                            FileName = "taskkill",
-                            // ReSharper disable once AccessToDisposedClosure
-                            Arguments = $"/PID {process.Id} /T /F",
-                            RedirectStandardError = true,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                        });
-                }
-                catch
-                {
-                    // ignore
-                }
+                    try
+                    {
+                        Process.Start(
+                            new ProcessStartInfo
+                            {
+                                FileName = "taskkill",
+                                Arguments = $"/PID {pid} /T /F",
+                                RedirectStandardError = true,
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                            });
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+                });
             });
-        });
 
-        await process.StandardInput.WriteAsync(script);
-        process.StandardInput.Close();
+            await process.StandardInput.WriteAsync(script);
+            process.StandardInput.Close();
 
-        var result = await process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var errorOutput = await process.StandardError.ReadToEndAsync(cancellationToken);
+            result = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            var errorOutput = await process.StandardError.ReadToEndAsync(cancellationToken);
 
-        await process.WaitForExitAsync(cancellationToken);
-        if (process.ExitCode != 0)
-        {
-            throw new HandledException(
-                new SystemException($"PowerShell script execution failed: {errorOutput}"),
-                new FormattedDynamicResourceKey(
-                    LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
-                    new DirectResourceKey(errorOutput)),
-                showDetails: false);
+            await process.WaitForExitAsync(cancellationToken);
+            if (process.ExitCode != 0)
+            {
+                throw new HandledException(
+                    new SystemException($"PowerShell script execution failed: {errorOutput}"),
+                    new FormattedDynamicResourceKey(
+                        LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
+                        new DirectResourceKey(errorOutput)),
+                    showDetails: false);
+            }
         }
 
         userInterface.DisplaySink.AppendCodeBlock(result, "log");

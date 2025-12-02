@@ -1031,10 +1031,10 @@
         <value>模型定义模板</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>选择一个模板，这会自动设置模型 ID、支持图像输入、支持使用工具等等选项的默认值。点击重置按钮还原到无定义。</value>
+        <value>选择一个模板以自动填充“模型 ID、支持图像输入、支持使用工具”等选项。您可以在此基础上进行修改。</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>选择一个模板，这会自动设置 API 调用地址、API 模式等选项的默认值。点击重置按钮还原到无定义。</value>
+        <value>选择一个模板以自动填充“API 地址和 API 模式”等选项。您可以在此基础上进行修改。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>发生通用 I/O 错误。可能是读写文件时出现问题。</value>

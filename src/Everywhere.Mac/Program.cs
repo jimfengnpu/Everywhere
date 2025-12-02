@@ -6,7 +6,6 @@ using Everywhere.Chat.Plugins;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Mac.Configuration;
-using Everywhere.Mac.Mock;
 using Everywhere.Extensions;
 using Everywhere.Initialization;
 using Everywhere.Interop;
@@ -38,7 +37,7 @@ public static class Program
                 .AddSingleton<IShortcutListener, CGEventShortcutListener>()
                 .AddSingleton<INativeHelper, NativeHelper>()
                 .AddSingleton<IWindowHelper, WindowHelper>()
-                .AddSingleton<ISoftwareUpdater, MockSoftwareUpdater>()
+                .AddSingleton<ISoftwareUpdater, Common.SoftwareUpdater>()
                 .AddSettings()
                 .AddWatchdogManager()
                 .ConfigureNetwork()

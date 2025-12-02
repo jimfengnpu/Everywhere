@@ -101,7 +101,7 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
     {
         if (!Settings.Internal.IsFirstTimeHideToTrayIcon) return;
 
-        ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotification(LocaleResolver.MainView_EverywhereHasMinimizedToTray);
+        ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotificationAsync(LocaleResolver.MainView_EverywhereHasMinimizedToTray);
         Settings.Internal.IsFirstTimeHideToTrayIcon = false;
     }
 

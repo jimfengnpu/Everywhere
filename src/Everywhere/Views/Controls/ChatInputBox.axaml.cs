@@ -52,12 +52,6 @@ public partial class ChatInputBox : TextBox
             nameof(SettingsMenuItems),
             o => o.SettingsMenuItems);
 
-    public static readonly StyledProperty<bool> IsImageSupportedProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsImageSupported));
-
-    public static readonly StyledProperty<bool> IsImageEnabledProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsImageEnabled));
-
     public static readonly StyledProperty<bool> IsToolCallSupportedProperty =
         AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsToolCallSupported));
 
@@ -132,18 +126,6 @@ public partial class ChatInputBox : TextBox
         get;
         set => SetAndRaise(SettingsMenuItemsProperty, ref field, value);
     } = new AvaloniaList<object>();
-
-    public bool IsImageSupported
-    {
-        get => GetValue(IsImageSupportedProperty);
-        set => SetValue(IsImageSupportedProperty, value);
-    }
-
-    public bool IsImageEnabled
-    {
-        get => GetValue(IsImageEnabledProperty);
-        set => SetValue(IsImageEnabledProperty, value);
-    }
 
     public bool IsToolCallSupported
     {

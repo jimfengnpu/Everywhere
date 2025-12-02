@@ -5,7 +5,7 @@ using ShadUI.Extensions;
 
 namespace Everywhere.Mac.Interop;
 
-public class VisualElementContext : IVisualElementContext
+public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualElementContext
 {
     public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
 
@@ -26,7 +26,9 @@ public class VisualElementContext : IVisualElementContext
         }
     }
 
-    public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
+    IVisualElement? IVisualElementContext.ElementFromPoint(PixelPoint point, PickElementMode mode) => ElementFromPoint(point, mode);
+
+    private static IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
     {
         switch (mode)
         {
@@ -47,7 +49,7 @@ public class VisualElementContext : IVisualElementContext
             case PickElementMode.Screen:
             {
                 var screen = NSScreen.Screens.FirstOrDefault(s => s.Frame.Contains(new CGPoint(point.X, point.Y)));
-                return screen is null ? null : new ScreenVisualElementImpl(this, screen);
+                return screen is null ? null : new NSScreenVisualElement(screen);
             }
             default:
             {
@@ -79,42 +81,8 @@ public class VisualElementContext : IVisualElementContext
 
     public Task<IVisualElement?> PickElementAsync(PickElementMode mode)
     {
-        // The implementation of ElementPickerWindow on macOS would be analogous to the Windows version.
-        // It would involve creating a full-screen borderless window, taking a screenshot of all screens,
-        // and then using mouse events to select an element.
-        // This is a complex UI task that requires its own class.
-        // For now, we can throw NotImplementedException.
-        throw new NotImplementedException("ElementPickerWindow for macOS needs to be implemented.");
+        return VisualElementPicker.PickAsync(windowHelper, mode);
     }
 
     // TODO: Implement AXObserver to raise KeyboardFocusedElementChanged event.
-}
-
-// A placeholder for the Screen implementation on macOS
-file class ScreenVisualElementImpl : IVisualElement
-{
-    public ScreenVisualElementImpl(IVisualElementContext context, NSScreen screen)
-    { /* ... */
-    }
-
-    // ... implementation would be similar to the Windows version, but using NSScreen and AppKit APIs
-    // to find windows on this screen.
-    public IVisualElementContext Context => throw new NotImplementedException();
-    public string Id => throw new NotImplementedException();
-    public IVisualElement? Parent => throw new NotImplementedException();
-    public IEnumerable<IVisualElement> Children => throw new NotImplementedException();
-    public IVisualElement? PreviousSibling => throw new NotImplementedException();
-    public IVisualElement? NextSibling => throw new NotImplementedException();
-    public VisualElementType Type => VisualElementType.Screen;
-    public VisualElementStates States => VisualElementStates.None;
-    public string? Name => null;
-    public PixelRect BoundingRectangle => throw new NotImplementedException();
-    public int ProcessId => 0;
-    public nint NativeWindowHandle => 0;
-    public string? GetText(int maxLength = -1) => null;
-    public void Invoke() { }
-    public void SetText(string text) { }
-    public void SendShortcut(KeyboardShortcut shortcut) { }
-    public string? GetSelectionText() => null;
-    public Task<Avalonia.Media.Imaging.Bitmap> CaptureAsync() => throw new NotImplementedException();
 }

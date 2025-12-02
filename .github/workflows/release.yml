@@ -19,15 +19,7 @@ jobs:
         fetch-depth: 0
         submodules: true
         lfs: true
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
-
+    
     - name: Get version from tag
       id: get_version
       shell: pwsh
@@ -61,6 +53,50 @@ jobs:
         echo $releaseBody | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "$delimiter" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Install SimplySignDesktop
+      shell: pwsh
+      run: |
+        $msiPath = "tools/sign_windows/SimplySignDesktop-9.3.3.71-64-bit-en.msi"
+        if (-not (Test-Path $msiPath)) {
+            Write-Error "MSI file not found at: $msiPath"
+            exit 1
+        }
+
+        $absMsiPath = Convert-Path $msiPath
+        $logPath = "$PWD\install.log"
+
+        Write-Host "Installing SimplySignDesktop from $absMsiPath..."
+        # Use /qn for completely silent installation (no UI) and ALLUSERS=1 to force machine-wide install
+        $process = Start-Process msiexec -ArgumentList "/i `"$absMsiPath`" /qn /norestart ALLUSERS=1 /l*v `"$logPath`"" -Wait -PassThru
+        
+        if ($process.ExitCode -ne 0) {
+            Write-Host "SimplySignDesktop installation failed with exit code $($process.ExitCode)"
+            if (Test-Path $logPath) {
+                Write-Host "----------------------------------------------------------------"
+                Write-Host "Install Log Content:"
+                Write-Host "----------------------------------------------------------------"
+                Get-Content $logPath
+                Write-Host "----------------------------------------------------------------"
+            } else {
+                Write-Host "Log file not found at $logPath"
+            }
+            exit $process.ExitCode
+        }
+        Write-Host "SimplySignDesktop installed successfully."
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
     - name: Restore
       shell: pwsh
       run: |
@@ -70,6 +106,16 @@ jobs:
       shell: pwsh
       run: |
         dotnet publish src/Everywhere.Windows/Everywhere.Windows.csproj -c Release --self-contained true -p:AssemblyVersion=$env:VERSION -p:FileVersion=$env:VERSION -o ./publish --no-restore
+
+    - name: Login and Sign
+      shell: pwsh
+      env:
+          SIGN_USERNAME: ${{ secrets.CERTUM_USERNAME }}
+          SIGN_OTP_TOKEN: ${{ secrets.CERTUM_OTP_TOKEN }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyotp
+        python -u tools/sign_windows/sign.py ./publish
 
     - name: Install Inno Setup
       shell: pwsh
@@ -101,3 +147,127 @@ jobs:
         files: |
           ./Everywhere-Windows-x64-v${{env.VERSION}}.zip
           ./Everywhere-Windows-x64-Setup-v${{env.VERSION}}.exe
+
+  build-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - runtime: osx-x64
+            asset_name: macOS-x64
+          - runtime: osx-arm64
+            asset_name: macOS-arm64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: true
+        lfs: true
+
+    - name: Get version from tag
+      id: get_version
+      run: |
+        echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Import Code Signing Certificate
+      env:
+        P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+        P12_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+      run: |
+        # Create a temporary keychain
+        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        security create-keychain -p "" $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security unlock-keychain -p "" $KEYCHAIN_PATH
+
+        # Decode the P12 file
+        CERT_PATH=$RUNNER_TEMP/certificate.p12
+        echo "$P12_BASE64" | base64 --decode -o $CERT_PATH
+
+        # Import the certificate
+        security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
+
+    - name: Restore
+      run: dotnet restore src/Everywhere.Mac/Everywhere.Mac.csproj -r ${{ matrix.runtime }}
+
+    - name: Publish
+      env:
+        CODE_SIGN_IDENTITY: ${{ secrets.MACOS_CERT_IDENTITY }}
+      run: |
+        dotnet publish src/Everywhere.Mac/Everywhere.Mac.csproj -c Release -r ${{ matrix.runtime }} /p:CreateAppBundle=true /p:CodeSignIdentity="$CODE_SIGN_IDENTITY" -o ./publish
+
+    - name: Notarize and Package
+      env:
+        APPLE_ID: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID }}
+        APPLE_PASSWORD: ${{ secrets.MACOS_NOTARIZATION_PWD }}
+        APPLE_TEAM_ID: ${{ secrets.MACOS_NOTARIZATION_TEAM_ID }}
+      run: |
+        cd publish
+        
+        # Install create-dmg
+        brew install create-dmg
+
+        APP_NAME="Everywhere.app"
+        DMG_NAME="../Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.dmg"
+        VOL_NAME="Everywhere Installer"
+        
+        # 1. Initial Zip for Notarization (DMG cannot be notarized directly easily, usually zip the app first)
+        # Actually, you can notarize a DMG, but stapling to DMG is also possible.
+        # Standard flow: Sign App -> Notarize App (via zip) -> Staple App -> Create DMG -> Sign DMG -> Notarize DMG -> Staple DMG
+        # Simplified flow (often sufficient): Sign App -> Notarize App (via zip) -> Staple App -> Create DMG (unsigned DMG containing signed/notarized App)
+        # The DMG itself won't be notarized, but the App inside is. Gatekeeper checks the App.
+        # For best experience, the DMG should also be signed and notarized, but that's double work.
+        # Let's stick to notarizing the App first.
+
+        /usr/bin/zip -y -r upload.zip "$APP_NAME"
+        
+        # 2. Notarize App
+        echo "Submitting App for notarization..."
+        xcrun notarytool submit upload.zip --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+        
+        echo "Stapling ticket to App..."
+        xcrun stapler staple "$APP_NAME"
+        
+        # 3. Create DMG
+        # Check if background image exists
+        BG_IMG="../img/installer_background.png"
+        
+        if [ -f "$BG_IMG" ]; then
+            echo "Creating DMG with background image..."
+            create-dmg \
+              --volname "$VOL_NAME" \
+              --background "$BG_IMG" \
+              --window-pos 200 120 \
+              --window-size 800 400 \
+              --icon-size 100 \
+              --icon "$APP_NAME" 200 190 \
+              --hide-extension "$APP_NAME" \
+              --app-drop-link 600 185 \
+              "$DMG_NAME" \
+              "$APP_NAME"
+        else
+            echo "Creating simple DMG (no background)..."
+            create-dmg \
+              --volname "$VOL_NAME" \
+              --window-pos 200 120 \
+              --window-size 800 400 \
+              --icon-size 100 \
+              --icon "$APP_NAME" 200 190 \
+              --hide-extension "$APP_NAME" \
+              --app-drop-link 600 185 \
+              "$DMG_NAME" \
+              "$APP_NAME"
+        fi
+
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.dmg

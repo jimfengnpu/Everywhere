@@ -1030,10 +1030,10 @@
         <value>モデル定義テンプレート</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>モデルID、画像入力サポート、ツール使用サポートなどのオプションのデフォルト値を自動的に設定するテンプレートを選択します。リセットボタンをクリックすると、未定義の設定に戻ります。</value>
+        <value>モデルID、画像入力のサポート、ツール使用のサポートなどのオプションを自動的に入力するテンプレートを選択します。必要に応じてこれらの設定を変更できます。</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>API呼び出しアドレスやAPIモードなどのオプションのデフォルト値を自動的に設定するテンプレートを選択します。リセットボタンをクリックすると、未定義の設定に戻ります。</value>
+        <value>APIアドレスやAPIスキーマなどのオプションを自動的に入力するテンプレートを選択します。必要に応じてこれらの設定を変更できます。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>一般的なI/Oエラーが発生しました。これはファイルの読み書きに問題がある可能性があります。</value>

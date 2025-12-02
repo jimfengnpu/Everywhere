@@ -1,9 +1,30 @@
+## [v0.5.1](https://github.com/DearVa/Everywhere/releases/tag/v0.5.1) - 2025-11-24
+
+### ✨ Features
+- Added a digital signature to the software (Thanks to Certum).
+- Desktop notifications will now be displayed for permission consent when the chat window is hidden.
+
+### 🚀 Improvements
+- Enabled trimming optimization, reducing the application size by approximately 50%.
+- Optimized the terminal plugin.
+
+### 🐛 Bug Fixes
+- Fixed an issue where some MCP plugins continued to run in the background after the application was closed.
+- Fixed an issue where settings were sometimes not saved correctly.
+- Fixed an issue where terminal execution output was sometimes not displayed.
+- Fixed an issue where some plugin icons were not displayed.
+- Fixed an issue where the chat window could not be closed using the shortcut key.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.0...v0.5.1
+
+
+
 ## [v0.5.0](https://github.com/DearVa/Everywhere/releases/tag/v0.5.0) - 2025-11-22
 
 ### ✨ Features
 - 🎉 **Major Update: Added support for MCP (Model Context Protocol)!** You can now add your own MCP tools, which will be automatically enabled when called by an assistant. Supports Stdio, Streamable HTTP, and SSE protocols.
 
-### 🚀 Improvements\
+### 🚀 Improvements
 - When a tool called by an assistant is not found, it now performs a fuzzy match and informs the assistant, reducing model hallucinations.
 - (Windows) Added output display for `Everything` plugin.
 - (Windows) Removed `Windows System API` plugin.

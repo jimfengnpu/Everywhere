@@ -85,7 +85,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
             return cgEventRef;
         }
 
-        var cgEvent = InteropHelper.CGEventFromHandle(cgEventRef);
+        var cgEvent = CoreFoundationInterop.CGEventFromHandle(cgEventRef);
         switch (type)
         {
             case CGEventType.KeyDown:
@@ -131,7 +131,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
 
             if (_keyboardHandlers.TryGetValue(shortcut, out var registeredHandlers))
             {
-                handlers = new List<Action>(registeredHandlers);
+                handlers = [.. registeredHandlers];
             }
         }
 

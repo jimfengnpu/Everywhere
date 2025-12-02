@@ -1,6 +1,8 @@
-﻿using System.Security;
+﻿using System.Diagnostics;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
+using Everywhere.Chat.Debugging;
 using Everywhere.Interop;
 using ZLinq;
 
@@ -31,47 +33,274 @@ public partial class VisualTreeXmlBuilder(
     VisualTreeDetailLevel detailLevel
 )
 {
-    private enum QueueOrigin
+    /// <summary>
+    /// Traversal distance metrics for prioritization.
+    /// Global: distance from core elements, Local: distance from the originating node.
+    /// </summary>
+    /// <param name="Global"></param>
+    /// <param name="Local"></param>
+    private readonly record struct TraverseDistance(int Global, int Local)
     {
-        CoreElement,
-        Parent,
-        PreviousSibling,
-        NextSibling,
-        FirstChild
+        public static implicit operator TraverseDistance(int distance) => new(distance, distance);
+
+        /// <summary>
+        /// Resets the local distance to 1 and increments the global distance by 1.
+        /// </summary>
+        /// <returns></returns>
+        public TraverseDistance Reset() => new(Global + 1, 1);
+
+        /// <summary>
+        /// Increments both global and local distances by 1.
+        /// </summary>
+        /// <returns></returns>
+        public TraverseDistance Step() => new(Global + 1, Local + 1);
     }
 
-    private record QueuedElement(IVisualElement Element, QueueOrigin Origin, string? ParentId);
-
-    private record XmlVisualElement(IVisualElement Element, string? Description, IReadOnlyList<string> Contents, int TokenCount)
+    /// <summary>
+    /// Defines the direction of traversal in the visual element tree.
+    /// It determines how a queued node is expanded.
+    /// </summary>
+    private enum TraverseDirection
     {
+        /// <summary>
+        /// Core elements
+        /// </summary>
+        Core,
+
+        /// <summary>
+        /// parent, previous sibling, next sibling
+        /// </summary>
+        Parent,
+
+        /// <summary>
+        /// previous sibling, child
+        /// </summary>
+        PreviousSibling,
+
+        /// <summary>
+        /// next sibling, child
+        /// </summary>
+        NextSibling,
+
+        /// <summary>
+        /// next child, child
+        /// </summary>
+        Child
+    }
+
+    /// <summary>
+    /// Represents a node in the traversal queue with a calculated priority score.
+    /// </summary>
+    private readonly record struct TraversalNode(
+        IVisualElement Element,
+        IVisualElement? Previous,
+        TraverseDistance Distance,
+        TraverseDirection Direction,
+        IEnumerator<IVisualElement> Enumerator
+    )
+    {
+        public string? ParentId { get; } = Element.Parent?.Id;
+
+        /// <summary>
+        /// Calculates the final priority score for the Best-First Search algorithm.
+        /// Lower value means higher priority (Min-Heap).
+        /// <para>
+        /// The scoring formula is a multi-dimensional weighted product:
+        /// <br/>
+        /// <c>FinalScore = -(TopologyScore * IntrinsicScore)</c>
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b>1. Topology Score (Distance Decay):</b>
+        /// Represents the relevance of the element based on its position in the tree relative to the Core Element.
+        /// <br/>
+        /// <c>Score_topo = BaseScore / (Distance + 1)</c>
+        /// <br/>
+        /// - Spine nodes (Ancestors) get a 2x boost.
+        /// - Non-spine nodes decay linearly with distance.
+        /// </para>
+        /// <para>
+        /// <b>2. Intrinsic Score (Type Weight):</b>
+        /// Represents the inherent importance of the element type.
+        /// <br/>
+        /// - Interactive controls (Button, Input): 1.5x
+        /// - Semantic text (Label): 1.2x
+        /// - Containers: 1.0x
+        /// - Decorative: 0.5x
+        /// </para>
+        /// <para>
+        /// <b>3. Intrinsic Score (Size Weight):</b>
+        /// Represents the visual prominence of the element.
+        /// <br/>
+        /// <c>Score_size = 1.0 + (Area / ScreenArea)</c>
+        /// <br/>
+        /// Larger elements are considered more important context.
+        /// </para>
+        /// <para>
+        /// <b>4. Noise Penalty:</b>
+        /// Tiny elements (&lt; 5px) receive a 0.1x penalty to filter out visual noise.
+        /// </para>
+        /// </remarks>
+        public float GetScore()
+        {
+            // Core elements have the highest priority
+            if (Direction == TraverseDirection.Core) return float.NegativeInfinity;
+
+            // 1. Base score based on topology
+            var score = Direction switch
+            {
+                TraverseDirection.Parent => 2000.0f,
+                TraverseDirection.PreviousSibling => 10000f,
+                TraverseDirection.NextSibling => 10000f,
+                TraverseDirection.Child => 1000.0f,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            if (Distance.Local > 0) score /= Distance.Local; // Linear decay with local distance
+            score -= Distance.Global - Distance.Local;
+
+            // We only calculate element properties when direction is Parent or Child
+            // because when enumerating siblings, a small weighted element will "block" subsequent siblings.
+            var weightedElement = Direction switch
+            {
+                TraverseDirection.Parent => Element,
+                TraverseDirection.Child => Previous,
+                _ => null
+            };
+            if (weightedElement is not null)
+            {
+                // 2. Intrinsic Score (Type Weight)
+                score *= GetTypeWeight(weightedElement.Type);
+
+                // 3. Intrinsic Score (Size Weight)
+                // Logarithmic scale for area: log(Area + 1)
+                // Larger elements are usually more important containers or focal points.
+                var rect = weightedElement.BoundingRectangle;
+                if (rect is { Width: > 0, Height: > 0 })
+                {
+                    var area = (float)rect.Width * rect.Height;
+                    // Normalize against a reference screen size (e.g., 1920x1080)
+                    const float screenArea = 1920f * 1080;
+                    var sizeFactor = 1.0f + (area / screenArea);
+                    score *= sizeFactor;
+                }
+
+                // 4. Penalty for tiny elements (likely noise or invisible)
+                if (rect.Width is > 0 and < 5 || rect.Height is > 0 and < 5)
+                {
+                    score *= 0.1f;
+                }
+            }
+
+            // PriorityQueue is a min-heap, so we return negative score to make high scores come first.
+            return -score;
+        }
+
+        private static float GetTypeWeight(VisualElementType type)
+        {
+            return type switch
+            {
+                // Semantic text: High value
+                VisualElementType.Label or
+                    VisualElementType.TextEdit or
+                    VisualElementType.Document => 2.0f,
+
+                // Structural containers: High value
+                VisualElementType.Panel or
+                    VisualElementType.TopLevel or
+                    VisualElementType.TabControl => 1.5f,
+
+                // Interactive controls: Medium value
+                VisualElementType.Button or
+                    VisualElementType.ComboBox or
+                    VisualElementType.CheckBox or
+                    VisualElementType.RadioButton or
+                    VisualElementType.Slider or
+                    VisualElementType.MenuItem or
+                    VisualElementType.TabItem => 1.0f,
+
+                // Decorative/Less important: Low value
+                VisualElementType.Image or
+                    VisualElementType.ScrollBar => 0.5f,
+
+                _ => 1.0f
+            };
+        }
+    }
+
+    /// <summary>
+    /// Represents a node in the XML tree being built.
+    /// This class is mutable to support dynamic updates of activation state during traversal.
+    /// </summary>
+    private class XmlVisualElement(
+        IVisualElement element,
+        string? description,
+        IReadOnlyList<string> contentLines,
+        int selfTokenCount,
+        int contentTokenCount,
+        bool isSelfInformative
+    )
+    {
+        public IVisualElement Element { get; } = element;
+
+        public string? Description { get; } = description;
+
+        public IReadOnlyList<string> ContentLines { get; } = contentLines;
+
+        /// <summary>
+        /// The token cost of the element's structure (tags, attributes, ID) excluding content text.
+        /// </summary>
+        public int SelfTokenCount { get; } = selfTokenCount;
+
+        /// <summary>
+        /// The token cost of the element's content text (Description, Contents).
+        /// </summary>
+        public int ContentTokenCount { get; } = contentTokenCount;
+
         public XmlVisualElement? Parent { get; set; }
 
         public List<XmlVisualElement> Children { get; } = [];
 
-        public bool ShouldRender { get; set; } = true;
+        /// <summary>
+        /// Indicates whether this element should be rendered in the final XML.
+        /// This is determined dynamically based on <see cref="VisualTreeDetailLevel"/> and the presence of informative children.
+        /// </summary>
+        public bool IsVisible { get; set; } = isSelfInformative;
 
-        public bool HasInformativeContent { get; set; }
+        /// <summary>
+        /// Indicates whether this element is intrinsically informative (e.g., has text, is interactive, or is a core element).
+        /// If true, <see cref="IsVisible"/> is always true.
+        /// </summary>
+        public bool IsSelfInformative { get; } = isSelfInformative;
 
+        /// <summary>
+        /// The number of children that have informative content (either self-informative or have informative descendants).
+        /// </summary>
         public int InformativeChildCount { get; set; }
 
-        public virtual bool Equals(XmlVisualElement? other) => Element.Id == other?.Element.Id;
+        /// <summary>
+        /// Indicates whether this element has any informative descendants.
+        /// </summary>
+        public bool HasInformativeDescendants { get; set; }
 
-        public override int GetHashCode() => Element.Id.GetHashCode();
+        // Self-informative elements are always active (rendered).
     }
 
     /// <summary>
     ///     The mapping from original element ID to the built sequential ID starting from <see cref="startingId"/>.
     /// </summary>
-    public Dictionary<int, IVisualElement> BuiltVisualElements { get; } = new();
+    public Dictionary<int, IVisualElement> BuiltVisualElements { get; } = [];
 
-    private readonly HashSet<string> _coreElementIds = coreElements
+    private readonly HashSet<string> _coreElementIdSet = coreElements
         .Select(e => e.Id)
         .Where(id => !string.IsNullOrEmpty(id))
         .ToHashSet(StringComparer.Ordinal);
 
-    private readonly HashSet<XmlVisualElement> _rootElements = [];
-    private StringBuilder? _visualTreeXmlBuilder;
-    private bool _detailLevelApplied;
+    private StringBuilder? _xmlBuilder;
+
+#if DEBUG
+    private VisualTreeRecorder? _debugRecorder;
+#endif
 
     private const VisualElementStates InteractiveStates = VisualElementStates.Focused | VisualElementStates.Selected;
 
@@ -79,133 +308,403 @@ public partial class VisualTreeXmlBuilder(
     {
         if (coreElements.Count == 0) throw new InvalidOperationException("No core elements to build XML from.");
 
-        if (_visualTreeXmlBuilder != null) return _visualTreeXmlBuilder.ToString();
+        if (_xmlBuilder != null) return _xmlBuilder.ToString();
         cancellationToken.ThrowIfCancellationRequested();
 
-        var buildQueue = new Queue<QueuedElement>(coreElements.Select(e => new QueuedElement(e, QueueOrigin.CoreElement, e.Parent?.Id)));
+#if DEBUG
+        _debugRecorder = new VisualTreeRecorder(coreElements, approximateTokenLimit, "WeightedPriority");
+#endif
+
+        // Priority Queue for Best-First Search
+        var priorityQueue = new PriorityQueue<TraversalNode, float>();
         var visitedElements = new Dictionary<string, XmlVisualElement>();
 
-        while (buildQueue.Count > 0)
+        // 1. Enqueue core nodes
+        TryEnqueueTraversalNode(priorityQueue, null, 0, TraverseDirection.Core, coreElements.GetEnumerator());
+
+        // 2. Process the Queue
+        ProcessTraversalQueue(priorityQueue, visitedElements, cancellationToken);
+
+        // 3. Generate XML
+        return GenerateXmlString(visitedElements);
+    }
+
+#if DEBUG
+    private void TryEnqueueTraversalNode(
+        PriorityQueue<TraversalNode, float> priorityQueue,
+        IVisualElement? previous,
+        TraverseDistance distance,
+        TraverseDirection direction,
+        IEnumerator<IVisualElement> enumerator)
+#else
+    private static void TryEnqueueTraversalNode(
+        PriorityQueue<TraversalNode, float> priorityQueue,
+        TraverseDistance distance,
+        TraverseDirection direction,
+        IEnumerator<IVisualElement> enumerator)
+#endif
+    {
+        if (!enumerator.MoveNext())
+        {
+            enumerator.Dispose();
+            return;
+        }
+
+        var node = new TraversalNode(enumerator.Current, previous, distance, direction, enumerator);
+        var score = node.GetScore();
+        priorityQueue.Enqueue(node, score);
+
+#if DEBUG
+        _debugRecorder?.RecordStep(
+            node.Element,
+            "Enqueue",
+            score,
+            $"Parent: {node.ParentId}, Previous: {node.Previous?.Id}, Direction: {node.Direction}, Distance: {node.Distance}",
+            0,
+            priorityQueue.Count);
+#endif
+    }
+
+    private void ProcessTraversalQueue(
+        PriorityQueue<TraversalNode, float> priorityQueue,
+        Dictionary<string, XmlVisualElement> visitedElements,
+        CancellationToken cancellationToken)
+    {
+        var accumulatedTokenCount = 0;
+
+        while (priorityQueue.Count > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var accumulatedTokenCount = visitedElements.Values.Sum(e => e.TokenCount);
             var remainingTokenCount = approximateTokenLimit - accumulatedTokenCount;
-            if (remainingTokenCount <= 0) break;
+            if (remainingTokenCount <= 0)
+            {
+#if DEBUG
+                _debugRecorder?.RecordStep(
+                    priorityQueue.Peek().Element,
+                    "Stop",
+                    0,
+                    "Token limit reached",
+                    accumulatedTokenCount,
+                    priorityQueue.Count);
+#endif
+                break;
+            }
 
-            var (element, queueOrigin, parentId) = buildQueue.Dequeue();
+            if (!priorityQueue.TryDequeue(out var node, out var priority)) break;
+            var element = node.Element;
             var id = element.Id;
-            if (visitedElements.ContainsKey(id)) continue;
 
-            string? description = null;
-            string? content = null;
-            var isTextElement = element.Type is VisualElementType.Label or VisualElementType.TextEdit or VisualElementType.Document;
-            var text = element.GetText();
-            if (element.Name is { Length: > 0 } name)
-            {
-                if (isTextElement && string.IsNullOrEmpty(text))
-                {
-                    content = TruncateIfNeeded(name, remainingTokenCount);
-                }
-                else if (!isTextElement || name != text)
-                {
-                    // If the element is not a text element, or the name is different from the text, add the name as a description
-                    // because the name of some text elements is the same as the text.
-                    description = TruncateIfNeeded(name, remainingTokenCount);
-                }
-            }
-            content ??= text is { Length: > 0 } ? TruncateIfNeeded(text, remainingTokenCount) : null;
-            var contents = content?.Split('\n') ?? [];
+#if DEBUG
+            _debugRecorder?.RegisterNode(element, node.GetScore());
+#endif
 
-            var tokenCount = 8; // estimated token count for the indentation, start tag and id
-            if (description != null) tokenCount += EstimateTokenCount(description) + 3;
-            tokenCount += contents.Length switch
+            if (visitedElements.ContainsKey(id))
             {
-                1 => contents.Sum(EstimateTokenCount),
-                > 1 => contents.Sum(line => EstimateTokenCount(line) + 4) + 8, // > 1, +4 for the indentation, +8 for the end tag
-                _ => 0
-            };
-
-            var xmlElement = visitedElements[element.Id] = new XmlVisualElement(element, description, contents, tokenCount);
-            if (parentId != null && visitedElements.TryGetValue(parentId, out var parentXmlElement))
-            {
-                if (queueOrigin == QueueOrigin.PreviousSibling) parentXmlElement.Children.Insert(0, xmlElement);
-                else parentXmlElement.Children.Add(xmlElement);
-                xmlElement.Parent = parentXmlElement;
+#if DEBUG
+                _debugRecorder?.RecordStep(element, "Skip", priority, "Already visited", accumulatedTokenCount, priorityQueue.Count);
+#endif
+                continue;
             }
 
-            remainingTokenCount -= tokenCount;
-            if (remainingTokenCount < 0) break;
+            // Process the current node and create the XmlVisualElement
+            CreateXmlVisualElement(visitedElements, node, remainingTokenCount, ref accumulatedTokenCount);
 
-            if (queueOrigin is not QueueOrigin.FirstChild)
-            {
-                var parent = element.Parent;
-                if (parent != null)
-                {
-                    buildQueue.Enqueue(new QueuedElement(parent, QueueOrigin.Parent, parent.Parent?.Id));
-                }
-            }
+#if DEBUG
+            _debugRecorder?.RecordStep(
+                element,
+                "Visit",
+                priority,
+                $"Parent: {node.ParentId}, Previous: {node.Previous?.Id}, Direction: {node.Direction}, Distance: {node.Distance}",
+                accumulatedTokenCount,
+                priorityQueue.Count);
+#endif
 
-            if (queueOrigin is not QueueOrigin.NextSibling and not QueueOrigin.FirstChild) // first child's previous sibling is always null
-            {
-                var previousSibling = element.PreviousSibling;
-                if (previousSibling != null && !visitedElements.ContainsKey(previousSibling.Id))
-                {
-                    buildQueue.Enqueue(new QueuedElement(previousSibling, QueueOrigin.PreviousSibling, parentId));
-                }
-            }
+            // Check limit again after adding this node
+            if (accumulatedTokenCount > approximateTokenLimit) break;
 
-            if (queueOrigin is not QueueOrigin.PreviousSibling)
-            {
-                var nextSibling = element.NextSibling;
-                if (nextSibling != null && !visitedElements.ContainsKey(nextSibling.Id))
-                {
-                    buildQueue.Enqueue(new QueuedElement(nextSibling, QueueOrigin.NextSibling, parentId));
-                }
-            }
-
-            if (queueOrigin is not QueueOrigin.Parent)
-            {
-                var firstChild = element.Children.FirstOrDefault();
-                if (firstChild != null && !visitedElements.ContainsKey(firstChild.Id))
-                {
-                    buildQueue.Enqueue(new QueuedElement(firstChild, QueueOrigin.FirstChild, id));
-                }
-            }
+            // Add more nodes to the queue based on traversal direction
+            PropagateNode(priorityQueue, node);
         }
+    }
 
-        // build the XML representation of the visual tree
-        foreach (var visitedElement in visitedElements.Values)
+    private void CreateXmlVisualElement(
+        Dictionary<string, XmlVisualElement> visitedElements,
+        TraversalNode node,
+        int remainingTokenCount,
+        ref int accumulatedTokenCount)
+    {
+        var element = node.Element;
+        var id = element.Id;
+
+        // --- Determine Content and Self-Informativeness ---
+        string? description = null;
+        string? content = null;
+        var isTextElement = element.Type is VisualElementType.Label or VisualElementType.TextEdit or VisualElementType.Document;
+        var text = element.GetText();
+        if (element.Name is { Length: > 0 } name)
         {
-            var current = visitedElement;
-            while (current.Parent != null) current = current.Parent;
-            _rootElements.Add(current);
+            if (isTextElement && string.IsNullOrEmpty(text))
+            {
+                content = TruncateIfNeeded(name, remainingTokenCount);
+            }
+            else if (!isTextElement || name != text)
+            {
+                description = TruncateIfNeeded(name, remainingTokenCount);
+            }
         }
+        content ??= text is { Length: > 0 } ? TruncateIfNeeded(text, remainingTokenCount) : null;
+        var contentLines = content?.Split(Environment.NewLine) ?? [];
 
-        ApplyDetailLevel();
+        var hasTextContent = contentLines.Length > 0;
+        var hasDescription = !string.IsNullOrWhiteSpace(description);
+        var interactive = IsInteractiveElement(element);
+        var isCoreElement = _coreElementIdSet.Contains(id);
+        var isSelfInformative = hasTextContent || hasDescription || interactive || isCoreElement;
 
-        _visualTreeXmlBuilder = new StringBuilder();
-        foreach (var rootElement in _rootElements) InternalBuildXml(rootElement, 0);
-        _visualTreeXmlBuilder.TrimEnd();
+        // --- Calculate Token Costs ---
+        // Base cost: indentation (approx 2), start tag (<Type), id attribute ( id="..."), end tag (</Type>)
+        // We approximate this as 8 tokens.
+        var selfTokenCount = 8;
 
-        string TruncateIfNeeded(string text, int maxLength)
+        // Add cost for bounds attributes if applicable (x, y, width, height)
+        if (ShouldIncludeBounds(detailLevel, element.Type))
         {
-            var tokenCount = EstimateTokenCount(text);
-            if (maxLength <= 0 || tokenCount <= maxLength)
-                return text;
-
-            var approximateLength = text.Length * maxLength / tokenCount;
-            return text[..Math.Max(0, approximateLength - 1)] + "...";
+            selfTokenCount += 20; // Approximate cost for pos="..." size="..."
         }
+
+        var contentTokenCount = 0;
+        if (description != null) contentTokenCount += EstimateTokenCount(description) + 3; // +3 for description="..."
+        contentTokenCount += contentLines.Length switch
+        {
+            > 0 and < 3 => contentLines.Sum(EstimateTokenCount),
+            >= 3 => contentLines.Sum(line => EstimateTokenCount(line) + 4) + 8, // >= 3, +4 for the indentation, +8 for the end tag
+            _ => 0
+        };
+
+        // Create the XML Element node
+        var xmlElement = visitedElements[element.Id] = new XmlVisualElement(
+            element,
+            description,
+            contentLines,
+            selfTokenCount,
+            contentTokenCount,
+            isSelfInformative);
+
+        // --- Update Token Count and Propagate ---
+
+        // If the element is self-informative, it is active immediately.
+        if (xmlElement.IsVisible)
+        {
+            accumulatedTokenCount += xmlElement.SelfTokenCount + xmlElement.ContentTokenCount;
+        }
+
+        // Link to parent and propagate updates
+        if (node.ParentId != null && visitedElements.TryGetValue(node.ParentId, out var parentXmlElement))
+        {
+            if (node.Direction == TraverseDirection.PreviousSibling)
+            {
+                parentXmlElement.Children.Insert(0, xmlElement);
+            }
+            else
+            {
+                parentXmlElement.Children.Add(xmlElement);
+            }
+
+            xmlElement.Parent = parentXmlElement;
+
+            // If the new child is informative (self-informative or has informative descendants),
+            // we need to notify the parent.
+            // Note: A newly created node has no descendants yet, so HasInformativeDescendants is false.
+            // So we only check IsSelfInformative.
+            if (xmlElement.IsSelfInformative)
+            {
+                PropagateInformativeUpdate(parentXmlElement, ref accumulatedTokenCount);
+            }
+        }
+        // If we traversed from parent direction, above method cannot link parent-child.
+        else if (node is { Direction: TraverseDirection.Parent, Previous: { } previous } &&
+                 visitedElements.TryGetValue(previous.Id, out var childXmlElement))
+        {
+            xmlElement.Children.Add(childXmlElement);
+            childXmlElement.Parent = xmlElement;
+
+            if (xmlElement.IsSelfInformative)
+            {
+                PropagateInformativeUpdate(childXmlElement, ref accumulatedTokenCount);
+            }
+        }
+    }
+
+    private void PropagateNode(
+        PriorityQueue<TraversalNode, float> priorityQueue,
+        in TraversalNode node)
+    {
+#if DEBUG
+        Debug.WriteLine($"[PropagateNode] {node}");
+#endif
+
+        switch (node.Direction)
+        {
+            case TraverseDirection.Core:
+            {
+                // In this case, node.Enumerator is the core element enumerator
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    0,
+                    TraverseDirection.Core,
+                    node.Enumerator);
+
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    1,
+                    TraverseDirection.Parent,
+                    node.Element.GetAncestors().GetEnumerator());
+
+                var siblingAccessor = node.Element.SiblingAccessor;
+
+                // Get two enumerators together, prohibited to dispose one before the other, causing resource reallocation.
+                var previousSiblingEnumerator = siblingAccessor.BackwardEnumerator;
+                var nextSiblingEnumerator = siblingAccessor.ForwardEnumerator;
+
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    1,
+                    TraverseDirection.PreviousSibling,
+                    previousSiblingEnumerator);
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    1,
+                    TraverseDirection.NextSibling,
+                    nextSiblingEnumerator);
+
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    1,
+                    TraverseDirection.Child,
+                    node.Element.Children.GetEnumerator());
+                break;
+            }
+            case TraverseDirection.Parent:
+            {
+                // In this case, node.Enumerator is the Ancestors enumerator
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Step(),
+                    TraverseDirection.Parent,
+                    node.Enumerator);
+
+                var siblingAccessor = node.Element.SiblingAccessor;
+
+                // Get two enumerators together, prohibited to dispose one before the other, causing resource reallocation.
+                var previousSiblingEnumerator = siblingAccessor.BackwardEnumerator;
+                var nextSiblingEnumerator = siblingAccessor.ForwardEnumerator;
+
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Reset(),
+                    TraverseDirection.PreviousSibling,
+                    previousSiblingEnumerator);
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Reset(),
+                    TraverseDirection.NextSibling,
+                    nextSiblingEnumerator);
+                break;
+            }
+            case TraverseDirection.PreviousSibling:
+            {
+                // In this case, node.Enumerator is the Previous Sibling enumerator
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Step(),
+                    TraverseDirection.PreviousSibling,
+                    node.Enumerator);
+
+                // Also enqueue the children of this sibling
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Reset(),
+                    TraverseDirection.Child,
+                    node.Element.Children.GetEnumerator());
+                break;
+            }
+            case TraverseDirection.NextSibling:
+            {
+                // In this case, node.Enumerator is the Next Sibling enumerator
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Step(),
+                    TraverseDirection.NextSibling,
+                    node.Enumerator);
+
+                // Also enqueue the children of this sibling
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Reset(),
+                    TraverseDirection.Child,
+                    node.Element.Children.GetEnumerator());
+                break;
+            }
+            case TraverseDirection.Child:
+            {
+                // In this case, node.Enumerator is the Children enumerator
+                // But note that these children are actually descendants of the original node's sibling.
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Step(),
+                    TraverseDirection.NextSibling,
+                    node.Enumerator);
+
+                // Also enqueue the children of this child
+                TryEnqueueTraversalNode(
+                    priorityQueue,
+                    node.Element,
+                    node.Distance.Reset(),
+                    TraverseDirection.Child,
+                    node.Element.Children.GetEnumerator());
+                break;
+            }
+        }
+    }
+
+    private string GenerateXmlString(Dictionary<string, XmlVisualElement> visualElements)
+    {
+        _xmlBuilder = new StringBuilder();
+        foreach (var rootElement in visualElements.Values.AsValueEnumerable().Where(e => e.Parent is null))
+        {
+            InternalBuildXml(rootElement, 0);
+        }
+
+#if DEBUG
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        var filename = $"visual_tree_debug_{timestamp}.json";
+        var debugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+        _debugRecorder?.SaveSession(debugPath);
+#endif
+
+        return _xmlBuilder.TrimEnd().ToString();
 
         void InternalBuildXml(XmlVisualElement xmlElement, int indentLevel)
         {
-            if (!xmlElement.ShouldRender)
+            // If not active, we don't render this element's tags, but we might render its children.
+            // This acts as a "passthrough" for structural containers that are not interesting enough to show.
+            if (!xmlElement.IsVisible)
             {
-                foreach (var child in xmlElement.Children)
-                {
-                    InternalBuildXml(child, indentLevel);
-                }
+                foreach (var child in xmlElement.Children.AsValueEnumerable()) InternalBuildXml(child, indentLevel);
                 return;
             }
 
@@ -214,157 +713,187 @@ public partial class VisualTreeXmlBuilder(
             var elementType = element.Type;
 
             // Start tag
-            _visualTreeXmlBuilder.Append(indent).Append('<').Append(elementType);
+            _xmlBuilder.Append(indent).Append('<').Append(elementType);
 
             // Add ID
             var id = BuiltVisualElements.Count + startingId;
             BuiltVisualElements[id] = element;
-            _visualTreeXmlBuilder.Append(" id=\"").Append(id).Append('"');
+            _xmlBuilder.Append(" id=\"").Append(id).Append('"');
 
-            var isContainer = elementType is
-                VisualElementType.Document or
-                VisualElementType.Panel or
-                VisualElementType.TopLevel or
-                VisualElementType.Screen;
-            var includeBounds = isContainer && detailLevel != VisualTreeDetailLevel.Minimal;
-            if (includeBounds)
+            var shouldIncludeBounds = ShouldIncludeBounds(detailLevel, elementType);
+            if (shouldIncludeBounds)
             {
                 // for containers, include the element's size
                 var bounds = element.BoundingRectangle;
-                _visualTreeXmlBuilder
-                    .Append(" x=\"").Append(bounds.X).Append('"')
-                    .Append(" y=\"").Append(bounds.Y).Append('"')
-                    .Append(" width=\"").Append(bounds.Width).Append('"')
-                    .Append(" height=\"").Append(bounds.Height).Append('"');
+                _xmlBuilder
+                    .Append(" pos=\"")
+                    .Append(bounds.X).Append(',').Append(bounds.Y)
+                    .Append('"')
+                    .Append(" size=\"")
+                    .Append(bounds.Width).Append('x').Append(bounds.Height)
+                    .Append('"');
             }
 
             if (xmlElement.Description != null)
             {
-                _visualTreeXmlBuilder.Append(" description=\"").Append(SecurityElement.Escape(xmlElement.Description)).Append('"');
+                _xmlBuilder.Append(" description=\"").Append(SecurityElement.Escape(xmlElement.Description)).Append('"');
             }
 
-            if (xmlElement.Contents.Count == 1)
+            // Add content attribute if there's a 1 or 2 line content
+            if (xmlElement.ContentLines.Count is > 0 and < 3)
             {
-                _visualTreeXmlBuilder.Append(" content=\"").Append(SecurityElement.Escape(xmlElement.Contents[0])).Append('"');
+                _xmlBuilder.Append(" content=\"").Append(SecurityElement.Escape(string.Join('\n', xmlElement.ContentLines))).Append('"');
             }
 
-            if (xmlElement.Children.Count == 0 && xmlElement.Contents.Count == 0)
+            if (xmlElement.Children.Count == 0 && xmlElement.ContentLines.Count < 3)
             {
-                bool shouldWarn = false;
-                if (includeBounds)
-                {
-                    switch (detailLevel)
-                    {
-                        case VisualTreeDetailLevel.Detailed:
-                            shouldWarn = element.BoundingRectangle is { Width: > 64, Height: > 64 };
-                            break;
-                        case VisualTreeDetailLevel.Compact:
-                            shouldWarn = element.BoundingRectangle is { Width: > 256, Height: > 256 };
-                            break;
-                        case VisualTreeDetailLevel.Minimal:
-                            shouldWarn = false;
-                            break;
-                    }
-                }
-                if (shouldWarn)
-                {
-                    _visualTreeXmlBuilder.Append(" warning=\"XML content may be inaccessible!\"");
-                }
-
                 // Self-closing tag if no children and no content
-                _visualTreeXmlBuilder.Append("/>").AppendLine();
+                _xmlBuilder.Append("/>").AppendLine();
                 return;
             }
 
-            _visualTreeXmlBuilder.Append('>').AppendLine();
+            _xmlBuilder.Append('>').AppendLine();
 
-            // Add contents
-            foreach (var contentLine in xmlElement.Contents)
+            // Add contents if there are 3 or more lines
+            if (xmlElement.ContentLines.Count >= 3)
             {
-                if (string.IsNullOrWhiteSpace(contentLine)) continue;
-                _visualTreeXmlBuilder
-                    .Append(indent)
-                    .Append("  ")
-                    .Append(SecurityElement.Escape(contentLine))
-                    .AppendLine();
+                foreach (var contentLine in xmlElement.ContentLines.AsValueEnumerable())
+                {
+                    if (string.IsNullOrWhiteSpace(contentLine))
+                    {
+                        _xmlBuilder.AppendLine(); // don't write indentation for empty lines
+                        continue;
+                    }
+
+                    _xmlBuilder
+                        .Append(indent)
+                        .Append("  ")
+                        .Append(SecurityElement.Escape(contentLine))
+                        .AppendLine();
+                }
             }
 
             // Handle child elements
-            foreach (var child in xmlElement.Children) InternalBuildXml(child, indentLevel + 1);
+            foreach (var child in xmlElement.Children.AsValueEnumerable()) InternalBuildXml(child, indentLevel + 1);
 
             // End tag
-            _visualTreeXmlBuilder.Append(indent).Append("</").Append(element.Type).Append('>').AppendLine();
+            _xmlBuilder.Append(indent).Append("</").Append(element.Type).Append('>').AppendLine();
         }
-
-        return _visualTreeXmlBuilder.ToString();
     }
 
-    private void ApplyDetailLevel()
+    private static bool ShouldIncludeBounds(VisualTreeDetailLevel detailLevel, VisualElementType type) => detailLevel switch
     {
-        if (_detailLevelApplied || detailLevel == VisualTreeDetailLevel.Detailed) return;
+        VisualTreeDetailLevel.Detailed => true,
+        VisualTreeDetailLevel.Compact when type is
+            VisualElementType.TextEdit or
+            VisualElementType.Button or
+            VisualElementType.CheckBox or
+            VisualElementType.Document or
+            VisualElementType.TopLevel or
+            VisualElementType.Screen => true,
+        VisualTreeDetailLevel.Minimal when type is
+            VisualElementType.TopLevel or
+            VisualElementType.Screen => true,
+        _ => false
+    };
 
-        foreach (var rootElement in _rootElements)
-        {
-            MarkRenderFlags(rootElement);
-        }
+    private static string TruncateIfNeeded(string text, int maxLength)
+    {
+        var tokenCount = EstimateTokenCount(text);
+        if (maxLength <= 0 || tokenCount <= maxLength)
+            return text;
 
-        _detailLevelApplied = true;
+        var approximateLength = text.Length * maxLength / tokenCount;
+        return text[..Math.Max(0, approximateLength - 1)] + "...";
     }
 
-    private bool MarkRenderFlags(XmlVisualElement element)
+    /// <summary>
+    /// Propagates the information that a child is informative up the tree.
+    /// This may cause ancestors to become active (rendered) if they meet the criteria for the current <see cref="detailLevel"/>.
+    /// </summary>
+    private void PropagateInformativeUpdate(XmlVisualElement? parent, ref int accumulatedTokenCount)
     {
-        var informativeChildCount = 0;
-        foreach (var child in element.Children)
+        while (parent != null)
         {
-            if (MarkRenderFlags(child)) informativeChildCount++;
-        }
+            parent.InformativeChildCount++;
 
-        var hasTextContent = element.Contents.Any(static line => !string.IsNullOrWhiteSpace(line));
-        var hasDescription = !string.IsNullOrWhiteSpace(element.Description);
-        var interactive = IsInteractiveElement(element.Element);
-        var elementId = element.Element.Id;
-        var isCoreElement = elementId is { Length: > 0 } && _coreElementIds.Contains(elementId);
+            var wasActive = parent.IsVisible;
+            var wasHasInfo = parent.HasInformativeDescendants;
 
-        var hasSelfInformativeContent = hasTextContent || hasDescription || interactive || isCoreElement;
-        var hasInformativeDescendant = informativeChildCount > 0;
+            parent.HasInformativeDescendants = true;
 
-        var shouldRender = hasSelfInformativeContent;
-        if (!shouldRender)
-        {
-            shouldRender = detailLevel switch
+            // Check if activation state changes based on the new child count
+            UpdateActivationState(parent);
+
+            if (!wasActive && parent.IsVisible)
             {
-                VisualTreeDetailLevel.Compact => ShouldKeepContainerForCompact(element, informativeChildCount),
-                VisualTreeDetailLevel.Minimal => ShouldKeepContainerForMinimal(element, informativeChildCount),
-                _ => hasInformativeDescendant
-            };
+                // Parent just became active, so we must pay for its structure tokens.
+                accumulatedTokenCount += parent.SelfTokenCount;
+                // Note: ContentTokenCount is 0 for non-self-informative elements, so we don't add it.
+            }
+
+            // If the parent already had informative descendants, we don't need to propagate the "existence" of info further up.
+            // The ancestors already know this branch is informative.
+            // However, we DO need to continue if the parent's activation state changed, because that might affect token count?
+            // No, token count is updated locally.
+            // Does parent activation affect grandparent activation?
+            // Grandparent activation depends on grandparent.InformativeChildCount.
+            // Grandparent.InformativeChildCount counts children that are "informative" (HasInformativeContent).
+            // HasInformativeContent = IsSelfInformative || HasInformativeDescendants.
+            // Since parent.HasInformativeDescendants was already true (if wasHasInfo is true), 
+            // parent was already contributing to grandparent's InformativeChildCount.
+            // So grandparent's count doesn't change.
+
+            if (wasHasInfo) break;
+
+            parent = parent.Parent;
         }
-
-        element.ShouldRender = shouldRender;
-        element.InformativeChildCount = informativeChildCount;
-        element.HasInformativeContent = hasSelfInformativeContent || hasInformativeDescendant;
-
-        return element.HasInformativeContent;
     }
 
-    private static bool ShouldKeepContainerForCompact(XmlVisualElement element, int informativeChildCount)
+    /// <summary>
+    /// Updates the <see cref="XmlVisualElement.IsVisible"/> state of an element based on the current <see cref="detailLevel"/>
+    /// and its informative status.
+    /// </summary>
+    private void UpdateActivationState(XmlVisualElement element)
     {
-        if (element.Parent is null) return informativeChildCount > 0;
+        // If it's self-informative, it's always active.
+        if (element.IsSelfInformative)
+        {
+            element.IsVisible = true;
+            return;
+        }
+
+        // Otherwise, it depends on the detail level and children.
+        var shouldRender = detailLevel switch
+        {
+            VisualTreeDetailLevel.Compact => ShouldKeepContainerForCompact(element),
+            VisualTreeDetailLevel.Minimal => ShouldKeepContainerForMinimal(element),
+            // For Detailed, we render if there are any informative descendants.
+            _ => element.HasInformativeDescendants
+        };
+
+        element.IsVisible = shouldRender;
+    }
+
+    private static bool ShouldKeepContainerForCompact(XmlVisualElement element)
+    {
+        if (element.Parent is null) return element.InformativeChildCount > 0;
 
         var type = element.Element.Type;
         return type switch
         {
-            VisualElementType.Screen or VisualElementType.TopLevel => informativeChildCount > 1,
-            VisualElementType.Document => informativeChildCount > 0,
-            VisualElementType.Panel => informativeChildCount > 1,
+            VisualElementType.Screen or VisualElementType.TopLevel => element.InformativeChildCount > 1,
+            VisualElementType.Document => element.InformativeChildCount > 0,
+            VisualElementType.Panel => element.InformativeChildCount > 1,
             _ => false
         };
     }
 
-    private static bool ShouldKeepContainerForMinimal(XmlVisualElement element, int informativeChildCount)
+    private static bool ShouldKeepContainerForMinimal(XmlVisualElement element)
     {
         if (element.Parent is null)
         {
-            return informativeChildCount > 0;
+            return element.InformativeChildCount > 0;
         }
 
         return false;

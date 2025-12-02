@@ -17,7 +17,6 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FuzzySharp" />
-    <PackageReference Include="HotAvalonia" PrivateAssets="All"/>
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="JetBrains.Profiler.Api"/>
     <PackageReference Include="LiveMarkdown.Avalonia" />
     <PackageReference Include="LiveMarkdown.Avalonia.Math" />

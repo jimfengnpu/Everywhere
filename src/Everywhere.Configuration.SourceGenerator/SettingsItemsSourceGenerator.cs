@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -347,8 +347,8 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
             }
         }
 
-        // Apply common properties (Header, Description, Value, etc.)
-        ApplyCommonMetadata(sb, itemName, metadata);
+        // Apply header and description
+        ApplyHeaderAndDescription(sb, itemName, metadata);
 
         // Apply IsEnabled/IsVisible bindings
         ApplySettingsItemAttributes(sb, itemName, metadata);
@@ -362,6 +362,28 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
         EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
 
+        // Check if the item has [DefaultValue] attribute. If so, wrap it in a SettingsCustomizableItem to enable the Reset button.
+        if (metadata.Kind != ItemKind.Customizable &&
+            metadata.AttributeOwner.GetAttribute("System.ComponentModel.DefaultValueAttribute") is { ConstructorArguments: [var defaultValue, ..] })
+        {
+            var defaultValueLiteral = ToLiteral(defaultValue.Value);
+            var wrapperItemName = $"{itemName}_wrapper";
+
+            sb.AppendLine($"var {wrapperItemName} = new global::Everywhere.Configuration.SettingsCustomizableItem({itemName});");
+            sb.AppendLine($"{wrapperItemName}.ResetCommand = new global::CommunityToolkit.Mvvm.Input.RelayCommand(() =>");
+            sb.AppendLine("{");
+            using (sb.Indent())
+            {
+                sb.AppendLine($"this.{bindingPath} = {defaultValueLiteral};");
+            }
+            sb.AppendLine("});");
+
+            ApplyHeaderAndDescription(sb, wrapperItemName, metadata);
+
+            // Replace itemName with the wrapper
+            itemName = wrapperItemName;
+        }
+
         // Add the generated item to its parent collection
         if (!string.IsNullOrEmpty(parentCollection))
         {
@@ -369,7 +391,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyCommonMetadata(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
+    private static void ApplyHeaderAndDescription(IndentedStringBuilder sb, string itemName, in PropertyMetadata metadata)
     {
         var headerExpr = string.IsNullOrWhiteSpace(metadata.HeaderKey) ?
             "null" :
@@ -457,7 +479,6 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                     foreach (var member in enumMembers)
                     {
                         var memberAccess = $"{enumTypeStr}.{member.Name}";
-
                         // Check for [DynamicResourceKey] on the enum member
                         string? headerKey = null;
                         if (member.GetAttribute(KnownAttributes.DynamicResourceKey) is { } attr)
