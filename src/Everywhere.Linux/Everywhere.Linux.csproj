@@ -7,28 +7,16 @@
     <IsDeploymentTarget>true</IsDeploymentTarget>
   </PropertyGroup>
 
-  <!-- Produce a Linux native executable when publishing; set reasonable defaults for this Linux-specific project -->
-  <PropertyGroup>
-    <!-- Runtime identifier for Linux x64; adjust if you build for other architectures -->
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-    <!-- Build self-contained so the runtime is bundled and an ELF executable can be produced -->
-    <SelfContained>true</SelfContained>
-    <!-- Prefer single-file output when publishing -->
-    <PublishSingleFile>true</PublishSingleFile>
-    <!-- Do not trim by default; trimming can be enabled later if desired -->
-    <PublishTrimmed>false</PublishTrimmed>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop"/>
+    <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
-    <PackageReference Include="SkiaSharp"/>
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux"/>
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Everywhere.Abstractions\Everywhere.Abstractions.csproj" />
-    <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
+    <ProjectReference Include="..\Everywhere\Everywhere.csproj" />
   </ItemGroup>
 
   <ItemGroup>

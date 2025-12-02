@@ -1,6 +1,4 @@
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
 
@@ -11,13 +9,11 @@ namespace Everywhere.Linux.Interop;
 /// <summary>
 /// Abstract display backend contract (X11[Xorg] / Wayland Compositor / other).
 /// </summary>
-public interface ILinuxDisplayBackend: IWindowHelper
+public interface ILinuxWindowBackend: IWindowHelper
 {
     void SendKeyboardShortcut(KeyboardShortcut shortcut);
 
     PixelPoint GetPointer();
-    
-    void WindowPickerHook(Window overlayLayer, Action<PixelPoint, EventType> hook);
 
     IVisualElement? GetFocusedWindowElement();
 

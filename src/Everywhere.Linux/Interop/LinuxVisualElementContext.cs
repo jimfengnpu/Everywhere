@@ -7,12 +7,13 @@ namespace Everywhere.Linux.Interop;
 
 /// <summary>
 /// Linux IVisualElementContext Impl:
-/// Using ILinuxDisplayBackend for keyboard/mouse event and windows info.
+/// Using ILinuxWindowBackend for keyboard/mouse event and windows info.
 /// Using AtspiService to access UI elements inside window.
 /// </summary>
 public partial class LinuxVisualElementContext: IVisualElementContext
 {
-    public readonly ILinuxDisplayBackend _backend;
+    public readonly ILinuxWindowBackend _backend;
+    public readonly ILinuxEventHelper _eventHelper;
     private readonly AtspiService _atspi;
     private readonly ILogger<LinuxVisualElementContext> _logger;
     public IVisualElement? KeyboardFocusedElement {
@@ -26,7 +27,8 @@ public partial class LinuxVisualElementContext: IVisualElementContext
                 // to let atspi pointer search do the work
                 var focused = _atspi.ElementFocused();
                 var focusedWindow =  _backend.GetFocusedWindowElement();
-                return focused?.ProcessId == focusedWindow?.ProcessId ? focused: null;
+                // for Non X11 session, the window may get null, and not equal to that atspi gives
+                return (focusedWindow == null || (focused?.ProcessId == focusedWindow?.ProcessId)) ? focused: null;
             }
             catch (Exception ex)
             {
@@ -38,10 +40,13 @@ public partial class LinuxVisualElementContext: IVisualElementContext
 
     public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
 
-    public LinuxVisualElementContext(ILinuxDisplayBackend backend, ILogger<LinuxVisualElementContext> logger)
+    public LinuxVisualElementContext(
+        ILinuxWindowBackend backend, 
+        ILinuxEventHelper eventHelper,
+        ILogger<LinuxVisualElementContext> logger)
     {
         _backend = backend;
-        backend.Context = this;
+        _eventHelper = eventHelper;
         _atspi = new AtspiService(this);
         _logger = logger;
     }

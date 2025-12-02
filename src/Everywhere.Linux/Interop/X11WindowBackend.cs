@@ -11,12 +11,12 @@ using Microsoft.Extensions.Logging;
 namespace Everywhere.Linux.Interop;
 
 
-public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEventHelper
+public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventHelper
 {
     private IntPtr _display;
     private IntPtr _rootWindow;
     private IntPtr _scanSkipWindowHandle = IntPtr.Zero;
-    private readonly ILogger<X11WindowEventHelper> _logger = ServiceLocator.Resolve<ILogger<X11WindowEventHelper>>();
+    private readonly ILogger<X11WindowBackend> _logger = ServiceLocator.Resolve<ILogger<X11WindowBackend>>();
     private readonly ConcurrentDictionary<int, RegInfo> _regs = new();
     private int _nextId = 1;
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
@@ -24,15 +24,11 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
     private volatile bool _running;
     private Action<KeyboardShortcut, EventType>? _keyboardHook;
     private Action<PixelPoint, EventType>? _mouseHook;
-    private Action? _focusChangedHook;
     private int _wakePipeR = -1;
     private int _wakePipeW = -1;
     private readonly ConcurrentDictionary<IntPtr, IVisualElement> _windowCache = new();
 
-    public bool IsAvailable => _display != IntPtr.Zero;
-    public IVisualElementContext? Context { get; set; }
-
-    public X11WindowEventHelper()
+    public X11WindowBackend()
     { 
         XInitThreads();
         _display = XOpenDisplay(IntPtr.Zero);
@@ -75,7 +71,7 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
         _xThread.Start();
     }
 
-    ~X11WindowEventHelper()
+    ~X11WindowBackend()
     {
         _running = false;
         try
@@ -632,12 +628,7 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
         _scanSkipWindowHandle = handle?? IntPtr.Zero;
         GrabMouseHook(hook);
     }
-
-
-    public void RegisterFocusChanged(Action handler)
-    {
-        _focusChangedHook = handler;
-    }
+    
 
     public Bitmap Capture(IVisualElement? window, PixelRect rect)
     {
@@ -827,7 +818,7 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
     }
 
     private class X11WindowVisualElement(
-        X11WindowEventHelper backend,
+        X11WindowBackend backend,
         IntPtr windowHandle
     ) : IVisualElement
     {
@@ -1015,7 +1006,7 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
     }
 
     private class X11ScreenVisualElement(
-        X11WindowEventHelper backend,
+        X11WindowBackend backend,
         int index
     ) : IVisualElement
     {
@@ -1120,17 +1111,6 @@ public sealed partial class X11WindowEventHelper : ILinuxWindowBackend, ILinuxEv
                                 new PixelPoint(buttonEvent.x_root, buttonEvent.y_root),
                                 type
                             );
-                        });
-                    }
-                }
-                break;
-            case EventType.FocusChange:
-                {
-                    if (_focusChangedHook != null)
-                    {
-                        ThreadPool.QueueUserWorkItem(_ =>
-                        {
-                            _focusChangedHook?.Invoke();
                         });
                     }
                 }

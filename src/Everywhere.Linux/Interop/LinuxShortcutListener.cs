@@ -6,7 +6,7 @@ namespace Everywhere.Linux.Interop;
 
 public class LinuxShortcutListener : IShortcutListener
 {
-    private readonly ILinuxDisplayBackend? _backend = ServiceLocator.Resolve<ILinuxDisplayBackend>();
+    private readonly ILinuxEventHelper? _eventHelper = ServiceLocator.Resolve<ILinuxEventHelper>();
 
     // Register a keyboard hotkey. Multiple handlers for the same hotkey are supported.
     // Returns an IDisposable that unregisters this handler only.
@@ -15,9 +15,9 @@ public class LinuxShortcutListener : IShortcutListener
         if (hotkey.Key == Key.None || hotkey.Modifiers == KeyModifiers.None)
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
-        var id = _backend?.GrabKey(hotkey, handler)??0;
+        var id = _eventHelper?.GrabKey(hotkey, handler)??0;
         return id != 0
-            ? new Disposer(() => _backend?.UngrabKey(id))
+            ? new Disposer(() => _eventHelper?.UngrabKey(id))
             : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
@@ -28,9 +28,9 @@ public class LinuxShortcutListener : IShortcutListener
         if (hotkey.Key == MouseButton.None)
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
-        var id = _backend?.GrabMouse(hotkey, handler)??0;
+        var id = _eventHelper?.GrabMouse(hotkey, handler)??0;
         return id != 0
-            ? new Disposer(() => _backend?.UngrabMouse(id))
+            ? new Disposer(() => _eventHelper?.UngrabMouse(id))
             : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
@@ -40,7 +40,7 @@ public class LinuxShortcutListener : IShortcutListener
     /// <returns></returns>
     public IKeyboardShortcutScope StartCaptureKeyboardShortcut()
     {
-        return new LinuxKeyboardShortcutScopeImpl(_backend ?? throw new InvalidOperationException("Display _backend is not available."));
+        return new LinuxKeyboardShortcutScopeImpl();
     }
     
     private readonly record struct Disposer(Action DisposeAction) : IDisposable
@@ -51,7 +51,7 @@ public class LinuxShortcutListener : IShortcutListener
 
 public class LinuxKeyboardShortcutScopeImpl : IKeyboardShortcutScope
 {
-    private readonly ILinuxDisplayBackend _backend;
+    private readonly X11WindowBackend _backend = ServiceLocator.Resolve<X11WindowBackend>();
     public KeyboardShortcut PressingShortcut { get; private set; }
 
     public bool IsDisposed { get; private set; }
@@ -62,9 +62,8 @@ public class LinuxKeyboardShortcutScopeImpl : IKeyboardShortcutScope
     
     private KeyModifiers _pressedKeyModifiers = KeyModifiers.None;
 
-    public LinuxKeyboardShortcutScopeImpl(ILinuxDisplayBackend backend)
+    public LinuxKeyboardShortcutScopeImpl()
     {
-        _backend = backend;
         IsDisposed = false;
         _backend.GrabKeyHook((hotkey, eventType) =>
         {

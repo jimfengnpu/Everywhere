@@ -9,7 +9,7 @@ namespace Everywhere.Linux.Interop;
 
 public class LinuxNativeHelper : INativeHelper
 {
-    private readonly ILinuxDisplayBackend _backend = ServiceLocator.Resolve<ILinuxDisplayBackend>();
+    private readonly ILinuxEventHelper _eventHelper = ServiceLocator.Resolve<ILinuxEventHelper>();
 
     private static string SystemdServiceFile
     {
@@ -79,7 +79,7 @@ public class LinuxNativeHelper : INativeHelper
 
     public bool GetKeyState(Key key)
     {
-        return _backend.GetKeyState(key);
+        return _eventHelper.GetKeyState(key);
     }
 
     public void ShowDesktopNotification(string message, string? title = null)

@@ -22,7 +22,7 @@ public partial class LinuxVisualElementContext
     {
         public static Task<IVisualElement?> PickAsync(
             LinuxVisualElementContext context,
-            ILinuxDisplayBackend backend,
+            ILinuxWindowBackend backend,
             PickElementMode mode)
         {
             var window = new ElementPicker(context, backend, mode);
@@ -49,7 +49,7 @@ public partial class LinuxVisualElementContext
 
         private ElementPicker(
             LinuxVisualElementContext context,
-            ILinuxDisplayBackend backend,
+            ILinuxWindowBackend backend,
             PickElementMode mode)
         {
             _context = context;
@@ -186,7 +186,7 @@ public partial class LinuxVisualElementContext
         {
             bool leftPressed = false;
             
-            _context._backend.WindowPickerHook(this, (point, type) =>
+            _context._eventHelper.WindowPickerHook(this, (point, type) =>
             {
                 switch (type)
                 {
@@ -213,7 +213,7 @@ public partial class LinuxVisualElementContext
         
         protected override void OnClosed(EventArgs e)
         {
-            _context._backend.UngrabMouseHook();
+            _context._eventHelper.UngrabMouseHook();
             _pickingPromise.TrySetResult(_selectedElement);
         }
 

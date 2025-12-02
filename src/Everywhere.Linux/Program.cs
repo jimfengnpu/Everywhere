@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Everywhere.AI;
@@ -20,6 +21,27 @@ namespace Everywhere.Linux;
 
 public static class Program
 {
+    
+    public static IServiceCollection AddWindowEventHelper(this IServiceCollection services)
+    {
+        // CheckEnv
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            throw new PlatformNotSupportedException("Fatal Error: Not Linux OS platform.");
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY")))
+            throw new InvalidOperationException("Fatal Error: DISPLAY environment variable is not set. You should start in GUI env.");
+        var session = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE");
+        var desktop = Environment.GetEnvironmentVariable("XDG_SESSION_DESKTOP");
+        services.AddSingleton<X11WindowBackend>();
+        if (session != "x11")
+        {
+            // not x11, may not fully supported
+        }
+        services.AddSingleton<ILinuxEventHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
+        services.AddSingleton<ILinuxWindowBackend>(sp => sp.GetRequiredService<X11WindowBackend>());
+        services.AddSingleton<IWindowHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
+        return services;
+    }
+    
     [STAThread]
     public static void Main(string[] args)
     {
@@ -33,9 +55,7 @@ public static class Program
                     .AddSerilog(dispose: true)
                     .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Debug))
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
-                .AddSingleton<LinuxDisplayBackend>()
-                .AddSingleton<ILinuxDisplayBackend>(sp => sp.GetRequiredService<LinuxDisplayBackend>())
-                .AddSingleton<IWindowHelper>(sp => sp.GetRequiredService<LinuxDisplayBackend>())
+                .AddWindowEventHelper()
                 .AddSingleton<IVisualElementContext, LinuxVisualElementContext>()
                 .AddSingleton<IShortcutListener, LinuxShortcutListener>()
                 .AddSingleton<INativeHelper, LinuxNativeHelper>()
