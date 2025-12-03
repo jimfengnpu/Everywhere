@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationIcon>..\..\img\Everywhere.ico</ApplicationIcon>
     <IsDeploymentTarget>true</IsDeploymentTarget>
+    <UseAppHost>true</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

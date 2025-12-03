@@ -891,7 +891,6 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             {
                 base.EnsureResources();
                 XQueryTree(backend._display, parent, out _, out _, out var childrenPtr, out var count);
-                // _childArr = childrenPtr;
                 _childCount = count;
                 _childArr.Clear();
                 int index = 0;

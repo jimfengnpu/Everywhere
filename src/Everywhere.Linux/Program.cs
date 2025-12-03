@@ -34,7 +34,8 @@ public static class Program
         services.AddSingleton<X11WindowBackend>();
         if (session != "x11")
         {
-            // not x11, may not fully supported
+            // not x11, may be not fully supported
+            Log.Logger.Warning("Not X11 Session, Maybe not supported well");
         }
         services.AddSingleton<ILinuxEventHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
         services.AddSingleton<ILinuxWindowBackend>(sp => sp.GetRequiredService<X11WindowBackend>());

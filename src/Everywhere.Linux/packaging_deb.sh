@@ -47,7 +47,20 @@ rm -rf "$PACKAGINGPATH"
 mkdir -p "$PACKAGINGPATH/DEBIAN"
 mkdir -p "$PACKAGINGPATH$INSTALLPATH"
 cp -r "$BINDIR"/* "$PACKAGINGPATH$INSTALLPATH"
+cp "$SHELLFOLDER/../../img/Everywhere.ico" "$PACKAGINGPATH$INSTALLPATH"
 cd "$PACKAGINGPATH"
+cat > "$PACKAGINGPATH$INSTALLPATH/Everywhere.desktop" <<EOF
+[Desktop Entry]
+Name=Everywhere
+Comment=A context-aware AI assistant for your desktop.
+Exec=/usr/bin/Everywhere
+X-KDE-StartupNotify=true
+Icon=$INSTALLPATH/Everywhere.ico
+Type=Application
+Terminal=false
+Categories=Utility
+Keywords=AI;tool;
+EOF
 
 cat > DEBIAN/control <<EOF
 Package: Everywhere
@@ -67,6 +80,7 @@ set -e
 
 # Create symlink
 ln -sf "$INSTALLPATH/Everywhere.Linux" /usr/bin/Everywhere
+desktop-file-install "$INSTALLPATH/Everywhere.desktop"
 
 exit 0
 EOF
@@ -77,7 +91,7 @@ cat > DEBIAN/prerm <<EOF
 #!/bin/sh
 set -e
 
-unlink $HOME/.config/systemd/user/graphical-session.target.wants/Everywhere.service
+rm -f $HOME/.config/systemd/user/graphical-session.target.wants/Everywhere.service
 rm -f $HOME/.config/systemd/user/Everywhere.service
 # Remove symlink on uninstall
 rm -f /usr/bin/Everywhere
