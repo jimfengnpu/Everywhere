@@ -115,7 +115,7 @@
           x:Name="TextBoxContextFlyoutCopyItem"
           Command="{Binding $parent[v:ChatInputBox].Copy}"
           Cursor="Hand"
-          Header="{I18N {x:Static LocaleKey.ChatInputBox_ContextFlyout_CopyMenuItem_Header}}"
+          Header="{I18N {x:Static LocaleKey.Common_Copy}}"
           InputGesture="{x:Static v:ChatInputBox.CopyGesture}"
           IsEnabled="{Binding $parent[v:ChatInputBox].CanCopy}"/>
         <MenuItem
