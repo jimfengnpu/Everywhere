@@ -338,19 +338,14 @@ public partial class VisualTreeXmlBuilder(
 
 #if DEBUG_VISUAL_TREE_BUILDER
     private void TryEnqueueTraversalNode(
-        PriorityQueue<TraversalNode, float> priorityQueue,
-        IVisualElement? previous,
-        TraverseDistance distance,
-        TraverseDirection direction,
-        IEnumerator<IVisualElement> enumerator)
 #else
     private static void TryEnqueueTraversalNode(
+#endif
         PriorityQueue<TraversalNode, float> priorityQueue,
         IVisualElement? previous,
         TraverseDistance distance,
         TraverseDirection direction,
         IEnumerator<IVisualElement> enumerator)
-#endif
     {
         if (!enumerator.MoveNext())
         {
@@ -548,7 +543,11 @@ public partial class VisualTreeXmlBuilder(
         }
     }
 
+#if DEBUG_VISUAL_TREE_BUILDER
     private void PropagateNode(
+#else
+    private static void PropagateNode(
+#endif
         PriorityQueue<TraversalNode, float> priorityQueue,
         in TraversalNode node)
     {

@@ -175,12 +175,24 @@ public partial class VisualTreeDebugger : UserControl
                 VisualTreeDetailLevel.Compact);
 #if DEBUG
             // use profiler to measure xml building time in debug mode
-            // run on UI thread to capture more realistic performance
-            MeasureProfiler.StartCollectingData("BuildXml");
-            var xml = xmlBuilder.BuildXml(CancellationToken.None);
-            MeasureProfiler.SaveData("BuildXml");
+            var xml = await Task.Run(() =>
+            {
+                var originalThreadName = Thread.CurrentThread.Name;
+                Thread.CurrentThread.Name = "XML Builder Thread";
+                MeasureProfiler.StartCollectingData("BuildXml");
+
+                try
+                {
+                    return xmlBuilder.BuildXml(CancellationToken.None);
+                }
+                finally
+                {
+                    MeasureProfiler.SaveData("BuildXml");
+                    Thread.CurrentThread.Name = originalThreadName;
+                }
+            });
 #else
-            var xml = xmlBuilder.BuildXml(CancellationToken.None);
+            var xml = await Task.Run(() => xmlBuilder.BuildXml(CancellationToken.None));
 #endif
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             var filename = $"visual_tree_{timestamp}.xml";
