@@ -67,7 +67,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\release.yml = .github\workflows\release.yml
 		.github\workflows\close-stale-issues.yml = .github\workflows\close-stale-issues.yml
 		.github\workflows\sync-i18n.yml = .github\workflows\sync-i18n.yml
-		.github\workflows\codeql.yml = .github\workflows\codeql.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{30A74410-E803-4C56-BE95-C8E1BE690C7A}"

@@ -1,10 +1,17 @@
-﻿using System.Diagnostics;
+﻿#if DEBUG
+// #define DEBUG_VISUAL_TREE_BUILDER
+#endif
+
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
-using Everywhere.Chat.Debugging;
 using Everywhere.Interop;
 using ZLinq;
+
+#if DEBUG_VISUAL_TREE_BUILDER
+using System.Diagnostics;
+using Everywhere.Chat.Debugging;
+#endif
 
 namespace Everywhere.Chat;
 
@@ -298,7 +305,7 @@ public partial class VisualTreeXmlBuilder(
 
     private StringBuilder? _xmlBuilder;
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
     private VisualTreeRecorder? _debugRecorder;
 #endif
 
@@ -311,7 +318,7 @@ public partial class VisualTreeXmlBuilder(
         if (_xmlBuilder != null) return _xmlBuilder.ToString();
         cancellationToken.ThrowIfCancellationRequested();
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
         _debugRecorder = new VisualTreeRecorder(coreElements, approximateTokenLimit, "WeightedPriority");
 #endif
 
@@ -329,20 +336,16 @@ public partial class VisualTreeXmlBuilder(
         return GenerateXmlString(visitedElements);
     }
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
     private void TryEnqueueTraversalNode(
+#else
+    private static void TryEnqueueTraversalNode(
+#endif
         PriorityQueue<TraversalNode, float> priorityQueue,
         IVisualElement? previous,
         TraverseDistance distance,
         TraverseDirection direction,
         IEnumerator<IVisualElement> enumerator)
-#else
-    private static void TryEnqueueTraversalNode(
-        PriorityQueue<TraversalNode, float> priorityQueue,
-        TraverseDistance distance,
-        TraverseDirection direction,
-        IEnumerator<IVisualElement> enumerator)
-#endif
     {
         if (!enumerator.MoveNext())
         {
@@ -354,7 +357,7 @@ public partial class VisualTreeXmlBuilder(
         var score = node.GetScore();
         priorityQueue.Enqueue(node, score);
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
         _debugRecorder?.RecordStep(
             node.Element,
             "Enqueue",
@@ -379,7 +382,7 @@ public partial class VisualTreeXmlBuilder(
             var remainingTokenCount = approximateTokenLimit - accumulatedTokenCount;
             if (remainingTokenCount <= 0)
             {
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
                 _debugRecorder?.RecordStep(
                     priorityQueue.Peek().Element,
                     "Stop",
@@ -391,17 +394,21 @@ public partial class VisualTreeXmlBuilder(
                 break;
             }
 
+#if DEBUG_VISUAL_TREE_BUILDER
             if (!priorityQueue.TryDequeue(out var node, out var priority)) break;
+#else
+            if (!priorityQueue.TryDequeue(out var node, out _)) break;
+#endif
             var element = node.Element;
             var id = element.Id;
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
             _debugRecorder?.RegisterNode(element, node.GetScore());
 #endif
 
             if (visitedElements.ContainsKey(id))
             {
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
                 _debugRecorder?.RecordStep(element, "Skip", priority, "Already visited", accumulatedTokenCount, priorityQueue.Count);
 #endif
                 continue;
@@ -410,7 +417,7 @@ public partial class VisualTreeXmlBuilder(
             // Process the current node and create the XmlVisualElement
             CreateXmlVisualElement(visitedElements, node, remainingTokenCount, ref accumulatedTokenCount);
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
             _debugRecorder?.RecordStep(
                 element,
                 "Visit",
@@ -536,11 +543,15 @@ public partial class VisualTreeXmlBuilder(
         }
     }
 
+#if DEBUG_VISUAL_TREE_BUILDER
     private void PropagateNode(
+#else
+    private static void PropagateNode(
+#endif
         PriorityQueue<TraversalNode, float> priorityQueue,
         in TraversalNode node)
     {
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
         Debug.WriteLine($"[PropagateNode] {node}");
 #endif
 
@@ -689,7 +700,7 @@ public partial class VisualTreeXmlBuilder(
             InternalBuildXml(rootElement, 0);
         }
 
-#if DEBUG
+#if DEBUG_VISUAL_TREE_BUILDER
         var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         var filename = $"visual_tree_debug_{timestamp}.json";
         var debugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);

@@ -1325,7 +1325,7 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
         <value>Images</value>
     </data>
-    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_AllFiles" xml:space="preserve">
+    <data name="ChatWindowViewModel_FilePickerFileType_AllFiles" xml:space="preserve">
         <value>All Files</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
@@ -1681,5 +1681,41 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="ChatContext_BusyMessage_CallingTools" xml:space="preserve">
         <value>Tool invocation is generating</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_FailedToLoadChatContext" xml:space="preserve">
+        <value>Failed to load chat context.</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_FilePickerFileType_Markdown" xml:space="preserve">
+        <value>Markdown Files</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_DateCreated" xml:space="preserve">
+        <value>Created</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_DateModified" xml:space="preserve">
+        <value>Modified</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_UserRole" xml:space="preserve">
+        <value>User</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_UserAttachments" xml:space="preserve">
+        <value>Attachments</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_AssistantRole" xml:space="preserve">
+        <value>Assistant</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_ErrorMessage" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_FailedToSaveFile" xml:space="preserve">
+        <value>Failed to Save File</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_ExportSuccess" xml:space="preserve">
+        <value>Export Success</value>
+    </data>
+    <data name="ChatWindowViewModel_ExportMarkdown_FunctionCall" xml:space="preserve">
+        <value>Tool Invocation</value>
+    </data>
+    <data name="ChatWindow_ChatHistory_ExportMarkdownMenuItem_Header" xml:space="preserve">
+        <value>Export as Markdown</value>
     </data>
 </root>

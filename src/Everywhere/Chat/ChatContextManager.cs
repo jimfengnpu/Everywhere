@@ -327,6 +327,9 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         }
     }
 
+    public Task<ChatContext?> LoadChatContextAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default) => 
+        metadata.Id == _current?.Metadata.Id ? Task.FromResult<ChatContext?>(_current) : LoadChatContextAsync(metadata.Id, deleteIfFailed: false);
+
     private async Task<ChatContext?> LoadChatContextAsync(Guid id, bool deleteIfFailed)
     {
         try

@@ -1,3 +1,5 @@
+#if DEBUG
+
 using Everywhere.Interop;
 using ZLinq;
 
@@ -65,3 +67,5 @@ public class VisualTreeRecorder(
         File.WriteAllText(filePath, session.ToJson());
     }
 }
+
+#endif

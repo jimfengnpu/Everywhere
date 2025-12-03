@@ -57,4 +57,12 @@ public interface IChatContextManager : INotifyPropertyChanged
     /// Removes the selected chat context from history.
     /// </summary>
     IRelayCommand RemoveSelectedCommand { get; }
+    
+    /// <summary>
+    /// Loads the full chat context for the given metadata.
+    /// </summary>
+    /// <param name="metadata"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<ChatContext?> LoadChatContextAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default);
 }

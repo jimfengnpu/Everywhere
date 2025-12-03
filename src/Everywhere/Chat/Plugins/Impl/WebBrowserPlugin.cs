@@ -2,28 +2,21 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Web;
 using Everywhere.Chat.Permissions;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Utilities;
-using Google.Apis.Http;
-using Google.Apis.Services;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Web;
 using Microsoft.SemanticKernel.Plugins.Web.Brave;
 using Microsoft.SemanticKernel.Plugins.Web.Google;
 using PuppeteerSharp;
-using Tavily;
 using ZLinq;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
@@ -49,7 +42,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        TypeInfoResolver = GeneratedJsonSerializationContext.Default
+        TypeInfoResolver = WebBrowserPluginJsonSerializationContext.Default
     };
 
     private readonly SemaphoreSlim _browserLock = new(1, 1);
@@ -154,17 +147,14 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         (_connector, _maxSearchCount) = provider.Id.ToLower() switch
         {
             "google" => (new GoogleConnector(
-                new BaseClientService.Initializer
-                {
-                    ApiKey = EnsureApiKey(provider.ApiKey),
-                    BaseUri = uri.AbsoluteUri,
-                    HttpClientFactory = new ProxiedGoogleHttpClientFactory(_webProxy)
-                },
+                EnsureApiKey(provider.ApiKey),
                 provider.SearchEngineId ??
                 throw new HandledException(
                     new UnauthorizedAccessException("Search Engine ID is not set."),
                     new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage),
                     showDetails: false),
+                _httpClientFactory.CreateClient(),
+                uri,
                 _loggerFactory) as IWebSearchEngineConnector, 10),
             "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
             "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
@@ -384,8 +374,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         }
     }
 
-    private sealed class ProxiedGoogleHttpClientFactory(IWebProxy proxy) : HttpClientFactory(proxy);
-
     private sealed record IndexedWebPage(
         [property: JsonPropertyName("index")] int Index,
         [property: JsonPropertyName("name")] string Name,
@@ -406,449 +394,5 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
 
     [JsonSerializable(typeof(List<IndexedWebPage>))]
     [JsonSerializable(typeof(WebSnapshotResult))]
-    private partial class GeneratedJsonSerializationContext : JsonSerializerContext;
-
-    private class TavilyConnector(string apiKey, HttpClient httpClient, Uri? uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
-    {
-        private readonly TavilyClient _tavilyClient = new(httpClient, uri);
-        private readonly ILogger _logger = loggerFactory?.CreateLogger(typeof(TavilyConnector)) ?? NullLogger.Instance;
-
-        public async Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default)
-        {
-            if (count is <= 0 or >= 21)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} value must be greater than 0 and less than 21.");
-            }
-
-            _logger.LogDebug("Sending request");
-
-            var response = await _tavilyClient.SearchAsync(apiKey: apiKey, query, maxResults: count, cancellationToken: cancellationToken);
-
-            _logger.LogDebug("Response received");
-
-            List<T>? returnValues;
-            if (typeof(T) == typeof(string))
-            {
-                returnValues = response.Results
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => x.Content)
-                    .ToList() as List<T>;
-            }
-            else if (typeof(T) == typeof(WebPage))
-            {
-                returnValues = response.Results
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => new WebPage
-                    {
-                        Name = x.Title,
-                        Url = x.Url,
-                        Snippet = x.Content
-                    })
-                    .ToList() as List<T>;
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported.");
-            }
-
-            return returnValues ?? [];
-        }
-    }
-
-    private partial class SearxngConnector(HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory) : IWebSearchEngineConnector
-    {
-        private readonly ILogger _logger = loggerFactory?.CreateLogger(typeof(SearxngConnector)) ?? NullLogger.Instance;
-
-        public async Task<IEnumerable<T>> SearchAsync<T>(
-            string query,
-            int count = 1,
-            int offset = 0,
-            CancellationToken cancellationToken = default)
-        {
-            if (count is <= 0 or >= 50)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} value must be greater than 0 and less than 50.");
-            }
-
-            _logger.LogDebug("Sending request: {Uri}", uri);
-
-            using var responseMessage = await httpClient.GetAsync(
-                new UriBuilder(uri)
-                {
-                    Query = $"q={HttpUtility.UrlEncode(query)}&format=json"
-                }.Uri,
-                cancellationToken).ConfigureAwait(false);
-
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"SearXNG API returned error: {responseMessage.StatusCode}");
-            }
-
-            _logger.LogDebug("Response received: {StatusCode}", responseMessage.StatusCode);
-            var json = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-            // Sensitive data, logging as trace, disabled by default
-            _logger.LogTrace("Response content received: {Data}", json);
-
-            var response = JsonSerializer.Deserialize(json, SearxngResponseJsonSerializationContext.Default.SearxngResponse);
-            var data = response?.Data;
-
-            if (data is null || data.Length == 0) return [];
-
-            List<T>? returnValues;
-            if (typeof(T) == typeof(string))
-            {
-                returnValues = data
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => x.Content)
-                    .ToList() as List<T>;
-            }
-            else if (typeof(T) == typeof(WebPage))
-            {
-                returnValues = data
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => new WebPage
-                    {
-                        Name = GetFormattedPublishedDate(x) switch
-                        {
-                            { } date => $"{x.Title} (Published: {date})",
-                            _ => x.Title
-                        },
-                        Url = x.Url,
-                        Snippet = x.Content
-                    })
-                    .ToList() as List<T>;
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported.");
-            }
-
-            return returnValues ?? [];
-        }
-
-        private static string? GetFormattedPublishedDate(SearxngSearchResult result)
-        {
-            return result.PublishedDate1?.ToString("G") ?? result.PublishedDate2?.ToString("G");
-        }
-
-        [JsonSerializable(typeof(SearxngResponse))]
-        private partial class SearxngResponseJsonSerializationContext : JsonSerializerContext;
-
-        private class SearxngResponse
-        {
-            [JsonPropertyName("results")]
-            public SearxngSearchResult[]? Data { get; init; }
-        }
-
-        private sealed class SearxngSearchResult
-        {
-            /// <summary>
-            /// The title of the search result.
-            /// </summary>
-            [JsonPropertyName("title")]
-            public string Title { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The URL of the search result.
-            /// </summary>
-            [JsonPropertyName("url")]
-            public string Url { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The full content of the search result (if available).
-            /// </summary>
-            [JsonPropertyName("content")]
-            public string Content { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The publication date of the search result.
-            /// </summary>
-            [JsonPropertyName("publishedDate")]
-            public DateTime? PublishedDate1 { get; set; }
-
-            [JsonPropertyName("pubDate")]
-            public DateTime? PublishedDate2 { get; set; }
-        }
-    }
-
-    private partial class BoChaConnector : IWebSearchEngineConnector
-    {
-        private readonly ILogger _logger;
-        private readonly HttpClient _httpClient;
-        private readonly Uri _uri;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BoChaConnector"/> class.
-        /// </summary>
-        /// <param name="apiKey">The API key to authenticate the connector.</param>
-        /// <param name="httpClient"></param>
-        /// <param name="uri">The URI of the Bing Search instance. Defaults to "https://api.bing.microsoft.com/v7.0/search?q".</param>
-        /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
-        public BoChaConnector(string apiKey, HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory)
-        {
-            _httpClient = httpClient;
-            _logger = loggerFactory?.CreateLogger(typeof(BoChaConnector)) ?? NullLogger.Instance;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            _uri = uri;
-        }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default)
-        {
-            if (count is <= 0 or >= 51)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} value must be greater than 0 and less than 51.");
-            }
-
-            _logger.LogDebug("Sending request: {Uri}", _uri);
-
-            using var responseMessage = await _httpClient.PostAsync(
-                _uri,
-                JsonContent.Create(
-                    new
-                    {
-                        query,
-                        count,
-                        summary = true
-                    }),
-                cancellationToken).ConfigureAwait(false);
-
-            _logger.LogDebug("Response received: {StatusCode}", responseMessage.StatusCode);
-
-            var json = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-            // Sensitive data, logging as trace, disabled by default
-            _logger.LogTrace("Response content received: {Data}", json);
-
-            var response = JsonSerializer.Deserialize(json, ResponseJsonSerializationContext.Default.Response);
-            if (response is not { Data: { } data })
-            {
-                throw new HttpRequestException(response?.Message);
-            }
-
-            if (data?.WebPages?.Value is null) return [];
-
-            List<T>? returnValues;
-            if (typeof(T) == typeof(string))
-            {
-                returnValues = data.WebPages.Value
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => x.Summary)
-                    .ToList() as List<T>;
-            }
-            else if (typeof(T) == typeof(WebPage))
-            {
-                returnValues = data.WebPages.Value
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => new WebPage
-                    {
-                        Name = x.Name,
-                        Url = x.Url,
-                        Snippet = x.Summary ?? x.Snippet
-                    })
-                    .ToList() as List<T>;
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported.");
-            }
-
-            return returnValues ?? [];
-        }
-
-        [JsonSerializable(typeof(Response))]
-        private partial class ResponseJsonSerializationContext : JsonSerializerContext;
-
-        private class Response
-        {
-            [JsonPropertyName("code")]
-            public int Code { get; init; }
-
-            [JsonPropertyName("msg")]
-            public string? Message { get; init; }
-
-            [JsonPropertyName("data")]
-            public BoChaWebSearchResponse? Data { get; init; }
-        }
-
-        private sealed class BoChaWebSearchResponse
-        {
-            [JsonPropertyName("webPages")]
-            public BoChaWebPages? WebPages { get; set; }
-        }
-
-        private sealed class BoChaWebPages
-        {
-            /// <summary>
-            /// a nullable WebPage array object containing the Web Search API response data.
-            /// </summary>
-            [JsonPropertyName("value")]
-            public BoChaWebPage[]? Value { get; set; }
-        }
-
-        private sealed class BoChaWebPage
-        {
-            /// <summary>
-            /// The name of the result.
-            /// </summary>
-            [JsonPropertyName("name")]
-            public string Name { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The URL of the result.
-            /// </summary>
-            [JsonPropertyName("url")]
-            public string Url { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The result snippet.
-            /// </summary>
-            [JsonPropertyName("snippet")]
-            public string Snippet { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The result snippet.
-            /// </summary>
-            [JsonPropertyName("summary")]
-            public string? Summary { get; set; }
-        }
-    }
-
-    private partial class JinaConnector : IWebSearchEngineConnector
-    {
-        private readonly ILogger _logger;
-        private readonly HttpClient _httpClient;
-        private readonly Uri _uri;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JinaConnector"/> class.
-        /// </summary>
-        /// <param name="apiKey">The API key to authenticate the connector.</param>
-        /// <param name="httpClient"></param>
-        /// <param name="uri">The URI of the Jina Search instance. Defaults to "https://s.jina.ai/".</param>
-        /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
-        public JinaConnector(string apiKey, HttpClient httpClient, Uri uri, ILoggerFactory? loggerFactory)
-        {
-            _httpClient = httpClient;
-            _logger = loggerFactory?.CreateLogger(typeof(JinaConnector)) ?? NullLogger.Instance;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _uri = uri;
-        }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default)
-        {
-            if (count is <= 0 or >= 50)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} value must be greater than 0 and less than 50.");
-            }
-
-            _logger.LogDebug("Sending request: {Uri}", _uri);
-
-            using var responseMessage = await _httpClient.PostAsync(
-                _uri,
-                JsonContent.Create(
-                    new
-                    {
-                        q = query,
-                        num = count,
-                        page = offset
-                    }),
-                cancellationToken).ConfigureAwait(false);
-
-            _logger.LogDebug("Response received: {StatusCode}", responseMessage.StatusCode);
-
-            var json = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-            // Sensitive data, logging as trace, disabled by default
-            _logger.LogTrace("Response content received: {Data}", json);
-
-            var response = JsonSerializer.Deserialize(json, JinaResponseJsonSerializationContext.Default.JinaResponse);
-            if (response is not { Code: 200, Data: { } data })
-            {
-                throw new HttpRequestException($"Jina API returned error: {response?.Code}");
-            }
-
-            if (data is null || data.Length == 0) return [];
-
-            List<T>? returnValues;
-            if (typeof(T) == typeof(string))
-            {
-                returnValues = data
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => x.Content ?? x.Description)
-                    .ToList() as List<T>;
-            }
-            else if (typeof(T) == typeof(WebPage))
-            {
-                returnValues = data
-                    .AsValueEnumerable()
-                    .Take(count)
-                    .Select(x => new WebPage
-                    {
-                        Name = x.Title,
-                        Url = x.Url,
-                        Snippet = x.Description
-                    })
-                    .ToList() as List<T>;
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported.");
-            }
-
-            return returnValues ?? [];
-        }
-
-        [JsonSerializable(typeof(JinaResponse))]
-        private partial class JinaResponseJsonSerializationContext : JsonSerializerContext;
-
-        private class JinaResponse
-        {
-            [JsonPropertyName("code")]
-            public int Code { get; init; }
-
-            [JsonPropertyName("status")]
-            public int? Status { get; init; }
-
-            [JsonPropertyName("data")]
-            public JinaSearchResult[]? Data { get; init; }
-        }
-
-        private sealed class JinaSearchResult
-        {
-            /// <summary>
-            /// The title of the search result.
-            /// </summary>
-            [JsonPropertyName("title")]
-            public string Title { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The description/snippet of the search result.
-            /// </summary>
-            [JsonPropertyName("description")]
-            public string Description { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The URL of the search result.
-            /// </summary>
-            [JsonPropertyName("url")]
-            public string Url { get; set; } = string.Empty;
-
-            /// <summary>
-            /// The full content of the search result (if available).
-            /// </summary>
-            [JsonPropertyName("content")]
-            public string? Content { get; set; }
-        }
-    }
+    private partial class WebBrowserPluginJsonSerializationContext : JsonSerializerContext;
 }

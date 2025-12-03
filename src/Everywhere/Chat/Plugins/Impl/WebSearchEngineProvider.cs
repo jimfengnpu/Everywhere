@@ -33,7 +33,7 @@ public partial class WebSearchEngineProvider : ObservableObject
     [JsonIgnore]
     [HiddenSettingsItem]
     public bool IsSearchEngineIdVisible => Id.Equals("google", StringComparison.OrdinalIgnoreCase);
-    
+
     [JsonIgnore]
     [HiddenSettingsItem]
     public bool IsApiKeyRequired => !Id.Equals("searxng", StringComparison.OrdinalIgnoreCase);
