@@ -9,6 +9,7 @@ using Everywhere.I18N;
 using Everywhere.Interop;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
+using FlaUI.Core.EventHandlers;
 using FlaUI.UIA3;
 using Serilog;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
@@ -19,32 +20,41 @@ using Vector = Avalonia.Vector;
 
 namespace Everywhere.Windows.Interop;
 
-public partial class VisualElementContext : IVisualElementContext
+public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualElementContext
 {
     private static readonly UIA3Automation Automation = new();
     private static readonly ITreeWalker TreeWalker = Automation.TreeWalkerFactory.GetContentViewWalker();
 
-    public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
+    public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged
+    {
+        add
+        {
+            if (_keyboardFocusedElementChangedHandler is null)
+            {
+                _focusChangedEventHandler = Automation.RegisterFocusChangedEvent(element =>
+                {
+                    if (_keyboardFocusedElementChangedHandler is not { } handler) return;
+                    handler(TryCreateVisualElement(() => element));
+                });
+            }
+
+            _keyboardFocusedElementChangedHandler += value;
+        }
+        remove
+        {
+            _keyboardFocusedElementChangedHandler -= value;
+            if (_focusChangedEventHandler is not null)
+            {
+                Automation.UnregisterFocusChangedEvent(_focusChangedEventHandler);
+                _focusChangedEventHandler = null;
+            }
+        }
+    }
 
     public IVisualElement? KeyboardFocusedElement => TryCreateVisualElement(Automation.FocusedElement);
 
-    private readonly IWindowHelper _windowHelper;
-
-    public VisualElementContext(IWindowHelper windowHelper)
-    {
-        _windowHelper = windowHelper;
-        // Automation.RegisterFocusChangedEvent(element =>
-        // {
-        //     if (KeyboardFocusedElementChanged is not { } handler) return;
-        //     if (element == null)
-        //     {
-        //         handler(null);
-        //         return;
-        //     }
-//
-        //     handler(new AutomationVisualElementImpl(this, element, true));
-        // });
-    }
+    private IVisualElementContext.KeyboardFocusedElementChangedHandler? _keyboardFocusedElementChangedHandler;
+    private FocusChangedEventHandlerBase? _focusChangedEventHandler;
 
 
     public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
@@ -57,7 +67,7 @@ public partial class VisualElementContext : IVisualElementContext
             }
             case PickElementMode.Window:
             {
-                IVisualElement? element = TryCreateVisualElement(() => Automation.FromPoint(new Point(point.X, point.Y)), false);
+                IVisualElement? element = TryCreateVisualElement(() => Automation.FromPoint(new Point(point.X, point.Y)));
                 while (element is AutomationVisualElementImpl { IsTopLevelWindow: false })
                 {
                     element = element.Parent;
@@ -80,13 +90,13 @@ public partial class VisualElementContext : IVisualElementContext
         return !PInvoke.GetCursorPos(out var point) ? null : ElementFromPoint(new PixelPoint(point.X, point.Y), mode);
     }
 
-    public Task<IVisualElement?> PickElementAsync(PickElementMode mode) => VisualElementPicker.PickAsync(_windowHelper, mode);
+    public Task<IVisualElement?> PickElementAsync(PickElementMode mode) => VisualElementPicker.PickAsync(windowHelper, mode);
 
-    private static AutomationVisualElementImpl? TryCreateVisualElement(Func<AutomationElement?> factory, bool windowBarrier = true)
+    private static AutomationVisualElementImpl? TryCreateVisualElement(Func<AutomationElement?> factory)
     {
         try
         {
-            if (factory() is { } element) return new AutomationVisualElementImpl(element, windowBarrier);
+            if (factory() is { } element) return new AutomationVisualElementImpl(element);
         }
         catch (Exception ex)
         {

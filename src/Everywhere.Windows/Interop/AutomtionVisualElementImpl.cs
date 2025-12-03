@@ -23,7 +23,7 @@ namespace Everywhere.Windows.Interop;
 
 public partial class VisualElementContext
 {
-    private class AutomationVisualElementImpl(AutomationElement element, bool windowBarrier) : IVisualElement
+    private class AutomationVisualElementImpl(AutomationElement element) : IVisualElement
     {
         public string Id { get; } = string.Join('.', element.Properties.RuntimeId.ValueOrDefault ?? []);
 
@@ -36,14 +36,12 @@ public partial class VisualElementContext
                     if (IsTopLevelWindow)
                     {
                         // this is a top level window
-                        if (_windowBarrier) return null;
-
                         var screen = PInvoke.MonitorFromWindow((HWND)NativeWindowHandle, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
                         return screen == HMONITOR.Null ? null : new ScreenVisualElementImpl(screen);
                     }
 
                     var parent = TreeWalker.GetParent(_element);
-                    return parent is null ? null : new AutomationVisualElementImpl(parent, _windowBarrier);
+                    return parent is null ? null : new AutomationVisualElementImpl(parent);
                 }
                 catch (COMException)
                 {
@@ -59,7 +57,7 @@ public partial class VisualElementContext
                 var child = TreeWalker.GetFirstChild(_element);
                 while (child is not null)
                 {
-                    yield return new AutomationVisualElementImpl(child, _windowBarrier);
+                    yield return new AutomationVisualElementImpl(child);
                     child = TreeWalker.GetNextSibling(child);
                 }
             }
@@ -92,7 +90,8 @@ public partial class VisualElementContext
                         ControlType.ListItem => VisualElementType.ListViewItem,
                         ControlType.Menu or ControlType.MenuBar => VisualElementType.Menu,
                         ControlType.MenuItem => VisualElementType.MenuItem,
-                        ControlType.Pane => VisualElementType.TopLevel,
+                        ControlType.Pane when IsTopLevelWindow => VisualElementType.TopLevel,
+                        ControlType.Pane => VisualElementType.Panel, // a child window, treat as panel
                         ControlType.ProgressBar => VisualElementType.ProgressBar,
                         ControlType.RadioButton => VisualElementType.RadioButton,
                         ControlType.ScrollBar => VisualElementType.ScrollBar,
@@ -109,7 +108,8 @@ public partial class VisualElementContext
                         ControlType.TitleBar or ControlType.ToolBar or ControlType.ToolTip => VisualElementType.Panel,
                         ControlType.Tree => VisualElementType.TreeView,
                         ControlType.TreeItem => VisualElementType.TreeViewItem,
-                        ControlType.Window => VisualElementType.TopLevel,
+                        ControlType.Window when IsTopLevelWindow => VisualElementType.TopLevel,
+                        ControlType.Window => VisualElementType.Panel, // a child window, treat as panel
                         _ => VisualElementType.Unknown
                     };
                 }
@@ -189,7 +189,6 @@ public partial class VisualElementContext
         public nint NativeWindowHandle { get; } = element.FrameworkAutomationElement.NativeWindowHandle.ValueOrDefault;
 
         private readonly AutomationElement _element = element;
-        private readonly bool _windowBarrier = windowBarrier;
 
         public string? GetText(int maxLength = -1)
         {
@@ -534,7 +533,7 @@ public partial class VisualElementContext
                 var sibling = TreeWalker.GetNextSibling(visualElement._element);
                 while (sibling is not null)
                 {
-                    yield return new AutomationVisualElementImpl(sibling, visualElement._windowBarrier);
+                    yield return new AutomationVisualElementImpl(sibling);
                     sibling = TreeWalker.GetNextSibling(sibling);
                 }
             }
@@ -544,7 +543,7 @@ public partial class VisualElementContext
                 var sibling = TreeWalker.GetPreviousSibling(visualElement._element);
                 while (sibling is not null)
                 {
-                    yield return new AutomationVisualElementImpl(sibling, visualElement._windowBarrier);
+                    yield return new AutomationVisualElementImpl(sibling);
                     sibling = TreeWalker.GetPreviousSibling(sibling);
                 }
             }
