@@ -10,7 +10,9 @@ using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
+
 #if !DEBUG
+using System.Text.RegularExpressions;
 using Everywhere.Utilities;
 #endif
 
