@@ -25,7 +25,7 @@ public enum EventType
 
 public interface ILinuxEventHelper
 {
-    bool GetKeyState(Key key);
+    bool GetKeyState(KeyModifiers keyModifiers);
     
     /// <summary>
     /// Grab a global key. Returns an id (>0) on success, or 0 on failure.

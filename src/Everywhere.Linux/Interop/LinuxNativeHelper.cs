@@ -74,19 +74,20 @@ public class LinuxNativeHelper : INativeHelper
     public void RestartAsAdministrator()
     {
         // No-op on Linux by default. Could re-exec with sudo if desired.
-        ShowDesktopNotification("Administrator is usually unnecessary on Linux. if needed, Please re-exec with sudo.");
+        ShowDesktopNotificationAsync("Administrator is usually unnecessary on Linux. if needed, Please re-exec with sudo.");
     }
 
-    public bool GetKeyState(Key key)
+    public bool GetKeyState(KeyModifiers keyModifiers)
     {
-        return _eventHelper.GetKeyState(key);
+        return _eventHelper.GetKeyState(keyModifiers);
     }
 
-    public void ShowDesktopNotification(string message, string? title = null)
+    public Task<bool> ShowDesktopNotificationAsync(string message, string? title = null)
     {
         // Try to use libnotify via command line as a best-effort notification
         var args = $"-u normal \"{title ?? "Everywhere"}\" \"{message}\"";
         Process.Start("notify-send", args);
+        return Task.FromResult(false);
     }
 
     public void OpenFileLocation(string fullPath)

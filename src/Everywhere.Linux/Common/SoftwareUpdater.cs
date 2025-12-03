@@ -124,7 +124,7 @@ public sealed partial class SoftwareUpdater(
             if (_notifiedVersion != LatestVersion && LatestVersion is not null)
             {
                 _notifiedVersion = LatestVersion;
-                new LinuxNativeHelper().ShowDesktopNotification(
+                new LinuxNativeHelper().ShowDesktopNotificationAsync(
                     LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message,
                     LocaleKey.Common_Info);
             }

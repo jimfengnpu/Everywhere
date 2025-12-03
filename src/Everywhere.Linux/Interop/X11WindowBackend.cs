@@ -111,17 +111,37 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         return keycode;
     }
     
-    public bool GetKeyState(Key key)
+    public bool GetKeyState(KeyModifiers keyModifier)
     {
-        var keycode = XKeycode(key);
-        if (keycode == 0) return false;
+        // List testList = [, KeyModifiers.Control, KeyModifiers.Shift, KeyModifiers.Meta];
+        Dictionary<KeyModifiers, List<Key>> testKey = new()
+            {
+                [KeyModifiers.Alt] = [Key.LeftAlt, Key.RightAlt],
+                [KeyModifiers.Control] = [Key.LeftCtrl, Key.RightCtrl],
+                [KeyModifiers.Shift] = [Key.LeftShift, Key.RightShift],
+                [KeyModifiers.Meta] = [Key.LWin, Key.RWin],
+            };
         var keymap = new byte[32];
         XQueryKeymap(_display, keymap);
+        bool state = true;
 
-        var byteIndex = keycode / 8;
-        var bitIndex = keycode % 8;
-        var pressed = (keymap[byteIndex] >> bitIndex) & 1;
-        return pressed == 1;
+        bool check(byte[] map, Key key)
+        {
+            var keycode = XKeycode(key);
+            if (keycode == 0) return false;
+
+            var byteIndex = keycode / 8;
+            var bitIndex = keycode % 8;
+            var pressed = (map[byteIndex] >> bitIndex) & 1;
+            return pressed == 1;
+        }
+
+        foreach (var key in testKey)
+        {
+            state &= (check(keymap, key.Value[0]) | check(keymap, key.Value[1]) );
+        }
+        
+        return state;
     }
 
     public int GrabKey(KeyboardShortcut hotkey, Action handler)
@@ -858,43 +878,74 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 XFree(childrenPtr);
             }
         }
-        public IVisualElement? PreviousSibling
+        private class X11SiblingAccessor(
+            X11WindowVisualElement elem, 
+            IntPtr parent, 
+            X11WindowBackend backend): VisualElementSiblingAccessor
+        {
+            private List<IntPtr> _childArr = [];
+            private int _childCount = 0;
+            private int _selfIndex = 0;
+            
+            protected override void EnsureResources()
+            {
+                base.EnsureResources();
+                XQueryTree(backend._display, parent, out _, out _, out var childrenPtr, out var count);
+                // _childArr = childrenPtr;
+                _childCount = count;
+                _childArr.Clear();
+                int index = 0;
+                for (var i = 0; i < count; i++)
+                {
+                    var child = Marshal.ReadIntPtr(childrenPtr, i * IntPtr.Size);
+                    if (child != IntPtr.Zero)
+                    {
+                        if (child == elem.NativeWindowHandle)
+                        {
+                            _selfIndex = index;
+                        }
+                        _childArr.Add(child);
+                        index++;
+                    }
+                }
+                _childCount = index;
+                XFree(childrenPtr);
+            }
+
+
+            protected override IEnumerator<IVisualElement> CreateForwardEnumerator()
+            {
+                for (var i = _selfIndex + 1; i < _childCount; i++)
+                {
+                    var child = _childArr[i];
+                    if (child != IntPtr.Zero)
+                    {
+                        yield return backend.GetWindowElement(child);
+                    }
+                }
+            }
+
+            protected override IEnumerator<IVisualElement> CreateBackwardEnumerator()
+            {
+                for (var i = _selfIndex - 1; i >= 0; i--)
+                {
+                    var child = _childArr[i];
+                    if (child != IntPtr.Zero)
+                    {
+                        yield return backend.GetWindowElement(child);
+                    }
+                }
+            }
+        }
+        public VisualElementSiblingAccessor SiblingAccessor
         {
             get
             {
-                XQueryTree(backend._display, windowHandle, out _,
-                    out var parentHandle, out _, out var _);
-                if (parentHandle != IntPtr.Zero)
-                {
-                    var parent = backend.GetWindowElement(parentHandle);
-                    var siblings = parent.Children.ToList();
-                    var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
-                    if (index > 0 && index < siblings.Count)
-                    {
-                        return siblings[index - 1];
-                    }
-                }
-                return null;
+                XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out _);
+                return new X11SiblingAccessor(this,  parentHandle, backend);
             }
         }
-        public IVisualElement? NextSibling
-        {
-            get
-            {
-                XQueryTree(backend._display, windowHandle, out _, out var parentHandle, out _, out var _);
-                if (parentHandle != IntPtr.Zero)
-                {
-                    var parent = backend.GetWindowElement(parentHandle);
-                    var siblings = parent.Children.ToList();
-                    var index = siblings.FindIndex(c => c.NativeWindowHandle == windowHandle);
-                    if (index >= 0 && index < siblings.Count - 1)
-                    {
-                        return siblings[index + 1];
-                    }
-                }
-                return null;
-            }
-        }
+
         public VisualElementType Type => VisualElementType.TopLevel;
         public VisualElementStates States => VisualElementStates.None;
         public string? Name
@@ -1029,8 +1080,29 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
             }
         }
-        public IVisualElement? PreviousSibling => (index > 0 && index < ScreenCount) ? new X11ScreenVisualElement(backend, index - 1) : null;
-        public IVisualElement? NextSibling => (index >= 0 && index < ScreenCount - 1) ? new X11ScreenVisualElement(backend, index + 1) : null;
+
+        private class X11ScreenSiblingAccessor(X11WindowBackend backend, int index) : VisualElementSiblingAccessor
+        {
+
+            protected override IEnumerator<IVisualElement> CreateForwardEnumerator()
+            {
+                var count = XScreenCount(backend._display);
+                for (var i = index + 1; i < count; i++)
+                {
+                    yield return new X11ScreenVisualElement(backend, i);
+                }
+            }
+
+            protected override IEnumerator<IVisualElement> CreateBackwardEnumerator()
+            {
+                for (var i = index - 1; i >= 0; i--)
+                {
+                    yield return new X11ScreenVisualElement(backend, i);
+                }
+            }
+        }
+        public VisualElementSiblingAccessor SiblingAccessor =>  new X11ScreenSiblingAccessor(backend, index);
+        
         public VisualElementType Type => VisualElementType.Screen;
         public VisualElementStates States => VisualElementStates.None;
         public string? Name => Id;

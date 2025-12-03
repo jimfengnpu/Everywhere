@@ -381,50 +381,84 @@ public partial class AtspiService
         private int IndexInParent => _element == IntPtr.Zero ? 0 
                             : atspi_accessible_get_index_in_parent(_element, IntPtr.Zero);
 
+        private void ensureChildCached()
+        {
+            lock (_childrenLoading)
+            {
+                if (!_childrenCached)
+                {
+                    _cachedAccessibleChildren.Clear();
+                    foreach (var elem in atspi.ElementChildren(_element))
+                    {
+                        _cachedAccessibleChildren.Add(elem._element);
+                    }
+                    _childrenCached = true;
+                }
+            }
+        }
+        
         public IEnumerable<IVisualElement> Children
         {
             get
             {
                 if (_element == IntPtr.Zero)
                     yield break;
-                lock (_childrenLoading)
-                {
-                    if (!_childrenCached)
-                    {
-                        _cachedAccessibleChildren.Clear();
-                        foreach (var elem in atspi.ElementChildren(_element))
-                        {
-                            _cachedAccessibleChildren.Add(elem._element);
-                        }
-                        _childrenCached = true;
-                    }
-                }
+                ensureChildCached();
                 foreach(var child in _cachedAccessibleChildren)
                 {
                     yield return atspi._cachedElement[child];
                 }
             }
         }
-        public IVisualElement? PreviousSibling
+
+        private class AtspiSiblingAccessor(
+            AtspiService atspi,
+            AtspiVisualElement? parent, 
+            AtspiVisualElement element) : VisualElementSiblingAccessor
         {
-            get
+            private int _index = 0;
+            protected override void EnsureResources()
             {
-                if (_element == IntPtr.Zero) return null;
-                if (Parent == null) return null;
-                return IndexInParent <= 0 ? 
-                    null : Parent.Children.ElementAt(IndexInParent - 1);
+                base.EnsureResources();
+                parent?.ensureChildCached();
+                if (parent == null) return;
+                int index = 0;
+                foreach (var child in parent._cachedAccessibleChildren)
+                {
+                    if (child == element._element)
+                    {
+                        _index = index;
+                    }
+                    index++;
+                }
+            }
+
+            protected override IEnumerator<IVisualElement> CreateForwardEnumerator()
+            {
+                if (parent == null)
+                {
+                    yield break;
+                }
+                for (var i = _index + 1; i < parent._cachedAccessibleChildren.Count; i++)
+                {
+                    yield return atspi._cachedElement[parent._cachedAccessibleChildren[i]];
+                }
+            }
+
+            protected override IEnumerator<IVisualElement> CreateBackwardEnumerator()
+            {
+                if (parent == null)
+                {
+                    yield break;
+                }
+                for (var i = _index - 1; i >= 0; i--)
+                {
+                    yield return atspi._cachedElement[parent._cachedAccessibleChildren[i]];
+                }
             }
         }
-        public IVisualElement? NextSibling
-        {
-            get
-            {
-                if (_element == IntPtr.Zero) return null;
-                if (Parent == null) return null;
-                return IndexInParent + 1 >= Parent?.Children.Count() ? 
-                    null : Parent?.Children.ElementAt(IndexInParent + 1);
-            }
-        }
+
+        public VisualElementSiblingAccessor SiblingAccessor => new AtspiSiblingAccessor(atspi, (AtspiVisualElement?)Parent, this);
 
         public VisualElementType Type
         {
