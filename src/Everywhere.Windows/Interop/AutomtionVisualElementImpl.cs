@@ -16,8 +16,6 @@ using Everywhere.Windows.Extensions;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using IDataObject = System.Windows.IDataObject;
-using INPUT = Windows.Win32.UI.Input.KeyboardAndMouse.INPUT;
-using KEYBDINPUT = Windows.Win32.UI.Input.KeyboardAndMouse.KEYBDINPUT;
 
 namespace Everywhere.Windows.Interop;
 
