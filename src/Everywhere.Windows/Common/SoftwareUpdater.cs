@@ -3,14 +3,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
-using Everywhere.Windows.Interop;
 using Microsoft.Extensions.Logging;
 #if !DEBUG
 using Everywhere.Utilities;
@@ -127,9 +125,9 @@ public sealed partial class SoftwareUpdater(
             if (_notifiedVersion != LatestVersion && LatestVersion is not null)
             {
                 _notifiedVersion = LatestVersion;
-                new NativeHelper().ShowDesktopNotificationAsync(
+                nativeHelper.ShowDesktopNotificationAsync(
                     LocaleResolver.SoftwareUpdater_UpdateAvailable_Toast_Message,
-                    LocaleResolver.Common_Info);
+                    LocaleResolver.Common_Info).Detach(IExceptionHandler.DangerouslyIgnoreAllException);
             }
         }
         catch (Exception ex)
@@ -192,6 +190,7 @@ public sealed partial class SoftwareUpdater(
         await _updateTask;
     }
 
+#if !DEBUG
     /// <summary>
     /// Cleans up old update packages from the updates directory.
     /// </summary>
@@ -231,6 +230,7 @@ public sealed partial class SoftwareUpdater(
             }
         });
     }
+#endif
 
     private async Task<string> DownloadAssetAsync(Asset asset, IProgress<double> progress, CancellationToken cancellationToken = default)
     {
@@ -355,6 +355,8 @@ public sealed partial class SoftwareUpdater(
     [JsonSerializable(typeof(List<AssetMetadata>))]
     private partial class JsonSerializerContext : System.Text.Json.Serialization.JsonSerializerContext;
 
+#if !DEBUG
     [GeneratedRegex(@"-v(?<version>\d+\.\d+\.\d+(\.\d+)?)\.(exe|zip)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "zh-CN")]
     private static partial Regex VersionRegex();
+#endif
 }
