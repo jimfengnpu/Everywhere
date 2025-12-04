@@ -374,6 +374,9 @@ public partial class X11WindowBackend
         public int depth;
         public int bytes_per_line;
         public int bits_per_pixel;
+        public ulong red_mask;
+        public ulong green_mask;
+        public ulong blue_mask;
     }
     [StructLayout(LayoutKind.Sequential)]
     private struct XGCValues

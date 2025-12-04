@@ -740,47 +740,51 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         bool converted = false;
         byte[] bgraData = new byte[height * stride];
 
-        if (ximage is { bits_per_pixel: 24, depth: 24 })
+        int bpp = ximage.bits_per_pixel;
+        int depth = ximage.depth;
+        if (bpp == 24 || bpp == 32)
         {
-            // RGB 24bit -> BGRA 32bit
+            // Use masks to extract channels
             for (int y = 0; y < height; y++)
             {
-                int srcRowStart = y * (width * 3);
+                int srcRowStart = y * (width * (bpp / 8));
                 int dstRowStart = y * stride;
 
                 for (int x = 0; x < width; x++)
                 {
-                    int srcPixel = srcRowStart + x * 3;
+                    int srcPixel = srcRowStart + x * (bpp / 8);
                     int dstPixel = dstRowStart + x * 4;
 
-                    if (srcPixel + 2 < pixelData.Length && dstPixel + 3 < bgraData.Length)
+                    if (srcPixel + (bpp / 8 - 1) < pixelData.Length)
                     {
-                        byte r = pixelData[srcPixel];
-                        byte g = pixelData[srcPixel + 1];
-                        byte b = pixelData[srcPixel + 2];
+                        uint pixelValue = 0;
+                        for (int i = 0; i < (bpp / 8); i++)
+                            pixelValue |= (uint)pixelData[srcPixel + i] << (8 * i); // assuming little-endian
 
-                        bgraData[dstPixel] = b;     // B
-                        bgraData[dstPixel + 1] = g; // G
-                        bgraData[dstPixel + 2] = r; // R
-                        bgraData[dstPixel + 3] = 255; // A
+                        byte r = (byte)((pixelValue & ximage.red_mask) >> GetShiftFromMask(ximage.red_mask));
+                        byte g = (byte)((pixelValue & ximage.green_mask) >> GetShiftFromMask(ximage.green_mask));
+                        byte b = (byte)((pixelValue & ximage.blue_mask) >> GetShiftFromMask(ximage.blue_mask));
+
+                        // Normalize to 8-bit if masks are smaller
+                        r = NormalizeChannel(r, ximage.red_mask);
+                        g = NormalizeChannel(g, ximage.green_mask);
+                        b = NormalizeChannel(b, ximage.blue_mask);
+
+                        bgraData[dstPixel]     = b;
+                        bgraData[dstPixel + 1] = g;
+                        bgraData[dstPixel + 2] = r;
+                        bgraData[dstPixel + 3] = depth == 32 ? (byte)(pixelValue >> 24) : (byte)255;
                     }
                 }
             }
             converted = true;
         }
-        else if (ximage is { bits_per_pixel: 32, depth: 24 })
+        else if (bpp == 16 && depth <= 16)
         {
-            // 32位格式，假设是RGBA或BGRA
-            // 由于没有颜色掩码信息，我们暂时不进行转换
-            _logger.LogDebug("Using 32-bit format as-is");
-            return;
-        }
-        else if (ximage is { bits_per_pixel: 16, depth: 16 })
-        {
-            // RGB16 565
+            // RGB565 or other 16-bit formats — use masks same way
             for (int y = 0; y < height; y++)
             {
-                int srcRowStart = y * (width * 2); // RGB16每行2字节
+                int srcRowStart = y * (width * 2);
                 int dstRowStart = y * stride;
 
                 for (int x = 0; x < width; x++)
@@ -788,24 +792,22 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                     int srcPixel = srcRowStart + x * 2;
                     int dstPixel = dstRowStart + x * 4;
 
-                    if (srcPixel + 1 < pixelData.Length && dstPixel + 3 < bgraData.Length)
+                    if (srcPixel + 1 < pixelData.Length)
                     {
-                        // RGB16 565格式
-                        ushort pixel = (ushort)(pixelData[srcPixel] | (pixelData[srcPixel + 1] << 8));
+                        ushort pixelValue = (ushort)(pixelData[srcPixel] | (pixelData[srcPixel+1] << 8));
 
-                        byte r = (byte)((pixel >> 11) & 0x1F);
-                        byte g = (byte)((pixel >> 5) & 0x3F);
-                        byte b = (byte)(pixel & 0x1F);
+                        byte r = (byte)((pixelValue & ximage.red_mask) >> GetShiftFromMask(ximage.red_mask));
+                        byte g = (byte)((pixelValue & ximage.green_mask) >> GetShiftFromMask(ximage.green_mask));
+                        byte b = (byte)((pixelValue & ximage.blue_mask) >> GetShiftFromMask(ximage.blue_mask));
 
-                        // 扩展到8位
-                        r = (byte)(r << 3 | r >> 2);
-                        g = (byte)(g << 2 | g >> 4);
-                        b = (byte)(b << 3 | b >> 2);
+                        r = NormalizeChannel(r, ximage.red_mask);
+                        g = NormalizeChannel(g, ximage.green_mask);
+                        b = NormalizeChannel(b, ximage.blue_mask);
 
-                        bgraData[dstPixel] = b;     // B
-                        bgraData[dstPixel + 1] = g; // G
-                        bgraData[dstPixel + 2] = r; // R
-                        bgraData[dstPixel + 3] = 255; // A
+                        bgraData[dstPixel]     = b;
+                        bgraData[dstPixel + 1] = g;
+                        bgraData[dstPixel + 2] = r;
+                        bgraData[dstPixel + 3] = 255;
                     }
                 }
             }
@@ -814,12 +816,44 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
         if (converted)
         {
-            Array.Copy(bgraData, 0, pixelData, 0, 
-                Math.Min(bgraData.Length, pixelData.Length));
-        } else
-        {
-            _logger.LogDebug("No pixel format conversion needed for {bpp} bits per pixel", ximage.bits_per_pixel);
+            Array.Copy(bgraData, pixelData, Math.Min(bgraData.Length, pixelData.Length));
         }
+        else
+        {
+            _logger.LogDebug("No pixel format conversion needed for {bpp} bits per pixel", bpp);
+        }
+    }
+    
+    // helper: find the bit shift for the first set bit in the mask
+    private static int GetShiftFromMask(ulong mask)
+    {
+        int shift = 0;
+        while ((mask & 1) == 0)
+        {
+            mask >>= 1;
+            shift++;
+        }
+        return shift;
+    }
+    
+    // helper: expand channel value to full 8-bit range
+    private static byte NormalizeChannel(byte value, ulong mask)
+    {
+        int bits = CountBits(mask);
+        if (bits == 0) return 0;
+        // scale to 8-bit
+        return (byte)(value * 255 / ((1 << bits) - 1));
+    }
+
+    private static int CountBits(ulong mask)
+    {
+        int c = 0;
+        while (mask != 0)
+        {
+            c += (int)(mask & 1);
+            mask >>= 1;
+        }
+        return c;
     }
 
     private bool IsValidDrawable(IntPtr drawable)
