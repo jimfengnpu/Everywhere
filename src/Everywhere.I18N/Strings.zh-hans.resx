@@ -157,9 +157,6 @@
     <data name="ChatWindow_ChatMessage_Assistant_Regenerate" xml:space="preserve">
         <value>重新回答</value>
     </data>
-    <data name="ChatWindow_ChatMessage_Copy" xml:space="preserve">
-        <value>复制</value>
-    </data>
     <data name="Application_TrayIcon_Menu_OpenMainWindow" xml:space="preserve">
         <value>打开主窗口</value>
     </data>
@@ -1144,9 +1141,6 @@
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>永久删除选中的 AI 助手。</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_CopyMenuItem_Header" xml:space="preserve">
-        <value>复制</value>
-    </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>剪切</value>
     </data>
@@ -1526,7 +1520,7 @@
         <value>复制选中的 AI 助手。</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
-        <value>副本</value>
+        <value>复制</value>
     </data>
     <data name="ChatWindow_ChatMessage_User_Edit" xml:space="preserve">
         <value>编辑</value>
@@ -1704,5 +1698,11 @@
     </data>
     <data name="ChatWindow_ChatHistory_ExportMarkdownMenuItem_Header" xml:space="preserve">
         <value>导出为 Markdown</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_ContextFlyout_CopyLink" xml:space="preserve">
+        <value>复制链接</value>
+    </data>
+    <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
+        <value>打开链接</value>
     </data>
 </root>

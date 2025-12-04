@@ -103,6 +103,7 @@ public partial class VisualTreeXmlBuilder(
         IVisualElement? Previous,
         TraverseDistance Distance,
         TraverseDirection Direction,
+        int SiblingIndex,
         IEnumerator<IVisualElement> Enumerator
     )
     {
@@ -241,6 +242,8 @@ public partial class VisualTreeXmlBuilder(
     /// </summary>
     private class XmlVisualElement(
         IVisualElement element,
+        string? parentId,
+        int siblingIndex,
         string? description,
         IReadOnlyList<string> contentLines,
         int selfTokenCount,
@@ -249,6 +252,10 @@ public partial class VisualTreeXmlBuilder(
     )
     {
         public IVisualElement Element { get; } = element;
+
+        public string? ParentId { get; } = parentId;
+
+        public int SiblingIndex { get; } = siblingIndex;
 
         public string? Description { get; } = description;
 
@@ -266,7 +273,7 @@ public partial class VisualTreeXmlBuilder(
 
         public XmlVisualElement? Parent { get; set; }
 
-        public List<XmlVisualElement> Children { get; } = [];
+        public SortedList<int, XmlVisualElement> Children { get; } = [];
 
         /// <summary>
         /// Indicates whether this element should be rendered in the final XML.
@@ -332,7 +339,16 @@ public partial class VisualTreeXmlBuilder(
         // 2. Process the Queue
         ProcessTraversalQueue(priorityQueue, visitedElements, cancellationToken);
 
-        // 3. Generate XML
+        // 3. Dispose remaining enumerators
+        while (priorityQueue.Count > 0)
+        {
+            if (priorityQueue.TryDequeue(out var node, out _))
+            {
+                node.Enumerator.Dispose();
+            }
+        }
+
+        // 4. Generate XML
         return GenerateXmlString(visitedElements);
     }
 
@@ -342,8 +358,8 @@ public partial class VisualTreeXmlBuilder(
     private static void TryEnqueueTraversalNode(
 #endif
         PriorityQueue<TraversalNode, float> priorityQueue,
-        IVisualElement? previous,
-        TraverseDistance distance,
+        in TraversalNode? previous,
+        in TraverseDistance distance,
         TraverseDirection direction,
         IEnumerator<IVisualElement> enumerator)
     {
@@ -353,7 +369,12 @@ public partial class VisualTreeXmlBuilder(
             return;
         }
 
-        var node = new TraversalNode(enumerator.Current, previous, distance, direction, enumerator);
+        var node = new TraversalNode(enumerator.Current, previous?.Element, distance, direction, direction switch
+        {
+            TraverseDirection.PreviousSibling => previous?.SiblingIndex - 1 ?? 0,
+            TraverseDirection.NextSibling => previous?.SiblingIndex + 1 ?? 0,
+            _ => 0
+        }, enumerator);
         var score = node.GetScore();
         priorityQueue.Enqueue(node, score);
 
@@ -490,8 +511,10 @@ public partial class VisualTreeXmlBuilder(
         };
 
         // Create the XML Element node
-        var xmlElement = visitedElements[element.Id] = new XmlVisualElement(
+        var xmlElement = visitedElements[id] = new XmlVisualElement(
             element,
+            node.ParentId,
+            node.SiblingIndex,
             description,
             contentLines,
             selfTokenCount,
@@ -509,15 +532,7 @@ public partial class VisualTreeXmlBuilder(
         // Link to parent and propagate updates
         if (node.ParentId != null && visitedElements.TryGetValue(node.ParentId, out var parentXmlElement))
         {
-            if (node.Direction == TraverseDirection.PreviousSibling)
-            {
-                parentXmlElement.Children.Insert(0, xmlElement);
-            }
-            else
-            {
-                parentXmlElement.Children.Add(xmlElement);
-            }
-
+            parentXmlElement.Children.Add(xmlElement.SiblingIndex, xmlElement);
             xmlElement.Parent = parentXmlElement;
 
             // If the new child is informative (self-informative or has informative descendants),
@@ -530,15 +545,20 @@ public partial class VisualTreeXmlBuilder(
             }
         }
         // If we traversed from parent direction, above method cannot link parent-child.
-        else if (node is { Direction: TraverseDirection.Parent, Previous: { } previous } &&
-                 visitedElements.TryGetValue(previous.Id, out var childXmlElement))
+        else if (node is { Direction: TraverseDirection.Parent })
         {
-            xmlElement.Children.Add(childXmlElement);
-            childXmlElement.Parent = xmlElement;
-
-            if (xmlElement.IsSelfInformative)
+            foreach (var childXmlElement in visitedElements.Values
+                         .AsValueEnumerable()
+                         .Where(e => e.Parent is null)
+                         .Where(e => string.Equals(e.ParentId, id, StringComparison.Ordinal)))
             {
-                PropagateInformativeUpdate(childXmlElement, ref accumulatedTokenCount);
+                xmlElement.Children.Add(childXmlElement.SiblingIndex, childXmlElement);
+                childXmlElement.Parent = xmlElement;
+
+                if (xmlElement.IsSelfInformative)
+                {
+                    PropagateInformativeUpdate(childXmlElement, ref accumulatedTokenCount);
+                }
             }
         }
     }
@@ -555,6 +575,7 @@ public partial class VisualTreeXmlBuilder(
         Debug.WriteLine($"[PropagateNode] {node}");
 #endif
 
+        var elementType = node.Element.Type;
         switch (node.Direction)
         {
             case TraverseDirection.Core:
@@ -562,14 +583,14 @@ public partial class VisualTreeXmlBuilder(
                 // In this case, node.Enumerator is the core element enumerator
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     0,
                     TraverseDirection.Core,
                     node.Enumerator);
 
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     1,
                     TraverseDirection.Parent,
                     node.Element.GetAncestors().GetEnumerator());
@@ -582,31 +603,31 @@ public partial class VisualTreeXmlBuilder(
 
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     1,
                     TraverseDirection.PreviousSibling,
                     previousSiblingEnumerator);
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     1,
                     TraverseDirection.NextSibling,
                     nextSiblingEnumerator);
 
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     1,
                     TraverseDirection.Child,
                     node.Element.Children.GetEnumerator());
                 break;
             }
-            case TraverseDirection.Parent:
+            case TraverseDirection.Parent when elementType != VisualElementType.TopLevel:
             {
                 // In this case, node.Enumerator is the Ancestors enumerator
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Step(),
                     TraverseDirection.Parent,
                     node.Enumerator);
@@ -619,13 +640,13 @@ public partial class VisualTreeXmlBuilder(
 
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Reset(),
                     TraverseDirection.PreviousSibling,
                     previousSiblingEnumerator);
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Reset(),
                     TraverseDirection.NextSibling,
                     nextSiblingEnumerator);
@@ -636,7 +657,7 @@ public partial class VisualTreeXmlBuilder(
                 // In this case, node.Enumerator is the Previous Sibling enumerator
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Step(),
                     TraverseDirection.PreviousSibling,
                     node.Enumerator);
@@ -644,7 +665,7 @@ public partial class VisualTreeXmlBuilder(
                 // Also enqueue the children of this sibling
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Reset(),
                     TraverseDirection.Child,
                     node.Element.Children.GetEnumerator());
@@ -655,7 +676,7 @@ public partial class VisualTreeXmlBuilder(
                 // In this case, node.Enumerator is the Next Sibling enumerator
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Step(),
                     TraverseDirection.NextSibling,
                     node.Enumerator);
@@ -663,7 +684,7 @@ public partial class VisualTreeXmlBuilder(
                 // Also enqueue the children of this sibling
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Reset(),
                     TraverseDirection.Child,
                     node.Element.Children.GetEnumerator());
@@ -675,7 +696,7 @@ public partial class VisualTreeXmlBuilder(
                 // But note that these children are actually descendants of the original node's sibling.
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Step(),
                     TraverseDirection.NextSibling,
                     node.Enumerator);
@@ -683,7 +704,7 @@ public partial class VisualTreeXmlBuilder(
                 // Also enqueue the children of this child
                 TryEnqueueTraversalNode(
                     priorityQueue,
-                    node.Element,
+                    node,
                     node.Distance.Reset(),
                     TraverseDirection.Child,
                     node.Element.Children.GetEnumerator());
@@ -715,7 +736,7 @@ public partial class VisualTreeXmlBuilder(
             // This acts as a "passthrough" for structural containers that are not interesting enough to show.
             if (!xmlElement.IsVisible)
             {
-                foreach (var child in xmlElement.Children.AsValueEnumerable()) InternalBuildXml(child, indentLevel);
+                foreach (var child in xmlElement.Children.Values.AsValueEnumerable()) InternalBuildXml(child, indentLevel);
                 return;
             }
 
@@ -764,6 +785,7 @@ public partial class VisualTreeXmlBuilder(
             }
 
             _xmlBuilder.Append('>').AppendLine();
+            var xmlLengthBeforeContent = _xmlBuilder.Length;
 
             // Add contents if there are 3 or more lines
             if (xmlElement.ContentLines.Count >= 3)
@@ -785,7 +807,14 @@ public partial class VisualTreeXmlBuilder(
             }
 
             // Handle child elements
-            foreach (var child in xmlElement.Children.AsValueEnumerable()) InternalBuildXml(child, indentLevel + 1);
+            foreach (var child in xmlElement.Children.Values.AsValueEnumerable()) InternalBuildXml(child, indentLevel + 1);
+            if (xmlLengthBeforeContent == _xmlBuilder.Length)
+            {
+                // No content or children were added, so we can convert to self-closing tag
+                _xmlBuilder.Length -= Environment.NewLine.Length + 1; // Remove the newline and '>'
+                _xmlBuilder.Append("/>").AppendLine();
+                return;
+            }
 
             // End tag
             _xmlBuilder.Append(indent).Append("</").Append(element.Type).Append('>').AppendLine();

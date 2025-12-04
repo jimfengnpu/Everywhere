@@ -1,3 +1,26 @@
+## [v0.5.2](https://github.com/DearVa/Everywhere/releases/tag/v0.5.2) - 2025-12-3
+
+Thanks to [@AidenNovak](https://github.com/AidenNovak) for sponsoring the Apple Developer Program fee. The Mac version is in its final stages of development and will be released soon.
+
+### ✨ Features
+- Added support for the Gemini 3 Pro protocol.
+- Added the ability to export as Markdown (#180).
+- Custom assistants now support drag-and-drop sorting.
+
+### 🐛 Bug Fixes
+- Fixed an issue where Google search was not working.
+- Fixed an issue where data was lost when copying custom assistants.
+- Fixed an issue with abnormal background CPU usage.
+- Fixed an issue where Gemini could not call tools (#174).
+- Fixed an issue where the settings button in the chat window incorrectly received focus (#173).
+- Fixed an issue where rendered Markdown checkboxes were too large (#172).
+- Fixed an issue where parameter types were incorrectly converted to strings during MCP calls (#167).
+- Fixed a missing reset button in the model settings template (#149, thanks to @ChuheLin).
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.1...v0.5.2
+
+
+
 ## [v0.5.1](https://github.com/DearVa/Everywhere/releases/tag/v0.5.1) - 2025-11-24
 
 ### ✨ Features

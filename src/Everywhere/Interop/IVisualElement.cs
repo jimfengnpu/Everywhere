@@ -29,8 +29,20 @@ public enum VisualElementType
     Slider,
     ScrollBar,
     ProgressBar,
+
+    /// <summary>
+    /// The most generic container element, its parent and children can be any type.
+    /// </summary>
     Panel,
+
+    /// <summary>
+    /// The toplevel of a window, it's parent must be Screen or null
+    /// </summary>
     TopLevel,
+
+    /// <summary>
+    /// A screen that contains toplevel, its parent is always null and children are toplevel.
+    /// </summary>
     Screen
 }
 

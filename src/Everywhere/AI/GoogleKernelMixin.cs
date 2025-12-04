@@ -39,16 +39,7 @@ public sealed class GoogleKernelMixin : KernelMixinBase
         GeminiToolCallBehavior? toolCallBehavior = null;
         if (functionChoiceBehavior is not null and not NoneFunctionChoiceBehavior)
         {
-            bool autoInvoke = functionChoiceBehavior switch
-            {
-                AutoFunctionChoiceBehavior auto => auto.AutoInvoke,
-                RequiredFunctionChoiceBehavior required => required.AutoInvoke,
-                _ => true // Default to auto-invoke
-            };
-
-            toolCallBehavior = autoInvoke
-                ? GeminiToolCallBehavior.AutoInvokeKernelFunctions
-                : GeminiToolCallBehavior.EnableKernelFunctions;
+            toolCallBehavior = GeminiToolCallBehavior.EnableKernelFunctions; // should deal with AutoInvoke, but not used in Everywhere afaik
         }
 
         return new GeminiPromptExecutionSettings
