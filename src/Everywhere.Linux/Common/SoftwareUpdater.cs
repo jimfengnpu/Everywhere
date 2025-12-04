@@ -160,7 +160,7 @@ public sealed partial class SoftwareUpdater(
                 {
                     var assetPath = await DownloadAssetAsync(asset, progress);
 
-                    if (assetPath.EndsWith(".exe"))
+                    if (assetPath.EndsWith(".deb"))
                     {
                         UpdateViaInstaller(assetPath);
                     }

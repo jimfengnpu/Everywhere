@@ -1,7 +1,7 @@
 #! /usr/bin/sh
 if [ "$#" -lt 2 ]; then
     echo "More args required:"
-    echo "ARCH: same with Runtime ID suffix. e.g. x64"
+    echo "ARCH: same with Runtime ID. e.g. linux-x64"
     echo "VERSION: package version"
     echo "Usage: packaging_deb.sh ARCH VERSION [BIN_DIR]"
     exit 1
@@ -13,7 +13,7 @@ cd $PWD
 
 BINARCH="$1"
 VERSION="$2"
-BINDIR="$SHELLFOLDER/bin/Release/net10.0/linux-$BINARCH"
+BINDIR="$SHELLFOLDER/bin/Release/net10.0/$BINARCH"
 if [ -z "$3" ]; then
     echo "Using default bin path: $BINDIR"
 else
@@ -21,6 +21,8 @@ else
 fi
 PACKAGINGPATH="/tmp/Everywhere"
 INSTALLPATH="/opt/Everywhere"
+PROJECTROOT="$SHELLFOLDER/../.."
+ARCHSUFFIX="${BINARCH#*-}"
 
 if [ -x "$(command -v "dpkg-deb")" ]; then
     echo "Packaging .deb for $BINARCH ..."
@@ -31,10 +33,8 @@ fi
 
 rid_to_deb_arch() {
     case "$1" in
-        x64)     echo "amd64" ;;
-        x86)     echo "i386" ;;
-        arm64)   echo "arm64" ;;
-        arm)     echo "armhf" ;;
+        linux-x64)     echo "amd64" ;;
+        linux-arm64)   echo "arm64" ;;
         *)
             echo "Unsupported RID suffix: $1" >&2
             return 1
@@ -102,7 +102,7 @@ EOF
 chmod +x DEBIAN/prerm
 
 cd "$PWD"
-dpkg-deb --build "$PACKAGINGPATH/" "Everywhere-Linux-$DEBARCH-v$VERSION.deb" 
+dpkg-deb --build "$PACKAGINGPATH/" "$PROJECTROOT/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
 
 
 
