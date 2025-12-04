@@ -79,11 +79,11 @@
     <TrimmerRootAssembly Include="Microsoft.PowerShell.ConsoleHost"/>
     <TrimmerRootAssembly Include="Microsoft.PowerShell.SDK"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Abstractions"/>
-    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Google"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.Ollama"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Connectors.OpenAI"/>
     <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Core"/>
-    <TrimmerRootAssembly Include="Microsoft.SemanticKernel.Plugins.Web"/>
+    <TrimmerRootAssembly Include="Sylinko.SemanticKernel.Connectors.Google"/>
+    <TrimmerRootAssembly Include="Sylinko.SemanticKernel.Plugins.Web"/>
     <TrimmerRootAssembly Include="ModelContextProtocol"/>
     <TrimmerRootAssembly Include="ModelContextProtocol.Core"/>
     <TrimmerRootAssembly Include="Newtonsoft.Json"/>

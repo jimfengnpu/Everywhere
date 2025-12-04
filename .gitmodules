@@ -10,6 +10,3 @@
 [submodule "3rd/EverythingNetCore"]
 	path = 3rd/EverythingNetCore
 	url = https://github.com/Sylinko/EverythingNetCore
-[submodule "3rd/semantic-kernel"]
-	path = 3rd/semantic-kernel
-	url = https://github.com/Sylinko/semantic-kernel.git
