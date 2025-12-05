@@ -102,7 +102,7 @@ EOF
 chmod +x DEBIAN/prerm
 
 cd "$PWD"
-dpkg-deb --build "$PACKAGINGPATH/" "$PROJECTROOT/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
+dpkg-deb --build "$PACKAGINGPATH/" "$PWD/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
 
 
 
