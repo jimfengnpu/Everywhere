@@ -273,14 +273,17 @@ jobs:
 #        files: Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.dmg
 
 #  build-linux:
-#    runs-on: linux-latest
 #    strategy:
 #      matrix:
 #        include:
 #          - runtime: linux-x64
+#            runner: ubuntu-latest
 #            asset_name: Linux-x64
 #          - runtime: linux-arm64
+#            runner: ubuntu-24.04-arm
 #            asset_name: Linux-arm64
+#
+#    runs-on: ${{ matrix.runner }}
 #
 #    steps:
 #    - name: Checkout code
