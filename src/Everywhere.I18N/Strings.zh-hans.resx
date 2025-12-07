@@ -1474,8 +1474,8 @@
     <data name="Common_None" xml:space="preserve">
         <value>无</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="ModelProviderSchema_OpenAI_ChatCompletions" xml:space="preserve">
+        <value>OpenAI (Chat Completions)</value>
     </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
@@ -1710,5 +1710,8 @@
     </data>
     <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
         <value>正在创建转储，Everywhere 会停止响应一段时间。</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
+        <value>OpenAI (Responses API)</value>
     </data>
 </root>

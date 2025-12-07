@@ -57,6 +57,7 @@ public class KernelMixinFactory(IHttpClientFactory httpClientFactory, ILoggerFac
         return _cachedKernelMixin = customAssistant.Schema.ActualValue switch
         {
             ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant, httpClient, loggerFactory),
+            ModelProviderSchema.OpenAIResponses => new OpenAIResponsesKernelMixin(customAssistant, httpClient, loggerFactory),
             ModelProviderSchema.Anthropic => new AnthropicKernelMixin(customAssistant, httpClient),
             ModelProviderSchema.Google => new GoogleKernelMixin(customAssistant, httpClient, loggerFactory),
             ModelProviderSchema.Ollama => new OllamaKernelMixin(customAssistant, httpClient),

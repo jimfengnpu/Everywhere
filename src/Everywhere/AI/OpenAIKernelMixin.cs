@@ -17,7 +17,7 @@ using TextContent = Microsoft.Extensions.AI.TextContent;
 namespace Everywhere.AI;
 
 /// <summary>
-/// An implementation of <see cref="IKernelMixin"/> for OpenAI models.
+/// An implementation of <see cref="IKernelMixin"/> for OpenAI models via Chat Completions.
 /// </summary>
 public sealed class OpenAIKernelMixin : KernelMixinBase
 {

@@ -1473,8 +1473,8 @@
     <data name="Common_None" xml:space="preserve">
         <value>無</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="ModelProviderSchema_OpenAI_ChatCompletions" xml:space="preserve">
+        <value>OpenAI (Chat Completions)</value>
     </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
@@ -1709,5 +1709,8 @@
     </data>
     <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
         <value>請稍候，轉儲正在創建中。在此期間，Everywhere 將無法響應。</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
+        <value>OpenAI (Responses API)</value>
     </data>
 </root>

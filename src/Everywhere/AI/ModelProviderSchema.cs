@@ -5,8 +5,10 @@
 /// </summary>
 public enum ModelProviderSchema
 {
-    [DynamicResourceKey(LocaleKey.ModelProviderSchema_OpenAI)]
+    [DynamicResourceKey(LocaleKey.ModelProviderSchema_OpenAI_ChatCompletions)]
     OpenAI,
+    [DynamicResourceKey(LocaleKey.ModelProviderSchema_OpenAI_Responses)]
+    OpenAIResponses,
     [DynamicResourceKey(LocaleKey.ModelProviderSchema_Anthropic)]
     Anthropic,
     [DynamicResourceKey(LocaleKey.ModelProviderSchema_Google)]

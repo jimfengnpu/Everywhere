@@ -84,7 +84,7 @@ public record ModelProviderTemplate
             Endpoint = "https://api.openai.com/v1",
             OfficialWebsiteUrl = "https://openai.com",
             IconUrl = "avares://Everywhere/Assets/Icons/openai.svg",
-            Schema = ModelProviderSchema.OpenAI,
+            Schema = ModelProviderSchema.OpenAIResponses,
             ModelDefinitions =
             [
                 new ModelDefinitionTemplate
