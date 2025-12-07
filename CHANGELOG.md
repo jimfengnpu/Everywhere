@@ -1,3 +1,15 @@
+## [v0.5.3](https://github.com/DearVa/Everywhere/releases/tag/v0.5.3) - 2025-12-7
+
+### ✨ Features
+- Added a debug option in settings to create a process dump.
+
+### 🚀 Improvements
+- Improved the UI display for reasoning output.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.2...v0.5.3
+
+
+
 ## [v0.5.2](https://github.com/DearVa/Everywhere/releases/tag/v0.5.2) - 2025-12-3
 
 Thanks to [@AidenNovak](https://github.com/AidenNovak) for sponsoring the Apple Developer Program fee. The Mac version is in its final stages of development and will be released soon.
