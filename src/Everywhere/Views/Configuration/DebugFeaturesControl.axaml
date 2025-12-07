@@ -8,19 +8,23 @@
 
     <Setter Property="Template">
       <ControlTemplate>
-        <StackPanel Orientation="Horizontal" Spacing="8">
+        <StackPanel
+          Orientation="Horizontal" Spacing="8">
           <Button
-            Classes="Outline" HorizontalAlignment="Left"
+            Classes="Outline"
             shadui:ButtonAssist.Icon="{LucideIconContent FileJson2}"
-            shadui:ButtonAssist.IconSize="18"
             Command="{Binding EditSettingsFileCommand, RelativeSource={RelativeSource TemplatedParent}}"
-            Content="{I18N {x:Static LocaleKey.CommonSettings_EditSettingsFile_Button_Content}}"/>
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_EditSettingsFileButton_Content}}"/>
           <Button
-            Classes="Outline" HorizontalAlignment="Left"
+            Classes="Outline"
             shadui:ButtonAssist.Icon="{LucideIconContent FolderOpen}"
-            shadui:ButtonAssist.IconSize="18"
             Command="{Binding OpenLogsFolderCommand, RelativeSource={RelativeSource TemplatedParent}}"
-            Content="{I18N {x:Static LocaleKey.CommonSettings_OpenLogsFolder_Button_Content}}"/>
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_OpenLogsFolderButton_Content}}"/>
+          <Button
+            Classes="Outline"
+            shadui:ButtonAssist.Icon="{LucideIconContent Bug}"
+            Command="{Binding CreateDumpCommand, RelativeSource={RelativeSource TemplatedParent}}"
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_CreateDumpButton_Content}}"/>
         </StackPanel>
       </ControlTemplate>
     </Setter>
