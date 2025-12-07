@@ -531,31 +531,19 @@ public sealed partial class ChatService(
                     {
                         case StreamingChatMessageContent { Content.Length: > 0 } chatMessageContent:
                         {
-                            if (IsReasoningContent(chatMessageContent))
-                            {
-                                HandleReasoningMessage(chatMessageContent.Content);
-                            }
-                            else
-                            {
-                                await HandleTextMessage(chatMessageContent.Content);
-                            }
+                            if (IsReasoningContent(chatMessageContent)) await HandleReasoningMessageAsync(chatMessageContent.Content);
+                            else await HandleTextMessageAsync(chatMessageContent.Content);
                             break;
                         }
                         case StreamingTextContent { Text.Length: > 0 } textContent:
                         {
-                            if (IsReasoningContent(textContent))
-                            {
-                                HandleReasoningMessage(textContent.Text);
-                            }
-                            else
-                            {
-                                await HandleTextMessage(textContent.Text);
-                            }
+                            if (IsReasoningContent(textContent)) await HandleReasoningMessageAsync(textContent.Text);
+                            else await HandleTextMessageAsync(textContent.Text);
                             break;
                         }
                         case StreamingReasoningContent reasoningContent:
                         {
-                            HandleReasoningMessage(reasoningContent.Text);
+                            await HandleReasoningMessageAsync(reasoningContent.Text);
                             break;
                         }
                     }
@@ -564,12 +552,11 @@ public sealed partial class ChatService(
                         streamingContent.Metadata?.TryGetValue("reasoning", out var reasoning) is true && reasoning is true ||
                         content.Metadata?.TryGetValue("reasoning", out reasoning) is true && reasoning is true;
 
-                    DispatcherOperation<ObservableStringBuilder> HandleTextMessage(string text)
+                    DispatcherOperation<ObservableStringBuilder> HandleTextMessageAsync(string text)
                     {
                         // Mark the reasoning as finished when we receive the first content chunk.
                         if (chatSpan.ReasoningOutput is not null && chatSpan.ReasoningFinishedAt is null)
                         {
-                            chatSpan.ReasoningOutput = chatSpan.ReasoningOutput.TrimEnd();
                             chatSpan.ReasoningFinishedAt = DateTimeOffset.UtcNow;
                         }
 
@@ -577,10 +564,9 @@ public sealed partial class ChatService(
                         return Dispatcher.UIThread.InvokeAsync(() => chatSpan.MarkdownBuilder.Append(text));
                     }
 
-                    void HandleReasoningMessage(string text)
+                    DispatcherOperation<ObservableStringBuilder> HandleReasoningMessageAsync(string text)
                     {
-                        if (chatSpan.ReasoningOutput is null) chatSpan.ReasoningOutput = text;
-                        else chatSpan.ReasoningOutput += text;
+                        return Dispatcher.UIThread.InvokeAsync(() => chatSpan.ReasoningMarkdownBuilder.Append(text));
                     }
                 }
 

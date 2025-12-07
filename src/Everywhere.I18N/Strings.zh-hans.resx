@@ -596,10 +596,10 @@
     <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>访问和管理应用程序设置文件和日志。</value>
     </data>
-    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_EditSettingsFileButton_Content" xml:space="preserve">
         <value>编辑设置文件</value>
     </data>
-    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_OpenLogsFolderButton_Content" xml:space="preserve">
         <value>打开日志文件夹</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
@@ -1704,5 +1704,11 @@
     </data>
     <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
         <value>打开链接</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpButton_Content" xml:space="preserve">
+        <value>创建进程转储</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
+        <value>正在创建转储，Everywhere 会停止响应一段时间。</value>
     </data>
 </root>

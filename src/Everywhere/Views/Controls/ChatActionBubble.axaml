@@ -7,11 +7,10 @@
     TargetType="v:ChatActionBubble">
 
     <Setter Property="HorizontalAlignment" Value="Left"/>
-    <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
-    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-    <Setter Property="BorderThickness" Value="1"/>
-    <Setter Property="CornerRadius" Value="12"/>
-    <Setter Property="Padding" Value="8,4"/>
+    <Setter Property="Background" Value="#00000000"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="4,2"/>
 
     <Setter Property="Template">
       <ControlTemplate>
@@ -22,15 +21,29 @@
             BorderBrush="{TemplateBinding BorderBrush}"
             BorderThickness="{TemplateBinding BorderThickness}"
             CornerRadius="{TemplateBinding CornerRadius}">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition
+                  Easing="CubicEaseOut" Property="Background"
+                  Duration="0:0:0.25"/>
+              </Transitions>
+            </Border.Transitions>
+
             <Border.Styles>
               <Style Selector="ToggleButton:checked /template/ Border#RootBorder">
                 <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
               </Style>
+
+              <Style Selector="ToggleButton#PART_ToggleButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="MinHeight" Value="0"/>
+              </Style>
             </Border.Styles>
 
             <ToggleButton
-              Classes="Ghost" MinHeight="0"
+              x:Name="PART_ToggleButton"
               Padding="{TemplateBinding Padding}"
               CornerRadius="{TemplateBinding CornerRadius}"
               IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}">
@@ -80,15 +93,29 @@
           </Border>
 
           <Border
+            x:Name="ContentBorder" Margin="4,0"
             BorderBrush="{DynamicResource PrimaryColor}"
             BorderThickness="3,0,0,0" CornerRadius="3"
-            IsVisible="{TemplateBinding IsEffectivelyExpanded}">
+            IsVisible="{TemplateBinding IsEffectivelyExpanded}"
+            Opacity="0.5" RenderTransform="translateY(-16px)">
+            <Border.Transitions>
+              <Transitions>
+                <DoubleTransition
+                  Easing="CubicEaseOut" Property="Opacity"
+                  Duration="0:0:0.25"/>
+                <TransformOperationsTransition
+                  Easing="CubicEaseOut" Property="RenderTransform"
+                  Duration="0:0:0.3"/>
+              </Transitions>
+            </Border.Transitions>
+
             <ContentPresenter
               Margin="4,0,0,0"
               Content="{TemplateBinding Content}"/>
           </Border>
 
           <Border
+            Margin="4,0"
             BorderBrush="{DynamicResource ErrorColor60}"
             BorderThickness="3,0,0,0" CornerRadius="3">
             <Border.IsVisible>
@@ -104,5 +131,16 @@
         </StackPanel>
       </ControlTemplate>
     </Setter>
+
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource GhostColor}"/>
+    </Style>
+
+    <Style Selector="^:expanded">
+      <Style Selector="^ /template/ Border#ContentBorder">
+        <Setter Property="Opacity" Value="1"/>
+        <Setter Property="RenderTransform" Value="translateY(0)"/>
+      </Style>
+    </Style>
   </ControlTheme>
 </ResourceDictionary>

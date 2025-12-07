@@ -610,10 +610,10 @@
     <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>Access and manage application settings file and logs.</value>
     </data>
-    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_EditSettingsFileButton_Content" xml:space="preserve">
         <value>Edit Settings File</value>
     </data>
-    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_OpenLogsFolderButton_Content" xml:space="preserve">
         <value>Open Logs Folder</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
@@ -1717,5 +1717,11 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
         <value>Open Link</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpButton_Content" xml:space="preserve">
+        <value>Create Process Dump</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
+        <value>Please wait while the dump is being created. Everywhere will be unresponsive during this time.</value>
     </data>
 </root>

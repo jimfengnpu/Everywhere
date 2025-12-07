@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive.Disposables;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -178,6 +179,7 @@ public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
 [MessagePackObject(AllowPrivate = true, OnlyIncludeKeyedMembers = true)]
 public sealed partial class AssistantChatMessageSpan : ObservableObject, IDisposable
 {
+    [IgnoreMember]
     public ObservableStringBuilder MarkdownBuilder { get; }
 
     [Key(0)]
@@ -215,9 +217,23 @@ public sealed partial class AssistantChatMessageSpan : ObservableObject, IDispos
     [JsonIgnore]
     public double ElapsedSeconds => Math.Max((FinishedAt - CreatedAt).TotalSeconds, 0);
 
+    [IgnoreMember]
+    public ObservableStringBuilder ReasoningMarkdownBuilder => EnsureReasoningMarkdownBuilder();
+
+    /// <summary>
+    /// The reasoning output in Markdown format for serialization.
+    /// </summary>
     [Key(4)]
-    [ObservableProperty]
-    public partial string? ReasoningOutput { get; set; }
+    public string? ReasoningOutput
+    {
+        get => _reasoningMarkdownBuilder?.ToString();
+        init
+        {
+            if (value is not { Length: > 0 }) return;
+
+            EnsureReasoningMarkdownBuilder().Append(value);
+        }
+    }
 
     [Key(5)]
     [ObservableProperty]
@@ -230,6 +246,8 @@ public sealed partial class AssistantChatMessageSpan : ObservableObject, IDispos
 
     [IgnoreMember] private readonly SourceList<FunctionCallChatMessage> _functionCallsSource = new();
     [IgnoreMember] private readonly IDisposable _functionCallsConnection;
+
+    [IgnoreMember] private ObservableStringBuilder? _reasoningMarkdownBuilder;
 
     public AssistantChatMessageSpan()
     {
@@ -253,11 +271,26 @@ public sealed partial class AssistantChatMessageSpan : ObservableObject, IDispos
         OnPropertyChanged(nameof(Content));
     }
 
+    [MemberNotNull(nameof(_reasoningMarkdownBuilder))]
+    private ObservableStringBuilder EnsureReasoningMarkdownBuilder()
+    {
+        if (_reasoningMarkdownBuilder != null) return _reasoningMarkdownBuilder;
+        _reasoningMarkdownBuilder = new ObservableStringBuilder();
+        _reasoningMarkdownBuilder.Changed += HandleReasoningMarkdownBuilderChanged;
+        return _reasoningMarkdownBuilder;
+    }
+
+    private void HandleReasoningMarkdownBuilderChanged(in ObservableStringBuilderChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(ReasoningOutput));
+    }
+
     public void Dispose()
     {
         MarkdownBuilder.Changed -= HandleMarkdownBuilderChanged;
         _functionCallsSource.Dispose();
         _functionCallsConnection.Dispose();
+        if (_reasoningMarkdownBuilder != null) _reasoningMarkdownBuilder.Changed -= HandleReasoningMarkdownBuilderChanged;
     }
 }
 

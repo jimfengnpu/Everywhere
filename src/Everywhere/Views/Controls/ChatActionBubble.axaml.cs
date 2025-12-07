@@ -1,8 +1,10 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Lucide.Avalonia;
 
 namespace Everywhere.Views;
 
+[PseudoClasses(":expanded")]
 public class ChatActionBubble : ContentControl
 {
     /// <summary>
@@ -133,6 +135,10 @@ public class ChatActionBubble : ContentControl
         {
             var isEffectivelyExpanded = IsEffectivelyExpanded;
             RaisePropertyChanged(IsEffectivelyExpandedProperty, !isEffectivelyExpanded, isEffectivelyExpanded);
+        }
+        else if (change.Property == IsEffectivelyExpandedProperty)
+        {
+            PseudoClasses.Set(":expanded", change.NewValue is true);
         }
     }
 }
