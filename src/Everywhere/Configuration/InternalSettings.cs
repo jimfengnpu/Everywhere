@@ -32,4 +32,7 @@ public partial class InternalSettings : ObservableObject
 
     [ObservableProperty]
     public partial int VisualTreeTokenLimit { get; set; } = 4096;
+    
+    [ObservableProperty]
+    public partial WindowPlacement? MainWindowPlacement { get; set; }
 }
