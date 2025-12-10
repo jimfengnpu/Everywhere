@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
+    <ProjectReference Include="..\Everywhere.Core\Everywhere.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

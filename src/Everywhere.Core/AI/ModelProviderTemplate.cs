@@ -83,7 +83,7 @@ public record ModelProviderTemplate
             DisplayName = "OpenAI",
             Endpoint = "https://api.openai.com/v1",
             OfficialWebsiteUrl = "https://openai.com",
-            IconUrl = "avares://Everywhere/Assets/Icons/openai.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/openai.svg",
             Schema = ModelProviderSchema.OpenAIResponses,
             ModelDefinitions =
             [
@@ -156,7 +156,7 @@ public record ModelProviderTemplate
             DisplayName = "Anthropic (Claude)",
             Endpoint = "https://api.anthropic.com",
             OfficialWebsiteUrl = "https://www.anthropic.com",
-            IconUrl = "avares://Everywhere/Assets/Icons/anthropic.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic.svg",
             Schema = ModelProviderSchema.Anthropic,
             ModelDefinitions =
             [
@@ -229,7 +229,7 @@ public record ModelProviderTemplate
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
             Endpoint = "https://generativelanguage.googleapis.com/v1beta",
-            IconUrl = "avares://Everywhere/Assets/Icons/google-color.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
             Schema = ModelProviderSchema.Google,
             ModelDefinitions =
             [
@@ -282,7 +282,7 @@ public record ModelProviderTemplate
             DisplayName = "DeepSeek",
             Endpoint = "https://api.deepseek.com",
             OfficialWebsiteUrl = "https://www.deepseek.com",
-            IconUrl = "avares://Everywhere/Assets/Icons/deepseek-color.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -315,7 +315,7 @@ public record ModelProviderTemplate
             DisplayName = "Moonshot (Kimi)",
             Endpoint = "https://api.moonshot.cn/v1",
             OfficialWebsiteUrl = "https://www.moonshot.cn",
-            IconUrl = "avares://Everywhere/Assets/Icons/moonshot.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -358,7 +358,7 @@ public record ModelProviderTemplate
             DisplayName = "OpenRouter",
             OfficialWebsiteUrl = "https://openrouter.ai",
             Endpoint = "https://openrouter.ai/api/v1",
-            IconUrl = "avares://Everywhere/Assets/Icons/openrouter.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -401,7 +401,7 @@ public record ModelProviderTemplate
             DisplayName = "SiliconCloud (SiliconFlow)",
             OfficialWebsiteUrl = "https://www.siliconflow.cn",
             Endpoint = "https://api.siliconflow.cn/v1",
-            IconUrl = "avares://Everywhere/Assets/Icons/siliconcloud-color.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -434,7 +434,7 @@ public record ModelProviderTemplate
             DisplayName = "Ollama",
             OfficialWebsiteUrl = "https://ollama.com",
             Endpoint = "http://127.0.0.1:11434",
-            IconUrl = "avares://Everywhere/Assets/Icons/ollama.svg",
+            IconUrl = "avares://Everywhere.Core/Assets/Icons/ollama.svg",
             Schema = ModelProviderSchema.Ollama,
             RequestTimeoutSeconds = 120, // Local models may take longer time.
             ModelDefinitions =

@@ -56,7 +56,7 @@ public class WatchdogManager : IWatchdogManager, IAsyncInitializer
             new ProcessStartInfo
             {
 #if MACOS
-                FileName = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../MacOS/Everywhere.Watchdog")),
+                FileName = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../Helpers/Everywhere.Watchdog")),
 #elif WINDOWS
                 FileName = "Everywhere.Watchdog.exe",
 #else

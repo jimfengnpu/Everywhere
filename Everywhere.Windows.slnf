@@ -13,12 +13,12 @@
       "3rd\\WritableJsonConfiguration\\src\\WritableJsonConfiguration\\WritableJsonConfiguration.csproj",
       "src\\Everywhere.Abstractions\\Everywhere.Abstractions.csproj",
       "src\\Everywhere.Configuration.SourceGenerator\\Everywhere.Configuration.SourceGenerator.csproj",
+      "src\\Everywhere.Core\\Everywhere.Core.csproj",
       "src\\Everywhere.I18N.SourceGenerator\\Everywhere.I18N.SourceGenerator.csproj",
       "src\\Everywhere.I18N\\Everywhere.I18N.csproj",
       "src\\Everywhere.Watchdog\\Everywhere.Watchdog.csproj",
       "src\\Everywhere.Windows.PowerShell\\Everywhere.Windows.PowerShell.csproj",
       "src\\Everywhere.Windows\\Everywhere.Windows.csproj",
-      "src\\Everywhere\\Everywhere.csproj",
       "tests\\Everywhere.Tests\\Everywhere.Tests.csproj"
     ]
   }

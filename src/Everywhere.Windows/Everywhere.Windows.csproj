@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>Everywhere</AssemblyName>
     <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-windows10.0.20348.0</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -29,8 +30,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\3rd\EverythingNetCore\EverythingNet\EverythingNet.csproj"/>
+    <ProjectReference Include="..\Everywhere.Core\Everywhere.Core.csproj"/>
     <ProjectReference Include="..\Everywhere.Windows.PowerShell\Everywhere.Windows.PowerShell.csproj"/>
-    <ProjectReference Include="..\Everywhere\Everywhere.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -57,8 +58,8 @@
   <ItemGroup>
     <TrimmerRootAssembly Include="Everywhere"/>
     <TrimmerRootAssembly Include="Everywhere.Abstractions"/>
+    <TrimmerRootAssembly Include="Everywhere.Core"/>
     <TrimmerRootAssembly Include="Everywhere.I18N"/>
-    <TrimmerRootAssembly Include="Everywhere.Windows"/>
     <TrimmerRootAssembly Include="Everywhere.Windows.PowerShell"/>
     <TrimmerRootAssembly Include="Anthropic.SDK"/>
     <TrimmerRootAssembly Include="CSharpMath.Avalonia"/>

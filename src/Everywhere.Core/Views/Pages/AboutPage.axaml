@@ -7,7 +7,7 @@
     Spacing="8">
     <Image
       Width="128" Height="128"
-      HorizontalAlignment="Center" Source="avares://Everywhere/Assets/Everywhere.png"/>
+      HorizontalAlignment="Center" Source="avares://Everywhere.Core/Assets/Everywhere.png"/>
     <TextBlock
       Classes="h2" HorizontalAlignment="Center"
       Text="Everywhere"/>

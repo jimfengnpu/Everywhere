@@ -29,7 +29,7 @@ public partial class ChangeLogView : ReactiveUserControl<ChangeLogViewModel>
         {
             MarkdownBuilder.Clear();
 
-            using var changeLogReader = new StreamReader(AssetLoader.Open(new Uri("avares://Everywhere/Assets/CHANGELOG.md", UriKind.Absolute)));
+            using var changeLogReader = new StreamReader(AssetLoader.Open(new Uri("avares://Everywhere.Core/Assets/CHANGELOG.md", UriKind.Absolute)));
 
             var maxLines = 100;
             while (changeLogReader.ReadLine() is { } line && maxLines-- > 0)

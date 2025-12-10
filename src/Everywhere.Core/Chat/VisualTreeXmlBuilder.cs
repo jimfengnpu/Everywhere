@@ -273,7 +273,7 @@ public partial class VisualTreeXmlBuilder(
 
         public XmlVisualElement? Parent { get; set; }
 
-        public SortedList<int, XmlVisualElement> Children { get; } = [];
+        public HashSet<XmlVisualElement> Children { get; } = [];
 
         /// <summary>
         /// Indicates whether this element should be rendered in the final XML.
@@ -532,7 +532,7 @@ public partial class VisualTreeXmlBuilder(
         // Link to parent and propagate updates
         if (node.ParentId != null && visitedElements.TryGetValue(node.ParentId, out var parentXmlElement))
         {
-            parentXmlElement.Children.Add(xmlElement.SiblingIndex, xmlElement);
+            parentXmlElement.Children.Add(xmlElement);
             xmlElement.Parent = parentXmlElement;
 
             // If the new child is informative (self-informative or has informative descendants),
@@ -552,7 +552,7 @@ public partial class VisualTreeXmlBuilder(
                          .Where(e => e.Parent is null)
                          .Where(e => string.Equals(e.ParentId, id, StringComparison.Ordinal)))
             {
-                xmlElement.Children.Add(childXmlElement.SiblingIndex, childXmlElement);
+                xmlElement.Children.Add(childXmlElement);
                 childXmlElement.Parent = xmlElement;
 
                 if (xmlElement.IsSelfInformative)
@@ -736,7 +736,7 @@ public partial class VisualTreeXmlBuilder(
             // This acts as a "passthrough" for structural containers that are not interesting enough to show.
             if (!xmlElement.IsVisible)
             {
-                foreach (var child in xmlElement.Children.Values.AsValueEnumerable()) InternalBuildXml(child, indentLevel);
+                foreach (var child in xmlElement.Children.AsValueEnumerable().OrderBy(x => x.SiblingIndex)) InternalBuildXml(child, indentLevel);
                 return;
             }
 
@@ -807,7 +807,7 @@ public partial class VisualTreeXmlBuilder(
             }
 
             // Handle child elements
-            foreach (var child in xmlElement.Children.Values.AsValueEnumerable()) InternalBuildXml(child, indentLevel + 1);
+            foreach (var child in xmlElement.Children.AsValueEnumerable().OrderBy(x => x.SiblingIndex)) InternalBuildXml(child, indentLevel + 1);
             if (xmlLengthBeforeContent == _xmlBuilder.Length)
             {
                 // No content or children were added, so we can convert to self-closing tag
