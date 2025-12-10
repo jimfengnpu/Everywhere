@@ -1,0 +1,79 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:interop="clr-namespace:Everywhere.Interop" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  xmlns:v="clr-namespace:Everywhere.Views">
+  <ControlTheme
+    x:Key="{x:Type v:ElementPickerToolTipWindow}"
+    TargetType="v:ElementPickerToolTipWindow">
+
+    <Setter Property="CanMaximize" Value="False"/>
+    <Setter Property="CanMinimize" Value="False"/>
+    <Setter Property="CanResize" Value="False"/>
+    <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome"/>
+    <Setter Property="ExtendClientAreaToDecorationsHint" Value="True"/>
+    <Setter Property="ShowActivated" Value="False"/>
+    <Setter Property="ShowInTaskbar" Value="False"/>
+    <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+    <Setter Property="SystemDecorations" Value="None"/>
+    <Setter Property="Topmost" Value="True"/>
+    <Setter Property="TransparencyLevelHint" Value="AcrylicBlur,Blur,Transparent"/>
+    <Setter Property="WindowStartupLocation" Value="Manual"/>
+
+    <Setter Property="Template">
+      <ControlTemplate TargetType="v:ElementPickerToolTipWindow">
+        <ExperimentalAcrylicBorder
+          Padding="8,6" CornerRadius="8">
+          <ExperimentalAcrylicBorder.Material>
+            <ExperimentalAcrylicMaterial
+              FallbackColor="#CC000000" MaterialOpacity="0.7"
+              TintColor="Black" TintOpacity="0.9"/>
+          </ExperimentalAcrylicBorder.Material>
+
+          <StackPanel Spacing="4">
+            <TextBlock
+              FontWeight="SemiBold"
+              Text="{TemplateBinding Header}"/>
+            <TextBlock
+              FontSize="12"
+              Text="{I18N {x:Static LocaleKey.VisualElementPicker_ToolTipWindow_TipTextBlock_Text}}"/>
+            <StackPanel
+              Orientation="Horizontal" Spacing="4">
+              <shadui:Badge
+                Background="DimGray"
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Screen}}">
+                <StackPanel
+                  Orientation="Horizontal" Spacing="2">
+                  <LucideIcon Kind="Monitor"/>
+                  <TextBlock Text="{I18N {x:Static LocaleKey.VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content}}"/>
+                </StackPanel>
+              </shadui:Badge>
+              <shadui:Badge
+                Background="DimGray"
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Window}}">
+                <StackPanel
+                  Orientation="Horizontal" Spacing="2">
+                  <LucideIcon Kind="AppWindow"/>
+                  <TextBlock Text="{I18N {x:Static LocaleKey.VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content}}"/>
+                </StackPanel>
+              </shadui:Badge>
+              <shadui:Badge
+                Background="DimGray"
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Element}}">
+                <StackPanel
+                  Orientation="Horizontal" Spacing="2">
+                  <LucideIcon Kind="SquareDashed"/>
+                  <TextBlock Text="{I18N {x:Static LocaleKey.VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content}}"/>
+                </StackPanel>
+              </shadui:Badge>
+            </StackPanel>
+          </StackPanel>
+        </ExperimentalAcrylicBorder>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ shadui|Badge.Selected">
+      <Setter Property="Background" Value="DarkGreen"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

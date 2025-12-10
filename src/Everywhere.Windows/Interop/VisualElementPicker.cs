@@ -6,16 +6,14 @@ using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
-using ShadUI;
+using Everywhere.Views;
 using Point = System.Drawing.Point;
 using Window = Avalonia.Controls.Window;
 
@@ -50,11 +48,7 @@ public partial class VisualElementContext
         private readonly Border _elementBoundsBorder;
         private readonly double _scale;
 
-        private readonly Window _tooltipWindow;
-        private readonly TextBlock _elementNameTextBlock;
-        private readonly Badge _screenPickModeBadge;
-        private readonly Badge _windowPickModeBadge;
-        private readonly Badge _elementPickModeBadge;
+        private readonly ElementPickerToolTipWindow _tooltipWindow;
 
         private PickElementMode _pickMode;
         private Rect? _previousMaskRect;
@@ -96,7 +90,11 @@ public partial class VisualElementContext
                 }
             };
 
-            SetWindowStyles(this);
+            Topmost = true;
+            CanResize = false;
+            ShowInTaskbar = false;
+            SystemDecorations = SystemDecorations.None;
+            WindowStartupLocation = WindowStartupLocation.Manual;
             Background = Brushes.Transparent;
             Cursor = new Cursor(StandardCursorType.Cross);
             TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
@@ -106,95 +104,8 @@ public partial class VisualElementContext
             Width = _screenBounds.Width / _scale;
             Height = _screenBounds.Height / _scale;
 
-            _tooltipWindow = new Window
-            {
-                TransparencyLevelHint = [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Transparent],
-                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
-                ExtendClientAreaToDecorationsHint = true,
-                Content = new ExperimentalAcrylicBorder
-                {
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(8, 6),
-                    Material = new ExperimentalAcrylicMaterial
-                    {
-                        FallbackColor = Color.FromArgb(153, 0, 0, 0),
-                        MaterialOpacity = 0.7,
-                        TintColor = Color.FromArgb(119, 34, 34, 34),
-                        TintOpacity = 0.7
-                    },
-                    Child = new StackPanel
-                    {
-                        Orientation = Orientation.Vertical,
-                        Spacing = 4d,
-                        Children =
-                        {
-                            (_elementNameTextBlock = new TextBlock
-                            {
-                                FontWeight = FontWeight.Bold,
-                                Foreground = Brushes.White
-                            }),
-                            new TextBlock
-                            {
-                                Foreground = Brushes.White,
-                                Text = LocaleResolver.VisualElementPicker_ToolTipWindow_TipTextBlock_Text
-                            },
-                            new StackPanel
-                            {
-                                Orientation = Orientation.Horizontal,
-                                Spacing = 4d,
-                                Children =
-                                {
-                                    (_screenPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content
-                                    }),
-                                    (_windowPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content
-                                    }),
-                                    (_elementPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content
-                                    })
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            SetWindowStyles(_tooltipWindow);
+            _tooltipWindow = new ElementPickerToolTipWindow();
             windowHelper.SetHitTestVisible(_tooltipWindow, false);
-            _tooltipWindow.SizeToContent = SizeToContent.WidthAndHeight;
-            SetPickModeTextBlockStyles();
-        }
-
-        private static void SetWindowStyles(Window window)
-        {
-            window.Topmost = true;
-            window.CanResize = false;
-            window.ShowInTaskbar = false;
-            window.SystemDecorations = SystemDecorations.None;
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-        }
-
-        private void SetPickModeTextBlockStyles()
-        {
-            var (t, f0, f1) = _pickMode switch
-            {
-                PickElementMode.Screen => (_screenPickModeBadge, _windowPickModeBadge, _elementPickModeBadge),
-                PickElementMode.Window => (_windowPickModeBadge, _screenPickModeBadge, _elementPickModeBadge),
-                _ => (_elementPickModeBadge, _screenPickModeBadge, _windowPickModeBadge),
-            };
-
-            t.Background = Brushes.DarkGreen;
-            t.SetValue(TextElement.FontWeightProperty, FontWeight.Bold);
-            f0.Background = f1.Background = Brushes.DimGray;
-            f0.SetValue(TextElement.FontWeightProperty, FontWeight.Normal);
-            f1.SetValue(TextElement.FontWeightProperty, FontWeight.Normal);
         }
 
         protected override unsafe void OnPointerEntered(PointerEventArgs e)
@@ -369,7 +280,10 @@ public partial class VisualElementContext
         private void HandlePickModeChanged()
         {
             HandlePointerMoved();
-            Dispatcher.UIThread.Post(SetPickModeTextBlockStyles);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _tooltipWindow.Mode = _pickMode;
+            }, DispatcherPriority.Background);
         }
 
         /// <summary>
@@ -463,7 +377,7 @@ public partial class VisualElementContext
             }
 
             SetMask(maskRect);
-            _elementNameTextBlock.Text = GetElementDescription(_selectedElement);
+            _tooltipWindow.Header = GetElementDescription(_selectedElement);
         }
 
         private void SetMask(Rect rect)
