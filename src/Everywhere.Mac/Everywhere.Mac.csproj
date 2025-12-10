@@ -1,67 +1,62 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- References: -->
+  <!-- https://github.com/dotnet/macios/blob/main/msbuild/Xamarin.Shared/Xamarin.Shared.targets -->
+  <!-- https://github.com/dotnet/macios/tree/main/docs/building-apps -->
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <AssemblyName>Everywhere</AssemblyName>
     <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-macos</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <SupportedOSPlatformVersion>12.0</SupportedOSPlatformVersion>
     <IsDeploymentTarget>true</IsDeploymentTarget>
     <UseAppHost>true</UseAppHost>
-    <CreateAppBundle>true</CreateAppBundle>
-    <CFBundleIconFile>Everywhere.icns</CFBundleIconFile>
+    <CreateAppBundle>true</CreateAppBundle> <!-- Enable .app bundle creation -->
+    <BundleCreateDump>true</BundleCreateDump>
+  </PropertyGroup>
+
+  <!-- Code sign -->
+  <PropertyGroup>
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <CodesignDependsOn>$(CodesignDependsOn);ClearQuarantineAttribute</CodesignDependsOn>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <CodesignKey Condition="'$(CodesignKey)' == ''">-</CodesignKey> <!-- Ad-hoc signing by default -->
+    <CodesignExtraArgs>--deep</CodesignExtraArgs>
+  </PropertyGroup>
+
+  <!-- .pkg Creation when publishing -->
+  <PropertyGroup Condition="'$(PublishDir)' != ''">
+    <UseHardenedRuntime>true</UseHardenedRuntime>
+    <CreatePackage>true</CreatePackage>
+    <EnablePackageSigning>true</EnablePackageSigning>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop"/>
+    <PackageReference Include="Avalonia.Desktop" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Everywhere.Core\Everywhere.Core.csproj" />
   </ItemGroup>
 
+  <Import Project="..\Build.Watchdog.targets" />
+
   <ItemGroup>
     <None Include="..\..\img\Everywhere.ico">
       <Link>Everywhere.ico</Link>
     </None>
-    <Content Include="$(WatchdogExecutable)">
-      <Link>..\MacOS\Everywhere.Watchdog</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="Everywhere.icns" PublishFolderType="Resource">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    </None>
+    <None Include="$(WatchdogExecutable)" PublishFolderType="RootDirectory">
+      <Link>Contents\Helpers\Everywhere.Watchdog</Link>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Everywhere.icns" />
-    <BundleResource Include="Everywhere.icns" />
-  </ItemGroup>
-
-  <Import Project="..\Build.Watchdog.targets"/>
-
-  <!-- Code Signing Configuration -->
-  <PropertyGroup>
-    <!-- Default to Ad-Hoc signing ('-') if no identity is provided -->
-    <CodeSignIdentity Condition="'$(CodeSignIdentity)' == ''">-</CodeSignIdentity>
-    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
-  </PropertyGroup>
-
-  <Target Name="SignAppBundle" AfterTargets="OrganizeBundle">
-    <PropertyGroup>
-      <AppBundlePath>$(OutputPath)$(ProjectName).app</AppBundlePath>
-      <!-- Enable Hardened Runtime and Timestamp only when using a real certificate -->
-      <SignOptions Condition="'$(CodeSignIdentity)' != '-'">--options runtime --timestamp</SignOptions>
-    </PropertyGroup>
-
-    <Message Text="Signing $(AppBundlePath) with identity '$(CodeSignIdentity)'..." Importance="High" />
-
-    <!-- 1. Ensure Watchdog has executable permissions -->
-    <Exec Command="chmod +x &quot;$(AppBundlePath)/Contents/Helpers/Everywhere.Watchdog&quot;" Condition="Exists('$(AppBundlePath)/Contents/Helpers/Everywhere.Watchdog')" />
-
-    <!-- 2. Remove quarantine attributes to allow local execution -->
-    <Exec Command="xattr -cr &quot;$(AppBundlePath)&quot;" />
-    
-    <!-- 3. Sign the bundle with entitlements (using deep to sign nested helpers) -->
-    <Exec Command="codesign --force --deep $(SignOptions) --entitlements &quot;$(CodeSignEntitlements)&quot; --sign &quot;$(CodeSignIdentity)&quot; &quot;$(AppBundlePath)&quot;" />
+  <Target Name="ClearQuarantineAttribute">
+    <Message Text="Clearing quarantine attribute from app bundle..." Importance="high" />
+    <Exec Command="xattr -cr &quot;$(AppBundleDir)&quot;" />
   </Target>
-
 </Project>
