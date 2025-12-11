@@ -9,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using Everywhere.Extensions;
 using Everywhere.I18N;
@@ -48,7 +49,8 @@ public partial class VisualElementContext
         private readonly Border _elementBoundsBorder;
         private readonly double _scale;
 
-        private readonly ElementPickerToolTipWindow _tooltipWindow;
+        private readonly ElementPickerToolTip _toolTip;
+        private readonly Window _toolTipWindow;
 
         private PickElementMode _pickMode;
         private Rect? _previousMaskRect;
@@ -90,22 +92,40 @@ public partial class VisualElementContext
                 }
             };
 
-            Topmost = true;
-            CanResize = false;
-            ShowInTaskbar = false;
-            SystemDecorations = SystemDecorations.None;
-            WindowStartupLocation = WindowStartupLocation.Manual;
+            SetWindowStyles(this);
             Background = Brushes.Transparent;
             Cursor = new Cursor(StandardCursorType.Cross);
             TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
+            SystemDecorations = SystemDecorations.None;
 
             Position = _screenBounds.Position;
             _scale = DesktopScaling; // we must set Position first to get the correct scaling factor
             Width = _screenBounds.Width / _scale;
             Height = _screenBounds.Height / _scale;
 
-            _tooltipWindow = new ElementPickerToolTipWindow();
-            windowHelper.SetHitTestVisible(_tooltipWindow, false);
+            _toolTipWindow = new Window
+            {
+                Content = _toolTip = new ElementPickerToolTip
+                {
+                    Mode = pickMode
+                },
+                SizeToContent = SizeToContent.WidthAndHeight,
+                SystemDecorations = SystemDecorations.BorderOnly
+            };
+            SetWindowStyles(_toolTipWindow);
+            windowHelper.SetHitTestVisible(_toolTipWindow, false);
+        }
+
+        private static void SetWindowStyles(Window window)
+        {
+            window.Topmost = true;
+            window.CanResize = false;
+            window.CanMaximize = false;
+            window.CanMinimize = false;
+            window.ShowInTaskbar = false;
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome;
+            window.ExtendClientAreaToDecorationsHint = true;
         }
 
         protected override unsafe void OnPointerEntered(PointerEventArgs e)
@@ -144,7 +164,7 @@ public partial class VisualElementContext
 
             _isRightButtonPressed = true;
             _windowHelper.SetHitTestVisible(this, false);
-            _tooltipWindow.Show(this);
+            _toolTipWindow.Show(this);
 
             // Install a low-level mouse hook to listen for right button down events
             // This is needed because once we set the window to hit test invisible
@@ -251,6 +271,7 @@ public partial class VisualElementContext
 
         protected override unsafe void OnClosed(EventArgs e)
         {
+            _toolTipWindow.Close();
             _mouseHook?.Dispose();
             _keyboardHook?.Dispose();
 
@@ -282,7 +303,7 @@ public partial class VisualElementContext
             HandlePointerMoved();
             Dispatcher.UIThread.Post(() =>
             {
-                _tooltipWindow.Mode = _pickMode;
+                _toolTip.Mode = _pickMode;
             }, DispatcherPriority.Background);
         }
 
@@ -312,7 +333,7 @@ public partial class VisualElementContext
             if (screen == null) return;
 
             var screenBounds = screen.Bounds;
-            var tooltipSize = _tooltipWindow.Bounds.Size * _scale;
+            var tooltipSize = _toolTip.Bounds.Size * _scale;
 
             var x = (double)pointerPoint.X;
             var y = pointerPoint.Y - margin - tooltipSize.Height;
@@ -329,7 +350,7 @@ public partial class VisualElementContext
                 x = pointerPoint.X - tooltipSize.Width; // place to the left of the pointer
             }
 
-            _tooltipWindow.Position = new PixelPoint((int)x, (int)y);
+            _toolTipWindow.Position = new PixelPoint((int)x, (int)y);
         }
 
         private void PickElement(Point point)
@@ -377,7 +398,7 @@ public partial class VisualElementContext
             }
 
             SetMask(maskRect);
-            _tooltipWindow.Header = GetElementDescription(_selectedElement);
+            _toolTip.Header = GetElementDescription(_selectedElement);
         }
 
         private void SetMask(Rect rect)

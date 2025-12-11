@@ -1,12 +1,12 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia.Controls.Primitives;
 using Everywhere.Interop;
 
 namespace Everywhere.Views;
 
-public class ElementPickerToolTipWindow : Window
+public class ElementPickerToolTip : TemplatedControl
 {
     public static readonly StyledProperty<string?> HeaderProperty =
-        AvaloniaProperty.Register<ElementPickerToolTipWindow, string?>(nameof(Header));
+        AvaloniaProperty.Register<ElementPickerToolTip, string?>(nameof(Header));
 
     public string? Header
     {
@@ -15,7 +15,7 @@ public class ElementPickerToolTipWindow : Window
     }
 
     public static readonly StyledProperty<PickElementMode> ModeProperty =
-        AvaloniaProperty.Register<ElementPickerToolTipWindow, PickElementMode>(nameof(Mode));
+        AvaloniaProperty.Register<ElementPickerToolTip, PickElementMode>(nameof(Mode));
 
     public PickElementMode Mode
     {
