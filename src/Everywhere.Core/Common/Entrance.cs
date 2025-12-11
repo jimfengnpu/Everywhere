@@ -21,6 +21,8 @@ public static class Entrance
 {
     public static bool SendOnlyNecessaryTelemetry { get; set; }
 
+    public static event EventHandler<UnobservedTaskExceptionEventArgs>? UnobservedTaskExceptionFilter;
+
 #if !DEBUG
     private static Mutex? _appMutex;
 #endif
@@ -149,8 +151,9 @@ public static class Entrance
             Log.Logger.Error(e.ExceptionObject as Exception, "Unhandled Exception");
         };
 
-        TaskScheduler.UnobservedTaskException += static (_, e) =>
+        TaskScheduler.UnobservedTaskException += static (s, e) =>
         {
+            UnobservedTaskExceptionFilter?.Invoke(s, e);
             if (e.Observed) return;
 
             Log.Logger.Error(e.Exception, "Unobserved Task Exception");

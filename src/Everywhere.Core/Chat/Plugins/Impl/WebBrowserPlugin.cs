@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -33,7 +32,6 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     private readonly WebSearchEngineSettings _webSearchEngineSettings;
     private readonly IRuntimeConstantProvider _runtimeConstantProvider;
     private readonly IWatchdogManager _watchdogManager;
-    private readonly IWebProxy _webProxy;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<WebBrowserPlugin> _logger;
@@ -52,18 +50,25 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     private IBrowser? _browser;
     private Process? _browserProcess;
 
+    static WebBrowserPlugin()
+    {
+        // Suppress unobserved Puppeteer exceptions
+        Entrance.UnobservedTaskExceptionFilter += (_, e) =>
+        {
+            if (!e.Observed && e.Exception.Segregate().AsValueEnumerable().Any(ex => ex is PuppeteerException)) e.SetObserved();
+        };
+    }
+
     public WebBrowserPlugin(
         Settings settings,
         IRuntimeConstantProvider runtimeConstantProvider,
         IWatchdogManager watchdogManager,
-        IWebProxy webProxy,
         IHttpClientFactory httpClientFactory,
         ILoggerFactory loggerFactory) : base("web_browser")
     {
         _webSearchEngineSettings = settings.Plugin.WebSearchEngine;
         _runtimeConstantProvider = runtimeConstantProvider;
         _watchdogManager = watchdogManager;
-        _webProxy = webProxy;
         _httpClientFactory = httpClientFactory;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<WebBrowserPlugin>();
@@ -235,17 +240,18 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
 
         _logger.LogDebug("Ensuring Puppeteer browser is initialized.");
 
-        try
+        if (_browserProcess is { HasExited: false })
         {
-            if (_browserProcess is { HasExited: false })
-            {
-                // Kill existing browser process if any
-                var processId = _browserProcess.Id;
-                _browserProcess.Kill();
-                _browserProcess = null;
-                await _watchdogManager.UnregisterProcessAsync(processId);
-            }
+            // Kill existing browser process if any
+            var processId = _browserProcess.Id;
+            _browserProcess.Kill();
+            _browserProcess = null;
+            await _watchdogManager.UnregisterProcessAsync(processId);
+        }
 
+        var executablePath = BrowserHelper.GetEdgePath() ?? BrowserHelper.GetChromePath();
+        if (executablePath is null)
+        {
             var cachePath = _runtimeConstantProvider.EnsureWritableDataFolderPath("cache/plugins/puppeteer");
             var browserFetcher = new BrowserFetcher
             {
@@ -253,7 +259,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                 Browser = SupportedBrowser.Chromium
             };
             const string buildId = "1499281";
-            var executablePath = browserFetcher.GetExecutablePath(buildId);
+            executablePath = browserFetcher.GetExecutablePath(buildId);
             if (!File.Exists(executablePath))
             {
                 _logger.LogDebug("Downloading Puppeteer browser to cache directory: {CachePath}", cachePath);
@@ -263,10 +269,24 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                     throw new HandledException(
                         new HttpRequestException("Failed to connect to the Puppeteer browser download URL."),
                         new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
-                        showDetails: false);
-                await browserFetcher.DownloadAsync(buildId);
-            }
+                        showDetails: true);
 
+                try
+                {
+                    await browserFetcher.DownloadAsync(buildId);
+                }
+                catch (Exception e)
+                {
+                    throw new HandledException(
+                        new InvalidOperationException("Failed to download Puppeteer browser.", e),
+                        new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
+                        showDetails: true);
+                }
+            }
+        }
+
+        try
+        {
             _logger.LogDebug("Using Puppeteer browser executable at: {ExecutablePath}", executablePath);
             var launcher = new Launcher(_loggerFactory);
             _browser = await launcher.LaunchAsync(
@@ -285,9 +305,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         catch (Exception e)
         {
             throw new HandledException(
-                new InvalidOperationException("Failed to download or launch Puppeteer browser.", e),
+                new InvalidOperationException("Failed to launch Puppeteer browser.", e),
                 new DynamicResourceKey(LocaleKey.NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage),
-                showDetails: false);
+                showDetails: true);
         }
 
         async ValueTask<string?> TestUrlConnectionAsync(string testUrl)
@@ -395,4 +415,60 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
     [JsonSerializable(typeof(List<IndexedWebPage>))]
     [JsonSerializable(typeof(WebSnapshotResult))]
     private partial class WebBrowserPluginJsonSerializationContext : JsonSerializerContext;
+
+    private static class BrowserHelper
+    {
+        public static string? GetChromePath()
+        {
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Win32NT => SearchWindowsApplicationPath(Path.Combine("Google", "Chrome", "Application", "chrome.exe")),
+                PlatformID.MacOSX => SearchMacOSApplicationPath("Google Chrome"),
+                PlatformID.Unix => SearchLinuxApplicationPath("google-chrome"),
+                _ => null
+            };
+        }
+
+        public static string? GetEdgePath()
+        {
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Win32NT => SearchWindowsApplicationPath(Path.Combine("Microsoft", "Edge", "Application", "msedge.exe")),
+                PlatformID.MacOSX => SearchMacOSApplicationPath("Microsoft Edge"),
+                PlatformID.Unix => SearchLinuxApplicationPath("microsoft-edge-stable"),
+                _ => null
+            };
+        }
+
+        private static string? SearchWindowsApplicationPath(string relativePath)
+        {
+            Span<Environment.SpecialFolder> rootPaths =
+            [
+                Environment.SpecialFolder.LocalApplicationData,
+                Environment.SpecialFolder.ProgramFiles,
+                Environment.SpecialFolder.ProgramFilesX86
+            ];
+            return rootPaths
+                .AsValueEnumerable()
+                .Select(rootPath => Path.Combine(
+                    Environment.GetFolderPath(rootPath),
+                    relativePath))
+                .FirstOrDefault(File.Exists);
+        }
+
+        private static string? SearchMacOSApplicationPath(string appName)
+        {
+            var path = $"/Applications/{appName}.app/Contents/MacOS/{appName}";
+            return File.Exists(path) ? path : null;
+        }
+
+        private static string? SearchLinuxApplicationPath(string executableName)
+        {
+            var paths = Environment.GetEnvironmentVariable("PATH")?.Split(':') ?? [];
+            return paths
+                .AsValueEnumerable()
+                .Select(path => Path.Combine(path, executableName))
+                .FirstOrDefault(File.Exists);
+        }
+    }
 }
