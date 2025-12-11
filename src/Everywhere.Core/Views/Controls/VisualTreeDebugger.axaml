@@ -24,9 +24,6 @@
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Kind="SquareMousePointer" Size="18"/>
         </Button>
-        <CheckBox
-          x:Name="ShowKeyboardFocusedElementCheckBox" VerticalAlignment="Center"
-          Content="Show keyboard focused element"/>
       </StackPanel>
     </Border>
 

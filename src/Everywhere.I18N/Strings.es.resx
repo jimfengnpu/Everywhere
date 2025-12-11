@@ -1451,23 +1451,20 @@ Contenido:
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
         <value>Error al conectar con la URL de descarga del navegador Puppeteer.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
-        <value>Error al descargar o iniciar el navegador Puppeteer.</value>
-    </data>
-    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
         <value>Clic izquierdo para seleccionar, clic derecho o Esc para cancelar
 Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
-        <value>1: Pantalla</value>
+    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>Pantalla</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
-        <value>2: Ventana</value>
+    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>Ventana</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
-        <value>3: Elemento</value>
+    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>Elemento</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>Ninguno</value>
     </data>
     <data name="Common_None" xml:space="preserve">

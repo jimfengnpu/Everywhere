@@ -20,10 +20,6 @@ public enum PickElementMode
 
 public interface IVisualElementContext
 {
-    delegate void KeyboardFocusedElementChangedHandler(IVisualElement? element);
-
-    event KeyboardFocusedElementChangedHandler KeyboardFocusedElementChanged;
-
     IVisualElement? KeyboardFocusedElement { get; }
 
     /// <summary>

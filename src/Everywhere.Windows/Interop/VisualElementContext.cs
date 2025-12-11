@@ -9,7 +9,6 @@ using Everywhere.I18N;
 using Everywhere.Interop;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
-using FlaUI.Core.EventHandlers;
 using FlaUI.UIA3;
 using Serilog;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
@@ -25,37 +24,7 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
     private static readonly UIA3Automation Automation = new();
     private static readonly ITreeWalker TreeWalker = Automation.TreeWalkerFactory.GetContentViewWalker();
 
-    public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged
-    {
-        add
-        {
-            if (_keyboardFocusedElementChangedHandler is null)
-            {
-                _focusChangedEventHandler = Automation.RegisterFocusChangedEvent(element =>
-                {
-                    if (_keyboardFocusedElementChangedHandler is not { } handler) return;
-                    handler(TryCreateVisualElement(() => element));
-                });
-            }
-
-            _keyboardFocusedElementChangedHandler += value;
-        }
-        remove
-        {
-            _keyboardFocusedElementChangedHandler -= value;
-            if (_focusChangedEventHandler is not null)
-            {
-                Automation.UnregisterFocusChangedEvent(_focusChangedEventHandler);
-                _focusChangedEventHandler = null;
-            }
-        }
-    }
-
     public IVisualElement? KeyboardFocusedElement => TryCreateVisualElement(Automation.FocusedElement);
-
-    private IVisualElementContext.KeyboardFocusedElementChangedHandler? _keyboardFocusedElementChangedHandler;
-    private FocusChangedEventHandlerBase? _focusChangedEventHandler;
-
 
     public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
     {

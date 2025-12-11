@@ -1445,23 +1445,20 @@
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
         <value>Puppeteer tarayıcı indirme URL'sine bağlanılamadı.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
-        <value>Puppeteer tarayıcısını indirme veya başlatma başarısız oldu.</value>
-    </data>
-    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
         <value>Seçmek için sol tıklayın, iptal etmek için sağ tıklayın veya Esc tuşuna basın
 Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlarını kullanın</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
-        <value>1: Ekran</value>
+    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>Ekran</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
-        <value>2: Pencere</value>
+    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>Pencere</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
-        <value>3: Eleman</value>
+    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>Eleman</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>Yok</value>
     </data>
     <data name="Common_None" xml:space="preserve">

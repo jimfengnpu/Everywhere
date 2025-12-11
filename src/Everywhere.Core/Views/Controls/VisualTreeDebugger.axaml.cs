@@ -8,13 +8,11 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Interop;
 using ZLinq;
-
 #if DEBUG
 using JetBrains.Profiler.Api;
 #endif
@@ -65,29 +63,6 @@ public partial class VisualTreeDebugger : UserControl
                 Background = Brushes.DodgerBlue,
                 Opacity = 0.2
             },
-        };
-
-        var keyboardFocusMask = new OverlayWindow
-        {
-            Content = new Border
-            {
-                BorderThickness = new Thickness(1),
-                BorderBrush = Brushes.Crimson,
-                Opacity = 0.5
-            }
-        };
-
-        visualElementContext.KeyboardFocusedElementChanged += element =>
-        {
-            Dispatcher.UIThread.InvokeOnDemand(() =>
-            {
-                if (ShowKeyboardFocusedElementCheckBox.IsChecked is true) keyboardFocusMask.UpdateForVisualElement(element);
-            });
-        };
-
-        ShowKeyboardFocusedElementCheckBox.IsCheckedChanged += delegate
-        {
-            if (ShowKeyboardFocusedElementCheckBox.IsChecked is not true) keyboardFocusMask.UpdateForVisualElement(null);
         };
     }
 
