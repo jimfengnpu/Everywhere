@@ -38,8 +38,6 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         }
     }
 
-    public event IVisualElementContext.KeyboardFocusedElementChangedHandler? KeyboardFocusedElementChanged;
-
     public LinuxVisualElementContext(
         ILinuxWindowBackend backend, 
         ILinuxEventHelper eventHelper,

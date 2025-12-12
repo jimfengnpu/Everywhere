@@ -17,8 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Everywhere.Abstractions\Everywhere.Abstractions.csproj" />
-    <ProjectReference Include="..\Everywhere\Everywhere.csproj" />
+    <ProjectReference Include="..\Everywhere.Core\Everywhere.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
