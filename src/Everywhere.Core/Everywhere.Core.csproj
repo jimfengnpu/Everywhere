@@ -83,4 +83,11 @@
       <Link>Assets\CHANGELOG.md</Link>
     </AvaloniaResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\VisualElementPicker\VisualElementPickerToolTip.axaml.cs">
+      <DependentUpon>ElementPickerToolTip.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -283,7 +283,7 @@ public sealed partial class ChatWindowViewModel :
     }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
-    private Task PickElementAsync(PickElementMode mode) => ExecuteBusyTaskAsync(
+    private Task PickElementAsync(ElementPickMode mode) => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
             if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;

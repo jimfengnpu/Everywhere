@@ -111,7 +111,7 @@ public partial class VisualTreeDebugger : UserControl
         try
         {
             _rootElements.Clear();
-            if (await _visualElementContext.PickElementAsync(PickElementMode.Element) is { } element)
+            if (await _visualElementContext.PickElementAsync(ElementPickMode.Element) is { } element)
             {
                 _rootElements.Add(element);
             }

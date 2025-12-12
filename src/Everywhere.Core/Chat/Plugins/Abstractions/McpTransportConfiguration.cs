@@ -134,27 +134,17 @@ public sealed partial class StdioMcpTransportConfiguration : McpTransportConfigu
     [RelayCommand]
     private void RemoveEnvironmentVariable(int index) => EnvironmentVariables.SafeRemoveAt(index);
 
-    public static ValidationResult? ValidateArguments(ObservableCollection<BindingWrapper<string>>? input)
-    {
-        if (input is null) return ValidationResult.Success;
-
-        foreach (var bindingWrapper in input)
-        {
-            if (bindingWrapper.Value.IsNullOrEmpty())
-            {
-                return new ValidationResult(LocaleResolver.ValidationErrorMessage_NullKey);
-            }
-        }
-
-        return null;
-    }
+    public static ValidationResult? ValidateArguments(ObservableCollection<BindingWrapper<string>>? input) =>
+        input?.AsValueEnumerable().Any(bindingWrapper => bindingWrapper.Value.IsNullOrEmpty()) is true ?
+            new ValidationResult(LocaleResolver.ValidationErrorMessage_NullKey) :
+            ValidationResult.Success;
 
     public static ValidationResult? ValidateEnvironmentVariables(ObservableCollection<ObservableKeyValuePair<string, string?>>? input)
     {
         if (input is null) return ValidationResult.Success;
 
         var keys = new HashSet<string?>();
-        foreach (var kvp in input)
+        foreach (var kvp in input.AsValueEnumerable())
         {
             if (kvp.Key.IsNullOrWhiteSpace())
             {
@@ -218,7 +208,7 @@ public sealed partial class HttpMcpTransportConfiguration : McpTransportConfigur
         if (headers is null) return ValidationResult.Success;
 
         var keys = new HashSet<string?>();
-        foreach (var kvp in headers)
+        foreach (var kvp in headers.AsValueEnumerable())
         {
             if (string.IsNullOrWhiteSpace(kvp.Key))
             {

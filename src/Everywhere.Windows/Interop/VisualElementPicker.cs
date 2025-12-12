@@ -5,18 +5,13 @@ using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
 using Everywhere.Views;
 using Point = System.Drawing.Point;
-using Window = Avalonia.Controls.Window;
 
 namespace Everywhere.Windows.Interop;
 
@@ -28,9 +23,9 @@ public partial class VisualElementContext
     /// <summary>
     /// A window that allows the user to pick an element from the screen.
     /// </summary>
-    private sealed class VisualElementPicker : Window
+    private sealed class VisualElementPicker : VisualElementPickerTransparentWindow
     {
-        public static Task<IVisualElement?> PickAsync(IWindowHelper windowHelper, PickElementMode mode)
+        public static Task<IVisualElement?> PickAsync(IWindowHelper windowHelper, ElementPickMode mode)
         {
             var window = new VisualElementPicker(windowHelper, mode);
             window.Show();
@@ -45,70 +40,37 @@ public partial class VisualElementContext
         private readonly IWindowHelper _windowHelper;
 
         private readonly PixelRect _allScreenBounds;
-        private readonly MaskWindow[] _maskWindows;
-        private readonly ElementPickerToolTip _toolTip;
-        private readonly Window _toolTipWindow;
+        private readonly VisualElementPickerMaskWindow[] _maskWindows;
+        private readonly VisualElementPickerToolTipWindow _toolTipWindow;
 
-        private PickElementMode _pickMode;
+        private ElementPickMode _elementPickMode;
         private IVisualElement? _selectedElement;
 
         private bool _isRightButtonPressed;
         private LowLevelMouseHook? _mouseHook;
         private LowLevelKeyboardHook? _keyboardHook;
 
-        private VisualElementPicker(IWindowHelper windowHelper, PickElementMode pickMode)
+        private VisualElementPicker(IWindowHelper windowHelper, ElementPickMode elementPickMode)
         {
             _windowHelper = windowHelper;
-            _pickMode = pickMode;
+            _elementPickMode = elementPickMode;
 
             var allScreens = Screens.All;
-            _maskWindows = new MaskWindow[allScreens.Count];
+            _maskWindows = new VisualElementPickerMaskWindow[allScreens.Count];
             for (var i = 0; i < allScreens.Count; i++)
             {
                 var screen = allScreens[i];
                 _allScreenBounds = _allScreenBounds.Union(screen.Bounds);
-                var maskWindow = new MaskWindow(screen.Bounds);
+                var maskWindow = new VisualElementPickerMaskWindow(screen.Bounds);
                 windowHelper.SetHitTestVisible(maskWindow, false);
                 _maskWindows[i] = maskWindow;
             }
 
-            Background = Brushes.Transparent;
-            TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-            SystemDecorations = SystemDecorations.None;
-            SetWindowStyles(this);
-            SetWindowPlacement(this, _allScreenBounds, out _);
+            // Cover the entire virtual screen
+            SetPlacement(_allScreenBounds, out _);
 
-            _toolTipWindow = new Window
-            {
-                Content = _toolTip = new ElementPickerToolTip
-                {
-                    Mode = pickMode
-                },
-                SizeToContent = SizeToContent.WidthAndHeight,
-                SystemDecorations = SystemDecorations.BorderOnly,
-                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
-                ExtendClientAreaToDecorationsHint = true,
-            };
-            SetWindowStyles(_toolTipWindow);
+            _toolTipWindow = new VisualElementPickerToolTipWindow(elementPickMode);
             windowHelper.SetHitTestVisible(_toolTipWindow, false);
-        }
-
-        private static void SetWindowPlacement(Window window, PixelRect screenBounds, out double scale)
-        {
-            window.Position = screenBounds.Position;
-            scale = window.DesktopScaling; // we must set Position first to get the correct scaling factor
-            window.Width = screenBounds.Width / scale;
-            window.Height = screenBounds.Height / scale;
-        }
-
-        private static void SetWindowStyles(Window window)
-        {
-            window.Topmost = true;
-            window.CanResize = false;
-            window.CanMaximize = false;
-            window.CanMinimize = false;
-            window.ShowInTaskbar = false;
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
         }
 
         protected override unsafe void OnPointerEntered(PointerEventArgs e)
@@ -179,7 +141,7 @@ public partial class VisualElementContext
                         blockNext = true;
 
                         var delta = (int)hookStruct.mouseData >> 16;
-                        _pickMode = (PickElementMode)((int)(_pickMode + (delta > 0 ? -1 : 1)) switch
+                        _elementPickMode = (ElementPickMode)((int)(_elementPickMode + (delta > 0 ? -1 : 1)) switch
                         {
                             > 2 => 0,
                             < 0 => 2,
@@ -220,19 +182,19 @@ public partial class VisualElementContext
                     }
                     case VIRTUAL_KEY.VK_NUMPAD1 or VIRTUAL_KEY.VK_1 or VIRTUAL_KEY.VK_F1:
                     {
-                        _pickMode = PickElementMode.Screen;
+                        _elementPickMode = ElementPickMode.Screen;
                         HandlePickModeChanged();
                         break;
                     }
                     case VIRTUAL_KEY.VK_NUMPAD2 or VIRTUAL_KEY.VK_2 or VIRTUAL_KEY.VK_F2:
                     {
-                        _pickMode = PickElementMode.Window;
+                        _elementPickMode = ElementPickMode.Window;
                         HandlePickModeChanged();
                         break;
                     }
                     case VIRTUAL_KEY.VK_NUMPAD3 or VIRTUAL_KEY.VK_3 or VIRTUAL_KEY.VK_F3:
                     {
-                        _pickMode = PickElementMode.Element;
+                        _elementPickMode = ElementPickMode.Element;
                         HandlePickModeChanged();
                         break;
                     }
@@ -286,7 +248,7 @@ public partial class VisualElementContext
             HandlePointerMoved();
             Dispatcher.UIThread.Post(() =>
             {
-                _toolTip.Mode = _pickMode;
+                _toolTipWindow.ToolTip.Mode = _elementPickMode;
             }, DispatcherPriority.Background);
         }
 
@@ -316,7 +278,7 @@ public partial class VisualElementContext
             if (screen == null) return;
 
             var screenBounds = screen.Bounds;
-            var tooltipSize = _toolTip.Bounds.Size * _toolTipWindow.DesktopScaling;
+            var tooltipSize = _toolTipWindow.Bounds.Size * _toolTipWindow.DesktopScaling;
 
             var x = (double)pointerPoint.X;
             var y = pointerPoint.Y - margin - tooltipSize.Height;
@@ -340,9 +302,9 @@ public partial class VisualElementContext
         {
             var maskRect = new PixelRect();
             var pixelPoint = new PixelPoint(point.X, point.Y);
-            switch (_pickMode)
+            switch (_elementPickMode)
             {
-                case PickElementMode.Screen:
+                case ElementPickMode.Screen:
                 {
                     var screen = Screens.All.FirstOrDefault(s => s.Bounds.Contains(pixelPoint));
                     if (screen == null) break;
@@ -354,7 +316,7 @@ public partial class VisualElementContext
                     maskRect = screen.Bounds;
                     break;
                 }
-                case PickElementMode.Window:
+                case ElementPickMode.Window:
                 {
                     var selectedHWnd = PInvoke.WindowFromPoint(point);
                     if (selectedHWnd == HWND.Null) break;
@@ -368,7 +330,7 @@ public partial class VisualElementContext
                     maskRect = _selectedElement.BoundingRectangle;
                     break;
                 }
-                case PickElementMode.Element:
+                case ElementPickMode.Element:
                 {
                     // TODO: sometimes this only picks the window, not the element under the cursor?
                     _selectedElement = TryCreateVisualElement(() => Automation.FromPoint(point));
@@ -380,7 +342,7 @@ public partial class VisualElementContext
             }
 
             foreach (var maskWindow in _maskWindows) maskWindow.SetMask(maskRect);
-            _toolTip.Header = GetElementDescription(_selectedElement);
+            _toolTipWindow.ToolTip.Header = GetElementDescription(_selectedElement);
         }
 
         private readonly Dictionary<int, string> _processNameCache = new();
@@ -417,58 +379,6 @@ public partial class VisualElementContext
             }
 
             return key.ToString();
-        }
-
-        /// <summary>
-        /// Mask window that displays the overlay during element picking.
-        /// </summary>
-        private sealed class MaskWindow : Window
-        {
-            private readonly Border _maskBorder;
-            private readonly Border _elementBoundsBorder;
-            private readonly PixelRect _screenBounds;
-            private readonly double _scale;
-
-            public MaskWindow(PixelRect screenBounds)
-            {
-                Content = new Panel
-                {
-                    IsHitTestVisible = false,
-                    Children =
-                    {
-                        (_maskBorder = new Border
-                        {
-                            Background = Brushes.Black,
-                            Opacity = 0.4
-                        }),
-                        (_elementBoundsBorder = new Border
-                        {
-                            BorderThickness = new Thickness(2),
-                            BorderBrush = Brushes.White,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Top
-                        })
-                    }
-                };
-
-                SetWindowStyles(this);
-                Background = Brushes.Transparent;
-                Cursor = new Cursor(StandardCursorType.Cross);
-                TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-                SystemDecorations = SystemDecorations.None;
-
-                _screenBounds = screenBounds;
-                SetWindowPlacement(this, screenBounds, out _scale);
-            }
-
-            public void SetMask(PixelRect rect)
-            {
-                var maskRect = rect.Translate(-(PixelVector)_screenBounds.Position).ToRect(_scale);
-                _maskBorder.Clip = new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(Bounds), new RectangleGeometry(maskRect));
-                _elementBoundsBorder.Margin = new Thickness(maskRect.X, maskRect.Y, 0, 0);
-                _elementBoundsBorder.Width = maskRect.Width;
-                _elementBoundsBorder.Height = maskRect.Height;
-            }
         }
     }
 }

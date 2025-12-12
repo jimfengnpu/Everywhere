@@ -3,8 +3,8 @@
   xmlns:interop="clr-namespace:Everywhere.Interop" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
   xmlns:v="clr-namespace:Everywhere.Views">
   <ControlTheme
-    x:Key="{x:Type v:ElementPickerToolTip}"
-    TargetType="v:ElementPickerToolTip">
+    x:Key="{x:Type v:VisualElementPickerToolTip}"
+    TargetType="v:VisualElementPickerToolTip">
     <Setter Property="TextElement.Foreground" Value="{DynamicResource ForegroundColor}"/>
     <Setter Property="Template">
       <ControlTemplate>
@@ -33,7 +33,7 @@
               Orientation="Horizontal" Spacing="4">
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Screen}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Screen}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="Monitor"/>
@@ -42,7 +42,7 @@
               </shadui:Badge>
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Window}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Window}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="AppWindow"/>
@@ -51,7 +51,7 @@
               </shadui:Badge>
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Element}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Element}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="SquareDashed"/>

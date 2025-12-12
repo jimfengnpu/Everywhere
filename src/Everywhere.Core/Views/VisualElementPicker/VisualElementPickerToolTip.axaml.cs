@@ -3,10 +3,10 @@ using Everywhere.Interop;
 
 namespace Everywhere.Views;
 
-public class ElementPickerToolTip : TemplatedControl
+public class VisualElementPickerToolTip : TemplatedControl
 {
     public static readonly StyledProperty<string?> HeaderProperty =
-        AvaloniaProperty.Register<ElementPickerToolTip, string?>(nameof(Header));
+        AvaloniaProperty.Register<VisualElementPickerToolTip, string?>(nameof(Header));
 
     public string? Header
     {
@@ -14,10 +14,10 @@ public class ElementPickerToolTip : TemplatedControl
         set => SetValue(HeaderProperty, value);
     }
 
-    public static readonly StyledProperty<PickElementMode> ModeProperty =
-        AvaloniaProperty.Register<ElementPickerToolTip, PickElementMode>(nameof(Mode));
+    public static readonly StyledProperty<ElementPickMode> ModeProperty =
+        AvaloniaProperty.Register<VisualElementPickerToolTip, ElementPickMode>(nameof(Mode));
 
-    public PickElementMode Mode
+    public ElementPickMode Mode
     {
         get => GetValue(ModeProperty);
         set => SetValue(ModeProperty, value);
