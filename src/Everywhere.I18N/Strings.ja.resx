@@ -596,10 +596,10 @@
     <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>アプリケーション設定ファイルとログにアクセスして管理します。</value>
     </data>
-    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_EditSettingsFileButton_Content" xml:space="preserve">
         <value>設定ファイルを編集</value>
     </data>
-    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_OpenLogsFolderButton_Content" xml:space="preserve">
         <value>ログフォルダーを開く</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
@@ -1452,29 +1452,29 @@
         <value>PuppeteerブラウザのダウンロードURLに接続できませんでした。</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
-        <value>Puppeteerブラウザのダウンロードまたは起動に失敗しました。</value>
+        <value>Puppeteerブラウザの起動に失敗しました。</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
         <value>左クリックで選択、右クリックまたはEscでキャンセル
 スクロールホイールまたは数字キーでピックモードを切り替え</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
-        <value>1: スクリーン</value>
+    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>スクリーン</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
-        <value>2: ウィンドウ</value>
+    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>ウィンドウ</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
-        <value>3: 要素</value>
+    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>要素</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>なし</value>
     </data>
     <data name="Common_None" xml:space="preserve">
         <value>なし</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="ModelProviderSchema_OpenAI_ChatCompletions" xml:space="preserve">
+        <value>OpenAI (Chat Completions)</value>
     </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
@@ -1703,5 +1703,14 @@
     </data>
     <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
         <value>リンクを開く</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpButton_Content" xml:space="preserve">
+        <value>プロセスダンプを作成</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
+        <value>ダンプが作成されるまでお待ちください。この間、Everywhereは応答しません。</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
+        <value>OpenAI (Responses API)</value>
     </data>
 </root>

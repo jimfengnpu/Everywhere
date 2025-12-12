@@ -1,0 +1,62 @@
+<Application
+  x:Class="Everywhere.App" xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  x:Name="Everywhere">
+
+  <Application.Styles>
+    <shadui:ShadTheme/>
+    <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
+    <StyleInclude Source="avares://Everywhere.Core/Assets/Styles.axaml"/>
+  </Application.Styles>
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <LocaleManager/>
+        <ResourceInclude Source="avares://Everywhere.Core/Assets/Resources.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Assets/DataTemplates.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/DebugFeaturesControl.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/RestartAsAdministratorControl.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/SoftwareUpdateControl.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ChatInputBox.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ChatActionBubble.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ChatPluginDisplayBlockPresenter.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ConsentDecisionCard.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ElementPickerToolTip.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconEditor.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconPresenter.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/McpTransportConfigurationForm.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/SettingsItemsControl.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceEditor.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceSummaryView.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon
+        Clicked="HandleOpenMainWindowMenuItemClicked" Icon="avares://Everywhere.Core/Assets/Everywhere.ico"
+        ToolTipText="Everywhere">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem
+              Click="HandleOpenMainWindowMenuItemClicked"
+              Header="{I18N {x:Static LocaleKey.Application_TrayIcon_Menu_OpenMainWindow}}"/>
+            <NativeMenuItem
+              Click="HandleOpenDebugWindowMenuItemClicked"
+              Header="{I18N {x:Static LocaleKey.Application_TrayIcon_Menu_OpenDebugWindow}}"/>
+            <NativeMenuItemSeparator/>
+            <NativeMenuItem
+              Click="HandleExitMenuItemClicked"
+              Header="{I18N {x:Static LocaleKey.Application_TrayIcon_Menu_Exit}}"/>
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+
+  <NativeMenu.Menu>
+    <NativeMenu/>
+  </NativeMenu.Menu>
+</Application>

@@ -1,0 +1,32 @@
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:configuration="clr-namespace:Everywhere.Views.Configuration" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI">
+
+  <ControlTheme
+    x:Key="{x:Type configuration:DebugFeaturesControl}"
+    TargetType="configuration:DebugFeaturesControl">
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel
+          Orientation="Horizontal" Spacing="8">
+          <Button
+            Classes="Outline"
+            shadui:ButtonAssist.Icon="{LucideIconContent FileJson2}"
+            Command="{Binding EditSettingsFileCommand, RelativeSource={RelativeSource TemplatedParent}}"
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_EditSettingsFileButton_Content}}"/>
+          <Button
+            Classes="Outline"
+            shadui:ButtonAssist.Icon="{LucideIconContent FolderOpen}"
+            Command="{Binding OpenLogsFolderCommand, RelativeSource={RelativeSource TemplatedParent}}"
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_OpenLogsFolderButton_Content}}"/>
+          <Button
+            Classes="Outline"
+            shadui:ButtonAssist.Icon="{LucideIconContent Bug}"
+            Command="{Binding CreateDumpCommand, RelativeSource={RelativeSource TemplatedParent}}"
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_CreateDumpButton_Content}}"/>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

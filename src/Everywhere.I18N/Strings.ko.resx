@@ -596,10 +596,10 @@
     <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>애플리케이션 설정 파일 및 로그에 접근하고 관리합니다.</value>
     </data>
-    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_EditSettingsFileButton_Content" xml:space="preserve">
         <value>설정 파일 편집</value>
     </data>
-    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_OpenLogsFolderButton_Content" xml:space="preserve">
         <value>로그 폴더 열기</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
@@ -1452,29 +1452,29 @@
         <value>Puppeteer 브라우저 다운로드 URL에 연결하지 못했습니다.</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
-        <value>Puppeteer 브라우저를 다운로드하거나 실행하는 데 실패했습니다.</value>
+        <value>Puppeteer 브라우저를 시작하지 못했습니다.</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
         <value>왼쪽 클릭으로 선택, 오른쪽 클릭 또는 Esc로 취소
 스크롤 휠 또는 숫자 키로 선택 모드 전환</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
-        <value>1: 화면</value>
+    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>화면</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
-        <value>2: 창</value>
+    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>창</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
-        <value>3: 요소</value>
+    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>요소</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>없음</value>
     </data>
     <data name="Common_None" xml:space="preserve">
         <value>없음</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="ModelProviderSchema_OpenAI_ChatCompletions" xml:space="preserve">
+        <value>OpenAI (Chat Completions)</value>
     </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
@@ -1703,5 +1703,14 @@
     </data>
     <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
         <value>링크 열기</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpButton_Content" xml:space="preserve">
+        <value>프로세스 덤프 생성</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
+        <value>덤프가 생성되는 동안 잠시 기다려 주십시오. 이 시간 동안 Everywhere는 응답하지 않습니다.</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
+        <value>OpenAI (Responses API)</value>
     </data>
 </root>

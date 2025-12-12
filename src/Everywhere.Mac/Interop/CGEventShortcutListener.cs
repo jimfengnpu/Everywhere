@@ -31,7 +31,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
         // It's crucial to check for permissions before attempting to create the tap.
         if (!PermissionHelper.IsAccessibilityTrusted())
         {
-            logger.LogError("Accessibility permissions are not granted. Cannot create global shortcut listener.");
+            logger.LogWarning("Accessibility permissions are not granted.");
             return;
         }
 

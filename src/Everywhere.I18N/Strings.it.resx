@@ -596,10 +596,10 @@
     <data name="CommonSettings_DebugFeatures_Description" xml:space="preserve">
         <value>Accedi e gestisci il file delle impostazioni dell'applicazione e i log.</value>
     </data>
-    <data name="CommonSettings_EditSettingsFile_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_EditSettingsFileButton_Content" xml:space="preserve">
         <value>Modifica il File delle Impostazioni</value>
     </data>
-    <data name="CommonSettings_OpenLogsFolder_Button_Content" xml:space="preserve">
+    <data name="DebugFeaturesControl_OpenLogsFolderButton_Content" xml:space="preserve">
         <value>Apri la Cartella dei Log</value>
     </data>
     <data name="Common_Error" xml:space="preserve">
@@ -1452,29 +1452,29 @@ Contenuto:
         <value>Impossibile connettersi all'URL di download del browser Puppeteer.</value>
     </data>
     <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
-        <value>Impossibile scaricare o avviare il browser Puppeteer.</value>
+        <value>Impossibile avviare il browser Puppeteer.</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_TipTextBlock_Text" xml:space="preserve">
+    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
         <value>Clic sinistro per selezionare, clic destro o Esc per annullare
 Rotellina o tasti numerici per cambiare modalità di selezione</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content" xml:space="preserve">
-        <value>1: Schermo</value>
+    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+        <value>Schermo</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content" xml:space="preserve">
-        <value>2: Finestra</value>
+    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+        <value>Finestra</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content" xml:space="preserve">
-        <value>3: Elemento</value>
+    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+        <value>Elemento</value>
     </data>
-    <data name="VisualElementPicker_ToolTipWindow_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>Nessuno</value>
     </data>
     <data name="Common_None" xml:space="preserve">
         <value>Nessuno</value>
     </data>
-    <data name="ModelProviderSchema_OpenAI" xml:space="preserve">
-        <value>OpenAI</value>
+    <data name="ModelProviderSchema_OpenAI_ChatCompletions" xml:space="preserve">
+        <value>OpenAI (Chat Completions)</value>
     </data>
     <data name="ModelProviderSchema_Anthropic" xml:space="preserve">
         <value>Anthropic</value>
@@ -1703,5 +1703,14 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     </data>
     <data name="ChatWindow_ChatMessage_ContextFlyout_OpenLink" xml:space="preserve">
         <value>Apri collegamento</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpButton_Content" xml:space="preserve">
+        <value>Crea Dump Processo</value>
+    </data>
+    <data name="DebugFeaturesControl_CreateDumpToast_Content" xml:space="preserve">
+        <value>Attendere mentre il dump viene creato. Everywhere non risponderà durante questo tempo.</value>
+    </data>
+    <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
+        <value>OpenAI (Responses API)</value>
     </data>
 </root>
