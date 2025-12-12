@@ -72,9 +72,6 @@ public partial class McpChatPluginEntity : ObservableObject
             return null;
         }
 
-        return new McpChatPlugin(transportConfiguration)
-        {
-            Id = Id
-        };
+        return new McpChatPlugin(transportConfiguration, Id);
     }
 }

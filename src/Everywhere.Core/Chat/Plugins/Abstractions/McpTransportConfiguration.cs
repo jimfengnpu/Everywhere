@@ -4,7 +4,9 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
+using Microsoft.Extensions.Configuration;
 using ModelContextProtocol.Client;
+using ZLinq;
 
 namespace Everywhere.Chat.Plugins;
 
@@ -59,25 +61,46 @@ public sealed partial class StdioMcpTransportConfiguration : McpTransportConfigu
     [Required(ErrorMessageResourceType = typeof(LocaleResolver), ErrorMessageResourceName = LocaleKey.ValidationErrorMessage_Required)]
     public partial string Command { get; set; } = string.Empty;
 
+    [JsonPropertyName("Arguments")]
+    [ConfigurationKeyName("Arguments")]
+    public IReadOnlyList<string>? SerializableArguments
+    {
+        get => Arguments.AsValueEnumerable().Select(arg => arg.Value).ToList();
+        set {
+            if (value is null)
+            {
+                Arguments.Clear();
+            }
+            else
+            {
+                Arguments.Reset(value.Select(arg => new BindingWrapper<string>(arg)));
+            }
+        }
+    }
+
+    [JsonIgnore]
     [ObservableProperty]
-    public partial string? Arguments { get; set; }
+    [NotifyDataErrorInfo]
+    [CustomValidation(typeof(StdioMcpTransportConfiguration), nameof(ValidateArguments))]
+    public partial ObservableCollection<BindingWrapper<string>> Arguments { get; set; } = [];
 
     [ObservableProperty]
     public partial string? WorkingDirectory { get; set; }
 
+    [JsonPropertyName("EnvironmentVariables")]
+    [ConfigurationKeyName("EnvironmentVariables")]
     public IReadOnlyDictionary<string, string?>? SerializableEnvironmentVariables
     {
-        get => EnvironmentVariables?.DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        get => EnvironmentVariables.AsValueEnumerable().DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         set
         {
             if (value is null)
             {
-                EnvironmentVariables = null;
+                EnvironmentVariables.Clear();
             }
             else
             {
-                EnvironmentVariables = new ObservableCollection<ObservableKeyValuePair<string, string?>>(
-                    value.Select(kvp => new ObservableKeyValuePair<string, string?>(kvp.Key, kvp.Value)));
+                EnvironmentVariables.Reset(value.Select(kvp => new ObservableKeyValuePair<string, string?>(kvp.Key, kvp.Value)));
             }
         }
     }
@@ -87,22 +110,53 @@ public sealed partial class StdioMcpTransportConfiguration : McpTransportConfigu
     [NotifyDataErrorInfo]
     [NotifyPropertyChangedFor(nameof(SerializableEnvironmentVariables))]
     [CustomValidation(typeof(StdioMcpTransportConfiguration), nameof(ValidateEnvironmentVariables))]
-    public partial ObservableCollection<ObservableKeyValuePair<string, string?>>? EnvironmentVariables { get; set; } = [];
+    public partial ObservableCollection<ObservableKeyValuePair<string, string?>> EnvironmentVariables { get; set; } = [];
 
     [RelayCommand]
-    private void AddEmptyEnvironmentVariable() => EnvironmentVariables?.Add(new ObservableKeyValuePair<string, string?>(string.Empty, null));
-
-    [RelayCommand]
-    private void RemoveEnvironmentVariable(ObservableKeyValuePair<string, string?> item) => EnvironmentVariables?.Remove(item);
-
-    public static ValidationResult? ValidateEnvironmentVariables(ObservableCollection<ObservableKeyValuePair<string, string?>>? envVars)
+    private void AddEmptyArgument(int? index)
     {
-        if (envVars is null) return ValidationResult.Success;
+        if (index is null || index < 0 || index >= Arguments.Count)
+        {
+            Arguments.Add(string.Empty);
+        }
+        else
+        {
+            Arguments.Insert(index.Value + 1, string.Empty);
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveArgument(int index) => Arguments.SafeRemoveAt(index);
+
+    [RelayCommand]
+    private void AddEmptyEnvironmentVariable() => EnvironmentVariables.Add(new ObservableKeyValuePair<string, string?>(string.Empty, null));
+
+    [RelayCommand]
+    private void RemoveEnvironmentVariable(int index) => EnvironmentVariables.SafeRemoveAt(index);
+
+    public static ValidationResult? ValidateArguments(ObservableCollection<BindingWrapper<string>>? input)
+    {
+        if (input is null) return ValidationResult.Success;
+
+        foreach (var bindingWrapper in input)
+        {
+            if (bindingWrapper.Value.IsNullOrEmpty())
+            {
+                return new ValidationResult(LocaleResolver.ValidationErrorMessage_NullKey);
+            }
+        }
+
+        return null;
+    }
+
+    public static ValidationResult? ValidateEnvironmentVariables(ObservableCollection<ObservableKeyValuePair<string, string?>>? input)
+    {
+        if (input is null) return ValidationResult.Success;
 
         var keys = new HashSet<string?>();
-        foreach (var kvp in envVars)
+        foreach (var kvp in input)
         {
-            if (string.IsNullOrWhiteSpace(kvp.Key))
+            if (kvp.Key.IsNullOrWhiteSpace())
             {
                 return new ValidationResult(LocaleResolver.ValidationErrorMessage_NullKey);
             }
@@ -125,19 +179,20 @@ public sealed partial class HttpMcpTransportConfiguration : McpTransportConfigur
     [Required(ErrorMessageResourceType = typeof(LocaleResolver), ErrorMessageResourceName = LocaleKey.ValidationErrorMessage_Required)]
     public partial string Endpoint { get; set; } = string.Empty;
 
+    [JsonPropertyName("Headers")]
+    [ConfigurationKeyName("Headers")]
     public IReadOnlyDictionary<string, string>? SerializableHeaders
     {
-        get => Headers?.DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        get => Headers.AsValueEnumerable().DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         set
         {
             if (value is null)
             {
-                Headers = null;
+                Headers.Clear();
             }
             else
             {
-                Headers = new ObservableCollection<ObservableKeyValuePair<string, string>>(
-                    value.Select(kvp => new ObservableKeyValuePair<string, string>(kvp.Key, kvp.Value)));
+                Headers.Reset(value.Select(kvp => new ObservableKeyValuePair<string, string>(kvp.Key, kvp.Value)));
             }
         }
     }
@@ -147,16 +202,16 @@ public sealed partial class HttpMcpTransportConfiguration : McpTransportConfigur
     [NotifyDataErrorInfo]
     [NotifyPropertyChangedFor(nameof(SerializableHeaders))]
     [CustomValidation(typeof(HttpMcpTransportConfiguration), nameof(ValidateHeaders))]
-    public partial ObservableCollection<ObservableKeyValuePair<string, string>>? Headers { get; set; } = [];
+    public partial ObservableCollection<ObservableKeyValuePair<string, string>> Headers { get; set; } = [];
 
     [ObservableProperty]
     public partial HttpTransportMode TransportMode { get; set; }
 
     [RelayCommand]
-    private void AddEmptyHeader() => Headers?.Add(new ObservableKeyValuePair<string, string>(string.Empty, string.Empty));
+    private void AddEmptyHeader() => Headers.Add(new ObservableKeyValuePair<string, string>(string.Empty, string.Empty));
 
     [RelayCommand]
-    private void RemoveHeader(ObservableKeyValuePair<string, string> item) => Headers?.Remove(item);
+    private void RemoveHeader(int index) => Headers.SafeRemoveAt(index);
 
     public static ValidationResult? ValidateHeaders(ObservableCollection<ObservableKeyValuePair<string, string>>? headers)
     {

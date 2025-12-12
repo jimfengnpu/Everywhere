@@ -1590,38 +1590,26 @@
     <data name="McpTransportConfigurationForm_CommandTextBox_Label" xml:space="preserve">
         <value>* 命令</value>
     </data>
-    <data name="McpTransportConfigurationForm_ArgumentsTextBox_Label" xml:space="preserve">
-        <value>命令行參數</value>
-    </data>
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>工作目錄</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>環境變量</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* 端點</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>傳輸模式</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>請求標頭</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>名稱 (鍵)</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* 值</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 請輸入名稱</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
         <value>值</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 請輸入值</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>請輸入值 (可選)</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>編輯 MCP 插件 (帶 * 的字段為必填)</value>

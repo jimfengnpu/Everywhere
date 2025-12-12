@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Everywhere.Common;
@@ -50,6 +51,14 @@ public static class CommonConverters
 
             var key = type.GetField(enumName)?.GetCustomAttribute<DynamicResourceKeyAttribute>()?.HeaderKey ?? $"{type.Name}_{enumName}";
             return DynamicResourceKey.Resolve(key);
+        });
+
+    public static IValueConverter IndexFromContainer { get; } = new FuncValueConverter<object?, int>(
+        convert: x =>
+        {
+            if (x is not Control itemContainer) return -1;
+            var itemsControl = ItemsControl.ItemsControlFromItemContainer(itemContainer);
+            return itemsControl?.IndexFromContainer(itemContainer) ?? -1;
         });
 
     public static IMultiValueConverter DefaultMultiValue { get; } = new DefaultMultiValueConverter();
