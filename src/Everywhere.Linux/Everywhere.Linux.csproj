@@ -14,6 +14,8 @@
     <PackageReference Include="HotAvalonia" PrivateAssets="All" Condition=" '$(Configuration)' == 'Debug' " />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="Tmds.LibC" />
+    <PackageReference Include="X11.Net" />
   </ItemGroup>
 
   <ItemGroup>

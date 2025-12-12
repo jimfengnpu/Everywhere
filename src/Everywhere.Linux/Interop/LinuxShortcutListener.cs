@@ -1,6 +1,7 @@
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Interop;
+using System.Reactive.Disposables;
 
 namespace Everywhere.Linux.Interop;
 
@@ -15,10 +16,10 @@ public class LinuxShortcutListener : IShortcutListener
         if (hotkey.Key == Key.None || hotkey.Modifiers == KeyModifiers.None)
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
-        var id = _eventHelper?.GrabKey(hotkey, handler)??0;
-        return id != 0
-            ? new Disposer(() => _eventHelper?.UngrabKey(id))
-            : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
+        var id = _eventHelper?.GrabKey(hotkey, handler) ?? 0;
+        return id != 0 ?
+            Disposable.Create(() => _eventHelper?.UngrabKey(id)) :
+            throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
     // Register a mouse hotkey. Multiple handlers for the same MouseKey (with different delays) are supported.
@@ -28,10 +29,10 @@ public class LinuxShortcutListener : IShortcutListener
         if (hotkey.Key == MouseButton.None)
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
-        var id = _eventHelper?.GrabMouse(hotkey, handler)??0;
-        return id != 0
-            ? new Disposer(() => _eventHelper?.UngrabMouse(id))
-            : throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
+        var id = _eventHelper?.GrabMouse(hotkey, handler) ?? 0;
+        return id != 0 ?
+            Disposable.Create(() => _eventHelper?.UngrabMouse(id)) :
+            throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
     }
 
     /// <summary>
@@ -41,11 +42,6 @@ public class LinuxShortcutListener : IShortcutListener
     public IKeyboardShortcutScope StartCaptureKeyboardShortcut()
     {
         return new LinuxKeyboardShortcutScopeImpl();
-    }
-    
-    private readonly record struct Disposer(Action DisposeAction) : IDisposable
-    {
-        public void Dispose() => DisposeAction?.Invoke();
     }
 }
 
@@ -59,7 +55,7 @@ public class LinuxKeyboardShortcutScopeImpl : IKeyboardShortcutScope
     public event IKeyboardShortcutScope.PressingShortcutChangedHandler? PressingShortcutChanged;
 
     public event IKeyboardShortcutScope.ShortcutFinishedHandler? ShortcutFinished;
-    
+
     private KeyModifiers _pressedKeyModifiers = KeyModifiers.None;
 
     public LinuxKeyboardShortcutScopeImpl()
@@ -94,7 +90,7 @@ public class LinuxKeyboardShortcutScopeImpl : IKeyboardShortcutScope
             }
         });
     }
-    
+
     public void Dispose()
     {
         if (IsDisposed) return;

@@ -15,30 +15,32 @@ namespace Everywhere.Linux.Interop;
 public partial class AtspiService
 {
     private readonly bool _initialized;
-    private readonly LinuxVisualElementContext _context;
+    private readonly ILinuxWindowBackend _windowBackend;
     private readonly ConcurrentDictionary<IntPtr, AtspiVisualElement> _cachedElement = new();
     private readonly ILogger<AtspiService> _logger = ServiceLocator.Resolve<ILogger<AtspiService>>();
     private readonly AtspiEventListenerCallback _eventCallback;
     private IntPtr _eventListener;
     private IntPtr _focusedElement;
     private Lock _focusLock = new();
-    
-    public AtspiService(LinuxVisualElementContext context)
+
+    public AtspiService(ILinuxWindowBackend backend)
     {
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AT_SPI_BUS")))
             Environment.SetEnvironmentVariable("AT_SPI_BUS", "session");
-        
+
         if (atspi_init() < 0)
             throw new InvalidOperationException("Failed to initialize AT-SPI");
         _eventCallback = OnEvent;
         _eventListener = atspi_event_listener_new(_eventCallback, IntPtr.Zero, IntPtr.Zero);
-        atspi_event_listener_register(_eventListener, 
-            Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"), IntPtr.Zero);
+        atspi_event_listener_register(
+            _eventListener,
+            Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"),
+            IntPtr.Zero);
         ThreadPool.QueueUserWorkItem(_ =>
         {
             atspi_event_main();
         });
-        _context = context;
+        _windowBackend = backend;
         _initialized = true;
     }
 
@@ -49,19 +51,22 @@ public partial class AtspiService
             throw new InvalidOperationException("At-SPI not initialized");
         }
     }
-    
+
     ~AtspiService()
     {
         if (_eventListener != IntPtr.Zero)
         {
-            atspi_event_listener_deregister(_eventListener, 
-                Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"), IntPtr.Zero);
+            atspi_event_listener_deregister(
+                _eventListener,
+                Marshal.StringToCoTaskMemUTF8("object:state-changed:focused"),
+                IntPtr.Zero);
             _eventListener = IntPtr.Zero;
         }
         atspi_exit();
     }
 
     private readonly static List<string> DesktopAppName = ["plasmashell", "gnome-shell", "xfdesktop", "caja", "nemo", "pcmanfm"];
+
     private static bool IsAppNameDesktop(string? appName)
     {
         return appName != null && DesktopAppName.Any(appName.Contains);
@@ -130,10 +135,10 @@ public partial class AtspiService
         var pid = atspi_accessible_get_process_id(elem, IntPtr.Zero);
         return pid;
     }
-    
+
     private static PixelRect ElementBounds(IntPtr elem)
     {
-        var rectPtr = atspi_component_get_extents(elem, AtspiCoordTypeScreen, IntPtr.Zero);
+        var rectPtr = atspi_component_get_extents(elem, (int)AtspiCoordType.Screen, IntPtr.Zero);
         var rect = Marshal.PtrToStructure<AtspiRect>(rectPtr);
         g_free(rectPtr);
         return new PixelRect(rect.x, rect.y, rect.width, rect.height);
@@ -145,15 +150,15 @@ public partial class AtspiService
         {
             var states = VisualElementStates.None;
             var elemStateset = atspi_accessible_get_state_set(elem);
-            if ((atspi_state_set_contains(elemStateset, STATE_VISIBLE) == 0)
-                || (atspi_state_set_contains(elemStateset, STATE_SHOWING) == 0)) 
+            if ((atspi_state_set_contains(elemStateset, (int)AtspiState.Visible) == 0)
+                || (atspi_state_set_contains(elemStateset, (int)AtspiState.Showing) == 0))
                 states |= VisualElementStates.Offscreen;
-            if (atspi_state_set_contains(elemStateset, STATE_ENABLE) == 0) states |= VisualElementStates.Disabled;
-            if (atspi_state_set_contains(elemStateset, STATE_FOCUSED) == 1) states |= VisualElementStates.Focused;
-            if (atspi_state_set_contains(elemStateset, STATE_SELECTED) == 1) states |= VisualElementStates.Selected;
-            if (atspi_state_set_contains(elemStateset, STATE_EDITABLE) == 0) states |= VisualElementStates.ReadOnly;
+            if (atspi_state_set_contains(elemStateset, (int)AtspiState.Enable) == 0) states |= VisualElementStates.Disabled;
+            if (atspi_state_set_contains(elemStateset, (int)AtspiState.Focused) == 1) states |= VisualElementStates.Focused;
+            if (atspi_state_set_contains(elemStateset, (int)AtspiState.Selected) == 1) states |= VisualElementStates.Selected;
+            if (atspi_state_set_contains(elemStateset, (int)AtspiState.Editable) == 0) states |= VisualElementStates.ReadOnly;
             g_object_unref(elemStateset);
-            if (atspi_accessible_get_role(elem, IntPtr.Zero) == ROLE_PASSWORD_TEXT) 
+            if (atspi_accessible_get_role(elem, IntPtr.Zero) == (int)AtspiRole.PasswordText)
                 states |= VisualElementStates.Password;
             return states;
         }
@@ -162,13 +167,13 @@ public partial class AtspiService
             return VisualElementStates.None;
         }
     }
-    
+
     private IntPtr GArrayIndex(IntPtr array, int index)
     {
         // note: in glib garray structure, data pointer is always located at the beginning
         // see glib/garray.h
         IntPtr data = Marshal.ReadIntPtr(array);
-        return Marshal.ReadIntPtr(data,  IntPtr.Size * index);
+        return Marshal.ReadIntPtr(data, IntPtr.Size * index);
     }
 
     private int GArrayLength(IntPtr array)
@@ -176,7 +181,7 @@ public partial class AtspiService
         // garray structure length is located after data pointer
         return Marshal.ReadInt32(array, IntPtr.Size);
     }
-        
+
     private IntPtr TryMatchRelationWindow(IntPtr window, bool down)
     {
         var array = atspi_accessible_get_relation_set(window, IntPtr.Zero);
@@ -188,8 +193,8 @@ public partial class AtspiService
             {
                 var type = atspi_relation_get_relation_type(relation);
                 var nTarget = atspi_relation_get_n_targets(relation);
-                if (((type is RELATION_EMBEDS or RELATION_SUBWINDOW_OF && down) 
-                        ||(type is RELATION_EMBEDDED_BY && (!down)))
+                if (((type == (int)AtspiRelationType.Embeds || type == (int)AtspiRelationType.SubwindowOf && down)
+                        || (type == (int)AtspiRelationType.EmbeddedBy && (!down)))
                     && nTarget == 1)
                 {
                     var target = atspi_relation_get_target(relation, 0);
@@ -202,7 +207,7 @@ public partial class AtspiService
         }
         return IntPtr.Zero;
     }
-    
+
     private bool ElementVisible(IntPtr elem, bool includeApp = false)
     {
         if (ElementState(elem).HasFlag(VisualElementStates.Offscreen)) return false;
@@ -245,10 +250,10 @@ public partial class AtspiService
             }
         }
     }
-    
+
     private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point, bool root = false)
     {
-        
+
         parent ??= GetAtspiVisualElement(() => atspi_get_desktop(0));
         if (parent is null)
         {
@@ -273,12 +278,12 @@ public partial class AtspiService
                 return found;
             }
         }
-        
+
         if (rect is { Height: > 0, Width: > 0 } && rect.Contains(point) && ElementVisible(parent._element))
         {
             return parent;
         }
-        
+
         return null;
     }
 
@@ -311,13 +316,16 @@ public partial class AtspiService
         }
         var elem = AtspiElementFromPoint(app, point, true);
         if (elem == null)
-        { 
+        {
             _logger.LogWarning("AtspiElementFromPoint {Point} not found", point);
         }
         else
         {
-            _logger.LogInformation("AtspiElementFromPoint {Point} found: {Name}, {Rect}",
-                point, elem.Name, elem.BoundingRectangle);
+            _logger.LogInformation(
+                "AtspiElementFromPoint {Point} found: {Name}, {Rect}",
+                point,
+                elem.Name,
+                elem.BoundingRectangle);
         }
         return elem;
     }
@@ -328,22 +336,22 @@ public partial class AtspiService
         {
             CheckInitialized();
             return GetAtspiVisualElement(() => _focusedElement);
-        } 
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "AtspiFocusedElement failed");
             return null;
         }
     }
-    
-    private class AtspiVisualElement(AtspiService atspi, IntPtr elementPtr) 
+
+    private class AtspiVisualElement(AtspiService atspi, IntPtr elementPtr)
         : IVisualElement, IDisposable
     {
         public readonly IntPtr _element = g_object_ref(elementPtr);
         private readonly List<IntPtr> _cachedAccessibleChildren = [];
         private bool _childrenCached;
         private bool _disposed;
-        private readonly Lock _childrenLoading = new ();
+        private readonly Lock _childrenLoading = new();
 
         public void Dispose()
         {
@@ -359,7 +367,7 @@ public partial class AtspiService
         {
             Dispose();
         }
-        
+
 
         public IVisualElement? Parent
         {
@@ -372,15 +380,15 @@ public partial class AtspiService
                     parent = atspi_accessible_get_parent(_element, IntPtr.Zero);
                 }
                 if (parent == IntPtr.Zero) return null;
-                return atspi_accessible_is_application(parent) != 0 ? 
-                    null : atspi.GetAtspiVisualElement(() => parent);
+                return atspi_accessible_is_application(parent) != 0 ?
+                    null :
+                    atspi.GetAtspiVisualElement(() => parent);
             }
         }
 
-        private int IndexInParent => _element == IntPtr.Zero ? 0 
-                            : atspi_accessible_get_index_in_parent(_element, IntPtr.Zero);
+        private int IndexInParent => _element == IntPtr.Zero ? 0 : atspi_accessible_get_index_in_parent(_element, IntPtr.Zero);
 
-        private void ensureChildCached()
+        private void EnsureChildCached()
         {
             lock (_childrenLoading)
             {
@@ -395,15 +403,15 @@ public partial class AtspiService
                 }
             }
         }
-        
+
         public IEnumerable<IVisualElement> Children
         {
             get
             {
                 if (_element == IntPtr.Zero)
                     yield break;
-                ensureChildCached();
-                foreach(var child in _cachedAccessibleChildren)
+                EnsureChildCached();
+                foreach (var child in _cachedAccessibleChildren)
                 {
                     yield return atspi._cachedElement[child];
                 }
@@ -412,14 +420,16 @@ public partial class AtspiService
 
         private class AtspiSiblingAccessor(
             AtspiService atspi,
-            AtspiVisualElement? parent, 
-            AtspiVisualElement element) : VisualElementSiblingAccessor
+            AtspiVisualElement? parent,
+            AtspiVisualElement element
+        ) : VisualElementSiblingAccessor
         {
             private int _index = 0;
+
             protected override void EnsureResources()
             {
                 base.EnsureResources();
-                parent?.ensureChildCached();
+                parent?.EnsureChildCached();
                 if (parent == null) return;
                 int index = 0;
                 foreach (var child in parent._cachedAccessibleChildren)
@@ -465,62 +475,35 @@ public partial class AtspiService
             {
                 try
                 {
-                    var role = atspi_accessible_get_role(_element, IntPtr.Zero);
-                    return role switch
+                    var roleEnum = (AtspiRole)atspi_accessible_get_role(_element, IntPtr.Zero);
+                    return roleEnum switch
                     {
-                        ROLE_APPLICATION or 
-                            ROLE_FRAME or 
-                            ROLE_CANVAS => VisualElementType.TopLevel,
-                        ROLE_BUTTON or
-                            ROLE_SPIN_BUTTON or
-                            ROLE_TOGGLE_BUTTON or
-                            ROLE_PUSH_BUTTON => VisualElementType.Button,
-                        ROLE_CHECK_BOX or
-                            ROLE_SWITCH => VisualElementType.CheckBox,
-                        ROLE_COMBO_BOX => VisualElementType.ComboBox,
-                        ROLE_DOCUMENT_EMAIL or
-                            ROLE_DOCUMENT_FRAME or
-                            ROLE_DOCUMENT_PRESENTATION or
-                            ROLE_DOCUMENT_SPREADSHEET or
-                            ROLE_DOCUMENT_TEXT or
-                            ROLE_DOCUMENT_WEB or
-                            ROLE_HTML_CONTAINER or
-                            ROLE_PARAGRAPH or
-                            ROLE_FORM or
-                            ROLE_DESCRIPTION_VALUE => VisualElementType.Document,
-                        ROLE_ENTRY or
-                            ROLE_EDITBAR or
-                            ROLE_PASSWORD_TEXT => VisualElementType.TextEdit,
-                        ROLE_IMAGE or
-                            ROLE_DESKTOP_ICON or
-                            ROLE_ICON => VisualElementType.Image,
-                        ROLE_LABEL or
-                            ROLE_TEXT or
-                            ROLE_HEADER or
-                            ROLE_FOOTER or
-                            ROLE_CAPTION or
-                            ROLE_COMMENT or
-                            ROLE_DESCRIPTION_TERM or
-                            ROLE_FOOTNOTE => VisualElementType.Label,
-                        ROLE_LINK  => VisualElementType.Hyperlink,
-                        ROLE_LIST or
-                            ROLE_LIST_BOX or
-                            ROLE_DESCRIPTION_LIST => VisualElementType.ListView,
-                        ROLE_LIST_ITEM => VisualElementType.ListViewItem,
-                        ROLE_MENU      => VisualElementType.Menu,
-                        ROLE_MENU_ITEM or
-                            ROLE_CHECK_MENU_ITEM or 
-                            ROLE_TEAROFF_MENU_ITEM => VisualElementType.MenuItem,
-                        ROLE_PAGE_TAB  => VisualElementType.TabItem,
-                        ROLE_PANEL     => VisualElementType.Panel,
-                        ROLE_PROGRESS_BAR => VisualElementType.ProgressBar,
-                        ROLE_RADIO_BUTTON => VisualElementType.RadioButton,
-                        ROLE_SCROLL_BAR => VisualElementType.ScrollBar,
-                        ROLE_SLIDER     => VisualElementType.Slider,
-                        ROLE_TABLE      => VisualElementType.Table,
-                        ROLE_TABLE_ROW  => VisualElementType.TableRow,
-                        ROLE_TREE       => VisualElementType.TreeViewItem,
-                        ROLE_TREE_TABLE => VisualElementType.TreeView,
+                        AtspiRole.Application or AtspiRole.Frame or AtspiRole.Canvas => VisualElementType.TopLevel,
+                        AtspiRole.Button or AtspiRole.SpinButton or AtspiRole.ToggleButton or AtspiRole.PushButton => VisualElementType.Button,
+                        AtspiRole.CheckBox or AtspiRole.Switch => VisualElementType.CheckBox,
+                        AtspiRole.ComboBox => VisualElementType.ComboBox,
+                        AtspiRole.DocumentEmail or AtspiRole.DocumentFrame or AtspiRole.DocumentPresentation or AtspiRole.DocumentSpreadsheet or
+                            AtspiRole.DocumentText or AtspiRole.DocumentWeb or AtspiRole.HtmlContainer or AtspiRole.Paragraph or AtspiRole.Form or
+                            AtspiRole.DescriptionValue => VisualElementType.Document,
+                        AtspiRole.Entry or AtspiRole.Editbar or AtspiRole.PasswordText => VisualElementType.TextEdit,
+                        AtspiRole.Image or AtspiRole.DesktopIcon or AtspiRole.Icon => VisualElementType.Image,
+                        AtspiRole.Label or AtspiRole.Text or AtspiRole.Header or AtspiRole.Footer or AtspiRole.Caption or AtspiRole.Comment or
+                            AtspiRole.DescriptionTerm or AtspiRole.Footnote => VisualElementType.Label,
+                        AtspiRole.Link => VisualElementType.Hyperlink,
+                        AtspiRole.List or AtspiRole.ListBox or AtspiRole.DescriptionList => VisualElementType.ListView,
+                        AtspiRole.ListItem => VisualElementType.ListViewItem,
+                        AtspiRole.Menu => VisualElementType.Menu,
+                        AtspiRole.MenuItem or AtspiRole.CheckMenuItem or AtspiRole.TearoffMenuItem => VisualElementType.MenuItem,
+                        AtspiRole.PageTab => VisualElementType.TabItem,
+                        AtspiRole.Panel => VisualElementType.Panel,
+                        AtspiRole.ProgressBar => VisualElementType.ProgressBar,
+                        AtspiRole.RadioButton => VisualElementType.RadioButton,
+                        AtspiRole.ScrollBar => VisualElementType.ScrollBar,
+                        AtspiRole.Slider => VisualElementType.Slider,
+                        AtspiRole.Table => VisualElementType.Table,
+                        AtspiRole.TableRow => VisualElementType.TableRow,
+                        AtspiRole.Tree => VisualElementType.TreeViewItem,
+                        AtspiRole.TreeTable => VisualElementType.TreeView,
                         _ => VisualElementType.Unknown
                     };
                 }
@@ -556,8 +539,8 @@ public partial class AtspiService
         {
             get
             {
-                var win = atspi._context._backend.GetWindowElementByPid(ProcessId);
-                return win?.NativeWindowHandle?? IntPtr.Zero;
+                var win = atspi._windowBackend.GetWindowElementByPid(ProcessId);
+                return win?.NativeWindowHandle ?? IntPtr.Zero;
             }
         }
 
@@ -571,7 +554,7 @@ public partial class AtspiService
                 return null;
             }
             var count = atspi_text_get_character_count(_element, IntPtr.Zero);
-            var rawText = atspi_text_get_text(_element, 0, maxLength == -1? count: maxLength, IntPtr.Zero);
+            var rawText = atspi_text_get_text(_element, 0, maxLength == -1 ? count : maxLength, IntPtr.Zero);
             if (rawText == IntPtr.Zero)
             {
                 return null;
@@ -584,7 +567,7 @@ public partial class AtspiService
         public string? GetSelectionText()
         {
             if (atspi_accessible_is_text(_element) == 0) return null;
-            var nSelections = atspi_text_get_n_selections(_element,  IntPtr.Zero);
+            var nSelections = atspi_text_get_n_selections(_element, IntPtr.Zero);
             String selected = "";
             for (var i = 0; i < nSelections; i++)
             {
@@ -640,31 +623,31 @@ public partial class AtspiService
             {
                 return;
             }
-            atspi._context._backend.SendKeyboardShortcut(shortcut);
+            atspi._windowBackend.SendKeyboardShortcut(shortcut);
         }
 
-        private static int LayerOrder(int layer)
+        private static int LayerOrder(AtspiLayer layer)
         {
             return layer switch
             {
-                LAYER_BACKGROUND => 1,
-                LAYER_WINDOW => 2,
-                LAYER_MDI => 3,
-                LAYER_CANVAS => 4,
-                LAYER_WIDGET => 5,
-                LAYER_POPUP => 6,
-                LAYER_OVERLAY => 7,
+                AtspiLayer.Background => 1,
+                AtspiLayer.Window => 2,
+                AtspiLayer.Mdi => 3,
+                AtspiLayer.Canvas => 4,
+                AtspiLayer.Widget => 5,
+                AtspiLayer.Popup => 6,
+                AtspiLayer.Overlay => 7,
                 _ => 0
             };
         }
-        
+
         public int Order
         {
             get
             {
                 var layer = atspi_component_get_layer(_element, IntPtr.Zero);
                 var z = atspi_component_get_mdi_z_order(_element, IntPtr.Zero);
-                return LayerOrder(layer)*256 + z*16 + IndexInParent;
+                return LayerOrder((AtspiLayer)layer) * 256 + z * 16 + IndexInParent;
             }
         }
 
@@ -682,14 +665,20 @@ public partial class AtspiService
                     return unionRect;
                 }
                 var rect = ElementBounds(_element);
-                atspi._logger.LogDebug("Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
-                    Name, rect.X, rect.Y, rect.Width, rect.Height);
+                atspi._logger.LogDebug(
+                    "Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
+                    Name,
+                    rect.X,
+                    rect.Y,
+                    rect.Width,
+                    rect.Height);
                 return rect;
             }
         }
+
         public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(atspi._context._backend.Capture(this, BoundingRectangle));
+            return Task.FromResult(atspi._windowBackend.Capture(this, BoundingRectangle));
         }
     }
 
@@ -712,9 +701,14 @@ public partial class AtspiService
     }
 
     private const string LibAtspi = "libatspi.so.0";
-    public const int AtspiCoordTypeScreen = 0;
-    public const int AtspiCoordTypeWindow = 1;
-    public const int AtspiCoordTypeParent = 2;
+
+    public enum AtspiCoordType
+    {
+        Screen = 0,
+        Window = 1,
+        Parent = 2
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct AtspiRect
     {
@@ -724,121 +718,127 @@ public partial class AtspiService
         public int height;
     }
     // Accessible Impl Type
-    
+
     // Role
-    private const int ROLE_INVALID = 0;
-    // Label(Text)
-    private const int ROLE_LABEL = 29;
-    private const int ROLE_TEXT = 61;
-    private const int ROLE_HEADER = 71;
-    private const int ROLE_FOOTER = 72;
-    private const int ROLE_CAPTION = 81;
-    private const int ROLE_COMMENT = 97;
-    private const int ROLE_DESCRIPTION_TERM = 122;
-    private const int ROLE_FOOTNOTE = 124;
-    // Button
-    private const int ROLE_BUTTON = 43;
-    private const int ROLE_SPIN_BUTTON = 52;
-    private const int ROLE_TOGGLE_BUTTON = 62;
-    private const int ROLE_PUSH_BUTTON = 129;
-    // TextEdit
-    private const int ROLE_ENTRY = 79; // ATSPI_STATE_EDITABLE else Text Role
-    private const int ROLE_EDITBAR = 77;
-    private const int ROLE_PASSWORD_TEXT = 40;
-    // Document
-    private const int ROLE_DOCUMENT_FRAME = 82;
-    private const int ROLE_DOCUMENT_SPREADSHEET = 92;
-    private const int ROLE_DOCUMENT_PRESENTATION = 93;
-    private const int ROLE_DOCUMENT_TEXT = 94;
-    private const int ROLE_DOCUMENT_WEB = 95;
-    private const int ROLE_DOCUMENT_EMAIL = 96;
-    private const int ROLE_HTML_CONTAINER = 25;
-    private const int ROLE_PARAGRAPH = 73;
-    private const int ROLE_FORM = 87;
-    private const int ROLE_DESCRIPTION_VALUE = 123;
-    
-    // Hyperlink
-    private const int ROLE_LINK = 88;
-    // Image
-    private const int ROLE_IMAGE = 27;
-    private const int ROLE_DESKTOP_ICON = 13;
-    private const int ROLE_ICON = 26;
-    // CheckBox
-    private const int ROLE_CHECK_BOX = 7;
-    private const int ROLE_SWITCH = 130;
-    // RadioButtion
-    private const int ROLE_RADIO_BUTTON = 44;
-    // ComboBox
-    private const int ROLE_COMBO_BOX = 11;
-    // ListView
-    private const int ROLE_LIST = 31;
-    private const int ROLE_LIST_BOX = 98;
-    private const int ROLE_DESCRIPTION_LIST = 121;
-    // ListViewItem
-    private const int ROLE_LIST_ITEM = 32;
-    // TreeView
-    private const int ROLE_TREE_TABLE = 66;
-    // TreeViewItem
-    private const int ROLE_TREE = 65;
-    // DataGrid
-    // DataGridItem
-    // TabControl
-    
-    // TabItem
-    private const int ROLE_PAGE_TAB = 37;
-    // Table
-    private const int ROLE_TABLE = 55;
-    // TableRow
-    private const int ROLE_TABLE_ROW = 90;
-    // Menu
-    private const int ROLE_MENU = 33;
-    // MenuItem
-    private const int ROLE_MENU_ITEM = 35;
-    private const int ROLE_CHECK_MENU_ITEM = 8;
-    private const int ROLE_TEAROFF_MENU_ITEM = 59;
-    // Slider
-    private const int ROLE_SLIDER = 51;
-    // ScrollBar
-    private const int ROLE_SCROLL_BAR = 48;
-    // ProgressBar
-    private const int ROLE_PROGRESS_BAR = 42;
-    // Panel
-    private const int ROLE_PANEL = 39;
-    // TopLevel
-    private const int ROLE_APPLICATION = 75;
-    private const int ROLE_FRAME = 23;
-    private const int ROLE_CANVAS = 6;
-    // Screen
-    
+    public enum AtspiRole
+    {
+        Invalid = 0,
+        // Label(Text)
+        Label = 29,
+        Text = 61,
+        Header = 71,
+        Footer = 72,
+        Caption = 81,
+        Comment = 97,
+        DescriptionTerm = 122,
+        Footnote = 124,
+        // Button
+        Button = 43,
+        SpinButton = 52,
+        ToggleButton = 62,
+        PushButton = 129,
+        // TextEdit
+        Entry = 79, // ATSPI_STATE_EDITABLE else Text Role
+        Editbar = 77,
+        PasswordText = 40,
+        // Document
+        DocumentFrame = 82,
+        DocumentSpreadsheet = 92,
+        DocumentPresentation = 93,
+        DocumentText = 94,
+        DocumentWeb = 95,
+        DocumentEmail = 96,
+        HtmlContainer = 25,
+        Paragraph = 73,
+        Form = 87,
+        DescriptionValue = 123,
+        // Hyperlink
+        Link = 88,
+        // Image
+        Image = 27,
+        DesktopIcon = 13,
+        Icon = 26,
+        // CheckBox
+        CheckBox = 7,
+        Switch = 130,
+        // RadioButton
+        RadioButton = 44,
+        // ComboBox
+        ComboBox = 11,
+        // ListView
+        List = 31,
+        ListBox = 98,
+        DescriptionList = 121,
+        // ListViewItem
+        ListItem = 32,
+        // TreeView
+        TreeTable = 66,
+        // TreeViewItem
+        Tree = 65,
+        // TabItem
+        PageTab = 37,
+        // Table
+        Table = 55,
+        // TableRow
+        TableRow = 90,
+        // Menu
+        Menu = 33,
+        // MenuItem
+        MenuItem = 35,
+        CheckMenuItem = 8,
+        TearoffMenuItem = 59,
+        // Slider
+        Slider = 51,
+        // ScrollBar
+        ScrollBar = 48,
+        // ProgressBar
+        ProgressBar = 42,
+        // Panel
+        Panel = 39,
+        // TopLevel
+        Application = 75,
+        Frame = 23,
+        Canvas = 6
+    }
+
     // States
-    // Offscreen
-    private const int STATE_SHOWING = 25;
-    private const int STATE_VISIBLE = 30;
-    // Disabled
-    private const int STATE_ENABLE = 8;
-    // Focused
-    private const int STATE_FOCUSED = 12;
-    // Selected
-    private const int STATE_SELECTED = 23;
-    // ReadOnly
-    private const int STATE_EDITABLE = 7;
+    public enum AtspiState
+    {
+        // Offscreen
+        Showing = 25,
+        Visible = 30,
+        // Disabled
+        Enable = 8,
+        // Focused
+        Focused = 12,
+        // Selected
+        Selected = 23,
+        // ReadOnly
+        Editable = 7
+    }
     // Password
     // refer to Role
-    
+
     // Relation Type
-    private const int RELATION_SUBWINDOW_OF = 12;
-    private const int RELATION_EMBEDS = 13;
-    private const int RELATION_EMBEDDED_BY = 14;
-    
+    public enum AtspiRelationType
+    {
+        SubwindowOf = 12,
+        Embeds = 13,
+        EmbeddedBy = 14
+    }
+
     // Component Layer
-    private const int LAYER_INVALID = 0;
-    private const int LAYER_BACKGROUND = 1;
-    private const int LAYER_CANVAS = 2;
-    private const int LAYER_WIDGET = 3;
-    private const int LAYER_MDI = 4;
-    private const int LAYER_POPUP = 5;
-    private const int LAYER_OVERLAY = 6;
-    private const int LAYER_WINDOW = 7;
+    public enum AtspiLayer
+    {
+        Invalid = 0,
+        Background = 1,
+        Canvas = 2,
+        Widget = 3,
+        Mdi = 4,
+        Popup = 5,
+        Overlay = 6,
+        Window = 7
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct AtspiEvent
@@ -860,7 +860,7 @@ public partial class AtspiService
         public int start;
         public int end;
     }
-    
+
     public delegate void AtspiEventListenerCallback(IntPtr atspiEvent, IntPtr userData);
 
     [LibraryImport(LibAtspi)]
@@ -874,12 +874,13 @@ public partial class AtspiService
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_event_listener_register(IntPtr listener, IntPtr eventTypeChar, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_event_listener_deregister(IntPtr listener, IntPtr eventTypeChar, IntPtr error);
 
     [LibraryImport(LibAtspi)]
     public static partial void atspi_event_main();
-    
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_get_desktop(int i);
 
@@ -889,12 +890,13 @@ public partial class AtspiService
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_get_role(IntPtr accessible, IntPtr error);
-    
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_state_set(IntPtr accessible);
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_state_set_contains(IntPtr set, int state);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_parent(IntPtr accessible, IntPtr error);
 
@@ -903,62 +905,82 @@ public partial class AtspiService
 
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_child_at_index(IntPtr accessible, int index, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_get_index_in_parent(IntPtr accessible, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_get_process_id(IntPtr accessible, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_accessible_id(IntPtr accessible, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_accessible_get_relation_set(IntPtr accessible, IntPtr error);
+
     [LibraryImport(LibAtspi)]
-    public static partial int atspi_relation_get_n_targets (IntPtr relation);
+    public static partial int atspi_relation_get_n_targets(IntPtr relation);
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_relation_get_relation_type(IntPtr relation);
 
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_relation_get_target(IntPtr accessible, int i);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_application(IntPtr accessible);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_component(IntPtr accessible);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_component_get_accessible_at_point(IntPtr component, int x, int y, int coordType, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_component_get_layer(IntPtr component, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_component_get_extents(IntPtr component, int coordType, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial short atspi_component_get_mdi_z_order(IntPtr component, IntPtr error);
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_component_grab_focus(IntPtr component, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_text(IntPtr accessible);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_text_get_character_count(IntPtr text, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_text_get_text(IntPtr text, int start, int end, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_text_get_n_selections(IntPtr text, IntPtr error);
 
     [LibraryImport(LibAtspi)]
     public static partial IntPtr atspi_text_get_selection(IntPtr text, int selectionNum, IntPtr error);
-    
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_editable_text(IntPtr accessible);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_editable_text_set_text_contents(IntPtr editable, IntPtr text, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_action(IntPtr accessible);
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_action_get_n_actions(IntPtr action, IntPtr error);
+
     [LibraryImport(LibAtspi)]
     public static partial int atspi_action_do_action(IntPtr action, int i, IntPtr error);
+
     [LibraryImport("libgobject-2.0.so.0")]
     public static partial IntPtr g_object_ref(IntPtr obj);
+
     [LibraryImport("libgobject-2.0.so.0")]
     public static partial void g_object_unref(IntPtr obj);
 

@@ -126,26 +126,6 @@ public partial class X11WindowBackend
     [LibraryImport("libXfixes.so.3")] private static partial int XFixesQueryExtension(IntPtr display, out int eventBase, out int errorBase);
     [LibraryImport("libXtst.so.6")] private static partial int XTestFakeKeyEvent(IntPtr display, int keycode, int press, uint delay);
 
-    // System calls for pipes and polling
-    [LibraryImport("libc", SetLastError = true)] private static partial int pipe([MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] int[] fds);
-    [LibraryImport("libc", SetLastError = true)] private static partial int write(int fd, byte[] buf, IntPtr count);
-    [LibraryImport("libc", SetLastError = true)] private static partial int read(int fd, byte[] buf, IntPtr count);
-    [LibraryImport("libc", SetLastError = true)] private static partial int close(int fd);
-    [LibraryImport("libc", SetLastError = true)] private static partial int fcntl(int fd, int cmd, int arg);
-
-    // Constants for fcntl
-    private const int F_GETFL = 3;
-    private const int F_SETFL = 4;
-    private const int F_SETFD = 2;
-    private const int FD_CLOEXEC = 1;
-    private const int O_NONBLOCK = 0x800;
-
-    // Polling structure and function
-    [StructLayout(LayoutKind.Sequential)]
-    private struct PollFd { public int fd; public short events; public short revents; }
-    private const short POLLIN = 0x0001;
-    [LibraryImport("libc", SetLastError = true)] private static partial int poll([In, Out] PollFd[] fds, uint nfds, int timeout);
-
     #endregion
 
     #region X11 Constants and Structures
@@ -378,80 +358,6 @@ public partial class X11WindowBackend
         public ulong green_mask;
         public ulong blue_mask;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XGCValues
-    {
-        public IntPtr function;       // 逻辑操作函数
-        public ulong plane_mask;      // 平面掩码
-        public ulong foreground;      // 前景色
-        public ulong background;      // 背景色
-        public int line_width;        // 线宽
-        public int line_style;        // 线型
-        public int cap_style;         // 线端样式
-        public int join_style;        // 线连接样式
-        public int fill_style;        // 填充样式
-        public int fill_rule;         // 填充规则
-        public IntPtr tile;           // 平铺位图
-        public IntPtr stipple;        // 点画位图
-        public int ts_x_origin;       // 点画X原点
-        public int ts_y_origin;       // 点画Y原点
-        public IntPtr font;           // 字体
-        public int subwindow_mode;    // 子窗口模式
-        public int graphics_exposures; // 图形暴露
-        public int clip_x_origin;     // 裁剪X原点
-        public int clip_y_origin;     // 裁剪Y原点
-        public IntPtr clip_mask;      // 裁剪掩码
-        public int dash_offset;       // 虚线偏移
-        public IntPtr dashes;         // 虚线模式
-        public int arc_mode;          // 弧模式
-    }
-    private static class GCFunction
-    {
-        public const int GXclear = 0x0;        // 0
-        public const int GXand = 0x1;          // src AND dst
-        public const int GXandReverse = 0x2;   // src AND NOT dst
-        public const int GXandInverted = 0x4;  // NOT src AND dst
-        public const int GXnoop = 0x5;         // dst
-        public const int GXxor = 0x6;          // src XOR dst
-        public const int GXor = 0x7;           // src OR dst
-        public const int GXnor = 0x8;          // NOT src AND NOT dst
-        public const int GXequiv = 0x9;        // NOT src XOR dst
-        public const int GXinvert = 0xa;       // NOT dst
-        public const int GXorReverse = 0xb;    // src OR NOT dst
-        public const int GXcopyInverted = 0xc; // NOT src
-        public const int GXorInverted = 0xd;   // NOT src OR dst
-        public const int GXnand = 0xe;         // NOT src OR NOT dst
-        public const int GXset = 0xf;          // 1
-    }
-
-    private static class GCMask
-    {
-        public const int GCFunction = 1 << 0;
-        public const int GCPlaneMask = 1 << 1;
-        public const int GCForeground = 1 << 2;
-        public const int GCBackground = 1 << 3;
-        public const int GCLineWidth = 1 << 4;
-        public const int GCLineStyle = 1 << 5;
-        public const int GCCapStyle = 1 << 6;
-        public const int GCJoinStyle = 1 << 7;
-        public const int GCFillStyle = 1 << 8;
-        public const int GCFillRule = 1 << 9;
-        public const int GCTile = 1 << 10;
-        public const int GCStipple = 1 << 11;
-        public const int GCTileStipXOrigin = 1 << 12;
-        public const int GCTileStipYOrigin = 1 << 13;
-        public const int GCFont = 1 << 14;
-        public const int GCSubwindowMode = 1 << 15;
-        public const int GCGraphicsExposures = 1 << 16;
-        public const int GCClipXOrigin = 1 << 17;
-        public const int GCClipYOrigin = 1 << 18;
-        public const int GCClipMask = 1 << 19;
-        public const int GCDashOffset = 1 << 20;
-        public const int GCDashList = 1 << 21;
-        public const int GCArcMode = 1 << 22;
-    }
-
-    private const int IncludeInferiors = 1;
 
     private delegate int XErrorHandlerFunc(IntPtr display, IntPtr errorEventPtr);
     #endregion

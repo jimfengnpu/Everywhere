@@ -10,12 +10,13 @@ namespace Everywhere.Linux.Interop;
 /// Using ILinuxWindowBackend for keyboard/mouse event and windows info.
 /// Using AtspiService to access UI elements inside window.
 /// </summary>
-public partial class LinuxVisualElementContext: IVisualElementContext
+public partial class LinuxVisualElementContext(
+    ILinuxWindowBackend backend,
+    ILinuxEventHelper eventHelper,
+    ILogger<LinuxVisualElementContext> logger
+)
+    : IVisualElementContext
 {
-    public readonly ILinuxWindowBackend _backend;
-    public readonly ILinuxEventHelper _eventHelper;
-    private readonly AtspiService _atspi;
-    private readonly ILogger<LinuxVisualElementContext> _logger;
     public IVisualElement? KeyboardFocusedElement {
         get
         {
@@ -26,29 +27,20 @@ public partial class LinuxVisualElementContext: IVisualElementContext
                 // however, atspi element is more detailed, so return null when incorrect
                 // to let atspi pointer search do the work
                 var focused = _atspi.ElementFocused();
-                var focusedWindow =  _backend.GetFocusedWindowElement();
+                var focusedWindow =  backend.GetFocusedWindowElement();
                 // for Non X11 session, the window may get null, and not equal to that atspi gives
                 return (focusedWindow == null || (focused?.ProcessId == focusedWindow?.ProcessId)) ? focused: null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "AtspiFocusedElement failed");
+                logger.LogError(ex, "AtspiFocusedElement failed");
                 return null;
             }
         }
     }
 
-    public LinuxVisualElementContext(
-        ILinuxWindowBackend backend, 
-        ILinuxEventHelper eventHelper,
-        ILogger<LinuxVisualElementContext> logger)
-    {
-        _backend = backend;
-        _eventHelper = eventHelper;
-        _atspi = new AtspiService(this);
-        _logger = logger;
-    }
-    
+    private readonly ILinuxEventHelper _eventHelper = eventHelper;
+    private readonly AtspiService _atspi = new(backend);
 
     public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
     {
@@ -57,15 +49,15 @@ public partial class LinuxVisualElementContext: IVisualElementContext
             switch (mode)
             {
                 case PickElementMode.Element:
-                    var win = _backend.GetWindowElementAt(point);
+                    var win = backend.GetWindowElementAt(point);
                     var elem = _atspi.ElementFromPoint(point, win.ProcessId);
                     return elem ?? win; // fallback to window mode
                     
                 case PickElementMode.Window:
-                    return _backend.GetWindowElementAt(point);
+                    return backend.GetWindowElementAt(point);
                     
                 case PickElementMode.Screen:
-                    return _backend.GetScreenElement();
+                    return backend.GetScreenElement();
                     
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
@@ -73,14 +65,14 @@ public partial class LinuxVisualElementContext: IVisualElementContext
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "ElementFromPoint failed for point {point}, mode {mode}", point, mode);
+            logger.LogError(ex, "ElementFromPoint failed for point {point}, mode {mode}", point, mode);
             return null;
         }
     }
 
     public IVisualElement? ElementFromPointer(PickElementMode mode = PickElementMode.Element)
     {
-        var point = _backend.GetPointer();
+        var point = backend.GetPointer();
         return ElementFromPoint(point, mode);
     }
 
@@ -93,7 +85,7 @@ public partial class LinuxVisualElementContext: IVisualElementContext
 
         var windows = desktopLifetime.Windows.AsValueEnumerable().Where(w => w.IsVisible).ToList();
         foreach (var window in windows) window.Hide();
-        var result = await ElementPicker.PickAsync(this, _backend, mode);
+        var result = await ElementPicker.PickAsync(this, backend, mode);
         foreach (var window in windows) window.IsVisible = true;
         return result;
     }

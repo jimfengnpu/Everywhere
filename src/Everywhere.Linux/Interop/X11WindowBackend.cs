@@ -7,6 +7,10 @@ using Avalonia.Controls;
 using Everywhere.Common;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
+using Tmds.Linux;
+using Window = Avalonia.Controls.Window;
+using X11;
+using X11Window = X11.Window;
 
 namespace Everywhere.Linux.Interop;
 
@@ -41,19 +45,43 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         try
         {
             var fds = new int[2];
-            if (pipe(fds) == 0)
+            unsafe
+            {
+                fixed (int* pfds = fds)
+                {
+                    if (LibC.pipe(pfds) == 0)
+                    {
+                        _wakePipeR = fds[0];
+                        _wakePipeW = fds[1];
+                        try
+                        {
+                            // set non-blocking
+                            var flags = LibC.fcntl(_wakePipeR, LibC.F_GETFL, 0);
+                            LibC.fcntl(_wakePipeR, LibC.F_SETFL, flags | LibC.O_NONBLOCK);
+                            LibC.fcntl(_wakePipeW, LibC.F_SETFL, flags | LibC.O_NONBLOCK);
+                            // set close-on-exec
+                            LibC.fcntl(_wakePipeR, LibC.F_SETFD, LibC.FD_CLOEXEC);
+                            LibC.fcntl(_wakePipeW, LibC.F_SETFD, LibC.FD_CLOEXEC);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError("XThread fcntl Error: {ex}", ex.Message);
+                        }
+                    }
+                }
+            }
             {
                 _wakePipeR = fds[0];
                 _wakePipeW = fds[1];
                 try
                 {
                     // set non-blocking
-                    var flags = fcntl(_wakePipeR, F_GETFL, 0);
-                    fcntl(_wakePipeR, F_SETFL, flags | O_NONBLOCK);
-                    fcntl(_wakePipeW, F_SETFL, flags | O_NONBLOCK);
+                    var flags = LibC.fcntl(_wakePipeR, LibC.F_GETFL, 0);
+                    LibC.fcntl(_wakePipeR, LibC.F_SETFL, flags | LibC.O_NONBLOCK);
+                    LibC.fcntl(_wakePipeW, LibC.F_SETFL, flags | LibC.O_NONBLOCK);
                     // set close-on-exec
-                    fcntl(_wakePipeR, F_SETFD, FD_CLOEXEC);
-                    fcntl(_wakePipeW, F_SETFD, FD_CLOEXEC);
+                    LibC.fcntl(_wakePipeR, LibC.F_SETFD, LibC.FD_CLOEXEC);
+                    LibC.fcntl(_wakePipeW, LibC.F_SETFD, LibC.FD_CLOEXEC);
                 }
                 catch (Exception ex)
                 {
@@ -81,7 +109,13 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             if (_wakePipeW != -1)
             {
                 var b = new byte[] { 1 };
-                write(_wakePipeW, b, 1);
+                unsafe
+                {
+                    fixed (byte* pb = b)
+                    {
+                        LibC.write(_wakePipeW, pb, b.Length);
+                    }
+                }
             }
             if (_xThread?.IsAlive == true) _xThread.Join(500);
             if (_display != IntPtr.Zero)
@@ -89,8 +123,8 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 XCloseDisplay(_display);
                 _display = IntPtr.Zero;
             }
-            if (_wakePipeR != -1) close(_wakePipeR);
-            if (_wakePipeW != -1) close(_wakePipeW);
+            if (_wakePipeR != -1) LibC.close(_wakePipeR);
+            if (_wakePipeW != -1) LibC.close(_wakePipeW);
         }
         catch (Exception ex)
         {
@@ -1233,9 +1267,9 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         try
         {
             var xfd = XConnectionNumber(_display);
-            var fds = new PollFd[2];
-            fds[0].fd = xfd; fds[0].events = POLLIN;
-            fds[1].fd = _wakePipeR; fds[1].events = POLLIN;
+            var fds = new pollfd[2];
+            fds[0].fd = xfd; fds[0].events = LibC.POLLIN;
+            fds[1].fd = _wakePipeR; fds[1].events = LibC.POLLIN;
 
 
             while (_running || !_ops.IsCompleted)
@@ -1251,53 +1285,59 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
 
                 // wait for either X fd or wake pipe
-                var rc = poll(fds, 2, -1);
-                if (rc <= 0) continue;
-
-                // wake pipe signaled -> drain and process ops
-                if ((fds[1].revents & POLLIN) != 0)
+                unsafe
                 {
-                    try
+                    fixed (pollfd* pfds = fds)
                     {
-                        while (true)
+                        var rc = LibC.poll(pfds, (uint)fds.Length, -1);
+                        if (rc <= 0) continue;
+                        // wake pipe signaled -> drain and process ops
+                        if ((fds[1].revents & LibC.POLLIN) != 0)
                         {
-                            _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
-                            int r = read(_wakePipeR, buf, buf.Length);
-                            _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
-                            if (r > 0) continue;
-                            if (r == 0) break;
-                            // r < 0 -> check errno
-                            var errno = Marshal.GetLastPInvokeError();
-                            // EAGAIN / EWOULDBLOCK
-                            const int eagain = 11;
-                            if (errno is eagain) break;
-                            _logger.LogWarning("Unexpected read error from wake pipe: errno={errno}", errno);
-                            break;
+                            try
+                            {
+                                while (true)
+                                {
+                                    _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
+                                    int r;
+                                    fixed (byte* pbuf = buf)
+                                    {
+                                        r = (int)LibC.read(_wakePipeR, pbuf, (size_t)buf.Length);
+                                    }
+                                    _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
+                                    if (r > 0) continue;
+                                    if (r == 0) break;
+                                    var errno = Marshal.GetLastPInvokeError();
+                                    if (errno == LibC.EAGAIN) break;
+                                    _logger.LogWarning("Unexpected read error from wake pipe: errno={errno}", errno);
+                                    break;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Error draining wake pipe");
+                            }
+                            while (_ops.TryTake(out var op))
+                            {
+                                try { op(); }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, "X op failed");
+                                }
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Error draining wake pipe");
-                    }
-                    while (_ops.TryTake(out var op))
-                    {
-                        try { op(); }
-                        catch (Exception ex)
-                        {
-                            _logger.LogWarning(ex, "X op failed");
-                        }
-                    }
-                }
 
-                // X fd signaled -> handle pending X events
-                if ((fds[0].revents & POLLIN) != 0)
-                {
-                    while (XPending(_display) > 0)
-                    {
-                        lock (evLock)
+                        // X fd signaled -> handle pending X events
+                        if ((fds[0].revents & LibC.POLLIN) != 0)
                         {
-                            XNextEvent(_display, evPtr);
-                            XThreadProcessEvent(evPtr);
+                            while (XPending(_display) > 0)
+                            {
+                                lock (evLock)
+                                {
+                                    XNextEvent(_display, evPtr);
+                                    XThreadProcessEvent(evPtr);
+                                }
+                            }
                         }
                     }
                 }
@@ -1315,8 +1355,14 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             if (_wakePipeW != -1)
             {
                 var b = new byte[] { 1 };
-                var wr = write(_wakePipeW, b, 1);
-                _logger.LogDebug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
+                unsafe
+                {
+                    fixed (byte* pb = b)
+                    {
+                        var wr = LibC.write(_wakePipeW, pb, b.Length);
+                        _logger.LogDebug("Wrote wake byte to pipe (fd={fd}) result={r}", _wakePipeW, wr);
+                    }
+                }
             }
         }
         catch (Exception ex)
