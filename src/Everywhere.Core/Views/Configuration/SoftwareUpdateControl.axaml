@@ -45,7 +45,7 @@
 
           <Button
             Classes="Outline" Margin="32,0,0,0"
-            VerticalAlignment="Center" shadui:ButtonAssist.IconSize="18"
+            VerticalAlignment="Center"
             shadui:ButtonAssist.ShowProgress="{Binding CheckForUpdatesCommand.IsRunning, RelativeSource={RelativeSource TemplatedParent}}"
             Command="{Binding CheckForUpdatesCommand, RelativeSource={RelativeSource TemplatedParent}}"
             IsVisible="{Binding SoftwareUpdater.LatestVersion, Converter={x:Static ObjectConverters.IsNull}, RelativeSource={RelativeSource TemplatedParent}}">
