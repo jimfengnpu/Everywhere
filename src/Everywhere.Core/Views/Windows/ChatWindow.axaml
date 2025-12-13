@@ -353,7 +353,7 @@
                 </Style>
 
                 <Style Selector="Button LucideIcon">
-                  <Setter Property="Size" Value="14"/>
+                  <Setter Property="Size" Value="{DynamicResource FontSizeM}"/>
                 </Style>
 
                 <Style Selector="SelectableTextBlock">

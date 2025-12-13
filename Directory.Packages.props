@@ -48,7 +48,7 @@
     <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)" />
     <PackageVersion Include="ZLinq" Version="1.5.4" />
     <!-- AI packages -->
-    <PackageVersion Include="Anthropic.SDK" Version="5.7.1" />
+    <PackageVersion Include="Anthropic.SDK" Version="5.8.0" />
     <PackageVersion Include="Microsoft.ML.OnnxRuntime" Version="1.22.0" />
     <PackageVersion Include="Microsoft.SemanticKernel" Version="$(SemanticKernelVersion)" />
     <PackageVersion Include="Microsoft.SemanticKernel.Abstractions" Version="$(SemanticKernelVersion)" />
