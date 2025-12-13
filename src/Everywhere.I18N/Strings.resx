@@ -220,7 +220,7 @@
         <value>Click to set a shortcut</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>Setting...</value>
+        <value>Type shortcut...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>Unnamed Session</value>
