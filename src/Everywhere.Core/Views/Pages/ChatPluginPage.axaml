@@ -160,7 +160,7 @@
         <ListBox
           Classes="PluginListBox"
           ItemsSource="{Binding Manager.BuiltInPlugins}"
-          SelectedItem="{Binding SelectedPlugin}"/>
+          SelectedItem="{Binding SelectedBuiltInPlugin}"/>
       </TabItem>
 
       <TabItem x:Name="McpTabItem">
@@ -177,7 +177,7 @@
           <ListBox
             Classes="PluginListBox"
             ItemsSource="{Binding Manager.McpPlugins}"
-            SelectedItem="{Binding SelectedPlugin}"/>
+            SelectedItem="{Binding SelectedMcpPlugin}"/>
 
           <StackPanel
             Margin="0,0,24,24" HorizontalAlignment="Right"
@@ -352,7 +352,9 @@
         </Border>
       </TabItem>
 
-      <TabItem Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Logs_Header}}">
+      <TabItem
+        Header="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_Logs_Header}}"
+        IsVisible="{Binding SelectedMcpPlugin, Converter={x:Static ObjectConverters.IsNotNull}}">
         <Border
           Background="{DynamicResource CardBackgroundColor}"
           BorderBrush="{DynamicResource BorderColor}"

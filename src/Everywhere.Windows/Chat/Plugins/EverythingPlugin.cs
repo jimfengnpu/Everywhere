@@ -19,7 +19,7 @@ public class EverythingPlugin : BuiltInChatPlugin
     public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_Everything_Header);
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_Everything_Description);
     public override LucideIconKind? Icon => LucideIconKind.Search;
-    public override string BeautifulIcon => "avares://Everywhere.Windows/Assets/Icons/Everything.svg";
+    public override string BeautifulIcon => "avares://Everywhere/Assets/Icons/Everything.svg";
 
     private readonly INativeHelper _nativeHelper;
     private readonly IWatchdogManager _watchdogManager;

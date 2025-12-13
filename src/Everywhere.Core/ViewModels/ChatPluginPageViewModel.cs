@@ -14,13 +14,58 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
 {
     public IChatPluginManager Manager => manager;
 
+    public ChatPlugin? SelectedBuiltInPlugin
+    {
+        get;
+        set
+        {
+            if (SetProperty(ref field, value))
+            {
+                if (value != null)
+                {
+                    SelectedMcpPlugin = null;
+                    SelectedPlugin = value;
+                }
+            }
+        }
+    }
+
+    public McpChatPlugin? SelectedMcpPlugin
+    {
+        get;
+        set
+        {
+            if (SetProperty(ref field, value))
+            {
+                if (value != null)
+                {
+                    SelectedBuiltInPlugin = null;
+                    SelectedPlugin = value;
+                }
+            }
+        }
+    }
+
     public ChatPlugin? SelectedPlugin
     {
         get;
         set
         {
             if (!SetProperty(ref field, value)) return;
-            OnPropertyChanged(nameof(SelectedMcpPlugin));
+
+            if (value is McpChatPlugin mcp)
+            {
+                if (SelectedMcpPlugin != mcp) SelectedMcpPlugin = mcp;
+            }
+            else if (value != null)
+            {
+                if (SelectedBuiltInPlugin != value) SelectedBuiltInPlugin = value;
+            }
+            else
+            {
+                SelectedMcpPlugin = null;
+                SelectedBuiltInPlugin = null;
+            }
 
             // TabItem0 is invisible when there is no SettingsItems, so switch to TabItem1
             if (value is not { SettingsItems.Count: > 0 })
@@ -29,8 +74,6 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
             }
         }
     }
-
-    public McpChatPlugin? SelectedMcpPlugin => SelectedPlugin as McpChatPlugin;
 
     [ObservableProperty]
     public partial int PluginDetailsTabSelectedIndex { get; set; }
