@@ -326,6 +326,7 @@
             Orientation="Horizontal" Spacing="4">
             <Menu Focusable="False">
               <MenuItem
+                x:Name="PART_AssistantSelectionMenuItem"
                 Classes="Outline Rounded" Width="30"
                 Height="30" Margin="0,0,4,0"
                 shadui:MenuItemAssist.PopupMaxHeight="400" shadui:MenuItemAssist.PopupPlacement="Top"

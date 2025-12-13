@@ -1158,8 +1158,9 @@
                   </TextBlock>
 
                   <ListBox
-                    Padding="0" Background="Transparent"
-                    BorderThickness="0" CornerRadius="0"
+                    x:Name="ChatContextMetadataListBox" Padding="0"
+                    Background="Transparent" BorderThickness="0"
+                    CornerRadius="0"
                     ItemsSource="{Binding MetadataList}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     SelectedItem="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.CurrentMetadata, FallbackValue={x:Null}}">
