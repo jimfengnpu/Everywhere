@@ -167,7 +167,7 @@
         <value>Abrir Ventana de Depuración</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Historial de Chat</value>
+        <value>Historial de Chat (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Crear Nuevo Chat (Ctrl+N)</value>

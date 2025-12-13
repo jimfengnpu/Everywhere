@@ -167,7 +167,7 @@
         <value>デバッグウィンドウを開く</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>チャット履歴</value>
+        <value>チャット履歴 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>新しいチャットを作成 (Ctrl+N)</value>

@@ -167,7 +167,7 @@
         <value>Debug-Fenster öffnen</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Chat-Verlauf</value>
+        <value>Chat-Verlauf (Strg+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Neuen Chat erstellen (Strg+N)</value>

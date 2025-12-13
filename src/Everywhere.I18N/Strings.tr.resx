@@ -166,7 +166,7 @@
         <value>Hata Ayıklama Penceresini Aç</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Sohbet Geçmişi</value>
+        <value>Sohbet Geçmişi (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Yeni Sohbet Oluşturun (Ctrl+N)</value>

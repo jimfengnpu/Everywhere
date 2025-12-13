@@ -167,7 +167,7 @@
         <value>Apri Finestra Debug</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Cronologia Chat</value>
+        <value>Cronologia Chat (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Crea Nuova Chat (Ctrl+N)</value>

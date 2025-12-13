@@ -167,7 +167,7 @@
         <value>Открыть окно отладки</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>История чата</value>
+        <value>История чата (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Создать новый чат (Ctrl+N)</value>

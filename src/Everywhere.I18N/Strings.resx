@@ -179,7 +179,7 @@
         <value>Open Debug Window</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Chat History</value>
+        <value>Chat History (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Create New Chat (Ctrl+N)</value>

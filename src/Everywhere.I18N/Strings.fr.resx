@@ -167,7 +167,7 @@
         <value>Ouvrir la fenêtre de débogage</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Historique des discussions</value>
+        <value>Historique des discussions (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Créer une nouvelle discussion (Ctrl+N)</value>

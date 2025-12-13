@@ -167,7 +167,7 @@
         <value>打开调试窗口</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>对话历史</value>
+        <value>对话历史 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>创建新对话 (Ctrl+N)</value>

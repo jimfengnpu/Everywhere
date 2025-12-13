@@ -107,6 +107,16 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                 e.Handled = true;
                 break;
             }
+            case { Key: Key.H, KeyModifiers: KeyModifiers.Control }:
+            {
+                var newValue = !ViewModel.IsViewingHistory;
+                if (ViewModel.SwitchViewingHistoryCommand.CanExecute(newValue))
+                {
+                    ViewModel.SwitchViewingHistoryCommand.Execute(newValue);
+                    e.Handled = true;
+                }
+                break;
+            }
         }
     }
 

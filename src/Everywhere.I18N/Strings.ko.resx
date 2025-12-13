@@ -167,7 +167,7 @@
         <value>디버그 창 열기</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>채팅 기록</value>
+        <value>채팅 기록 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>새 채팅 만들기 (Ctrl+N)</value>
