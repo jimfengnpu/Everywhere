@@ -188,7 +188,7 @@
               ItemsSource="{TemplateBinding ChatAttachmentItemsSource}">
               <ItemsControl.Styles>
                 <Style Selector="Border.FocusedElement">
-                  <Setter Property="BorderBrush" Value="{DynamicResource InfoColor}"/>
+                  <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}"/>
                   <Setter Property="BorderThickness" Value="1"/>
                   <Setter Property="Padding" Value="2,4"/>
                 </Style>
@@ -326,12 +326,11 @@
             Orientation="Horizontal" Spacing="4">
             <Menu Focusable="False">
               <MenuItem
-                x:Name="PART_AssistantSelectionMenuItem"
-                Classes="Outline Rounded" Width="30"
-                Height="30" Margin="0,0,4,0"
-                shadui:MenuItemAssist.PopupMaxHeight="400" shadui:MenuItemAssist.PopupPlacement="Top"
-                shadui:MenuItemAssist.PopupVerticalOffset="-4" Focusable="False"
-                Grid.IsSharedSizeScope="True"
+                x:Name="PART_AssistantSelectionMenuItem" Classes="Outline Rounded"
+                Width="30" Height="30"
+                Margin="0,0,4,0" shadui:MenuItemAssist.PopupMaxHeight="400"
+                shadui:MenuItemAssist.PopupPlacement="Top" shadui:MenuItemAssist.PopupVerticalOffset="-4"
+                Focusable="False" Grid.IsSharedSizeScope="True"
                 ItemsSource="{TemplateBinding CustomAssistants, Mode=OneWay}"
                 SelectedItem="{TemplateBinding SelectedCustomAssistant, Mode=OneWay}">
                 <ToolTip.Tip>
