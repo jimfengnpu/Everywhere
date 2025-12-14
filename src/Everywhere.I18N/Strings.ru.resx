@@ -1132,13 +1132,13 @@
         <value>Используйте Everything (высокопроизводительный локальный поисковый движок) для поиска файлов на вашем компьютере.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Подтвердите доступность сервиса модели.</value>
+        <value>Подтвердите доступность сервиса модели</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Начните новую настройку для AI-ассистента.</value>
+        <value>Начните новую настройку для AI-ассистента</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Удаляет выбранного ассистента навсегда.</value>
+        <value>Удаляет выбранного ассистента навсегда</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Вырезать</value>
@@ -1516,7 +1516,7 @@
         <value>Дублировать</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Дублировать выбранного помощника.</value>
+        <value>Дублировать выбранного помощника</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Копировать</value>

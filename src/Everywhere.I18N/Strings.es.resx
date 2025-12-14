@@ -1132,13 +1132,13 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
         <value>Utiliza Everything (un motor de búsqueda de archivos local de alto rendimiento) para buscar archivos en tu computadora.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Confirma la disponibilidad del servicio del modelo.</value>
+        <value>Confirma la disponibilidad del servicio del modelo</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Inicia una nueva configuración para un asistente de IA.</value>
+        <value>Inicia una nueva configuración para un asistente de IA</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Elimina permanentemente el asistente seleccionado.</value>
+        <value>Elimina permanentemente el asistente seleccionado</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Cortar</value>
@@ -1516,7 +1516,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
         <value>Duplicar</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Duplicar el asistente seleccionado.</value>
+        <value>Duplicar el asistente seleccionado</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copiar</value>

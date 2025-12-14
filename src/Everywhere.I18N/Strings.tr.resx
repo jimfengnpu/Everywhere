@@ -1126,13 +1126,13 @@
         <value>Everything'i (yüksek performanslı yerel dosya arama motoru) kullanarak bilgisayarınızdaki dosyaları arayın.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Model hizmetinin kullanılabilirliğini doğrulayın.</value>
+        <value>Model hizmetinin kullanılabilirliğini doğrulayın</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Yeni bir yapay zeka asistanı yapılandırması başlatın.</value>
+        <value>Yeni bir yapay zeka asistanı yapılandırması başlatın</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Seçilen asistanı kalıcı olarak siler.</value>
+        <value>Seçilen asistanı kalıcı olarak siler</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Kes</value>
@@ -1510,7 +1510,7 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
         <value>Kopyala</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Seçilen asistanı kopyala.</value>
+        <value>Seçilen asistanı kopyala</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Kopyala</value>

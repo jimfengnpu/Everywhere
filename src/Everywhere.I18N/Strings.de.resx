@@ -1128,13 +1128,13 @@ Platzhalter können im Prompt verwendet werden, eingeschlossen in {}, und werden
         <value>Verwenden Sie Everything (eine leistungsstarke lokale Dateisuchmaschine), um nach Dateien auf Ihrem Computer zu suchen.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Verfügbarkeit des Modelldienstes bestätigen.</value>
+        <value>Verfügbarkeit des Modelldienstes bestätigen</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Eine neue Konfiguration für einen KI-Assistenten starten.</value>
+        <value>Eine neue Konfiguration für einen KI-Assistenten starten</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Löscht den ausgewählten Assistenten dauerhaft.</value>
+        <value>Löscht den ausgewählten Assistenten dauerhaft</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Ausschneiden</value>
@@ -1512,7 +1512,7 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
         <value>Duplizieren</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Den ausgewählten Assistenten duplizieren.</value>
+        <value>Den ausgewählten Assistenten duplizieren</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Kopieren</value>

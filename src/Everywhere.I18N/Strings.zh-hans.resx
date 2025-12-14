@@ -1133,13 +1133,13 @@
         <value>使用 Everything (一个高性能本地文件搜索引擎) 搜索计算机上的文件。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>确认模型服务的可用性。</value>
+        <value>确认模型服务的可用性</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>创建一个新的 AI 助手。</value>
+        <value>创建一个新的 AI 助手</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>永久删除选中的 AI 助手。</value>
+        <value>永久删除选中的 AI 助手</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>剪切</value>
@@ -1517,7 +1517,7 @@
         <value>复制</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>复制选中的 AI 助手。</value>
+        <value>复制选中的 AI 助手</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>复制</value>

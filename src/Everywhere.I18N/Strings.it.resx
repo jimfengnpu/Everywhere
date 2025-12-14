@@ -1132,13 +1132,13 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
         <value>Usa Everything (un motore di ricerca file locale ad alte prestazioni) per cercare file sul tuo computer.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Conferma la disponibilità del servizio del modello.</value>
+        <value>Conferma la disponibilità del servizio del modello</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Avvia una nuova configurazione per un assistente AI.</value>
+        <value>Avvia una nuova configurazione per un assistente AI</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Elimina definitivamente l'assistente selezionato.</value>
+        <value>Elimina definitivamente l'assistente selezionato</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Taglia</value>
@@ -1516,7 +1516,7 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
         <value>Duplica</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Duplica l'assistente selezionato.</value>
+        <value>Duplica l'assistente selezionato</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copia</value>

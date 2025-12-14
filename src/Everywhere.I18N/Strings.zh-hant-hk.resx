@@ -1132,13 +1132,13 @@
         <value>使用 Everything（一個高效能的本地檔案搜尋引擎）來搜尋您電腦上的檔案。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>確認模型服務的可用性。</value>
+        <value>確認模型服務的可用性</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>開始新的 AI 助理配置。</value>
+        <value>開始新的 AI 助理配置</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>永久刪除所選的助理。</value>
+        <value>永久刪除所選的助理</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>剪下</value>
@@ -1516,7 +1516,7 @@
         <value>複製</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>複製所選的助手。</value>
+        <value>複製所選的助手</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>複製</value>

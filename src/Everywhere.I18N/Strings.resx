@@ -1146,13 +1146,13 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
         <value>Use Everything (a high-performance local file search engine) to search for files on your computer.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Confirm the availability of the model service.</value>
+        <value>Confirm the availability of the model service</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>Start a new configuration for an AI assistant.</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Deletes the selected assistant permanently.</value>
+        <value>Deletes the selected assistant permanently</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Cut</value>
@@ -1530,7 +1530,7 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>Duplicate</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Duplicate the selected assistant.</value>
+        <value>Duplicate the selected assistant</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copy</value>

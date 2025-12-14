@@ -1132,13 +1132,13 @@
         <value>Everything（高性能なローカルファイル検索エンジン）を使用して、コンピュータ上のファイルを検索します。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>モデルサービスの利用可能性を確認します。</value>
+        <value>モデルサービスの利用可能性を確認します</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>AIアシスタントの新しい設定を開始します。</value>
+        <value>AIアシスタントの新しい設定を開始します</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>選択したアシスタントを完全に削除します。</value>
+        <value>選択したアシスタントを完全に削除します</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>切り取り</value>
@@ -1516,7 +1516,7 @@
         <value>複製</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>選択したアシスタントを複製します。</value>
+        <value>選択したアシスタントを複製します</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>コピー</value>

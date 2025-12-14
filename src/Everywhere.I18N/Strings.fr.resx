@@ -1132,13 +1132,13 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
         <value>Utilisez Everything (un moteur de recherche de fichiers local haute performance) pour rechercher des fichiers sur votre ordinateur.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Confirmez la disponibilité du service de modèle.</value>
+        <value>Confirmez la disponibilité du service de modèle</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Commencez une nouvelle configuration pour un assistant IA.</value>
+        <value>Commencez une nouvelle configuration pour un assistant IA</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Supprime définitivement l'assistant sélectionné.</value>
+        <value>Supprime définitivement l'assistant sélectionné</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Couper</value>
@@ -1516,7 +1516,7 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
         <value>Dupliquer</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Dupliquer l'assistant sélectionné.</value>
+        <value>Dupliquer l'assistant sélectionné</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copier</value>
