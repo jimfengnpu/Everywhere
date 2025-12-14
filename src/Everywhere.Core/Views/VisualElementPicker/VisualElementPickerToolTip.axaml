@@ -28,6 +28,7 @@
               Text="{TemplateBinding Header}"/>
             <TextBlock
               FontSize="12"
+              Foreground="{DynamicResource ForegroundColor}"
               Text="{I18N {x:Static LocaleKey.ElementPickerToolTip_TipTextBlock_Text}}"/>
             <StackPanel
               Orientation="Horizontal" Spacing="4">
@@ -64,16 +65,20 @@
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^ /template/ shadui|Badge.Selected">
-      <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+    <Style Selector="^ /template/ shadui|Badge">
+      <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
 
-      <Style Selector="^ LucideIcon">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
-      </Style>
+      <Style Selector="^.Selected">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
 
-      <Style Selector="^ TextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        <Style Selector="^ LucideIcon">
+          <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        </Style>
+
+        <Style Selector="^ TextBlock">
+          <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        </Style>
       </Style>
     </Style>
 

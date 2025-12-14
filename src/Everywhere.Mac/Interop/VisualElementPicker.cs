@@ -1,25 +1,20 @@
-using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Platform;
-using Everywhere.Extensions;
-using Everywhere.I18N;
+using Avalonia.Threading;
 using Everywhere.Interop;
-using ShadUI;
+using Everywhere.Views;
+using ObjCRuntime;
 using ZLinq;
-using Window = Avalonia.Controls.Window;
 
 namespace Everywhere.Mac.Interop;
 
 public partial class VisualElementContext
 {
-    private class VisualElementPicker : Window
+    private class VisualElementPicker : VisualElementPickerTransparentWindow
     {
-        public static Task<IVisualElement?> PickAsync(IWindowHelper windowHelper, PickElementMode mode)
+        public static Task<IVisualElement?> PickAsync(IWindowHelper windowHelper, ElementPickMode mode)
         {
             var window = new VisualElementPicker(windowHelper, mode);
             window.Show();
@@ -28,192 +23,100 @@ public partial class VisualElementContext
 
         private readonly TaskCompletionSource<IVisualElement?> _pickingPromise = new();
 
-        private readonly PixelRect _screenBounds;
-        private readonly Border _maskBorder;
-        private readonly Border _elementBoundsBorder;
+        private readonly uint _windowNumber;
+        private readonly CGRect _allScreenFrame;
+        private readonly PixelRect _allScreenBounds;
+        private readonly VisualElementPickerMaskWindow[] _maskWindows;
+        private readonly VisualElementPickerToolTipWindow _toolTipWindow;
 
-        private readonly Window _tooltipWindow;
-        private readonly TextBlock _elementNameTextBlock;
-        private readonly Badge _screenPickModeBadge;
-        private readonly Badge _windowPickModeBadge;
-        private readonly Badge _elementPickModeBadge;
+        /// <summary>
+        /// We reuse a single list to avoid allocations during picking.
+        /// </summary>
+        private readonly List<int> _windowOwnerPids = [];
 
-        private PickElementMode _pickMode;
-        private Rect? _previousMaskRect;
-        private Point _currentPointerPosition;
+        private ElementPickMode _elementPickMode;
+        private CGPoint _currentMouseLocation;
         private IVisualElement? _selectedElement;
 
-        private VisualElementPicker(IWindowHelper windowHelper, PickElementMode pickMode)
+        private VisualElementPicker(IWindowHelper windowHelper, ElementPickMode elementPickMode)
         {
-            _pickMode = pickMode;
+            _elementPickMode = elementPickMode;
+
+            var handle = TryGetPlatformHandle()?.Handle ?? 0;
+            if (handle != 0)
+            {
+                using var nsWindow = new NSWindow();
+                nsWindow.Handle = handle;
+                _windowNumber = (uint)nsWindow.WindowNumber;
+                nsWindow.Handle = 0;
+            }
 
             // Use NSScreen to get accurate logical bounds and handle scaling
-            var screens = NSScreen.Screens;
-            var unionRect = screens
-                .AsValueEnumerable()
-                .Aggregate(CGRect.Empty, (current, screen) => current == CGRect.Empty ? screen.Frame : CGRect.Union(current, screen.Frame));
+            var allScreens = NSScreen.Screens;
+            // The primary screen (index 0) defines the coordinate space origin (0,0) in Cocoa.
+            // We need its height to convert between Cocoa (Bottom-Left) and Quartz (Top-Left) coordinates.
+            var primaryScreen = allScreens[0];
+            var primaryScreenHeight = primaryScreen.Frame.Height;
 
-            // Convert to Avalonia coordinates (Top-Left origin)
-            // Primary screen is screens[0]
-            var primaryHeight = screens[0].Frame.Height;
-            var avaloniaX = unionRect.X;
-            var avaloniaY = primaryHeight - (unionRect.Y + unionRect.Height);
-
-            // Set _screenBounds for coordinate calculations later
-            _screenBounds = new PixelRect(
-                (int)avaloniaX,
-                (int)avaloniaY,
-                (int)unionRect.Width,
-                (int)unionRect.Height);
-
-            Content = new Panel
+            _maskWindows = new VisualElementPickerMaskWindow[allScreens.Length];
+            for (var i = 0; i < allScreens.Length; i++)
             {
-                Children =
-                {
-                    (_maskBorder = new Border
-                    {
-                        Background = Brushes.Black,
-                        Opacity = 0.4
-                    }),
-                    (_elementBoundsBorder = new Border
-                    {
-                        BorderThickness = new Thickness(2),
-                        BorderBrush = Brushes.White,
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        VerticalAlignment = VerticalAlignment.Top
-                    })
-                }
-            };
+                var screen = allScreens[i];
+                var frame = screen.Frame;
+                _allScreenFrame = CGRect.Union(_allScreenFrame, frame);
 
-            SetWindowStyles(this);
-            Background = Brushes.Transparent;
-            Cursor = new Cursor(StandardCursorType.Cross);
-            TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
+                // Convert to Avalonia coordinates (top-left origin)
+                // Quartz Y = PrimaryScreenHeight - (Cocoa Y + Height)
+                var bounds = new PixelRect(
+                    (int)frame.X,
+                    (int)(primaryScreenHeight - (frame.Y + frame.Height)),
+                    (int)frame.Width,
+                    (int)frame.Height);
+                _allScreenBounds = _allScreenBounds.Union(bounds);
+                var maskWindow = new VisualElementPickerMaskWindow(bounds);
+                SetNsWindowPlacement(maskWindow, frame);
+                windowHelper.SetHitTestVisible(maskWindow, false);
+                _maskWindows[i] = maskWindow;
+            }
 
-            Position = _screenBounds.Position;
-            Width = unionRect.Width;
-            Height = unionRect.Height;
+            SetPlacement(_allScreenBounds, out _); // Place window to (0, 0) in avalonia way
 
-            _tooltipWindow = new Window
-            {
-                TransparencyLevelHint = [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Transparent],
-                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
-                ExtendClientAreaToDecorationsHint = true,
-                Content = new ExperimentalAcrylicBorder
-                {
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(8, 6),
-                    Material = new ExperimentalAcrylicMaterial
-                    {
-                        FallbackColor = Color.FromArgb(153, 0, 0, 0),
-                        MaterialOpacity = 0.7,
-                        TintColor = Color.FromArgb(119, 34, 34, 34),
-                        TintOpacity = 0.7
-                    },
-                    Child = new StackPanel
-                    {
-                        Orientation = Orientation.Vertical,
-                        Spacing = 4d,
-                        Children =
-                        {
-                            (_elementNameTextBlock = new TextBlock
-                            {
-                                FontWeight = FontWeight.Bold,
-                                Foreground = Brushes.White
-                            }),
-                            new TextBlock
-                            {
-                                Foreground = Brushes.White,
-                                Text = LocaleResolver.VisualElementPicker_ToolTipWindow_TipTextBlock_Text
-                            },
-                            new StackPanel
-                            {
-                                Orientation = Orientation.Horizontal,
-                                Spacing = 4d,
-                                Children =
-                                {
-                                    (_screenPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_ScreenPickModeBadge_Content
-                                    }),
-                                    (_windowPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_WindowPickModeBadge_Content
-                                    }),
-                                    (_elementPickModeBadge = new Badge
-                                    {
-                                        Background = Brushes.DimGray,
-                                        Content = LocaleResolver.VisualElementPicker_ToolTipWindow_ElementPickModeBadge_Content
-                                    })
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            SetWindowStyles(_tooltipWindow);
-            windowHelper.SetHitTestVisible(_tooltipWindow, false);
-            _tooltipWindow.SizeToContent = SizeToContent.WidthAndHeight;
-            SetPickModeTextBlockStyles();
+            _toolTipWindow = new VisualElementPickerToolTipWindow(elementPickMode);
+            windowHelper.SetHitTestVisible(_toolTipWindow, false);
+            SetNsWindowPlacement(_toolTipWindow, null);
         }
 
-        private static void SetWindowStyles(Window window)
+        private static void SetNsWindowPlacement(Window window, CGRect? frame)
         {
-            window.Topmost = true;
-            window.CanResize = false;
-            window.ShowInTaskbar = false;
-            window.SystemDecorations = SystemDecorations.None;
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-        }
+            var handle = window.TryGetPlatformHandle()?.Handle ?? 0;
+            if (handle == 0) return;
 
-        private void SetPickModeTextBlockStyles()
-        {
-            var (t, f0, f1) = _pickMode switch
-            {
-                PickElementMode.Screen => (_screenPickModeBadge, _windowPickModeBadge, _elementPickModeBadge),
-                PickElementMode.Window => (_windowPickModeBadge, _screenPickModeBadge, _elementPickModeBadge),
-                _ => (_elementPickModeBadge, _screenPickModeBadge, _windowPickModeBadge),
-            };
-
-            t.Background = Brushes.DarkGreen;
-            t.SetValue(TextElement.FontWeightProperty, FontWeight.Bold);
-            f0.Background = f1.Background = Brushes.DimGray;
-            f0.SetValue(TextElement.FontWeightProperty, FontWeight.Normal);
-            f1.SetValue(TextElement.FontWeightProperty, FontWeight.Normal);
+            using var nsWindow = new NSWindow();
+            nsWindow.Handle = handle;
+            nsWindow.Level = NSWindowLevel.ScreenSaver + 1;
+            if (frame.HasValue) nsWindow.SetFrame(frame.Value, true);
+            nsWindow.Handle = 0;
         }
 
         protected override void OnOpened(EventArgs e)
         {
             base.OnOpened(e);
 
-            _tooltipWindow.Show();
+            // Place window to cover all screens
+            // We must set after opened otherwise macOS may ignore the frame set in constructor
+            SetNsWindowPlacement(this, _allScreenFrame);
 
-            try
-            {
-                if (TryGetPlatformHandle()?.Handle is { } handle)
-                {
-                    using var nsWindow = NSWindow.FromWindowRef(handle);
-                    nsWindow.Level = NSWindowLevel.ScreenSaver;
-                }
-
-                if (_tooltipWindow.TryGetPlatformHandle()?.Handle is { } tooltipHandle)
-                {
-                    using var nsTooltipWindow = NSWindow.FromWindowRef(tooltipHandle);
-                    nsTooltipWindow.Level = NSWindowLevel.ScreenSaver + 1;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex); // BUG: NSWindow init error
-            }
+            foreach (var maskWindow in _maskWindows) maskWindow.Show(this);
+            _toolTipWindow.Show(this);
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
+
+            e.Handled = true;
+            e.Pointer.Capture(null);
+
             if (point.Properties.IsRightButtonPressed)
             {
                 _selectedElement = null;
@@ -230,7 +133,7 @@ public partial class VisualElementContext
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            _pickMode = (PickElementMode)((int)(_pickMode + (e.Delta.Y > 0 ? -1 : 1)) switch
+            _elementPickMode = (ElementPickMode)((int)(_elementPickMode + (e.Delta.Y > 0 ? -1 : 1)) switch
             {
                 > 2 => 0,
                 < 0 => 2,
@@ -250,19 +153,19 @@ public partial class VisualElementContext
                 case Key.D1:
                 case Key.NumPad1:
                 case Key.F1:
-                    _pickMode = PickElementMode.Screen;
+                    _elementPickMode = ElementPickMode.Screen;
                     HandlePickModeChanged();
                     break;
                 case Key.D2:
                 case Key.NumPad2:
                 case Key.F2:
-                    _pickMode = PickElementMode.Window;
+                    _elementPickMode = ElementPickMode.Window;
                     HandlePickModeChanged();
                     break;
                 case Key.D3:
                 case Key.NumPad3:
                 case Key.F3:
-                    _pickMode = PickElementMode.Element;
+                    _elementPickMode = ElementPickMode.Element;
                     HandlePickModeChanged();
                     break;
             }
@@ -271,182 +174,222 @@ public partial class VisualElementContext
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
-            HandlePointerMoved(_currentPointerPosition = e.GetPosition(this));
+            HandlePointerMoved(_currentMouseLocation = NSEvent.CurrentMouseLocation);
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            _tooltipWindow.Close();
             _pickingPromise.TrySetResult(_selectedElement);
             base.OnClosed(e);
         }
 
         private void HandlePickModeChanged()
         {
-            SetPickModeTextBlockStyles();
-            HandlePointerMoved(_currentPointerPosition);
+            HandlePointerMoved(_currentMouseLocation);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _toolTipWindow.ToolTip.Mode = _elementPickMode;
+            }, DispatcherPriority.Background);
         }
 
-        private void HandlePointerMoved(Point point)
+        private void HandlePointerMoved(CGPoint point)
         {
-            // Convert to screen coordinates
-            var x = (int)point.X + _screenBounds.X;
-            var y = (int)point.Y + _screenBounds.Y;
-            var screenPoint = new PixelPoint(x, y);
+            // NSEvent.CurrentMouseLocation is in Cocoa coordinates (Bottom-Left origin).
+            // We need to convert it to Quartz coordinates (Top-Left origin) for AX and WindowList.
+            // The primary screen (index 0) defines the coordinate space origin.
+            var primaryScreenHeight = NSScreen.Screens[0].Frame.Height;
+            var quartzPoint = new CGPoint(point.X, primaryScreenHeight - point.Y);
 
-            PickElement(screenPoint);
-            SetToolTipWindowPosition(screenPoint);
+            PickElement(quartzPoint);
+            SetToolTipWindowPosition(quartzPoint);
         }
 
-        private void SetToolTipWindowPosition(PixelPoint pointerPoint)
+        private void SetToolTipWindowPosition(CGPoint pointerPoint)
         {
             const int margin = 16;
 
-            var screen = Screens.All.FirstOrDefault(s => s.Bounds.Contains(pointerPoint));
+            // Use NSScreen to check bounds as we are working with logical points (CGPoint)
+            var screen = NSScreen.Screens.AsValueEnumerable().FirstOrDefault(s =>
+            {
+                // NSScreen Frame is Cocoa (Bottom-Left). We need to convert our Quartz point back to check?
+                // Or convert NSScreen Frame to Quartz.
+                // Let's convert NSScreen Frame to Quartz for checking.
+                var primaryHeight = NSScreen.Screens[0].Frame.Height;
+                var quartzRect = new CGRect(
+                    s.Frame.X,
+                    primaryHeight - (s.Frame.Y + s.Frame.Height),
+                    s.Frame.Width,
+                    s.Frame.Height);
+                return quartzRect.Contains(pointerPoint);
+            });
+
             if (screen == null) return;
 
-            var screenBounds = screen.Bounds;
-            var tooltipSize = _tooltipWindow.Bounds.Size;
+            // We need the bounds in Quartz coordinates for positioning logic
+            var primaryScreenHeight = NSScreen.Screens[0].Frame.Height;
+            var screenBounds = new CGRect(
+                    screen.Frame.X,
+                    primaryScreenHeight - (screen.Frame.Y + screen.Frame.Height),
+                    screen.Frame.Width,
+                    screen.Frame.Height);
 
-            var x = (double)pointerPoint.X;
-            var y = pointerPoint.Y - margin - tooltipSize.Height;
+            var tooltipSize = _toolTipWindow.Bounds.Size;
+
+            var x = pointerPoint.X.Value;
+            var y = pointerPoint.Y.Value - margin - tooltipSize.Height;
 
             // Check if there is enough space above the pointer
-            if (y < 0d)
+            if (y < screenBounds.Top) // Top is min Y in Quartz
             {
-                y = pointerPoint.Y + margin; // place below the pointer
+                y = pointerPoint.Y.Value + margin; // place below the pointer
             }
 
             // Check if there is enough space to the right of the pointer
             if (x + tooltipSize.Width > screenBounds.Right)
             {
-                x = pointerPoint.X - tooltipSize.Width; // place to the left of the pointer
+                x = pointerPoint.X.Value - tooltipSize.Width; // place to the left of the pointer
             }
 
-            _tooltipWindow.Position = new PixelPoint((int)x, (int)y);
+            _toolTipWindow.Position = new PixelPoint((int)x, (int)y);
         }
 
-        private void PickElement(PixelPoint point)
+        private void PickElement(CGPoint point)
         {
-            var maskRect = new Rect();
-
-            switch (_pickMode)
+            var maskRect = new PixelRect();
+            switch (_elementPickMode)
             {
-                case PickElementMode.Screen:
+                case ElementPickMode.Screen:
                 {
-                    var screen = Screens.All.FirstOrDefault(s => s.Bounds.Contains(point));
-                    if (screen is null) break;
+                    // VisualElementContext.ElementFromPoint expects PixelPoint but handles conversion internally?
+                    // No, we modified it to take PixelPoint and use it directly.
+                    // But wait, VisualElementContext.ElementFromPoint logic for Screen:
+                    // var screen = NSScreen.Screens.FirstOrDefault(s => s.Frame.Contains(new CGPoint(point.X, point.Y)));
+                    // This expects 'point' to be in Cocoa coordinates if it checks against s.Frame directly!
 
-                    // Find corresponding NSScreen
-                    // NSScreen.Screens should match order or we can match by frame.
-                    // Avalonia Screen Bounds are in global coordinates.
-                    // NSScreen Frame is in Cocoa coordinates (bottom-left).
-                    // We need to convert point to Cocoa to find NSScreen?
-                    // Or just iterate NSScreen and check if it matches Avalonia Screen.
-                    // Actually, VisualElementContext.ElementFromPoint(Screen) does this.
+                    // Let's look at VisualElementContext.ElementFromPoint again.
+                    // It was: var screen = NSScreen.Screens.FirstOrDefault(s => s.Frame.Contains(new CGPoint(point.X, point.Y)));
+                    // NSScreen.Frame is Cocoa (Bottom-Left).
+                    // If we pass Quartz point (Top-Left), this check will fail!
 
-                    // Let's use VisualElementContext logic if possible, or reimplement.
-                    // VisualElementContext.ElementFromPoint(Screen) uses NSScreenVisualElement.
+                    // So for Screen mode, we might need to pass Cocoa point or fix VisualElementContext.
+                    // However, for Element/Window mode (AX), we need Quartz point.
 
-                    // We can just use the logic from VisualElementContext.ElementFromPoint(Screen)
-                    // But we need to pass the point.
+                    // Let's fix Screen mode here locally since we have the Quartz point.
+                    // We can find the screen using our Quartz logic.
 
-                    // Let's try to find the NSScreen that matches the Avalonia Screen.
-                    // Avalonia Screen has a Handle? No.
-                    // But we can use the point to find the NSScreen.
+                    var primaryHeight = NSScreen.Screens[0].Frame.Height;
+                    var screen = NSScreen.Screens.FirstOrDefault(s =>
+                    {
+                        var quartzRect = new CGRect(
+                            s.Frame.X,
+                            primaryHeight - (s.Frame.Y + s.Frame.Height),
+                            s.Frame.Width,
+                            s.Frame.Height);
+                        return quartzRect.Contains(point);
+                    });
 
-                    // Convert point to Cocoa coordinates for NSScreen.Screens check?
-                    // Actually NSScreen.Screens[0] is (0,0) bottom-left.
-                    // Avalonia (0,0) is top-left.
-                    // It's easier to just use VisualElementContext.ElementFromPoint logic which takes PixelPoint.
-
-                    _selectedElement = ElementFromPoint(point, PickElementMode.Screen);
+                    _selectedElement = screen is null ? null : new NSScreenVisualElement(screen);
 
                     if (_selectedElement is not null)
                     {
-                        // We need the bounds of the screen in Avalonia coordinates.
-                        // _selectedElement.BoundingRectangle should return it.
-                        maskRect = _selectedElement.BoundingRectangle.Translate(-(PixelVector)_screenBounds.Position).ToRect(1d);
+                        maskRect = _selectedElement.BoundingRectangle;
                     }
                     break;
                 }
-                case PickElementMode.Window:
+                case ElementPickMode.Window:
                 {
-                    _selectedElement = ElementFromPoint(point, _pickMode);
+                    _selectedElement = GetElementAtPoint();
 
-                    while (_selectedElement is not null && _selectedElement.Type != VisualElementType.TopLevel)
+                    // Traverse up to find the containing window element
+                    while (_selectedElement is AXUIElement axui && axui.Role != AXRoleAttribute.AXWindow)
                     {
                         _selectedElement = _selectedElement.Parent;
                     }
 
-                    if (_selectedElement is not null)
-                    {
-                        maskRect = _selectedElement.BoundingRectangle.Translate(-(PixelVector)_screenBounds.Position).ToRect(1d);
-                    }
+                    if (_selectedElement == null) break;
+
+                    maskRect = _selectedElement.BoundingRectangle;
                     break;
                 }
-                case PickElementMode.Element:
+                case ElementPickMode.Element:
                 {
-                    _selectedElement = ElementFromPoint(point, _pickMode);
+                    _selectedElement = GetElementAtPoint();
+                    if (_selectedElement == null) break;
 
-                    if (_selectedElement is not null)
-                    {
-                        maskRect = _selectedElement.BoundingRectangle.Translate(-(PixelVector)_screenBounds.Position).ToRect(1d);
-                    }
+                    maskRect = _selectedElement.BoundingRectangle;
                     break;
                 }
             }
 
-            SetMask(maskRect);
-            _elementNameTextBlock.Text = GetElementDescription(_selectedElement);
-        }
+            foreach (var maskWindow in _maskWindows) maskWindow.SetMask(maskRect);
+            _toolTipWindow.ToolTip.Element = _selectedElement;
 
-        private void SetMask(Rect rect)
-        {
-            if (_previousMaskRect == rect) return;
-
-            _maskBorder.Clip = new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(Bounds), new RectangleGeometry(rect));
-            _elementBoundsBorder.Margin = new Thickness(rect.X, rect.Y, 0, 0);
-            _elementBoundsBorder.Width = rect.Width;
-            _elementBoundsBorder.Height = rect.Height;
-
-            _previousMaskRect = rect;
-        }
-
-        private readonly Dictionary<int, string> _processNameCache = new();
-
-        private string? GetElementDescription(IVisualElement? element)
-        {
-            if (element is null) return LocaleResolver.Common_None;
-
-            DynamicResourceKey key;
-            var elementTypeKey = new DynamicResourceKey($"VisualElementType_{element.Type}");
-            if (element.ProcessId != 0)
+            AXUIElement? GetElementAtPoint()
             {
-                if (!_processNameCache.TryGetValue(element.ProcessId, out var processName))
+                _windowOwnerPids.Clear();
+                GetWindowOwnerPidsAtLocation(point, _windowNumber, _windowOwnerPids);
+                foreach (var windowOwnerPid in _windowOwnerPids)
                 {
-                    try
+                    if (AXUIElement.ElementFromPid(windowOwnerPid) is not {} element) continue;
+
+                    if (element.ElementAtPosition((float)point.X, (float)point.Y) is { } foundElement)
                     {
-                        using var process = Process.GetProcessById(element.ProcessId);
-                        processName = process.ProcessName;
+                        return foundElement;
                     }
-                    catch
-                    {
-                        processName = string.Empty;
-                    }
-                    _processNameCache[element.ProcessId] = processName;
                 }
 
-                key = processName.IsNullOrWhiteSpace() ?
-                    elementTypeKey :
-                    new FormattedDynamicResourceKey("{0} - {1}", new DirectResourceKey(processName), elementTypeKey);
+                return null;
             }
-            else
-            {
-                key = elementTypeKey;
-            }
+        }
+    }
 
-            return key.ToString();
+    [LibraryImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private static partial IntPtr CGWindowListCopyWindowInfo(CGWindowListOption option, uint relativeToWindow);
+
+    private static void GetWindowOwnerPidsAtLocation(CGPoint point, uint relativeToWindow, List<int> pids)
+    {
+        var currentPid = Environment.ProcessId;
+        var pArray = CGWindowListCopyWindowInfo(CGWindowListOption.OnScreenBelowWindow, relativeToWindow);
+        if (pArray == IntPtr.Zero) return;
+
+        try
+        {
+            var array = Runtime.GetNSObject<NSArray>(pArray);
+            if (array == null) return;
+
+            using var kOwnerPid = new NSString("kCGWindowOwnerPID");
+            using var kBounds = new NSString("kCGWindowBounds");
+            using var kX = new NSString("X");
+            using var kY = new NSString("Y");
+            using var kW = new NSString("Width");
+            using var kH = new NSString("Height");
+
+            for (nuint i = 0; i < array.Count; i++)
+            {
+                var dict = array.GetItem<NSDictionary>(i);
+                if (dict == null) continue;
+
+                if (!dict.TryGetValue(kOwnerPid, out var pidObj) || pidObj is not NSNumber pidNum) continue;
+
+                // Filter out our own process (Picker, Mask, ToolTip, etc.)
+                if (pidNum.Int32Value == currentPid) continue;
+
+                if (!dict.TryGetValue(kBounds, out var boundsObj) || boundsObj is not NSDictionary boundsDict) continue;
+                if (!boundsDict.TryGetValue(kX, out var xObj) || xObj is not NSNumber x ||
+                    !boundsDict.TryGetValue(kY, out var yObj) || yObj is not NSNumber y ||
+                    !boundsDict.TryGetValue(kW, out var wObj) || wObj is not NSNumber w ||
+                    !boundsDict.TryGetValue(kH, out var hObj) || hObj is not NSNumber h) continue;
+
+                var rect = new CGRect(x.DoubleValue, y.DoubleValue, w.DoubleValue, h.DoubleValue);
+                if (rect.Contains(point))
+                {
+                    pids.Add(pidNum.Int32Value);
+                }
+            }
+        }
+        finally
+        {
+            CoreFoundationInterop.CFRelease(pArray);
         }
     }
 }

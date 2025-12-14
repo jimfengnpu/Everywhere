@@ -1,9 +1,11 @@
-﻿namespace Everywhere.Mac.Interop;
+﻿using System.Runtime.InteropServices;
+
+namespace Everywhere.Mac.Interop;
 
 /// <summary>
 /// Helper class for managing macOS Accessibility permissions required for global event listening.
 /// </summary>
-public static class PermissionHelper
+public static partial class PermissionHelper
 {
     // Key for the options dictionary.
     private static readonly NSString AxTrustedCheckOptionPrompt = new("AXTrustedCheckOptionPrompt");
@@ -27,19 +29,6 @@ public static class PermissionHelper
         AXIsProcessTrustedWithOptions(new NSDictionary(AxTrustedCheckOptionPrompt, NSNumber.FromBoolean(true)));
     }
 
-    /// <summary>
-    /// Requests Screen Recording access by showing the system prompt.
-    /// This will open System Settings and guide the user.
-    /// </summary>
-    /// <exception cref="NotImplementedException"></exception>
-    public static void RequestScreenRecordingAccess()
-    {
-        // There is no official API to request Screen Recording access.
-        // A common workaround is to attempt to capture the screen, which will trigger the prompt.
-        // However, this requires additional implementation and is not included here.
-        throw new NotImplementedException("Screen Recording access request is not implemented.");
-    }
-
     // ReSharper disable once InconsistentNaming
     private static bool AXIsProcessTrustedWithOptions(NSDictionary options)
     {
@@ -47,6 +36,7 @@ public static class PermissionHelper
     }
 
     // C# binding for the C function AXIsProcessTrustedWithOptions.
-    [System.Runtime.InteropServices.DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
-    private static extern bool AXIsProcessTrustedWithOptions(nint options);
+    [LibraryImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool AXIsProcessTrustedWithOptions(nint options);
 }

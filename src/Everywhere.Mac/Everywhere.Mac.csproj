@@ -6,6 +6,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>Everywhere</AssemblyName>
+    <ApplicationTitle>Everywhere</ApplicationTitle>
     <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)-macos</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -14,6 +15,7 @@
     <UseAppHost>true</UseAppHost>
     <CreateAppBundle>true</CreateAppBundle> <!-- Enable .app bundle creation -->
     <BundleCreateDump>true</BundleCreateDump>
+    <UseHardenedRuntime>true</UseHardenedRuntime>
   </PropertyGroup>
 
   <!-- Code sign -->
@@ -26,8 +28,7 @@
   </PropertyGroup>
 
   <!-- .pkg Creation when publishing -->
-  <PropertyGroup Condition="'$(PublishDir)' != ''">
-    <UseHardenedRuntime>true</UseHardenedRuntime>
+  <PropertyGroup Condition="'$(PackageSigningKey)' != ''">
     <CreatePackage>true</CreatePackage>
     <EnablePackageSigning>true</EnablePackageSigning>
   </PropertyGroup>

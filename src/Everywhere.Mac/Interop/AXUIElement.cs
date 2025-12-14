@@ -38,47 +38,102 @@ public partial class AXUIElement : NSObject, IVisualElement
 
     public AXRoleAttribute Role { get; }
 
+    public AXSubroleAttribute Subrole { get; }
+
     public VisualElementType Type
     {
         get
         {
-            // This requires a mapping from AXRole/AXSubrole to VisualElementType
             return Role switch
             {
                 AXRoleAttribute.AXStaticText => VisualElementType.Label,
-                AXRoleAttribute.AXTextField or AXRoleAttribute.AXTextArea => VisualElementType.TextEdit,
-                AXRoleAttribute.AXBrowser => VisualElementType.Document,
-                AXRoleAttribute.AXButton or AXRoleAttribute.AXMenuButton or AXRoleAttribute.AXPopUpButton => VisualElementType.Button,
-                AXRoleAttribute.AXLink => VisualElementType.Hyperlink,
-                AXRoleAttribute.AXImage => VisualElementType.Image,
+                AXRoleAttribute.AXTextField or
+                    AXRoleAttribute.AXTextArea => VisualElementType.TextEdit,
+
+                AXRoleAttribute.AXButton or
+                    AXRoleAttribute.AXMenuButton or
+                    AXRoleAttribute.AXPopUpButton or
+                    AXRoleAttribute.AXDisclosureTriangle => VisualElementType.Button,
+
                 AXRoleAttribute.AXCheckBox => VisualElementType.CheckBox,
                 AXRoleAttribute.AXRadioButton => VisualElementType.RadioButton,
                 AXRoleAttribute.AXComboBox => VisualElementType.ComboBox,
-                AXRoleAttribute.AXList => VisualElementType.ListView,
+
+                AXRoleAttribute.AXList or
+                    AXRoleAttribute.AXRuler => VisualElementType.ListView,
+
                 AXRoleAttribute.AXOutline => VisualElementType.TreeView,
-                AXRoleAttribute.AXTabGroup => VisualElementType.TabControl,
-                AXRoleAttribute.AXTable or AXRoleAttribute.AXSheet => VisualElementType.Table,
+                AXRoleAttribute.AXTable => VisualElementType.Table,
                 AXRoleAttribute.AXRow => VisualElementType.TableRow,
-                AXRoleAttribute.AXMenuBar or AXRoleAttribute.AXMenu or AXRoleAttribute.AXToolbar => VisualElementType.Menu,
-                AXRoleAttribute.AXMenuBarItem or AXRoleAttribute.AXMenuItem => VisualElementType.MenuItem,
+
+                AXRoleAttribute.AXMenuBar or
+                    AXRoleAttribute.AXMenu => VisualElementType.Menu,
+
+                AXRoleAttribute.AXMenuBarItem or
+                    AXRoleAttribute.AXMenuItem => VisualElementType.MenuItem,
+
+                AXRoleAttribute.AXTabGroup => VisualElementType.TabControl,
+                AXRoleAttribute.AXToolbar => VisualElementType.ToolBar,
+
+                AXRoleAttribute.AXGroup or
+                    AXRoleAttribute.AXRadioGroup or
+                    AXRoleAttribute.AXSplitGroup or
+                    AXRoleAttribute.AXBrowser or
+                    AXRoleAttribute.AXWindow or // Parent of AXWindow is AXApplication
+                    AXRoleAttribute.AXSheet or
+                    AXRoleAttribute.AXDrawer or
+                    AXRoleAttribute.AXCell => VisualElementType.Panel,
+
+                AXRoleAttribute.AXApplication or
+                    AXRoleAttribute.AXSystemWide => VisualElementType.TopLevel,
+
+                AXRoleAttribute.AXSplitter => VisualElementType.Splitter,
                 AXRoleAttribute.AXSlider => VisualElementType.Slider,
                 AXRoleAttribute.AXScrollBar => VisualElementType.ScrollBar,
-                AXRoleAttribute.AXBusyIndicator or
-                    AXRoleAttribute.AXProgressIndicator or
+
+                AXRoleAttribute.AXBusyIndicator => VisualElementType.Spinner,
+                AXRoleAttribute.AXProgressIndicator or
+                    AXRoleAttribute.AXLevelIndicator or
+                    AXRoleAttribute.AXRelevanceIndicator or
                     AXRoleAttribute.AXValueIndicator => VisualElementType.ProgressBar,
-                AXRoleAttribute.AXColumn or
-                    AXRoleAttribute.AXDrawer or
-                    AXRoleAttribute.AXGrid or
-                    AXRoleAttribute.AXGroup or
+
+                AXRoleAttribute.AXImage => VisualElementType.Image,
+                AXRoleAttribute.AXLink => VisualElementType.Hyperlink,
+                AXRoleAttribute.AXWebArea => VisualElementType.Document,
+
+                AXRoleAttribute.AXScrollArea or
+                    AXRoleAttribute.AXLayoutArea or
+                    AXRoleAttribute.AXLayoutItem or
                     AXRoleAttribute.AXGrowArea or
+                    AXRoleAttribute.AXMatte or
+                    AXRoleAttribute.AXRulerMarker or
+                    AXRoleAttribute.AXColumn or
+                    AXRoleAttribute.AXGrid or
                     AXRoleAttribute.AXPage or
-                    AXRoleAttribute.AXScrollArea or
-                    AXRoleAttribute.AXSplitGroup or
-                    AXRoleAttribute.AXSplitter or
-                    AXRoleAttribute.AXWebArea => VisualElementType.Panel,
-                AXRoleAttribute.AXApplication or AXRoleAttribute.AXWindow => VisualElementType.TopLevel,
-                // TODO: ... add more mappings
-                _ => VisualElementType.Unknown
+                    AXRoleAttribute.AXPopover => VisualElementType.Panel,
+
+                _ => Subrole switch
+                {
+                    AXSubroleAttribute.AXCloseButton or
+                        AXSubroleAttribute.AXMinimizeButton or
+                        AXSubroleAttribute.AXZoomButton or
+                        AXSubroleAttribute.AXToolbarButton or
+                        AXSubroleAttribute.AXSortButton or
+                        AXSubroleAttribute.AXTabButton => VisualElementType.Button,
+
+                    AXSubroleAttribute.AXSearchField => VisualElementType.TextEdit,
+
+                    AXSubroleAttribute.AXToggle or
+                        AXSubroleAttribute.AXSwitch => VisualElementType.CheckBox,
+
+                    AXSubroleAttribute.AXStandardWindow or
+                        AXSubroleAttribute.AXDialog or
+                        AXSubroleAttribute.AXSystemDialog or
+                        AXSubroleAttribute.AXFloatingWindow or
+                        AXSubroleAttribute.AXSystemFloatingWindow => VisualElementType.Panel,
+
+                    _ => VisualElementType.Unknown
+                }
             };
         }
     }
@@ -90,7 +145,11 @@ public partial class AXUIElement : NSObject, IVisualElement
             var states = VisualElementStates.None;
             if (GetAttribute<NSNumber>(AXAttributeConstants.Enabled)?.BoolValue == false) states |= VisualElementStates.Disabled;
             if (GetAttribute<NSNumber>(AXAttributeConstants.Focused)?.BoolValue == true) states |= VisualElementStates.Focused;
-            // TODO: add more state checks?
+            if (GetAttribute<NSNumber>(AXAttributeConstants.Hidden)?.BoolValue == true) states |= VisualElementStates.Offscreen;
+            if (GetAttribute<NSNumber>(AXAttributeConstants.Selected)?.BoolValue == true) states |= VisualElementStates.Selected;
+
+            if (Subrole == AXSubroleAttribute.AXSecureTextField) states |= VisualElementStates.Password;
+
             return states;
         }
     }
@@ -133,6 +192,8 @@ public partial class AXUIElement : NSObject, IVisualElement
     {
         var axRole = GetAttribute<NSString>(AXAttributeConstants.Role);
         Role = Enum.TryParse<AXRoleAttribute>(axRole, true, out var role) ? role : AXRoleAttribute.AXUnknown;
+        var axSubrole = GetAttribute<NSString>(AXAttributeConstants.Subrole);
+        Subrole = Enum.TryParse<AXSubroleAttribute>(axSubrole, true, out var subrole) ? subrole : AXSubroleAttribute.AXUnknown;
     }
 
     public string? GetText(int maxLength = -1)
@@ -169,13 +230,11 @@ public partial class AXUIElement : NSObject, IVisualElement
         var rect = new CGRect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
         var windowId = NativeWindowHandle;
 
-#pragma warning disable CA1422 // Type or member is obsolete
         // we use CGSHWCaptureWindowList because it can screenshot minimized windows, which CGWindowListCreateImage can't
         using var cgImage = SkyLightInterop.HardwareCaptureWindowList(
             [(uint)windowId],
             SkyLightInterop.CGSWindowCaptureOptions.IgnoreGlobalCLipShape |
             SkyLightInterop.CGSWindowCaptureOptions.FullSize);
-#pragma warning restore CA1422
 
         if (cgImage is null)
         {
@@ -194,11 +253,12 @@ public partial class AXUIElement : NSObject, IVisualElement
         {
             var screen = NSScreen.Screens.FirstOrDefault(s => s.Frame.IntersectsWith(rect));
             var scale = screen?.BackingScaleFactor ?? 1.0;
-            using var croppedImage = cgImage.WithImageInRect(new CGRect(
-                rect.X * scale,
-                rect.Y * scale,
-                rect.Width * scale,
-                rect.Height * scale));
+            using var croppedImage = cgImage.WithImageInRect(
+                new CGRect(
+                    rect.X * scale,
+                    rect.Y * scale,
+                    rect.Width * scale,
+                    rect.Height * scale));
 
             if (croppedImage is null)
             {
@@ -230,15 +290,6 @@ public partial class AXUIElement : NSObject, IVisualElement
     }
 
     #region Helpers
-
-    private IEnumerable<string> GetAttributeNames()
-    {
-        var error = CopyAttributeNames(Handle, out var namesHandle);
-        if (error != AXError.Success || namesHandle == 0) return [];
-
-        var namesArray = CFArray.StringArrayFromHandle(namesHandle);
-        return namesArray?.OfType<string>() ?? [];
-    }
 
     private T? GetAttribute<T>(NSString attributeName) where T : NSObject
     {
@@ -296,9 +347,6 @@ public partial class AXUIElement : NSObject, IVisualElement
 
     [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyElementAtPosition")]
     private static partial AXError CopyElementAtPosition(nint application, float x, float y, out nint element);
-
-    [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyAttributeNames")]
-    private static partial AXError CopyAttributeNames(nint element, out nint names);
 
     [LibraryImport(AppServices, EntryPoint = "AXUIElementCopyAttributeValue")]
     private static partial AXError CopyAttributeValue(nint element, nint attribute, out nint value);

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Windows.Win32;
+﻿using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
@@ -342,43 +341,7 @@ public partial class VisualElementContext
             }
 
             foreach (var maskWindow in _maskWindows) maskWindow.SetMask(maskRect);
-            _toolTipWindow.ToolTip.Header = GetElementDescription(_selectedElement);
-        }
-
-        private readonly Dictionary<int, string> _processNameCache = new();
-
-        private string? GetElementDescription(IVisualElement? element)
-        {
-            if (element is null) return LocaleResolver.Common_None;
-
-            DynamicResourceKey key;
-            var elementTypeKey = new DynamicResourceKey($"VisualElementType_{element.Type}");
-            if (element.ProcessId != 0)
-            {
-                if (!_processNameCache.TryGetValue(element.ProcessId, out var processName))
-                {
-                    try
-                    {
-                        using var process = Process.GetProcessById(element.ProcessId);
-                        processName = process.ProcessName;
-                    }
-                    catch
-                    {
-                        processName = string.Empty;
-                    }
-                    _processNameCache[element.ProcessId] = processName;
-                }
-
-                key = processName.IsNullOrWhiteSpace() ?
-                    elementTypeKey :
-                    new FormattedDynamicResourceKey("{0} - {1}", new DirectResourceKey(processName), elementTypeKey);
-            }
-            else
-            {
-                key = elementTypeKey;
-            }
-
-            return key.ToString();
+            _toolTipWindow.ToolTip.Element = _selectedElement;
         }
     }
 }

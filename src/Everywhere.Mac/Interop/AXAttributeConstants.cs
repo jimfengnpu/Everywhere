@@ -18,11 +18,12 @@ public static class AXAttributeConstants
     public static readonly NSString Enabled = new("AXEnabled");
     public static readonly NSString Focused = new("AXFocused");
     public static readonly NSString Window = new("AXWindow");
+    public static readonly NSString Windows = new("AXWindows");
     public static readonly NSString TopLevelUIElement = new("AXTopLevelUIElement");
     public static readonly NSString FocusedUIElement = new("AXFocusedUIElement");
     public static readonly NSString SelectedText = new("AXSelectedText");
-    public static readonly NSString NumberOfCharacters = new("AXNumberOfCharacters");
-    public static readonly NSString WindowNumber = new("AXWindowNumber");
+    public static readonly NSString Selected = new("AXSelected");
+    public static readonly NSString Hidden = new("AXHidden");
 
     // Actions
     public static readonly NSString Press = new("AXPress");

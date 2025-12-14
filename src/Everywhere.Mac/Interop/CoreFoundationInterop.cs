@@ -30,4 +30,7 @@ internal static partial class CoreFoundationInterop
 
     [LibraryImport(CoreFoundation)]
     public static partial nuint CFHash(nint cf);
+
+    [LibraryImport(CoreFoundation)]
+    public static partial void CFRelease(IntPtr cf);
 }
