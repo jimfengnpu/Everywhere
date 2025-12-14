@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using Everywhere.I18N;
+using Everywhere.Interop;
 
 namespace Everywhere.Mac.Interop;
 
@@ -13,20 +15,17 @@ public static partial class PermissionHelper
     /// <summary>
     /// Checks if the application has been granted Accessibility access.
     /// </summary>
-    public static bool IsAccessibilityTrusted()
+    public static void EnsureAccessibilityTrusted()
     {
         // For sandboxed apps, this will always be false.
         // For non-sandboxed apps, it checks the system settings.
-        return AXIsProcessTrustedWithOptions(new NSDictionary(AxTrustedCheckOptionPrompt, NSNumber.FromBoolean(false)));
-    }
+        var isTrusted = AXIsProcessTrustedWithOptions(new NSDictionary(AxTrustedCheckOptionPrompt, NSNumber.FromBoolean(true)));
+        if (isTrusted) return;
 
-    /// <summary>
-    /// Requests Accessibility access by showing the system prompt.
-    /// This will open System Settings and guide the user.
-    /// </summary>
-    public static void RequestAccessibilityAccess()
-    {
-        AXIsProcessTrustedWithOptions(new NSDictionary(AxTrustedCheckOptionPrompt, NSNumber.FromBoolean(true)));
+        NativeMessageBox.Show(
+            LocaleResolver.Common_Info,
+            LocaleResolver.MacOS_PermissionHelper_PleaseGrantAccessibilityPermission);
+        Environment.Exit(0);
     }
 
     // ReSharper disable once InconsistentNaming

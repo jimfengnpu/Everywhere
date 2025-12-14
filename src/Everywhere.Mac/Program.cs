@@ -5,12 +5,12 @@ using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
 using Everywhere.Configuration;
-using Everywhere.Mac.Configuration;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Initialization;
 using Everywhere.Interop;
-using Everywhere.Mac.Initialization;
+using Everywhere.Mac.Common;
+using Everywhere.Mac.Configuration;
 using Everywhere.Mac.Interop;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,7 +39,7 @@ public static class Program
                 .AddSingleton<IShortcutListener, CGEventShortcutListener>()
                 .AddSingleton<INativeHelper, NativeHelper>()
                 .AddSingleton<IWindowHelper, WindowHelper>()
-                .AddSingleton<ISoftwareUpdater, Common.SoftwareUpdater>()
+                .AddSingleton<ISoftwareUpdater, SoftwareUpdater>()
                 .AddSettings()
                 .AddWatchdogManager()
                 .ConfigureNetwork()
@@ -70,7 +70,6 @@ public static class Program
                 .AddTransient<IAsyncInitializer, ChatWindowInitializer>()
                 .AddTransient<IAsyncInitializer, SettingsInitializer>()
                 .AddTransient<IAsyncInitializer, UpdaterInitializer>()
-                .AddTransient<IAsyncInitializer, PermissionInitializer>()
 
             #endregion
 
