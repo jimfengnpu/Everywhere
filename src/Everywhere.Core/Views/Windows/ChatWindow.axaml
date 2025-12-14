@@ -316,7 +316,8 @@
                   <ItemsPanelTemplate>
                     <WrapPanel
                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                      ItemSpacing="8" LineSpacing="6"/>
+                      ItemSpacing="8" ItemsAlignment="Center"
+                      LineSpacing="6"/>
                   </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
               </ItemsControl>

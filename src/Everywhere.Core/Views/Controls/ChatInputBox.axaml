@@ -190,7 +190,7 @@
                 <Style Selector="Border.FocusedElement">
                   <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}"/>
                   <Setter Property="BorderThickness" Value="1"/>
-                  <Setter Property="Padding" Value="2,4"/>
+                  <Setter Property="Padding" Value="2,2"/>
                 </Style>
               </ItemsControl.Styles>
 

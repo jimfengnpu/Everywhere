@@ -63,14 +63,14 @@
                   <DataTemplate DataType="v:TextShortcutPart">
                     <Border
                       Padding="6,2"
-                      Background="{DynamicResource SystemAccentColor}"
+                      Background="{DynamicResource PrimaryColor}"
                       CornerRadius="4">
                       <TextBlock
                         FontSize="{DynamicResource FontSizeM}"
                         FontWeight="SemiBold"
                         Text="{Binding Text}">
                         <TextBlock.Foreground>
-                          <SolidColorBrush Color="{DynamicResource SystemAccentForegroundColor}"/>
+                          <SolidColorBrush Color="{DynamicResource PrimaryForegroundColor}"/>
                         </TextBlock.Foreground>
                       </TextBlock>
                     </Border>
@@ -78,14 +78,14 @@
                   <DataTemplate DataType="v:IconShortcutPart">
                     <Border
                       Padding="6,2"
-                      Background="{DynamicResource SystemAccentColor}"
+                      Background="{DynamicResource PrimaryColor}"
                       CornerRadius="4">
                       <PathIcon
                         Width="{DynamicResource FontSizeM}"
                         Height="{DynamicResource LineHeightM}"
                         Data="{Binding Icon}">
                         <PathIcon.Foreground>
-                          <SolidColorBrush Color="{DynamicResource SystemAccentForegroundColor}"/>
+                          <SolidColorBrush Color="{DynamicResource PrimaryForegroundColor}"/>
                         </PathIcon.Foreground>
                       </PathIcon>
                     </Border>
