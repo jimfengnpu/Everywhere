@@ -25,7 +25,7 @@ public static class Program
     public static void Main(string[] args)
     {
         NativeMessageBox.MacOSMessageBoxHandler = MessageBoxHandler;
-        Entrance.Initialize(args);
+        Entrance.Initialize();
 
         ServiceLocator.Build(x => x
 

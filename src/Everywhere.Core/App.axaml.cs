@@ -24,6 +24,9 @@ public class App : Application
     {
         AvaloniaXamlLoader.Load(this);
 
+        // Initialize application mutex to ensure single instance after Locale is ready.
+        Entrance.InitializeApplicationMutex(Environment.GetCommandLineArgs());
+
         Dispatcher.UIThread.UnhandledException += (_, e) =>
         {
             Log.Logger.Error(e.Exception, "UI Thread Unhandled Exception");

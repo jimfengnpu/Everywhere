@@ -1711,4 +1711,7 @@
     <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
         <value>请在『系统设置 &gt; 隐私与安全性 &gt; 辅助功能』中授予 Everywhere 权限，之后重启本程序。</value>
     </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere 已在运行，请检查托盘图标。</value>
+    </data>
 </root>

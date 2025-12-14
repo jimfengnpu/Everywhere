@@ -1,6 +1,5 @@
 ﻿#if !DEBUG
 using Everywhere.Interop;
-using MsBox.Avalonia.Enums;
 #else
 #define DISABLE_TELEMETRY
 #endif
@@ -41,9 +40,8 @@ public static class Entrance
 #endif
     }
 
-    public static void Initialize(string[] args)
+    public static void Initialize()
     {
-        InitializeApplicationMutex(args);
 #if !DISABLE_TELEMETRY
         InitializeTelemetry();
 #endif
@@ -51,26 +49,29 @@ public static class Entrance
         InitializeErrorHandling();
     }
 
-    private static void InitializeApplicationMutex(string[] args)
+    /// <summary>
+    /// Initializes the application mutex to ensure a single instance of the application.
+    /// </summary>
+    /// <param name="args"></param>
+    public static void InitializeApplicationMutex(string[] args)
     {
 #if DEBUG
         // axaml designer may launch this code, so we need to set it to null.
         _ = args;
 #else
         _appMutex = new Mutex(true, "EverywhereAppMutex", out var createdNew);
-        if (!createdNew)
-        {
-            if (!args.Contains("--autorun"))
-            {
-                NativeMessageBox.ShowAsync(
-                    "Info",
-                    "Everywhere is already running. Please check your system tray for the application window.",
-                    ButtonEnum.Ok,
-                    Icon.Info).WaitOnDispatcherFrame();
-            }
+        if (createdNew) return;
 
-            Environment.Exit(0);
+        if (!args.Contains("--autorun"))
+        {
+            NativeMessageBox.Show(
+                LocaleResolver.Common_Info,
+                LocaleResolver.Entrance_EverywhereAlreadyRunning,
+                NativeMessageBoxButtons.Ok,
+                NativeMessageBoxIcon.Information);
         }
+
+        Environment.Exit(0);
 #endif
     }
 

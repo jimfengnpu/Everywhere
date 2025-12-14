@@ -1724,4 +1724,7 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
         <value>Please grant Accessibility permissions to the application in System Settings &gt; Privacy &amp; Security &gt; Accessibility, and restart the application.</value>
     </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere is already running. Please check your system tray for the application window.</value>
+    </data>
 </root>
