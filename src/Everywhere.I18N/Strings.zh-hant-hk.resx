@@ -1708,6 +1708,9 @@
         <value>OpenAI (Responses API)</value>
     </data>
     <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
-        <value>請在系統設定 &gt; 隱私權與安全性 &gt; 無障礙中授予應用程式無障礙權限，然後重新啟動應用程式。</value>
+        <value>請在系統設定 &gt; 隱私與安全 &gt; 無障礙中授予應用程式無障礙權限，然後重新啟動應用程式。</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere 已經在運行中。請檢查系統托盤中的應用程式視窗。</value>
     </data>
 </root>

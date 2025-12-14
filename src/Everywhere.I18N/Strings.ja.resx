@@ -1710,4 +1710,7 @@
     <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
         <value>システム設定 &gt; プライバシーとセキュリティ &gt; アクセシビリティでアプリケーションにアクセシビリティの権限を付与し、アプリケーションを再起動してください。</value>
     </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhereはすでに実行中です。アプリケーションウィンドウがシステムトレイにあるか確認してください。</value>
+    </data>
 </root>

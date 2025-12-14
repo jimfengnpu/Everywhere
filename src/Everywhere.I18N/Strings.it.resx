@@ -1708,6 +1708,9 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
         <value>OpenAI (Responses API)</value>
     </data>
     <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
-        <value>Si prega di concedere i permessi di accessibilità all'applicazione in Impostazioni di sistema &gt; Privacy e sicurezza &gt; Accessibilità, e riavviare l'applicazione.</value>
+        <value>Si prega di concedere i permessi di accessibilità all'applicazione in Impostazioni di Sistema &gt; Privacy e Sicurezza &gt; Accessibilità, e riavviare l'applicazione.</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere è già in esecuzione. Controlla l'area di notifica per la finestra dell'applicazione.</value>
     </data>
 </root>
