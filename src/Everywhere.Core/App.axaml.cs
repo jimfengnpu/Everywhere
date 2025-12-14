@@ -9,7 +9,6 @@ using Everywhere.Configuration;
 using Everywhere.Interop;
 using Everywhere.Views;
 using LiveMarkdown.Avalonia;
-using MsBox.Avalonia.Enums;
 using Serilog;
 using Window = Avalonia.Controls.Window;
 
@@ -23,20 +22,20 @@ public class App : Application
 
     public override void Initialize()
     {
+        AvaloniaXamlLoader.Load(this);
+
         Dispatcher.UIThread.UnhandledException += (_, e) =>
         {
             Log.Logger.Error(e.Exception, "UI Thread Unhandled Exception");
 
-            NativeMessageBox.ShowAsync(
+            NativeMessageBox.Show(
                 "Unexpected Error",
                 $"An unexpected error occurred:\n{e.Exception.Message}\n\nPlease check the logs for more details.",
-                ButtonEnum.Ok,
-                Icon.Error).WaitOnDispatcherFrame();
+                NativeMessageBoxButtons.Ok,
+                NativeMessageBoxIcon.Error);
 
             e.Handled = true;
         };
-
-        AvaloniaXamlLoader.Load(this);
 
         MarkdownNode.Register<MathInlineNode>();
         MarkdownNode.Register<MathBlockNode>();
@@ -55,11 +54,11 @@ public class App : Application
         {
             Log.Logger.Fatal(ex, "Failed to initialize application");
 
-            NativeMessageBox.ShowAsync(
+            NativeMessageBox.Show(
                 "Initialization Error",
                 $"An error occurred during application initialization:\n{ex.Message}\n\nPlease check the logs for more details.",
-                ButtonEnum.Ok,
-                Icon.Error).WaitOnDispatcherFrame();
+                NativeMessageBoxButtons.Ok,
+                NativeMessageBoxIcon.Error);
         }
 
         Log.ForContext<App>().Information("Application started");
