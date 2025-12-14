@@ -1387,9 +1387,6 @@ Inhalt:
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>Kann nicht in eine Binärdatei schreiben.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Der Assistent hat beim Aufrufen des Tools falsche Parameter übergeben, was typischerweise durch Modellhalluzination verursacht wird.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Die Dateigröße ist größer als 10 MB, der Ersetzungsvorgang wird nicht unterstützt.</value>
     </data>
@@ -1570,9 +1567,6 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>Das vom Assistenten aufgerufene Tool existiert nicht, was typischerweise durch Modellhalluzination verursacht wird.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* Name</value>

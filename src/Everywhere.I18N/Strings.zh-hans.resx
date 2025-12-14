@@ -1126,6 +1126,15 @@
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>参数超出有效范围。请确保配置正确。</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>无法建立 SSL 连接。请检查您的网络设置或证书。</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>连接被服务器拒绝。请检查服务是否正在运行且可访问。</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>找不到主机。请检查地址和您的网络连接。</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1392,8 +1401,8 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>无法写入二进制文件。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>助手在调用工具时传入了错误的参数，这通常是由模型幻觉导致。</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>模型为参数“{0}”提供了无效值，这可能是由模型幻觉导致的。</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>文件大小超过 10 MB，无法替换内容。</value>
@@ -1576,9 +1585,6 @@
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>助手调用的工具不存在，这通常是由模型幻觉导致。</value>
-    </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 名称</value>
     </data>
@@ -1713,5 +1719,11 @@
     </data>
     <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
         <value>Everywhere 已在运行，请检查托盘图标。</value>
+    </data>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>模型尝试调用不存在的工具“{0}”，这可能是由模型幻觉导致的。</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>调用工具时缺失必需参数“{0}”，这可能是由模型幻觉导致的。</value>
     </data>
 </root>

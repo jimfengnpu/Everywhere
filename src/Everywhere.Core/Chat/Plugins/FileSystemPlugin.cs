@@ -530,16 +530,18 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
         if (patterns.Count == 0)
         {
-            throw new HandledException(
-                new ArgumentException("At least one pattern must be provided.", nameof(patterns)),
-                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+            throw new HandledFunctionInvokingException(
+                HandledFunctionInvokingExceptionType.ArgumentError,
+                nameof(patterns),
+                new ArgumentException("At least one pattern must be provided.", nameof(patterns)));
         }
 
         if (replacements.Count != patterns.Count)
         {
-            throw new HandledException(
-                new ArgumentException("Replacements count must match patterns count.", nameof(replacements)),
-                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+            throw new HandledFunctionInvokingException(
+                HandledFunctionInvokingExceptionType.ArgumentError,
+                nameof(replacements),
+                new ArgumentException("Replacements count must match patterns count.", nameof(replacements)));
         }
 
         ExpandFullPath(ref path);
@@ -606,9 +608,10 @@ public class FileSystemPlugin : BuiltInChatPlugin
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new HandledException(
-                new ArgumentException("Path cannot be null or empty.", nameof(path)),
-                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+            throw new HandledFunctionInvokingException(
+                HandledFunctionInvokingExceptionType.ArgumentError,
+                nameof(path),
+                new ArgumentException("Path cannot be null or empty.", nameof(path)));
         }
 
         path = Environment.ExpandEnvironmentVariables(path);

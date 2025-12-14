@@ -1139,6 +1139,15 @@ Placeholders can be used within the prompt, enclosed in {}, and will be replaced
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>Argument is out of valid range. Please ensure the configuration is correct.</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>The SSL connection could not be established. Please check your network settings or certificate.</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>The connection was refused by the server. Please check if the service is running and accessible.</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>The host could not be found. Please check the address and your network connection.</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1405,8 +1414,8 @@ Content:
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>Cannot write to a binary file.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>The assistant passed incorrect parameters when invoking the tool, which is typically caused by model hallucination.</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>The model provided an invalid value for the parameter '{0}', likely due to hallucination.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>File size is larger than 10 MB, replace operation is not supported.</value>
@@ -1589,8 +1598,8 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>The tool invoked by the assistant does not exist, which is typically caused by model hallucination.</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>The model attempted to invoke the non-existent tool '{0}', likely due to hallucination.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* Name</value>
@@ -1726,5 +1735,8 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
         <value>Everywhere is already running. Please check your system tray for the application window.</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>The required parameter '{0}' is missing from the tool invocation, likely due to hallucination.</value>
     </data>
 </root>

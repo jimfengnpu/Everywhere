@@ -1391,9 +1391,6 @@ Contenido:
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>No se puede escribir en un archivo binario.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>El asistente pasó parámetros incorrectos al invocar la herramienta, lo que generalmente es causado por alucinaciones del modelo.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>El tamaño del archivo es mayor a 10 MB, la operación de reemplazo no es compatible.</value>
     </data>
@@ -1574,9 +1571,6 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>La herramienta invocada por el asistente no existe, lo que generalmente es causado por alucinaciones del modelo.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* Nombre</value>

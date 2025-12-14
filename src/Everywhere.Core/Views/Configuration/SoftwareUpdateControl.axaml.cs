@@ -53,12 +53,12 @@ public partial class SoftwareUpdateControl(
         }
         catch (Exception ex)
         {
-            ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content);
+            ex = new HandledException(ex, new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_Toast_CheckForUpdatesFailed_Content));
             logger.LogError(ex, "Failed to check for updates.");
             ShowErrorToast(ex);
         }
     }
-    
+
     public static readonly DirectProperty<SoftwareUpdateControl, IAsyncRelayCommand> PerformUpdateCommandProperty =
         AvaloniaProperty.RegisterDirect<SoftwareUpdateControl, IAsyncRelayCommand>(
             nameof(PerformUpdateCommand),
@@ -82,7 +82,7 @@ public partial class SoftwareUpdateControl(
         }
         catch (Exception ex)
         {
-            ex = new HandledException(ex, LocaleKey.CommonSettings_SoftwareUpdate_Toast_UpdateFailed_Content);
+            ex = new HandledException(ex, new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_Toast_UpdateFailed_Content));
             logger.LogError(ex, "Failed to perform update.");
             ShowErrorToast(ex);
         }

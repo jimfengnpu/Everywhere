@@ -1391,9 +1391,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>無法寫入二進位檔案。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>助手在調用工具時傳遞了不正確的參數，這通常是由於模型幻覺造成的。</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>檔案大小超過 10 MB，不支援替換操作。</value>
     </data>
@@ -1574,9 +1571,6 @@
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>助手調用的工具不存在，這通常是由於模型幻覺造成的。</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 名稱</value>

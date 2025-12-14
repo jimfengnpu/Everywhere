@@ -1391,9 +1391,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>Невозможно записать в бинарный файл.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Ассистент передал некорректные параметры при вызове инструмента, что обычно вызвано галлюцинацией модели.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Размер файла больше 10 МБ, операция замены не поддерживается.</value>
     </data>
@@ -1574,9 +1571,6 @@
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>Инструмент, вызванный ассистентом, не существует, что обычно вызвано галлюцинацией модели.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* Имя</value>

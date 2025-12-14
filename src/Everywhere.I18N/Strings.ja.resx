@@ -1391,9 +1391,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>バイナリファイルに書き込むことはできません。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>アシスタントがツールを呼び出す際に不正なパラメータを渡しました。これは通常、モデルの幻覚によって引き起こされます。</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>ファイルサイズが10 MBを超えているため、置き換え操作はサポートされていません。</value>
     </data>
@@ -1574,9 +1571,6 @@
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>アシスタントによって呼び出されたツールは存在しません。これは通常、モデルの幻覚によって引き起こされます。</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 名前</value>

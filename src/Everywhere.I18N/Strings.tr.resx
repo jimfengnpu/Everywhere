@@ -1385,9 +1385,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>İkili dosyaya yazılamıyor.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Asistan, aracı çağırırken yanlış parametreler geçti, bu genellikle model halüsinasyonu nedeniyle olur.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Dosya boyutu 10 MB'dan büyük, değiştirme işlemi desteklenmiyor.</value>
     </data>
@@ -1568,9 +1565,6 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>Asistan tarafından çağrılan araç mevcut değildir, bu genellikle model halüsinasyonu nedeniyle olur.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* İsim</value>

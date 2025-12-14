@@ -1391,9 +1391,6 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>이진 파일에 쓸 수 없습니다.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>도구를 호출할 때 잘못된 매개변수가 전달되었습니다. 이는 일반적으로 모델 환각에 의해 발생합니다.</value>
-    </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>파일 크기가 10MB를 초과하여 교체 작업이 지원되지 않습니다.</value>
     </data>
@@ -1574,9 +1571,6 @@
     </data>
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
-    </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>어시스턴트가 호출한 도구가 존재하지 않습니다. 이는 일반적으로 모델 환각에 의해 발생합니다.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 이름</value>
