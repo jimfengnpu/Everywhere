@@ -1703,4 +1703,10 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
     </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>Bitte gewähren Sie der Anwendung die Zugriffsrechte in den Systemeinstellungen &gt; Datenschutz &amp; Sicherheit &gt; Barrierefreiheit und starten Sie die Anwendung neu.</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere läuft bereits. Bitte überprüfen Sie Ihr Systemtray auf das Anwendungsfenster.</value>
+    </data>
 </root>
