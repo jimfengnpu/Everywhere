@@ -19,9 +19,10 @@ public partial class AtspiService
     private readonly ConcurrentDictionary<IntPtr, AtspiVisualElement> _cachedElement = new();
     private readonly ILogger<AtspiService> _logger = ServiceLocator.Resolve<ILogger<AtspiService>>();
     private readonly AtspiEventListenerCallback _eventCallback;
+    private readonly Lock _focusLock = new();
+    
     private IntPtr _eventListener;
     private IntPtr _focusedElement;
-    private Lock _focusLock = new();
 
     public AtspiService(ILinuxWindowBackend backend)
     {
@@ -63,13 +64,6 @@ public partial class AtspiService
             _eventListener = IntPtr.Zero;
         }
         atspi_exit();
-    }
-
-    private readonly static List<string> DesktopAppName = ["plasmashell", "gnome-shell", "xfdesktop", "caja", "nemo", "pcmanfm"];
-
-    private static bool IsAppNameDesktop(string? appName)
-    {
-        return appName != null && DesktopAppName.Any(appName.Contains);
     }
 
     private void OnEvent(IntPtr atspiEventPtr, IntPtr userData)
@@ -535,14 +529,9 @@ public partial class AtspiService
 
         public int ProcessId => ElementPid(_element);
 
-        public nint NativeWindowHandle
-        {
-            get
-            {
-                var win = atspi._windowBackend.GetWindowElementByPid(ProcessId);
-                return win?.NativeWindowHandle ?? IntPtr.Zero;
-            }
-        }
+        private IVisualElement? OwnerWindow => atspi._windowBackend.GetWindowElementByPid(ProcessId);
+
+        public nint NativeWindowHandle => OwnerWindow?.NativeWindowHandle ?? IntPtr.Zero;
 
         public string? GetText(int maxLength = -1)
         {
@@ -678,7 +667,12 @@ public partial class AtspiService
 
         public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(atspi._windowBackend.Capture(this, BoundingRectangle));
+            var rect = BoundingRectangle;
+            if (OwnerWindow != null)
+            {
+                rect = rect.Translate(-(PixelVector)OwnerWindow.BoundingRectangle.Position);
+            }
+            return Task.FromResult(atspi._windowBackend.Capture(this, rect));
         }
     }
 

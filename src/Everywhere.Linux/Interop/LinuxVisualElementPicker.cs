@@ -27,6 +27,7 @@ public partial class LinuxVisualElementContext
             window.Show();
             return window._pickingPromise.Task;
         }
+
         /// <summary>
         /// A promise that resolves to the picked visual element.
         /// </summary>
@@ -77,7 +78,7 @@ public partial class LinuxVisualElementContext
             SetWindowStyles(_toolTipWindow);
             backend.SetHitTestVisible(_toolTipWindow, false);
         }
-        
+
         private static void SetWindowStyles(Window window)
         {
             window.Topmost = true;
@@ -86,7 +87,7 @@ public partial class LinuxVisualElementContext
             window.SystemDecorations = SystemDecorations.None;
             window.WindowStartupLocation = WindowStartupLocation.Manual;
         }
-        
+
         private static void SetWindowPlacement(Window window, PixelRect screenBounds, out double scale)
         {
             window.Position = screenBounds.Position;
@@ -98,32 +99,34 @@ public partial class LinuxVisualElementContext
         protected override void OnOpened(EventArgs e)
         {
             bool leftPressed = false;
-            
-            _context._eventHelper.WindowPickerHook(this, (point, type) =>
-            {
-                switch (type)
+
+            _context._eventHelper.WindowPickerHook(
+                this,
+                (point, type) =>
                 {
-                    case EventType.MouseDown:
-                        if (!leftPressed)
-                        {
-                            leftPressed = true;
-                            Dispatcher.UIThread.Post(() => PickElement(point), DispatcherPriority.Default);
-                        }
-                        break;
-                    case EventType.MouseDrag:
-                        if (leftPressed)
-                        { 
-                            Dispatcher.UIThread.Post(() => PickElement(point), DispatcherPriority.Default);
-                        }
-                        break;
-                    case EventType.MouseUp:
-                        leftPressed = false;
-                        Dispatcher.UIThread.Post(Close, DispatcherPriority.Default);
-                        break;
-                }
-            });
+                    switch (type)
+                    {
+                        case EventType.MouseDown:
+                            if (!leftPressed)
+                            {
+                                leftPressed = true;
+                                Dispatcher.UIThread.Post(() => PickElement(point), DispatcherPriority.Default);
+                            }
+                            break;
+                        case EventType.MouseDrag:
+                            if (leftPressed)
+                            {
+                                Dispatcher.UIThread.Post(() => PickElement(point), DispatcherPriority.Default);
+                            }
+                            break;
+                        case EventType.MouseUp:
+                            leftPressed = false;
+                            Dispatcher.UIThread.Post(Close, DispatcherPriority.Default);
+                            break;
+                    }
+                });
         }
-        
+
         protected override void OnClosed(EventArgs e)
         {
             _context._eventHelper.UngrabMouseHook();
@@ -143,7 +146,7 @@ public partial class LinuxVisualElementContext
             foreach (var maskWindow in _maskWindows) maskWindow.SetMask(maskRect);
             _toolTip.Header = GetElementDescription(_selectedElement);
         }
-        
+
         /// <summary>
         /// Set the position of the tooltip window based on the pointer position.
         /// </summary>

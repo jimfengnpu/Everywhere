@@ -5,7 +5,6 @@ using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
 
-
 public enum EventType
 {
     Unknown,
@@ -26,7 +25,7 @@ public enum EventType
 public interface ILinuxEventHelper
 {
     bool GetKeyState(KeyModifiers keyModifiers);
-    
+
     /// <summary>
     /// Grab a global key. Returns an id (>0) on success, or 0 on failure.
     /// The _backend must handle common modifier permutations (Lock/NumLock).
@@ -37,17 +36,17 @@ public interface ILinuxEventHelper
     void UngrabKey(int id);
 
     void GrabKeyHook(Action<KeyboardShortcut, EventType> hook);
-    
+
     void UngrabKeyHook();
-    
+
     int GrabMouse(MouseShortcut hotkey, Action handler);
-    
+
     void UngrabMouse(int id);
-    
+
     void GrabMouseHook(Action<PixelPoint, EventType> hook);
-    
+
     void UngrabMouseHook();
-    
+
     void WindowPickerHook(Window overlayLayer, Action<PixelPoint, EventType> hook);
-    
+
 }

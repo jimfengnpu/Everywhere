@@ -26,8 +26,8 @@ public interface ILinuxWindowBackend: IWindowHelper
     /// <summary>
     /// Capture screen bitmap of window within rect
     /// </summary>
-    /// <param name="window">capture target</param>
-    /// <param name="rect"> used for capturing full screen</param>
+    /// <param name="window">capture target, full screen(root window used) if not given</param>
+    /// <param name="rect">captured rect relative to window</param>
     /// <returns></returns>
     Bitmap Capture(IVisualElement? window, PixelRect rect);
 }

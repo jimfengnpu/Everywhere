@@ -1,6 +1,8 @@
 using System.Runtime.InteropServices;
 using Avalonia.Input;
 using Microsoft.Extensions.Logging;
+using X11;
+using X11Window = X11.Window;
 
 namespace Everywhere.Linux.Interop;
 
@@ -9,108 +11,60 @@ namespace Everywhere.Linux.Interop;
 /// </summary>
 public partial class X11WindowBackend
 {
+
     #region X11 P/Invoke Declarations
 
-    // Core X11 functions
-    [LibraryImport(LibX11)] private static partial IntPtr XOpenDisplay(IntPtr displayName);
-    [LibraryImport(LibX11)] private static partial int XInitThreads();
-    [LibraryImport(LibX11)] private static partial int XCloseDisplay(IntPtr display);
-    [LibraryImport(LibX11)] private static partial IntPtr XDefaultGC(IntPtr display, int screenNumber);
-    [LibraryImport(LibX11)] private static partial int XDefaultScreen(IntPtr display);
-    [LibraryImport(LibX11)] private static partial IntPtr XDefaultRootWindow(IntPtr display);
-    [LibraryImport(LibX11)] private static partial IntPtr XRootWindow(IntPtr display, int screenNumber);
     [LibraryImport(LibX11)] private static partial int XScreenCount(IntPtr display);
     [LibraryImport(LibX11)] private static partial int XDisplayWidth(IntPtr display, int screenNumber);
     [LibraryImport(LibX11)] private static partial int XDisplayHeight(IntPtr display, int screenNumber);
-    [LibraryImport(LibX11)] private static partial int XChangeWindowAttributes(IntPtr display, IntPtr window, int valueMask, ref XWindowAttributes attributes);
-    [LibraryImport(LibX11)] private static partial int XGetWindowAttributes(IntPtr display, IntPtr window, out XWindowAttributes attributes);
-    [LibraryImport(LibX11)] private static partial int XMatchVisualInfo(IntPtr display, int screen, int depth, int class_visual, out XVisualInfo vinfo);
-    [LibraryImport(LibX11)]
-    private static partial IntPtr XCreateColormap(IntPtr display, IntPtr window, IntPtr visual, int alloc);
-    [LibraryImport(LibX11)]
-    private static partial IntPtr XCreateWindow(IntPtr display, IntPtr parent, int x, int y, uint width, uint height, uint border_width, int depth, uint class_visual, IntPtr visual, uint valuemask, ref XSetWindowAttributes attributes);
 
-    [LibraryImport(LibX11)]
-    private static partial int XMapWindow(IntPtr display, IntPtr window);
+    [LibraryImport(LibX11)] private static partial int XChangeWindowAttributes(
+        IntPtr display,
+        X11Window window,
+        ulong valueMask,
+        IntPtr setAttributes);
 
-    [LibraryImport(LibX11)]
-    private static partial int XRaiseWindow(IntPtr display, IntPtr window);
-
-    [LibraryImport(LibX11)]
-    private static partial int XUnmapWindow(IntPtr display, IntPtr window);
-
-    [LibraryImport(LibX11)]
-    private static partial int XDestroyWindow(IntPtr display, IntPtr window);
-    [LibraryImport(LibX11)]
-    private static partial int XClearArea(IntPtr display, IntPtr window, int x, int y, uint width, uint height, int exposures);
-
-    [LibraryImport(LibX11)]
-    private static partial int XDrawRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, uint width, uint height);
-    [LibraryImport(LibX11)]
-    private static partial ulong XWhitePixel(IntPtr display, int screenNumber);
-
-    [LibraryImport(LibX11)]
-    private static partial ulong XBlackPixel(IntPtr display, int screenNumber);
-
-    // Atoms and Properties
-    [LibraryImport(LibX11)] private static partial UIntPtr XStringToKeysym([MarshalAs(UnmanagedType.LPStr)] string s);
-    [LibraryImport(LibX11)] private static partial IntPtr XInternAtom(IntPtr display, [MarshalAs(UnmanagedType.LPStr)] string atomName, int onlyIfExists);
-
-    // Events and Input
-    [LibraryImport(LibX11)] private static partial int XSelectInput(IntPtr display, IntPtr window, uint eventMask);
-    [LibraryImport(LibX11)] private static partial int XFlush(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XNextEvent(IntPtr display, IntPtr ev);
-    [LibraryImport(LibX11)] private static partial IntPtr XSetErrorHandler(XErrorHandlerFunc handler);
-    [LibraryImport(LibX11)] private static partial int XPending(IntPtr display);
-    [LibraryImport(LibX11)] private static partial int XConnectionNumber(IntPtr display);
-
-    // Keyboard and Mouse
-    [LibraryImport(LibX11)] private static partial int XKeysymToKeycode(IntPtr display, UIntPtr keysym);
-    [LibraryImport(LibX11)] private static partial UIntPtr XKeycodeToKeysym(IntPtr display, int keycode, int index);
-    [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(UIntPtr keysym);
+    [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(KeySym keysym);
     [LibraryImport(LibX11)] private static partial void XQueryKeymap(IntPtr display, byte[] keymap);
-    [LibraryImport(LibX11)] private static partial int XGrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow, int ownerEvents, int pointerMode, int keyboardMode);
-    [LibraryImport(LibX11)] private static partial int XUngrabKey(IntPtr display, int keycode, uint modifiers, IntPtr grabWindow);
-    [LibraryImport(LibX11)] private static partial int XGrabKeyboard(IntPtr display, IntPtr grabWindow, int ownerEvents, int pointerMode, int keyboardMode, uint time);
-    [LibraryImport(LibX11)] private static partial int XUngrabKeyboard(IntPtr display, IntPtr grabWindow);
-    [LibraryImport(LibX11)] private static partial int XGrabPointer(IntPtr display, IntPtr grabWindow, int ownerEvents, uint eventMask, int pointerMode, int keyboardMode, IntPtr confineTo, IntPtr cursor, uint time);
-    [LibraryImport(LibX11)] private static partial int XUngrabPointer(IntPtr display, uint time);
 
-    // Window and Geometry operations
-    [LibraryImport(LibX11)] private static partial int XTranslateCoordinates(IntPtr display, IntPtr srcWindow, IntPtr destWindow, int srcX, int srcY, out int destXReturn, out int destYReturn, out IntPtr childReturn);
-    [LibraryImport(LibX11)] private static partial int XGetGeometry(IntPtr display, IntPtr drawable, out IntPtr rootReturn, out int x, out int y, out uint width, out uint height, out uint borderWidth, out uint depth);
-    [LibraryImport(LibX11)] private static partial int XFetchName(IntPtr display, IntPtr window, out IntPtr windowName);
-    [LibraryImport(LibX11)] private static partial void XFree(IntPtr data);
-    [LibraryImport(LibX11)] private static partial int XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property, long offset, long length, int delete, IntPtr reqType, out IntPtr actualTypeReturn, out int actualFormatReturn, out ulong nitemsReturn, out ulong bytesAfterReturn, out IntPtr propReturn);
+    [LibraryImport(LibX11)] private static partial int XGrabKeyboard(
+        IntPtr display,
+        X11Window grabWindow,
+        int ownerEvents,
+        GrabMode pointerMode,
+        GrabMode keyboardMode,
+        uint time);
 
-    // Focus and Input
-    [LibraryImport(LibX11)] private static partial void XGetInputFocus(IntPtr display, out IntPtr focusReturn, out int revertToReturn);
-    [LibraryImport(LibX11)] private static partial int XQueryPointer(IntPtr display, IntPtr window, out IntPtr rootReturn, out IntPtr childReturn, out int rootXReturn, out int rootYReturn, out int winXReturn, out int winYReturn, out uint maskReturn);
-    [LibraryImport(LibX11)] private static partial int XQueryTree(IntPtr display, IntPtr window, out IntPtr rootReturn, out IntPtr parentReturn, out IntPtr childrenReturn, out int nchildrenReturn);
+    [LibraryImport(LibX11)] private static partial int XUngrabKeyboard(IntPtr display, X11Window grabWindow);
 
-    // Window properties and state
-    private const int RevertToPointerRoot = 1;
-    private const int RevertToParent = 2;
-    [LibraryImport(LibX11)] private static partial void XSetInputFocus(IntPtr display, IntPtr window, int revert_to, uint time);
-    private const int PropModeReplace = 0;
-    [LibraryImport(LibX11)] private static partial void XChangeProperty(IntPtr display, IntPtr window, IntPtr property, IntPtr type, int format, int mode, ulong[] data, int nelements);
+    // // Window and Geometry operations
+    [LibraryImport(LibX11)] private static partial int XTranslateCoordinates(
+        IntPtr display,
+        X11Window srcWindow,
+        X11Window destWindow,
+        int srcX,
+        int srcY,
+        out int destXReturn,
+        out int destYReturn,
+        out IntPtr childReturn);
 
-    // Error handling
-    [LibraryImport(LibX11)] private static partial void XGetErrorText(IntPtr display, int code, byte[] buffer, int length);
-
-    // Screen capture
-    private const int ZPixmap = 2;
-    private const ulong AllPlanes = ~0UL;
-    [LibraryImport(LibX11)] private static partial IntPtr XGetImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, ulong planeMask, int format);
-    [LibraryImport(LibX11)] private static partial void XDestroyImage(IntPtr ximage);
+    [LibraryImport(LibX11)] private static partial int XGetWindowProperty(
+        IntPtr display,
+        X11Window window,
+        Atom property,
+        long offset,
+        long length,
+        int delete,
+        Atom reqType,
+        out Atom actualTypeReturn,
+        out int actualFormatReturn,
+        out ulong nitemsReturn,
+        out ulong bytesAfterReturn,
+        out IntPtr propReturn);
 
     // Window shaping and transparency
-    private const int ShapeBounding = 0;
-    private const int ShapeClip = 1;
     private const int ShapeInput = 2;
-    private const int ShapeSet = 0;
-    private const int ShapeUnion = 1;
-    
+
     [StructLayout(LayoutKind.Sequential)]
     private struct XRectangle
     {
@@ -122,269 +76,81 @@ public partial class X11WindowBackend
 
     [LibraryImport("libXfixes.so.3")] private static partial IntPtr XFixesCreateRegion(IntPtr display, XRectangle[] rectangles, int nrectangles);
     [LibraryImport("libXfixes.so.3")] private static partial void XFixesDestroyRegion(IntPtr display, IntPtr region);
-    [LibraryImport("libXfixes.so.3")] private static partial void XFixesSetWindowShapeRegion(IntPtr display, IntPtr window, int shapeKind, int xOffset, int yOffset, IntPtr region);
+
+    [LibraryImport("libXfixes.so.3")] private static partial void XFixesSetWindowShapeRegion(
+        IntPtr display,
+        X11Window window,
+        int shapeKind,
+        int xOffset,
+        int yOffset,
+        IntPtr region);
+
     [LibraryImport("libXfixes.so.3")] private static partial int XFixesQueryExtension(IntPtr display, out int eventBase, out int errorBase);
-    [LibraryImport("libXtst.so.6")] private static partial int XTestFakeKeyEvent(IntPtr display, int keycode, int press, uint delay);
 
     #endregion
 
     #region X11 Constants and Structures
 
-    // Key and Modifiers Masks in state
-    private const int AnyKey = 0;
-    private const uint ShiftMask = 1u << 0;
-    private const uint LockMask = 1u << 1;
-    private const uint ControlMask = 1u << 2;
-    private const uint Mod1Mask = 1u << 3; // Alt
-    private const uint Mod2Mask = 1u << 4; // Num Lock
-    private const uint Mod4Mask = 1u << 6; // Super/Meta/Win
-    private const uint Button1Mask = 1u << 8;
-    private const uint Button2Mask = 1u << 9;
-    private const uint Button3Mask = 1u << 10;
-    private const uint Button4Mask = 1u << 11;
-    private const uint Button5Mask = 1u << 12;
-    private const uint AnyModifiers = 1u << 15;
-
-    // Key/Buttion detail
-
-
-    // Event Masks
-    private const uint KeyPressMask = 1u << 0;
-    private const uint KeyReleaseMask = 1u << 1;
-    private const uint ButtonPressMask = 1u << 2;
-    private const uint ButtonReleaseMask = 1u << 3;
-    private const uint PointerMotionMask = 1u << 6;
-    private const uint ButtonMotionMask = 1u << 13;
-    private const uint FocusChangeMask = 1u << 21;
-
-    // Event Types
-    private const int KeyPress = 2;
-    private const int KeyRelease = 3;
-    private const int ButtonPress = 4;
-    private const int ButtonRelease = 5;
-    private const int MotionNotify = 6;
-    private const int FocusIn = 9;
-    private const int FocusOut = 10;
-    
-    // Window Attr
-    private const int IsUnmapped = 0;
-    private const int IsUnviewable = 1;
-    private const int IsViewable = 2;
-
-    private static class CW
+    private enum SetWindowAttrMask : ulong
     {
-        public const int BackPixmap = 1 << 0;
-        public const int BackPixel = 1 << 1;
-        public const int BorderPixmap = 1 << 2;
-        public const int BorderPixel = 1 << 3;
-        public const int BitGravity = 1 << 4;
-        public const int WinGravity = 1 << 5;
-        public const int BackingStore = 1 << 6;
-        public const int BackingPlanes = 1 << 7;
-        public const int BackingPixel = 1 << 8;
-        public const int SaveUnder = 1 << 9;
-        public const int EventMask = 1 << 10;
-        public const int DontPropagate = 1 << 11;
-        public const int OverrideRedirect = 1 << 15;
-        public const int Colormap = 1 << 13;
-        public const int Cursor = 1 << 14;
+        BackPixmap = 1 << 0,
+        BackPixel = 1 << 1,
+        BorderPixmap = 1 << 2,
+        BorderPixel = 1 << 3,
+        BitGravity = 1 << 4,
+        WinGravity = 1 << 5,
+        BackingStore = 1 << 6,
+        BackingPlanes = 1 << 7,
+        BackingPixel = 1 << 8,
+        SaveUnder = 1 << 9,
+        EventMask = 1 << 10,
+        DontPropagate = 1 << 11,
+        Colormap = 1 << 13,
+        Cursor = 1 << 14,
+        OverrideRedirect = 1 << 15,
     }
-    private static class CreateWindowArgs
+
+    private enum MapState
     {
-        public const int InputOutput = 1;
-        public const int InputOnly = 2;
+        IsUnmapped = 0,
+        IsUnviewable = 1,
+        IsViewable = 2
     }
-    // Other Constants
-    private const int TrueColor = 4;
-    private const int GrabModeAsync = 1;
+
+    private const X11Window ScanSkipWindow = (X11Window)ulong.MaxValue;
     private const uint CurrentTime = 0;
     private const string LibX11 = "libX11.so.6";
-    private const int XA_ATOM = 4;
-    private const int XA_CARDINAL = 6;
-    private const int XA_WINDOW = 33;
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XWindowAttributes
-    {
-        public int x, y;
-        public int width, height;
-        public int border_width;
-        public int depth;
-        public IntPtr visual;
-        public IntPtr root;
-        public int class_visual;
-        public int bit_gravity;
-        public int win_gravity;
-        public int backing_store;
-        public IntPtr backing_planes;
-        public IntPtr backing_pixel;
-        public int save_under;
-        public IntPtr colormap;
-        public int map_installed;
-        public int map_state;
-        public IntPtr all_event_masks;
-        public IntPtr your_event_mask;
-        public IntPtr do_not_propagate_mask;
-        public int override_redirect;
-        public IntPtr screen;
-    }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XSetWindowAttributes
-    {
-        public IntPtr background_pixmap;
-        public IntPtr background_pixel;
-        public IntPtr border_pixmap;
-        public IntPtr border_pixel;
-        public int bit_gravity;
-        public int win_gravity;
-        public int backing_store;
-        public IntPtr backing_planes;
-        public IntPtr backing_pixel;
-        public int save_under;
-        public IntPtr event_mask;
-        public IntPtr do_not_propagate_mask;
-        public int override_redirect;
-        public IntPtr colormap;
-        public IntPtr cursor;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XVisualInfo
-    {
-        public IntPtr visual;
-        public IntPtr visualid;
-        public int screen;
-        public int depth;
-        public int class_visual;
-        public ulong red_mask;
-        public ulong green_mask;
-        public ulong blue_mask;
-        public int colormap_size;
-        public int bits_per_rgb;
-    }
-
-    // X11 Structures
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XAnyEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XKeyEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-        public IntPtr root;
-        public IntPtr subwindow;
-        public ulong time;
-        public int x, y;
-        public int x_root, y_root;
-        public uint state;
-        public uint keycode;
-        public bool sameScreen;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XButtonEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-        public IntPtr root;
-        public IntPtr subwindow;
-        public ulong time;
-        public int x, y;
-        public int x_root, y_root;
-        public uint state;
-        public uint button;
-        public bool sameScreen;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XMotionEvent
-    {
-        public int type;
-        public ulong serial;
-        public int sendEvent;
-        public IntPtr display;
-        public IntPtr window;
-        public IntPtr root;
-        public IntPtr subwindow;
-        public ulong time;
-        public int x, y;
-        public int x_root, y_root;
-        public uint state;
-        public uint is_hint;
-        public bool sameScreen;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XErrorEvent
-    {
-        public int type;
-        public IntPtr display;
-        public ulong resourceid;
-        public ulong serial;
-        public byte errorCode;
-        public byte request_code;
-        public byte minor_code;
-        public byte pad;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct XImage
-    {
-        public int width;
-        public int height;
-        public int xoffset;
-        public int format;
-        public IntPtr data;
-        public int byte_order;
-        public int bitmap_unit;
-        public int bitmap_bit_order;
-        public int bitmap_pad;
-        public int depth;
-        public int bytes_per_line;
-        public int bits_per_pixel;
-        public ulong red_mask;
-        public ulong green_mask;
-        public ulong blue_mask;
-    }
-
-    private delegate int XErrorHandlerFunc(IntPtr display, IntPtr errorEventPtr);
     #endregion
+
     // X11 Error Handler
-    private int OnXError(IntPtr d, IntPtr errorEventPtr)
+    private int OnXError(IntPtr d, ref XErrorEvent ev)
     {
         try
         {
-            var ev = Marshal.PtrToStructure<XErrorEvent>(errorEventPtr);
             string text;
             try
             {
-                // XGetErrorText Buffer
                 var buffer = new byte[256]; // X11 Error Text Give 256 Bytes
-                XGetErrorText(d, ev.errorCode, buffer, buffer.Length);
+                unsafe
+                {
+                    fixed (byte* buff = buffer)
+                    {
+                        Xlib.XGetErrorText(d, ev.error_code, (IntPtr)buff, buffer.Length);
+                    }
+                }
                 text = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to get X error text for code {code}", ev.errorCode);
-                text = $"Unknown error code {ev.errorCode}";
+                _logger.LogWarning(ex, "Failed to get X error text for code {code}", ev.error_code);
+                text = $"Unknown error code {ev.error_code}";
             }
 
             _logger.LogError(
                 "X Error: code={code}({errorName}) request={req}({reqName}) minor={minor} resource={res} text={text}",
-                ev.errorCode,
-                GetErrorCodeName(ev.errorCode),
+                ev.error_code,
+                GetErrorCodeName(ev.error_code),
                 ev.request_code,
                 GetRequestCodeName(ev.request_code),
                 ev.minor_code,
@@ -399,6 +165,7 @@ public partial class X11WindowBackend
     }
 
     #region X11 Code Conversion Functions
+
     private static string GetErrorCodeName(int code)
     {
         return code switch
@@ -423,34 +190,6 @@ public partial class X11WindowBackend
             _ => $"Unknown({code})"
         };
     }
-
-    // /// <summary>
-    // /// X11 Error Discription
-    // /// </summary>
-    // private static string GetErrorDescription(int code)
-    // {
-    //     return code switch
-    //     {
-    //         1 => "The request code is invalid",
-    //         2 => "Some numeric value falls outside the allowed range",
-    //         3 => "A parameter for a Window request does not refer to a valid Window",
-    //         4 => "A parameter for a Pixmap request does not refer to a valid Pixmap",
-    //         5 => "A parameter for an Atom request does not refer to a valid Atom",
-    //         6 => "A parameter for a Cursor request does not refer to a valid Cursor",
-    //         7 => "A parameter for a Font request does not refer to a valid Font",
-    //         8 => "The input shape does not match the drawable",
-    //         9 => "A parameter for a Drawable request does not refer to a valid Drawable",
-    //         10 => "The client attempted to access a resource it does not have permission to access",
-    //         11 => "The server failed to allocate the requested resource",
-    //         12 => "A value for a Colormap request does not refer to a valid Colormap",
-    //         13 => "A parameter for a GContext request does not refer to a valid GContext",
-    //         14 => "The choice is not in the allowed range",
-    //         15 => "A font or color name does not exist",
-    //         16 => "The length of a request is shorter or longer than required",
-    //         17 => "The server does not implement some aspect of the request",
-    //         _ => $"No description available for error code {code}"
-    //     };
-    // }
 
     private static string GetRequestCodeName(int requestCode)
     {
@@ -593,54 +332,46 @@ public partial class X11WindowBackend
             _ => $"UnknownRequest{requestCode}"
         };
     }
-    
-    internal static string KeysymToString(UIntPtr ks)
-    {
-        try
-        {
-            var p = XKeysymToString(ks);
-            if (p == IntPtr.Zero) return string.Empty;
-            return Marshal.PtrToStringAnsi(p) ?? string.Empty;
-        }
-        catch { return string.Empty; }
-    }
 
-    internal static KeyModifiers KeyStateToModifier(uint state)
+
+    private static KeyModifiers KeyStateToModifier(uint state)
     {
-        KeyModifiers mod = KeyModifiers.None;
-        if ((state & ShiftMask) != 0) mod |= KeyModifiers.Shift;
-        if ((state & ControlMask) != 0) mod |= KeyModifiers.Control;
-        if ((state & Mod1Mask) != 0) mod |= KeyModifiers.Alt;
-        if ((state & Mod4Mask) != 0) mod |= KeyModifiers.Meta;
+        var mod = KeyModifiers.None;
+        if ((state & ((uint)KeyButtonMask.ShiftMask)) != 0) mod |= KeyModifiers.Shift;
+        if ((state & ((uint)KeyButtonMask.ControlMask)) != 0) mod |= KeyModifiers.Control;
+        if ((state & ((uint)KeyButtonMask.Mod1Mask)) != 0) mod |= KeyModifiers.Alt;
+        if ((state & ((uint)KeyButtonMask.Mod4Mask)) != 0) mod |= KeyModifiers.Meta;
         return mod;
     }
+
     private EventType GetEventType(IntPtr rawEvent)
     {
         var ev = Marshal.PtrToStructure<XAnyEvent>(rawEvent);
         // _logger.LogInformation("X recv event type={ev}", ev.type);
-        switch (ev.type)
+        var type = (Event)ev.type;
+        switch (type)
         {
-            case KeyPress: return EventType.KeyDown;
-            case KeyRelease: return EventType.KeyUp;
-            case ButtonPress:
-            case ButtonRelease:
+            case Event.KeyPress: return EventType.KeyDown;
+            case Event.KeyRelease: return EventType.KeyUp;
+            case Event.ButtonPress:
+            case Event.ButtonRelease:
+            {
+                var buttonEvent = Marshal.PtrToStructure<XButtonEvent>(rawEvent);
+                switch (buttonEvent.button)
                 {
-                    var buttonEvent = Marshal.PtrToStructure<XButtonEvent>(rawEvent);
-                    switch (buttonEvent.button)
-                    {
-                        case 2: return EventType.MouseMiddle;
-                        case 3: return EventType.MouseRight;
-                        case 4: return EventType.MouseWheelUp;
-                        case 5: return EventType.MouseWheelDown;
-                        case 6: return EventType.MouseWheelLeft;
-                        case 7: return EventType.MouseWheelRight;
-                    }
-                    return ev.type == ButtonPress ? EventType.MouseDown : EventType.MouseUp;
+                    case 2: return EventType.MouseMiddle;
+                    case 3: return EventType.MouseRight;
+                    case 4: return EventType.MouseWheelUp;
+                    case 5: return EventType.MouseWheelDown;
+                    case 6: return EventType.MouseWheelLeft;
+                    case 7: return EventType.MouseWheelRight;
                 }
-            case MotionNotify:
+                return type == Event.ButtonPress ? EventType.MouseDown : EventType.MouseUp;
+            }
+            case Event.MotionNotify:
                 return EventType.MouseDrag;
-            case FocusIn:
-            case FocusOut:
+            case Event.FocusIn:
+            case Event.FocusOut:
                 return EventType.FocusChange;
 
         }
@@ -648,4 +379,5 @@ public partial class X11WindowBackend
     }
 
     #endregion
+
 }

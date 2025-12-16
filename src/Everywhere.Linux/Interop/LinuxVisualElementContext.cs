@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
 using ZLinq;
+
 namespace Everywhere.Linux.Interop;
 
 /// <summary>
@@ -17,7 +18,8 @@ public partial class LinuxVisualElementContext(
 )
     : IVisualElementContext
 {
-    public IVisualElement? KeyboardFocusedElement {
+    public IVisualElement? KeyboardFocusedElement
+    {
         get
         {
             try
@@ -27,9 +29,9 @@ public partial class LinuxVisualElementContext(
                 // however, atspi element is more detailed, so return null when incorrect
                 // to let atspi pointer search do the work
                 var focused = _atspi.ElementFocused();
-                var focusedWindow =  backend.GetFocusedWindowElement();
+                var focusedWindow = backend.GetFocusedWindowElement();
                 // for Non X11 session, the window may get null, and not equal to that atspi gives
-                return (focusedWindow == null || (focused?.ProcessId == focusedWindow?.ProcessId)) ? focused: null;
+                return (focusedWindow == null || (focused?.ProcessId == focusedWindow?.ProcessId)) ? focused : null;
             }
             catch (Exception ex)
             {
@@ -52,13 +54,13 @@ public partial class LinuxVisualElementContext(
                     var win = backend.GetWindowElementAt(point);
                     var elem = _atspi.ElementFromPoint(point, win.ProcessId);
                     return elem ?? win; // fallback to window mode
-                    
+
                 case PickElementMode.Window:
                     return backend.GetWindowElementAt(point);
-                    
+
                 case PickElementMode.Screen:
                     return backend.GetScreenElement();
-                    
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
@@ -90,5 +92,5 @@ public partial class LinuxVisualElementContext(
         return result;
     }
 
-    
+
 }

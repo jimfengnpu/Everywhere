@@ -21,6 +21,7 @@ public class LinuxNativeHelper : INativeHelper
                 Path.Combine(home, ".config/systemd/user/Everywhere.service");
         }
     }
+    
     public bool IsInstalled => false; // implement proper detection if needed
 
     public bool IsAdministrator => false; // Linux elevation detection omitted
