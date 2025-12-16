@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reflection;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
 using Everywhere.Common;
@@ -14,15 +13,37 @@ using ShadUI;
 
 namespace Everywhere.ViewModels;
 
+public interface INavigationItem
+{
+    DynamicResourceKeyBase TitleKey { get; }
+
+    object Content { get; }
+}
+
+public record NavigationItem(DynamicResourceKeyBase TitleKey, object Content) : INavigationItem;
+
 public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
 {
-    public ReadOnlyObservableCollection<SidebarItem> Pages { get; }
+    public ReadOnlyObservableCollection<NavigationBarItem> Pages { get; }
 
-    [ObservableProperty] public partial SidebarItem? SelectedPage { get; set; }
+    public NavigationBarItem? SelectedPage
+    {
+        get;
+        set
+        {
+            if (!SetProperty(ref field, value)) return;
+            if (value is not null) Navigate(new ShadNavigationItem(value));
+        }
+    }
+
+    public ReadOnlyObservableCollection<INavigationItem> NavigationItems { get; }
+
+    [ObservableProperty] public partial INavigationItem? CurrentNavigationItem { get; private set; }
 
     public Settings Settings { get; }
 
-    private readonly SourceList<SidebarItem> _pagesSource = new();
+    private readonly SourceList<NavigationBarItem> _pagesSource = new();
+    private readonly SourceList<INavigationItem> _navigationItemsSource = new();
     private readonly CompositeDisposable _disposables = new(2);
 
     private readonly IServiceProvider _serviceProvider;
@@ -37,7 +58,27 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
             .ObserveOnDispatcher()
             .BindEx(_disposables);
 
-        _disposables.Add(_pagesSource);
+        NavigationItems = _navigationItemsSource
+            .Connect()
+            .ObserveOnDispatcher()
+            .BindEx(_disposables);
+    }
+
+    public void Navigate(INavigationItem navigationItem)
+    {
+        _navigationItemsSource.Edit(items =>
+        {
+            if (!items.Contains(navigationItem))
+            {
+                items.Add(navigationItem);
+                if (items.Count > 10)
+                {
+                    items.RemoveAt(0);
+                }
+            }
+
+            CurrentNavigationItem ??= navigationItem;
+        });
     }
 
     protected internal override Task ViewLoaded(CancellationToken cancellationToken)
@@ -50,14 +91,12 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
                 .SelectMany(f => f.CreatePages())
                 .Concat(_serviceProvider.GetServices<IMainViewPage>())
                 .OrderBy(p => p.Index)
-                .Select(p => new SidebarItem
+                .Select(p => new NavigationBarItem
                 {
-                    [ContentControl.ContentProperty] = new TextBlock
-                    {
-                        [!TextBlock.TextProperty] = p.Title.ToBinding()
-                    },
-                    [SidebarItem.RouteProperty] = p,
-                    Icon = new LucideIcon { Kind = p.Icon, Size = 20 }
+                    Content = p.Title.ToTextBlock(),
+                    Route = p,
+                    Icon = new LucideIcon { Kind = p.Icon, Size = 20 },
+                    [!NavigationBarItem.ToolTipProperty] = p.Title.ToBinding()
                 }));
         SelectedPage = _pagesSource.Items.FirstOrDefault();
 
@@ -108,5 +147,31 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
     public void Dispose()
     {
         _disposables.Dispose();
+    }
+
+    /// <summary>
+    /// A navigation item that wraps a ShadUI NavigationBarItem.
+    /// </summary>
+    private sealed class ShadNavigationItem : INavigationItem
+    {
+        public DynamicResourceKeyBase TitleKey { get; }
+
+        public object Content { get; }
+
+        private readonly NavigationBarItem _navigationBarItem;
+
+        public ShadNavigationItem(NavigationBarItem navigationBarItem)
+        {
+            _navigationBarItem = navigationBarItem;
+            var mainViewPage = navigationBarItem.Route.NotNull<IMainViewPage>();
+            TitleKey = mainViewPage.Title;
+            Content = mainViewPage;
+        }
+
+        public override bool Equals(object? obj) =>
+            obj is ShadNavigationItem other && other._navigationBarItem == _navigationBarItem ||
+            obj is NavigationBarItem item && item == _navigationBarItem;
+
+        public override int GetHashCode() => _navigationBarItem.GetHashCode();
     }
 }

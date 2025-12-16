@@ -50,8 +50,6 @@
     <PackageReference Include="Serilog.Sinks.File"/>
     <PackageReference Include="System.Drawing.Common"/>
     <PackageReference Include="Tavily"/>
-    <PackageReference Include="Xaml.Behaviors.Avalonia"/>
-    <PackageReference Include="Xaml.Behaviors.Interactivity"/>
   </ItemGroup>
 
   <ItemGroup>
