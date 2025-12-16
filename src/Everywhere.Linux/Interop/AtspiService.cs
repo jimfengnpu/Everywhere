@@ -711,9 +711,10 @@ public partial class AtspiService
         public int width;
         public int height;
     }
-    // Accessible Impl Type
 
-    // Role
+    /// <summary>
+    /// Role
+    /// </summary>
     public enum AtspiRole
     {
         Invalid = 0,
@@ -795,7 +796,9 @@ public partial class AtspiService
         Canvas = 6
     }
 
-    // States
+    /// <summary>
+    /// States
+    /// </summary>
     public enum AtspiState
     {
         // Offscreen
@@ -813,7 +816,9 @@ public partial class AtspiService
     // Password
     // refer to Role
 
-    // Relation Type
+    /// <summary>
+    /// Relation Type
+    /// </summary>
     public enum AtspiRelationType
     {
         SubwindowOf = 12,
@@ -821,7 +826,9 @@ public partial class AtspiService
         EmbeddedBy = 14
     }
 
-    // Component Layer
+    /// <summary>
+    /// Component Layer
+    /// </summary>
     public enum AtspiLayer
     {
         Invalid = 0,
@@ -837,7 +844,7 @@ public partial class AtspiService
     [StructLayout(LayoutKind.Sequential)]
     private struct AtspiEvent
     {
-        public IntPtr type; // char*
+        public IntPtr type;   // char*
         public IntPtr source; // AtspiAccessible*
         public int detail1;
         public int detail2;
@@ -926,9 +933,6 @@ public partial class AtspiService
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_accessible_is_component(IntPtr accessible);
-
-    [LibraryImport(LibAtspi)]
-    public static partial IntPtr atspi_component_get_accessible_at_point(IntPtr component, int x, int y, int coordType, IntPtr error);
 
     [LibraryImport(LibAtspi)]
     public static partial int atspi_component_get_layer(IntPtr component, IntPtr error);

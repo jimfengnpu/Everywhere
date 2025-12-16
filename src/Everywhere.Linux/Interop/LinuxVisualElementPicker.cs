@@ -1,14 +1,5 @@
-using System.Diagnostics;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Threading;
-using Window = Avalonia.Controls.Window;
-using Everywhere.Extensions;
-using Everywhere.I18N;
 using Everywhere.Interop;
 using Everywhere.Views;
 
@@ -37,6 +28,7 @@ public partial class LinuxVisualElementContext
         private readonly PixelRect _allScreenBounds;
         private readonly VisualElementPickerMaskWindow[] _visualElementPickerMaskWindows;
         private readonly VisualElementPickerToolTipWindow _toolTipWindow;
+        
         private IVisualElement? _selectedElement;
 
         private ElementPicker(

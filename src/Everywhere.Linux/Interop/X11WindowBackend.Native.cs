@@ -37,7 +37,6 @@ public partial class X11WindowBackend
 
     [LibraryImport(LibX11)] private static partial int XUngrabKeyboard(IntPtr display, X11Window grabWindow);
 
-    // // Window and Geometry operations
     [LibraryImport(LibX11)] private static partial int XTranslateCoordinates(
         IntPtr display,
         X11Window srcWindow,
@@ -62,7 +61,6 @@ public partial class X11WindowBackend
         out ulong bytesAfterReturn,
         out IntPtr propReturn);
 
-    // Window shaping and transparency
     private const int ShapeInput = 2;
 
     [StructLayout(LayoutKind.Sequential)]
