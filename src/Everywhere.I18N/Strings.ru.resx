@@ -605,29 +605,8 @@
     <data name="Common_Error" xml:space="preserve">
         <value>Ошибка</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>Проверить обновления</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Текущая версия: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>Время последней проверки: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>Примечания к выпуску</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Обновить до </value>
-    </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Неизвестно</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere уже обновлено до последней версии.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>Найдена новая версия {0}.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Обновление программного обеспечения</value>

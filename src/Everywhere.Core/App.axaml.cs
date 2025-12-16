@@ -16,6 +16,8 @@ namespace Everywhere;
 
 public class App : Application
 {
+    public static string Version => typeof(TransientWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+    
     public TopLevel TopLevel { get; } = new Window();
 
     private TransientWindow? _mainWindow, _debugWindow;

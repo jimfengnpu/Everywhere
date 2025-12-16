@@ -605,29 +605,8 @@
     <data name="Common_Error" xml:space="preserve">
         <value>Errore</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>Controlla aggiornamenti</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Versione corrente: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>Ultimo controllo: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>Note di rilascio</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Aggiorna a </value>
-    </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Sconosciuto</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere è già alla versione più recente.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>Trovata nuova versione {0}.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Aggiornamento software</value>

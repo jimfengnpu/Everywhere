@@ -605,29 +605,8 @@
     <data name="Common_Error" xml:space="preserve">
         <value>錯誤</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>檢查更新</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>當前版本: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>上次檢查時間：</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>版本說明</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>更新至 </value>
-    </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>未知</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere 已是最新版本。</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>發現新版本 {0}。</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>軟件更新</value>

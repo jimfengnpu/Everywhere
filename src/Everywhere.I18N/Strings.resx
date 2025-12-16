@@ -619,29 +619,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>Error</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>Check for updates</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>Version</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Current version: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>Last check time: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>Release notes</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Update to </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>Last checked:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Unknown</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere is already the latest version.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>New version {0} found.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Software Update</value>
@@ -1738,5 +1723,20 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
         <value>The required parameter '{0}' is missing from the tool invocation, likely due to hallucination.</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>Update Available</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>Checking for update</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>You're up to date</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>Just a moment...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>Updating</value>
     </data>
 </root>

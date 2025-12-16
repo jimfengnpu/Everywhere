@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls.Primitives;
-using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -13,43 +12,35 @@ public partial class SoftwareUpdateControl(
     ISoftwareUpdater softwareUpdater,
     ToastManager toastManager,
     ILogger<SoftwareUpdateControl> logger
-)
-    : TemplatedControl
+) : TemplatedControl
 {
     public Settings Settings { get; } = settings;
 
     public ISoftwareUpdater SoftwareUpdater { get; } = softwareUpdater;
 
-    public string CurrentVersion => SoftwareUpdater.CurrentVersion.ToString(3);
+    public static readonly StyledProperty<DynamicResourceKeyBase?> UpdateOrCheckTitleProperty = AvaloniaProperty.Register<SoftwareUpdateControl, DynamicResourceKeyBase?>(
+        nameof(UpdateOrCheckTitle));
 
-    [RelayCommand]
-    private static async Task ShowReleaseNotesAsync()
+    public DynamicResourceKeyBase? UpdateOrCheckTitle
     {
-        await ServiceLocator.Resolve<ILauncher>()
-            .LaunchUriAsync(
-                new Uri(
-                    "https://github.com/DearVa/Everywhere/releases",
-                    UriKind.Absolute));
+        get => GetValue(UpdateOrCheckTitleProperty);
+        set => SetValue(UpdateOrCheckTitleProperty, value);
     }
 
     [RelayCommand]
-    private async Task CheckForUpdatesAsync()
+    private async Task UpdateOrCheckAsync()
     {
+        UpdateOrCheckTitle = new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text);
+        if (SoftwareUpdater.LatestVersion is not null)
+        {
+            UpdateOrCheckTitle = new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_UpdatingTitle_Text);
+            await PerformUpdateAsync();
+            return;
+        }
+        
         try
         {
             await SoftwareUpdater.CheckForUpdatesAsync();
-
-            var toastMessage = SoftwareUpdater.LatestVersion is null ?
-                new DynamicResourceKey(LocaleKey.CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion) :
-                new FormattedDynamicResourceKey(
-                    LocaleKey.CommonSettings_SoftwareUpdate_Toast_NewVersionFound,
-                    new DirectResourceKey(SoftwareUpdater.LatestVersion));
-            toastManager
-                .CreateToast(LocaleResolver.Common_Info)
-                .WithContent(toastMessage)
-                .DismissOnClick()
-                .OnBottomRight()
-                .ShowInfo();
         }
         catch (Exception ex)
         {
@@ -59,12 +50,7 @@ public partial class SoftwareUpdateControl(
         }
     }
 
-    public static readonly DirectProperty<SoftwareUpdateControl, IAsyncRelayCommand> PerformUpdateCommandProperty =
-        AvaloniaProperty.RegisterDirect<SoftwareUpdateControl, IAsyncRelayCommand>(
-            nameof(PerformUpdateCommand),
-            o => o.PerformUpdateCommand);
-
-    public IAsyncRelayCommand PerformUpdateCommand => new AsyncRelayCommand(async () =>
+    private async Task PerformUpdateAsync()
     {
         try
         {
@@ -86,7 +72,7 @@ public partial class SoftwareUpdateControl(
             logger.LogError(ex, "Failed to perform update.");
             ShowErrorToast(ex);
         }
-    });
+    }
 
     private void ShowErrorToast(Exception ex) => toastManager
         .CreateToast(LocaleResolver.Common_Error)

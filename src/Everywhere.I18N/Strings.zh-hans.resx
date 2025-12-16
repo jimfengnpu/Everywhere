@@ -605,29 +605,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>错误</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>检查更新</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>发现新版本</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>当前版本: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>上次检查时间: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>发布说明</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>更新到 </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>上次检查于</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>未知</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere 已是最新版本。</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>发现新版本: {0}</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>软件更新</value>
@@ -1725,5 +1710,20 @@
     </data>
     <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
         <value>调用工具时缺失必需参数“{0}”，这可能是由模型幻觉导致的。</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>更新可用</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>正在检查更新</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>已是最新版本</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>请稍候...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>更新中</value>
     </data>
 </root>
