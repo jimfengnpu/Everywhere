@@ -16,7 +16,7 @@ namespace Everywhere.Linux.Interop;
 
 public partial class LinuxVisualElementContext
 {
-    private class ElementPicker : Window
+    private class ElementPicker : VisualElementPickerTransparentWindow
     {
         public static Task<IVisualElement?> PickAsync(
             LinuxVisualElementContext context,
@@ -57,27 +57,10 @@ public partial class LinuxVisualElementContext
                 _visualElementPickerMaskWindows[i] = visualElementPickerMaskWindow;
             }
 
-            SetWindowPlacement(this, _allScreenBounds, out _);
+            SetPlacement(_allScreenBounds, out _);
             _toolTipWindow = new VisualElementPickerToolTipWindow(_elementPickMode);
 
             backend.SetHitTestVisible(_toolTipWindow, false);
-        }
-
-        private static void SetWindowStyles(Window window)
-        {
-            window.Topmost = true;
-            window.CanResize = false;
-            window.ShowInTaskbar = false;
-            window.SystemDecorations = SystemDecorations.None;
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-        }
-
-        private static void SetWindowPlacement(Window window, PixelRect screenBounds, out double scale)
-        {
-            window.Position = screenBounds.Position;
-            scale = window.DesktopScaling; // we must set Position first to get the correct scaling factor
-            window.Width = screenBounds.Width / scale;
-            window.Height = screenBounds.Height / scale;
         }
 
         protected override void OnOpened(EventArgs e)
