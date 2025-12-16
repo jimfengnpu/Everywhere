@@ -21,7 +21,7 @@ public partial class LinuxVisualElementContext
         public static Task<IVisualElement?> PickAsync(
             LinuxVisualElementContext context,
             ILinuxWindowBackend backend,
-            PickElementMode mode)
+            ElementPickMode mode)
         {
             var window = new ElementPicker(context, backend, mode);
             window.Show();
@@ -33,49 +33,33 @@ public partial class LinuxVisualElementContext
         /// </summary>
         private readonly TaskCompletionSource<IVisualElement?> _pickingPromise = new();
         private readonly LinuxVisualElementContext _context;
-        private readonly PickElementMode _pickMode;
+        private readonly ElementPickMode _elementPickMode;
         private readonly PixelRect _allScreenBounds;
-        private readonly MaskWindow[] _maskWindows;
-        private readonly ElementPickerToolTip _toolTip;
-        private readonly Window _toolTipWindow;
+        private readonly VisualElementPickerMaskWindow[] _visualElementPickerMaskWindows;
+        private readonly VisualElementPickerToolTipWindow _toolTipWindow;
         private IVisualElement? _selectedElement;
 
         private ElementPicker(
             LinuxVisualElementContext context,
             ILinuxWindowBackend backend,
-            PickElementMode pickMode)
+            ElementPickMode elementPickMode)
         {
             _context = context;
-            _pickMode = pickMode;
+            _elementPickMode = elementPickMode;
             var allScreens = Screens.All;
-            _maskWindows = new MaskWindow[allScreens.Count];
+            _visualElementPickerMaskWindows = new VisualElementPickerMaskWindow[allScreens.Count];
             for (var i = 0; i < allScreens.Count; i++)
             {
                 var screen = allScreens[i];
                 _allScreenBounds = _allScreenBounds.Union(screen.Bounds);
-                var maskWindow = new MaskWindow(screen.Bounds);
-                backend.SetHitTestVisible(maskWindow, false);
-                _maskWindows[i] = maskWindow;
+                var visualElementPickerMaskWindow = new VisualElementPickerMaskWindow(screen.Bounds);
+                backend.SetHitTestVisible(visualElementPickerMaskWindow, false);
+                _visualElementPickerMaskWindows[i] = visualElementPickerMaskWindow;
             }
 
-            Background = Brushes.Transparent;
-            TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-            SystemDecorations = SystemDecorations.None;
-            SetWindowStyles(this);
             SetWindowPlacement(this, _allScreenBounds, out _);
+            _toolTipWindow = new VisualElementPickerToolTipWindow(_elementPickMode);
 
-            _toolTipWindow = new Window
-            {
-                Content = _toolTip = new ElementPickerToolTip
-                {
-                    Mode = pickMode
-                },
-                SizeToContent = SizeToContent.WidthAndHeight,
-                SystemDecorations = SystemDecorations.BorderOnly,
-                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
-                ExtendClientAreaToDecorationsHint = true,
-            };
-            SetWindowStyles(_toolTipWindow);
             backend.SetHitTestVisible(_toolTipWindow, false);
         }
 
@@ -114,10 +98,16 @@ public partial class LinuxVisualElementContext
                             }
                             break;
                         case EventType.MouseDrag:
-                            if (leftPressed)
-                            {
-                                Dispatcher.UIThread.Post(() => PickElement(point), DispatcherPriority.Default);
-                            }
+                            Dispatcher.UIThread.Post(
+                                () =>
+                                {
+                                    if (leftPressed)
+                                    {
+                                        PickElement(point);
+                                    }
+                                    SetToolTipWindowPosition(point);
+                                },
+                                DispatcherPriority.Default);
                             break;
                         case EventType.MouseUp:
                             leftPressed = false;
@@ -140,11 +130,11 @@ public partial class LinuxVisualElementContext
             {
                 return;
             }
-            _selectedElement = _context.ElementFromPoint(pixelPoint, _pickMode);
+            _selectedElement = _context.ElementFromPoint(pixelPoint, _elementPickMode);
             if (_selectedElement == null) return;
             var maskRect = _selectedElement.BoundingRectangle;
-            foreach (var maskWindow in _maskWindows) maskWindow.SetMask(maskRect);
-            _toolTip.Header = GetElementDescription(_selectedElement);
+            foreach (var maskWindow in _visualElementPickerMaskWindows) maskWindow.SetMask(maskRect);
+            _toolTipWindow.ToolTip.Element = _selectedElement;
         }
 
         /// <summary>
@@ -182,94 +172,6 @@ public partial class LinuxVisualElementContext
             }
 
             _toolTipWindow.Position = new PixelPoint((int)x, (int)y);
-        }
-
-        private readonly Dictionary<int, string> _processNameCache = new();
-
-        private string? GetElementDescription(IVisualElement? element)
-        {
-            if (element is null) return LocaleKey.Common_None;
-
-            DynamicResourceKey key;
-            var elementTypeKey = new DynamicResourceKey($"VisualElementType_{element.Type}");
-            if (element.ProcessId != 0)
-            {
-                if (!_processNameCache.TryGetValue(element.ProcessId, out var processName))
-                {
-                    try
-                    {
-                        using var process = Process.GetProcessById(element.ProcessId);
-                        processName = process.ProcessName;
-                    }
-                    catch
-                    {
-                        processName = string.Empty;
-                    }
-                    _processNameCache[element.ProcessId] = processName;
-                }
-
-                key = processName.IsNullOrWhiteSpace() ?
-                    elementTypeKey :
-                    new FormattedDynamicResourceKey("{0} - {1}", new DirectResourceKey(processName), elementTypeKey);
-            }
-            else
-            {
-                key = elementTypeKey;
-            }
-
-            return key.ToString();
-        }
-
-        /// <summary>
-        /// Mask window that displays the overlay during element picking.
-        /// </summary>
-        private sealed class MaskWindow : Window
-        {
-            private readonly Border _maskBorder;
-            private readonly Border _elementBoundsBorder;
-            private readonly PixelRect _screenBounds;
-            private readonly double _scale;
-
-            public MaskWindow(PixelRect screenBounds)
-            {
-                Content = new Panel
-                {
-                    IsHitTestVisible = false,
-                    Children =
-                    {
-                        (_maskBorder = new Border
-                        {
-                            Background = Brushes.Black,
-                            Opacity = 0.4
-                        }),
-                        (_elementBoundsBorder = new Border
-                        {
-                            BorderThickness = new Thickness(2),
-                            BorderBrush = Brushes.White,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Top
-                        })
-                    }
-                };
-
-                SetWindowStyles(this);
-                Background = Brushes.Transparent;
-                Cursor = new Cursor(StandardCursorType.Cross);
-                TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-                SystemDecorations = SystemDecorations.None;
-
-                _screenBounds = screenBounds;
-                SetWindowPlacement(this, screenBounds, out _scale);
-            }
-
-            public void SetMask(PixelRect rect)
-            {
-                var maskRect = rect.Translate(-(PixelVector)_screenBounds.Position).ToRect(_scale);
-                _maskBorder.Clip = new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(Bounds), new RectangleGeometry(maskRect));
-                _elementBoundsBorder.Margin = new Thickness(maskRect.X, maskRect.Y, 0, 0);
-                _elementBoundsBorder.Width = maskRect.Width;
-                _elementBoundsBorder.Height = maskRect.Height;
-            }
         }
     }
 }

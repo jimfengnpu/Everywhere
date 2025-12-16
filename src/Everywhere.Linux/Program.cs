@@ -46,7 +46,7 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        Entrance.Initialize(args);
+        Entrance.Initialize();
 
         ServiceLocator.Build(x => x
 

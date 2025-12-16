@@ -44,21 +44,21 @@ public partial class LinuxVisualElementContext(
     private readonly ILinuxEventHelper _eventHelper = eventHelper;
     private readonly AtspiService _atspi = new(backend);
 
-    public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
+    public IVisualElement? ElementFromPoint(PixelPoint point, ElementPickMode mode = ElementPickMode.Element)
     {
         try
         {
             switch (mode)
             {
-                case PickElementMode.Element:
+                case ElementPickMode.Element:
                     var win = backend.GetWindowElementAt(point);
                     var elem = _atspi.ElementFromPoint(point, win.ProcessId);
                     return elem ?? win; // fallback to window mode
 
-                case PickElementMode.Window:
+                case ElementPickMode.Window:
                     return backend.GetWindowElementAt(point);
 
-                case PickElementMode.Screen:
+                case ElementPickMode.Screen:
                     return backend.GetScreenElement();
 
                 default:
@@ -72,13 +72,13 @@ public partial class LinuxVisualElementContext(
         }
     }
 
-    public IVisualElement? ElementFromPointer(PickElementMode mode = PickElementMode.Element)
+    public IVisualElement? ElementFromPointer(ElementPickMode mode = ElementPickMode.Element)
     {
         var point = backend.GetPointer();
         return ElementFromPoint(point, mode);
     }
 
-    public async Task<IVisualElement?> PickElementAsync(PickElementMode mode)
+    public async Task<IVisualElement?> PickElementAsync(ElementPickMode mode)
     {
         if (Application.Current is not { ApplicationLifetime: ClassicDesktopStyleApplicationLifetime desktopLifetime })
         {
