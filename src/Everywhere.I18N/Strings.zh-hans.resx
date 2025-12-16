@@ -167,7 +167,7 @@
         <value>打开调试窗口</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>对话历史</value>
+        <value>对话历史 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>创建新对话 (Ctrl+N)</value>
@@ -206,7 +206,7 @@
         <value>点击设置快捷键</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>设置中</value>
+        <value>请输入快捷键...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>未命名对话</value>
@@ -605,29 +605,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>错误</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>检查更新</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>发现新版本</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>当前版本: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>上次检查时间: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>发布说明</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>更新到 </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>上次检查于</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>未知</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere 已是最新版本。</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>发现新版本: {0}</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>软件更新</value>
@@ -1126,6 +1111,15 @@
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>参数超出有效范围。请确保配置正确。</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>无法建立 SSL 连接。请检查您的网络设置或证书。</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>连接被服务器拒绝。请检查服务是否正在运行且可访问。</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>找不到主机。请检查地址和您的网络连接。</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1133,13 +1127,13 @@
         <value>使用 Everything (一个高性能本地文件搜索引擎) 搜索计算机上的文件。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>确认模型服务的可用性。</value>
+        <value>确认模型服务的可用性</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>创建一个新的 AI 助手。</value>
+        <value>创建一个新的 AI 助手</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>永久删除选中的 AI 助手。</value>
+        <value>永久删除选中的 AI 助手</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>剪切</value>
@@ -1392,8 +1386,8 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>无法写入二进制文件。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>助手在调用工具时传入了错误的参数，这通常是由模型幻觉导致。</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>模型为参数“{0}”提供了无效值，这可能是由模型幻觉导致的。</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>文件大小超过 10 MB，无法替换内容。</value>
@@ -1517,7 +1511,7 @@
         <value>复制</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>复制选中的 AI 助手。</value>
+        <value>复制选中的 AI 助手</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>复制</value>
@@ -1576,8 +1570,8 @@
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>助手调用的工具不存在，这通常是由模型幻觉导致。</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>模型尝试调用不存在的工具“{0}”，这可能是由模型幻觉导致的。</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 名称</value>
@@ -1592,37 +1586,31 @@
         <value>* 命令</value>
     </data>
     <data name="McpTransportConfigurationForm_ArgumentsTextBox_Label" xml:space="preserve">
-        <value>命令行参数</value>
+        <value>命令行参数 (每行一个)</value>
     </data>
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>工作目录</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>环境变量</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* 终结点</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>传输模式</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>请求头</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>名称 (键)</value>
+    <data name="McpTransportConfigurationForm_KeyTextBox_Watermark" xml:space="preserve">
+        <value>* 键</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 请输入名称</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* 值</value>
     </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
         <value>值</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 请输入值</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>请输入值 (可选)</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>编辑 MCP 插件 (带 * 的为必填项)</value>
@@ -1713,5 +1701,29 @@
     </data>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
+    </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>请在『系统设置 &gt; 隐私与安全性 &gt; 辅助功能』中授予 Everywhere 权限，之后重启本程序。</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere 已在运行，请检查托盘图标。</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>调用工具时缺失必需参数“{0}”，这可能是由模型幻觉导致的。</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>更新可用</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>正在检查更新</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>已是最新版本</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>请稍候...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>更新中</value>
     </data>
 </root>

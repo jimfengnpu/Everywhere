@@ -29,6 +29,15 @@ public enum VisualElementType
     Slider,
     ScrollBar,
     ProgressBar,
+    Spinner,
+
+    ToolBar,
+    StatusBar,
+
+    Header,
+    HeaderItem,
+
+    Splitter,
 
     /// <summary>
     /// The most generic container element, its parent and children can be any type.

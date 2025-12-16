@@ -26,15 +26,15 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
 
     public IVisualElement? KeyboardFocusedElement => TryCreateVisualElement(Automation.FocusedElement);
 
-    public IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element)
+    public IVisualElement? ElementFromPoint(PixelPoint point, ElementPickMode mode = ElementPickMode.Element)
     {
         switch (mode)
         {
-            case PickElementMode.Element:
+            case ElementPickMode.Element:
             {
                 return TryCreateVisualElement(() => Automation.FromPoint(new Point(point.X, point.Y)));
             }
-            case PickElementMode.Window:
+            case ElementPickMode.Window:
             {
                 IVisualElement? element = TryCreateVisualElement(() => Automation.FromPoint(new Point(point.X, point.Y)));
                 while (element is AutomationVisualElementImpl { IsTopLevelWindow: false })
@@ -44,7 +44,7 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
 
                 return element;
             }
-            case PickElementMode.Screen:
+            case ElementPickMode.Screen:
             {
                 var hMonitor = PInvoke.MonitorFromPoint(new Point(point.X, point.Y), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
                 return hMonitor == HMONITOR.Null ? null : new ScreenVisualElementImpl(hMonitor);
@@ -54,12 +54,12 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
         return null;
     }
 
-    public IVisualElement? ElementFromPointer(PickElementMode mode = PickElementMode.Element)
+    public IVisualElement? ElementFromPointer(ElementPickMode mode = ElementPickMode.Element)
     {
         return !PInvoke.GetCursorPos(out var point) ? null : ElementFromPoint(new PixelPoint(point.X, point.Y), mode);
     }
 
-    public Task<IVisualElement?> PickElementAsync(PickElementMode mode) => VisualElementPicker.PickAsync(windowHelper, mode);
+    public Task<IVisualElement?> PickElementAsync(ElementPickMode mode) => VisualElementPicker.PickAsync(windowHelper, mode);
 
     private static AutomationVisualElementImpl? TryCreateVisualElement(Func<AutomationElement?> factory)
     {

@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:mcp="clr-namespace:ModelContextProtocol.Client;assembly=ModelContextProtocol.Core" xmlns:plugins="clr-namespace:Everywhere.Chat.Plugins"
-  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="using:Everywhere.Views"
+  xmlns:common="clr-namespace:Everywhere.Common;assembly=Everywhere.Abstractions" xmlns:mcp="clr-namespace:ModelContextProtocol.Client;assembly=ModelContextProtocol.Core"
+  xmlns:plugins="clr-namespace:Everywhere.Chat.Plugins" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
+  xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:v="using:Everywhere.Views"
   xmlns:vc="clr-namespace:Everywhere.ValueConverters">
   <Design.PreviewWith>
     <v:McpTransportConfigurationForm/>
@@ -41,11 +42,47 @@
                     MaxLines="3"
                     Text="{Binding StdioConfiguration.Command, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"/>
-                  <TextBox
-                    shadui:ControlAssist.Label="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ArgumentsTextBox_Label}}"
-                    MaxLines="3"
-                    Text="{Binding StdioConfiguration.Arguments, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap"/>
+                  <TextBlock
+                    Classes="Small"
+                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ArgumentsTextBox_Label}}"/>
+                  <shadui:DataList
+                    Classes="Draggable"
+                    AddCommand="{Binding StdioConfiguration.AddEmptyArgumentCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                    ItemsSource="{Binding StdioConfiguration.Arguments, RelativeSource={RelativeSource TemplatedParent}}"
+                    RemoveCommand="{Binding StdioConfiguration.RemoveArgumentCommand, RelativeSource={RelativeSource TemplatedParent}}">
+                    <shadui:DataList.ItemTemplate>
+                      <DataTemplate>
+                        <DataTemplate.DataType>
+                          <x:Type
+                            x:TypeArguments="sys:String" TypeName="common:BindingWrapper"/>
+                        </DataTemplate.DataType>
+
+                        <Grid
+                          ColumnDefinitions="Auto,*" ColumnSpacing="4">
+                          <Interaction.Behaviors>
+                            <KeyGestureTrigger
+                              Gesture="Enter" MarkAsHandled="True">
+                              <InvokeCommandAction
+                                Command="{Binding $parent[v:McpTransportConfigurationForm].StdioConfiguration.AddEmptyArgumentCommand}"
+                                CommandParameter="{Binding $parent[shadui:DataListItem], Converter={x:Static vc:CommonConverters.IndexFromContainer}}"/>
+                            </KeyGestureTrigger>
+                          </Interaction.Behaviors>
+
+                          <LucideIcon
+                            Grid.Column="0" VerticalAlignment="Center"
+                            Kind="GripVertical"/>
+                          <TextBox
+                            Grid.Column="1"
+                            Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Watermark="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ValueTextBox_Watermark}}">
+                            <Interaction.Behaviors>
+                              <AutoFocusBehavior/>
+                            </Interaction.Behaviors>
+                          </TextBox>
+                        </Grid>
+                      </DataTemplate>
+                    </shadui:DataList.ItemTemplate>
+                  </shadui:DataList>
                   <TextBox
                     shadui:ControlAssist.Label="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_WorkingDirectoryTextBox_Label}}"
                     MaxLines="3"
@@ -63,97 +100,44 @@
                   </TextBox>
                   <TextBlock
                     Classes="Small"
-                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label}}"/>
-                  <shadui:DataValidationGrid
-                    x:Name="EnvironmentVariablesDataGrid"
-                    ItemsSource="{Binding StdioConfiguration.EnvironmentVariables, RelativeSource={RelativeSource TemplatedParent}}">
-                    <DataGrid.Columns>
-                      <DataGridTextColumn
-                        Width="*"
-                        Binding="{ReflectionBinding Key}"
-                        Header="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_NameDataGridTextColumn_Header}}">
-                        <DataGridTextColumn.CellTheme>
-                          <ControlTheme
-                            BasedOn="{StaticResource {x:Type DataGridCell}}"
-                            TargetType="DataGridCell">
-                            <Setter Property="Template">
-                              <ControlTemplate TargetType="DataGridCell">
-                                <Grid
-                                  Background="Transparent" ColumnDefinitions="*,Auto">
-                                  <TextBlock
-                                    Margin="16,0" VerticalAlignment="Center"
-                                    IsHitTestVisible="False"
-                                    IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
-                                    Opacity="0.5"
-                                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_NameDataGridTextColumn_Watermark}}"/>
-                                  <ContentPresenter
-                                    Grid.Column="0"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Foreground="{TemplateBinding Foreground}"/>
-                                  <Rectangle
-                                    Name="PART_RightGridLine" Grid.Column="1"
-                                    Width="1" VerticalAlignment="Stretch"
-                                    Fill="{DynamicResource BorderColor}"/>
-                                </Grid>
-                              </ControlTemplate>
-                            </Setter>
-                          </ControlTheme>
-                        </DataGridTextColumn.CellTheme>
-                      </DataGridTextColumn>
-                      <DataGridTextColumn
-                        Width="2*"
-                        Binding="{ReflectionBinding Value}"
-                        Header="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ValueDataGridTextColumn_Header}}">
-                        <DataGridTextColumn.CellTheme>
-                          <ControlTheme
-                            BasedOn="{StaticResource {x:Type DataGridCell}}"
-                            TargetType="DataGridCell">
-                            <Setter Property="Template">
-                              <ControlTemplate TargetType="DataGridCell">
-                                <Grid
-                                  Background="Transparent" ColumnDefinitions="*,Auto">
-                                  <TextBlock
-                                    Margin="16,0" VerticalAlignment="Center"
-                                    IsHitTestVisible="False"
-                                    IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
-                                    Opacity="0.5"
-                                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark}}"/>
-                                  <ContentPresenter
-                                    Grid.Column="0"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Foreground="{TemplateBinding Foreground}"/>
-                                  <Rectangle
-                                    Name="PART_RightGridLine" Grid.Column="1"
-                                    Width="1" VerticalAlignment="Stretch"
-                                    Fill="{DynamicResource BorderColor}"/>
-                                </Grid>
-                              </ControlTemplate>
-                            </Setter>
-                          </ControlTheme>
-                        </DataGridTextColumn.CellTheme>
-                      </DataGridTextColumn>
-                    </DataGrid.Columns>
-                  </shadui:DataValidationGrid>
-                  <StackPanel Orientation="Horizontal">
-                    <Button
-                      Classes="Ghost Compact"
-                      Command="{Binding StdioConfiguration.AddEmptyEnvironmentVariableCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                      Content="{LucideIconContent Plus, Size=18}"/>
-                    <Button
-                      Classes="Ghost Compact"
-                      Command="{Binding StdioConfiguration.RemoveEnvironmentVariableCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                      CommandParameter="{Binding #EnvironmentVariablesDataGrid.SelectedItem}"
-                      Content="{LucideIconContent Minus, Size=18}"
-                      IsEnabled="{Binding #EnvironmentVariablesDataGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                  </StackPanel>
+                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_EnvironmentVariablesDataList_Label}}"/>
+                  <shadui:DataList
+                    AddCommand="{Binding StdioConfiguration.AddEmptyEnvironmentVariableCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                    ItemsSource="{Binding StdioConfiguration.EnvironmentVariables, RelativeSource={RelativeSource TemplatedParent}}"
+                    RemoveCommand="{Binding StdioConfiguration.RemoveEnvironmentVariableCommand, RelativeSource={RelativeSource TemplatedParent}}">
+                    <shadui:DataList.ItemTemplate>
+                      <DataTemplate>
+                        <DataTemplate.DataType>
+                          <x:Type
+                            x:TypeArguments="sys:String,sys:String" TypeName="common:ObservableKeyValuePair"/>
+                        </DataTemplate.DataType>
+                        <Grid
+                          ColumnDefinitions="*,4*" ColumnSpacing="4">
+                          <Interaction.Behaviors>
+                            <KeyGestureTrigger
+                              Gesture="Enter" MarkAsHandled="True">
+                              <InvokeCommandAction
+                                Command="{Binding $parent[v:McpTransportConfigurationForm].StdioConfiguration.AddEmptyEnvironmentVariableCommand}"
+                                CommandParameter="{Binding $parent[shadui:DataListItem], Converter={x:Static vc:CommonConverters.IndexFromContainer}}"/>
+                            </KeyGestureTrigger>
+                          </Interaction.Behaviors>
+
+                          <TextBox
+                            Grid.Column="0"
+                            Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Watermark="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_KeyTextBox_Watermark}}">
+                            <Interaction.Behaviors>
+                              <AutoFocusBehavior/>
+                            </Interaction.Behaviors>
+                          </TextBox>
+                          <TextBox
+                            Grid.Column="1"
+                            Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Watermark="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_OptionalValueTextBox_Watermark}}"/>
+                        </Grid>
+                      </DataTemplate>
+                    </shadui:DataList.ItemTemplate>
+                  </shadui:DataList>
                 </StackPanel>
               </TabItem>
               <TabItem Header="HTTP">
@@ -176,97 +160,44 @@
                   </ComboBox>
                   <TextBlock
                     Classes="Small"
-                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_HeadersDataGrid_Label}}"/>
-                  <shadui:DataValidationGrid
-                    x:Name="HeadersDataGrid"
-                    ItemsSource="{Binding HttpConfiguration.Headers, RelativeSource={RelativeSource TemplatedParent}}">
-                    <DataGrid.Columns>
-                      <DataGridTextColumn
-                        Width="*"
-                        Binding="{ReflectionBinding Key}"
-                        Header="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_NameDataGridTextColumn_Header}}">
-                        <DataGridTextColumn.CellTheme>
-                          <ControlTheme
-                            BasedOn="{StaticResource {x:Type DataGridCell}}"
-                            TargetType="DataGridCell">
-                            <Setter Property="Template">
-                              <ControlTemplate TargetType="DataGridCell">
-                                <Grid
-                                  Background="Transparent" ColumnDefinitions="*,Auto">
-                                  <TextBlock
-                                    Margin="16,0" VerticalAlignment="Center"
-                                    IsHitTestVisible="False"
-                                    IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
-                                    Opacity="0.5"
-                                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_NameDataGridTextColumn_Watermark}}"/>
-                                  <ContentPresenter
-                                    Grid.Column="0"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Foreground="{TemplateBinding Foreground}"/>
-                                  <Rectangle
-                                    Name="PART_RightGridLine" Grid.Column="1"
-                                    Width="1" VerticalAlignment="Stretch"
-                                    Fill="{DynamicResource BorderColor}"/>
-                                </Grid>
-                              </ControlTemplate>
-                            </Setter>
-                          </ControlTheme>
-                        </DataGridTextColumn.CellTheme>
-                      </DataGridTextColumn>
-                      <DataGridTextColumn
-                        Width="2*"
-                        Binding="{ReflectionBinding Value}"
-                        Header="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ValueDataGridTextColumn_Header}}">
-                        <DataGridTextColumn.CellTheme>
-                          <ControlTheme
-                            BasedOn="{StaticResource {x:Type DataGridCell}}"
-                            TargetType="DataGridCell">
-                            <Setter Property="Template">
-                              <ControlTemplate TargetType="DataGridCell">
-                                <Grid
-                                  Background="Transparent" ColumnDefinitions="*,Auto">
-                                  <TextBlock
-                                    Margin="16,0" VerticalAlignment="Center"
-                                    IsHitTestVisible="False"
-                                    IsVisible="{Binding Path=Content.(TextBlock.Text), RelativeSource={RelativeSource TemplatedParent}, FallbackValue=false, Converter={x:Static StringConverters.IsNullOrEmpty}}"
-                                    Opacity="0.5"
-                                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark}}"/>
-                                  <ContentPresenter
-                                    Grid.Column="0"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Foreground="{TemplateBinding Foreground}"/>
-                                  <Rectangle
-                                    Name="PART_RightGridLine" Grid.Column="1"
-                                    Width="1" VerticalAlignment="Stretch"
-                                    Fill="{DynamicResource BorderColor}"/>
-                                </Grid>
-                              </ControlTemplate>
-                            </Setter>
-                          </ControlTheme>
-                        </DataGridTextColumn.CellTheme>
-                      </DataGridTextColumn>
-                    </DataGrid.Columns>
-                  </shadui:DataValidationGrid>
-                  <StackPanel Orientation="Horizontal">
-                    <Button
-                      Classes="Ghost Compact"
-                      Command="{Binding HttpConfiguration.AddEmptyHeaderCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                      Content="{LucideIconContent Plus, Size=18}"/>
-                    <Button
-                      Classes="Ghost Compact"
-                      Command="{Binding HttpConfiguration.RemoveHeaderCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                      CommandParameter="{Binding #HeadersDataGrid.SelectedItem}"
-                      Content="{LucideIconContent Minus, Size=18}"
-                      IsEnabled="{Binding #HeadersDataGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                  </StackPanel>
+                    Text="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_HeadersDataList_Label}}"/>
+                  <shadui:DataList
+                    AddCommand="{Binding HttpConfiguration.AddEmptyHeaderCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                    ItemsSource="{Binding HttpConfiguration.Headers, RelativeSource={RelativeSource TemplatedParent}}"
+                    RemoveCommand="{Binding HttpConfiguration.RemoveHeaderCommand, RelativeSource={RelativeSource TemplatedParent}}">
+                    <shadui:DataList.ItemTemplate>
+                      <DataTemplate>
+                        <DataTemplate.DataType>
+                          <x:Type
+                            x:TypeArguments="sys:String,sys:String" TypeName="common:ObservableKeyValuePair"/>
+                        </DataTemplate.DataType>
+                        <Grid
+                          ColumnDefinitions="*,4*" ColumnSpacing="4">
+                          <Interaction.Behaviors>
+                            <KeyGestureTrigger
+                              Gesture="Enter" MarkAsHandled="True">
+                              <InvokeCommandAction
+                                Command="{Binding $parent[v:McpTransportConfigurationForm].HttpConfiguration.AddEmptyHeaderCommand}"
+                                CommandParameter="{Binding $parent[shadui:DataListItem], Converter={x:Static vc:CommonConverters.IndexFromContainer}}"/>
+                            </KeyGestureTrigger>
+                          </Interaction.Behaviors>
+
+                          <TextBox
+                            Grid.Column="0" AcceptsReturn="False"
+                            Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Watermark="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_KeyTextBox_Watermark}}">
+                            <Interaction.Behaviors>
+                              <AutoFocusBehavior/>
+                            </Interaction.Behaviors>
+                          </TextBox>
+                          <TextBox
+                            Grid.Column="1"
+                            Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Watermark="{I18N {x:Static LocaleKey.McpTransportConfigurationForm_ValueTextBox_Watermark}}"/>
+                        </Grid>
+                      </DataTemplate>
+                    </shadui:DataList.ItemTemplate>
+                  </shadui:DataList>
                 </StackPanel>
               </TabItem>
             </TabControl>

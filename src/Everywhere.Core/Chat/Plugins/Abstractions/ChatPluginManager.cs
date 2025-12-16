@@ -25,7 +25,6 @@ public class ChatPluginManager : IChatPluginManager
     public ReadOnlyObservableCollection<McpChatPlugin> McpPlugins { get; }
 
     private readonly IWatchdogManager _watchdogManager;
-    private readonly INativeHelper _nativeHelper;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<ChatPluginManager> _logger;
@@ -38,14 +37,12 @@ public class ChatPluginManager : IChatPluginManager
     public ChatPluginManager(
         IEnumerable<BuiltInChatPlugin> builtInPlugins,
         IWatchdogManager watchdogManager,
-        INativeHelper nativeHelper,
         IHttpClientFactory httpClientFactory,
         ILoggerFactory loggerFactory,
         Settings settings)
     {
         _builtInPluginsSource.AddRange(builtInPlugins);
         _watchdogManager = watchdogManager;
-        _nativeHelper = nativeHelper;
         _httpClientFactory = httpClientFactory;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<ChatPluginManager>();
@@ -205,9 +202,13 @@ public class ChatPluginManager : IChatPluginManager
                 {
                     Name = stdio.Name,
                     Command = stdio.Command,
-                    Arguments = _nativeHelper.ParseArguments(stdio.Arguments),
+                    Arguments = stdio.Arguments
+                        .AsValueEnumerable()
+                        .Select(x => x.Value)
+                        .Where(x => !x.IsNullOrWhiteSpace())
+                        .ToList(),
                     WorkingDirectory = stdio.WorkingDirectory,
-                    EnvironmentVariables = stdio.EnvironmentVariables?
+                    EnvironmentVariables = stdio.EnvironmentVariables
                         .AsValueEnumerable()
                         .Where(kv => !kv.Key.IsNullOrWhiteSpace())
                         .DistinctBy(kv => kv.Key)
@@ -219,7 +220,7 @@ public class ChatPluginManager : IChatPluginManager
                 {
                     Name = sse.Name,
                     Endpoint = new Uri(sse.Endpoint, UriKind.Absolute),
-                    AdditionalHeaders = sse.Headers?
+                    AdditionalHeaders = sse.Headers
                         .AsValueEnumerable()
                         .Where(kv => !kv.Key.IsNullOrWhiteSpace() && !kv.Value.IsNullOrWhiteSpace())
                         .DistinctBy(kv => kv.Key)

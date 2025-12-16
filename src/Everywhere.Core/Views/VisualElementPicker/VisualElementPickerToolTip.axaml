@@ -3,8 +3,8 @@
   xmlns:interop="clr-namespace:Everywhere.Interop" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
   xmlns:v="clr-namespace:Everywhere.Views">
   <ControlTheme
-    x:Key="{x:Type v:ElementPickerToolTip}"
-    TargetType="v:ElementPickerToolTip">
+    x:Key="{x:Type v:VisualElementPickerToolTip}"
+    TargetType="v:VisualElementPickerToolTip">
     <Setter Property="TextElement.Foreground" Value="{DynamicResource ForegroundColor}"/>
     <Setter Property="Template">
       <ControlTemplate>
@@ -28,12 +28,13 @@
               Text="{TemplateBinding Header}"/>
             <TextBlock
               FontSize="12"
+              Foreground="{DynamicResource ForegroundColor}"
               Text="{I18N {x:Static LocaleKey.ElementPickerToolTip_TipTextBlock_Text}}"/>
             <StackPanel
               Orientation="Horizontal" Spacing="4">
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Screen}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Screen}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="Monitor"/>
@@ -42,7 +43,7 @@
               </shadui:Badge>
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Window}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Window}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="AppWindow"/>
@@ -51,7 +52,7 @@
               </shadui:Badge>
               <shadui:Badge
                 Background="DimGray"
-                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:PickElementMode.Element}}">
+                Classes.Selected="{TemplateBinding Mode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static interop:ElementPickMode.Element}}">
                 <StackPanel
                   Orientation="Horizontal" Spacing="2">
                   <LucideIcon Kind="SquareDashed"/>
@@ -64,16 +65,20 @@
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^ /template/ shadui|Badge.Selected">
-      <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+    <Style Selector="^ /template/ shadui|Badge">
+      <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
 
-      <Style Selector="^ LucideIcon">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
-      </Style>
+      <Style Selector="^.Selected">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
 
-      <Style Selector="^ TextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        <Style Selector="^ LucideIcon">
+          <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        </Style>
+
+        <Style Selector="^ TextBlock">
+          <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+        </Style>
       </Style>
     </Style>
 

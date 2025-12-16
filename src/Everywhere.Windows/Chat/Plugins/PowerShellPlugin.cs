@@ -21,7 +21,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
     public override LucideIconKind? Icon => LucideIconKind.SquareTerminal;
 
-    public override string BeautifulIcon => "avares://Everywhere.Windows/Assets/Icons/PowerShell.svg";
+    public override string BeautifulIcon => "avares://Everywhere/Assets/Icons/PowerShell.svg";
 
     private readonly ILogger<PowerShellPlugin> _logger;
 

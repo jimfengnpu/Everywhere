@@ -136,7 +136,7 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
         HttpMcpTransportConfiguration => LucideIconKind.Server,
         _ => null
     };
-    
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HeaderKey))]
     [NotifyPropertyChangedFor(nameof(DescriptionKey))]
@@ -166,8 +166,14 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     /// Chat kernel plugin implemented with MCP.
     /// </summary>
     /// <param name="mcpTransportConfiguration"></param>
-    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration) :
-        base(Guid.CreateVersion7().ToString("N")) // use GUID to avoid name conflicts
+    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration) : this(mcpTransportConfiguration, Guid.CreateVersion7()) { }
+
+    /// <summary>
+    /// Chat kernel plugin implemented with MCP.
+    /// </summary>
+    /// <param name="mcpTransportConfiguration"></param>
+    /// <param name="id">use GUID to avoid name conflicts</param>
+    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration, Guid id) : base(id.ToString("N"))
     {
         TransportConfiguration = mcpTransportConfiguration;
 

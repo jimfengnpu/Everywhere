@@ -167,7 +167,7 @@
         <value>デバッグウィンドウを開く</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>チャット履歴</value>
+        <value>チャット履歴 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>新しいチャットを作成 (Ctrl+N)</value>
@@ -206,7 +206,7 @@
         <value>クリックしてショートカットを設定</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>設定中...</value>
+        <value>ショートカットを入力...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>名前のないセッション</value>
@@ -605,29 +605,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>エラー</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>更新を確認</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>バージョン</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>現在のバージョン: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>最終確認時刻: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>リリースノート</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>更新する </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>最終チェック:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>不明</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhereはすでに最新バージョンです。</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>新しいバージョン {0} が見つかりました。</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>ソフトウェア更新</value>
@@ -1125,6 +1110,15 @@
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>引数が有効な範囲外です。設定が正しいことを確認してください。</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>SSL接続を確立できませんでした。ネットワーク設定または証明書を確認してください。</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>サーバーによって接続が拒否されました。サービスが実行中でアクセス可能か確認してください。</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>ホストが見つかりませんでした。アドレスとネットワーク接続を確認してください。</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1132,13 +1126,13 @@
         <value>Everything（高性能なローカルファイル検索エンジン）を使用して、コンピュータ上のファイルを検索します。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>モデルサービスの利用可能性を確認します。</value>
+        <value>モデルサービスの利用可能性を確認します</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>AIアシスタントの新しい設定を開始します。</value>
+        <value>AIアシスタントの新しい設定を開始します</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>選択したアシスタントを完全に削除します。</value>
+        <value>選択したアシスタントを完全に削除します</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>切り取り</value>
@@ -1391,8 +1385,8 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>バイナリファイルに書き込むことはできません。</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>アシスタントがツールを呼び出す際に不正なパラメータを渡しました。これは通常、モデルの幻覚によって引き起こされます。</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>モデルがパラメータ'{0}'に無効な値を提供しました。おそらく幻覚によるものです。</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>ファイルサイズが10 MBを超えているため、置き換え操作はサポートされていません。</value>
@@ -1516,7 +1510,7 @@
         <value>複製</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>選択したアシスタントを複製します。</value>
+        <value>選択したアシスタントを複製します</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>コピー</value>
@@ -1575,8 +1569,8 @@
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>アシスタントによって呼び出されたツールは存在しません。これは通常、モデルの幻覚によって引き起こされます。</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>モデルが存在しないツール'{0}'を呼び出そうとしました。おそらく幻覚によるものです。</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 名前</value>
@@ -1596,32 +1590,26 @@
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>作業ディレクトリ</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>環境変数</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* エンドポイント</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>トランスポートモード</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>リクエストヘッダー</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>名前 (キー)</value>
+    <data name="McpTransportConfigurationForm_KeyTextBox_Watermark" xml:space="preserve">
+        <value>* キーを入力してください</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 名前を入力してください</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* 値</value>
     </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
         <value>値</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 値を入力してください</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>値を入力してください (任意)</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>MCPプラグインの編集 (必須フィールドは*でマークされています)</value>
@@ -1712,5 +1700,29 @@
     </data>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
+    </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>システム設定 &gt; プライバシーとセキュリティ &gt; アクセシビリティでアプリケーションにアクセシビリティの権限を付与し、アプリケーションを再起動してください。</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhereはすでに実行中です。アプリケーションウィンドウがシステムトレイにあるか確認してください。</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>ツールの呼び出しから必須パラメータ'{0}'が欠落しています。おそらく幻覚によるものです。</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>更新があります</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>更新を確認中</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>最新の状態です</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>少々お待ちください...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>更新中</value>
     </data>
 </root>

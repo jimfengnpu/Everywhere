@@ -167,7 +167,7 @@
         <value>디버그 창 열기</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>채팅 기록</value>
+        <value>채팅 기록 (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>새 채팅 만들기 (Ctrl+N)</value>
@@ -206,7 +206,7 @@
         <value>단축키 설정을 클릭하세요</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>설정 중...</value>
+        <value>단축키 입력...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>이름 없는 세션</value>
@@ -605,29 +605,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>오류</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>업데이트 확인</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>버전</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>현재 버전: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>마지막 확인 시간: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>릴리스 노트</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>업데이트 </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>마지막 확인:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>알 수 없음</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere는 이미 최신 버전입니다.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>새 버전 {0}이(가) 발견되었습니다.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>소프트웨어 업데이트</value>
@@ -1125,6 +1110,15 @@
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>인수가 유효한 범위를 벗어났습니다. 설정이 올바른지 확인하세요.</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>SSL 연결을 설정할 수 없습니다. 네트워크 설정이나 인증서를 확인하세요.</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>서버에서 연결을 거부했습니다. 서비스가 실행 중이고 접근 가능한지 확인하세요.</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>호스트를 찾을 수 없습니다. 주소와 네트워크 연결을 확인하세요.</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1132,13 +1126,13 @@
         <value>Everything(고성능 로컬 파일 검색 엔진)을 사용하여 컴퓨터에서 파일을 검색합니다.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>모델 서비스의 가용성을 확인합니다.</value>
+        <value>모델 서비스의 가용성을 확인합니다</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>AI 어시스턴트의 새 구성을 시작합니다.</value>
+        <value>AI 어시스턴트의 새 구성을 시작합니다</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>선택한 어시스턴트를 영구적으로 삭제합니다.</value>
+        <value>선택한 어시스턴트를 영구적으로 삭제합니다</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>잘라내기</value>
@@ -1391,8 +1385,8 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>이진 파일에 쓸 수 없습니다.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>도구를 호출할 때 잘못된 매개변수가 전달되었습니다. 이는 일반적으로 모델 환각에 의해 발생합니다.</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>모델이 매개변수 '{0}'에 대해 잘못된 값을 제공했습니다. 아마도 환각 때문입니다.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>파일 크기가 10MB를 초과하여 교체 작업이 지원되지 않습니다.</value>
@@ -1516,7 +1510,7 @@
         <value>복제</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>선택한 도우미를 복제합니다.</value>
+        <value>선택한 도우미를 복제합니다</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>복사</value>
@@ -1575,8 +1569,8 @@
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>어시스턴트가 호출한 도구가 존재하지 않습니다. 이는 일반적으로 모델 환각에 의해 발생합니다.</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>모델이 존재하지 않는 도구 '{0}'를 호출하려고 했습니다. 아마도 환각 때문입니다.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* 이름</value>
@@ -1596,32 +1590,26 @@
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>작업 디렉터리</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>환경 변수</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* 엔드포인트</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>전송 모드</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>요청 헤더</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>이름 (키)</value>
+    <data name="McpTransportConfigurationForm_KeyTextBox_Watermark" xml:space="preserve">
+        <value>* 키를 입력하세요</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 이름을 입력하세요</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* 값</value>
     </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
-        <value>값</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* 값을 입력하세요</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>값을 입력하세요 (선택 사항)</value>
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
+        <value>값을 입력하세요</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>MCP 플러그인 편집 (필수 항목은 *로 표시됨)</value>
@@ -1712,5 +1700,29 @@
     </data>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
+    </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>시스템 설정 &gt; 개인 정보 보호 및 보안 &gt; 접근성에서 애플리케이션에 접근성 권한을 부여하고 애플리케이션을 재시작해 주세요.</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere가 이미 실행 중입니다. 시스템 트레이에서 애플리케이션 창을 확인해 주세요.</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>도구 호출에서 필수 매개변수 '{0}'가 누락되었습니다. 아마도 환각 때문입니다.</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>업데이트 가능</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>업데이트 확인 중</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>최신 상태입니다</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>잠시만 기다려 주세요...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>업데이트 중</value>
     </data>
 </root>

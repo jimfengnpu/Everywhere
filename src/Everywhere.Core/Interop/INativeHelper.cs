@@ -1,5 +1,4 @@
 ﻿using Avalonia.Input;
-using Avalonia.Media.Imaging;
 
 namespace Everywhere.Interop;
 
@@ -51,12 +50,4 @@ public interface INativeHelper
     /// </summary>
     /// <param name="fullPath"></param>
     void OpenFileLocation(string fullPath);
-
-    /// <summary>
-    /// Parse a command line string into an array of arguments.
-    /// On Windows, this method is implemented using CommandLineToArgvW.
-    /// </summary>
-    /// <param name="commandLine"></param>
-    /// <returns>An array of arguments. Empty array if the command line is null or empty.</returns>
-    string[] ParseArguments(string? commandLine);
 }

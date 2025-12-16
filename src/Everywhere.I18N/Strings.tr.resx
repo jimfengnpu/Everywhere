@@ -166,7 +166,7 @@
         <value>Hata Ayıklama Penceresini Aç</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Sohbet Geçmişi</value>
+        <value>Sohbet Geçmişi (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Yeni Sohbet Oluşturun (Ctrl+N)</value>
@@ -205,7 +205,7 @@
         <value>Kısayol ayarlamak için tıklayın</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>Ayarlar...</value>
+        <value>Kısayolu yazın...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>İsimsiz Sohbet</value>
@@ -603,29 +603,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>Hata</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>Güncellemeleri Kontrol Et</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>Sürüm</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Geçerli sürüm: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>Son kontrol zamanı: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>Sürüm Notları</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Şuna Güncelle: </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>Son kontrol:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Bilinmeyen</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere zaten en son sürümdür.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>{0} yeni sürümü bulundu.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Yazılım Güncelleme</value>
@@ -1119,6 +1104,15 @@
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>Argüman geçerli aralık dışında. Lütfen yapılandırmanın doğru olduğundan emin olun.</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>SSL bağlantısı kurulamadı. Lütfen ağ ayarlarınızı veya sertifikanızı kontrol edin.</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>Bağlantı sunucu tarafından reddedildi. Lütfen servisin çalıştığından ve erişilebilir olduğundan emin olun.</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>Host bulunamadı. Lütfen adresi ve ağ bağlantınızı kontrol edin.</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Her Şey</value>
     </data>
@@ -1126,13 +1120,13 @@
         <value>Everything'i (yüksek performanslı yerel dosya arama motoru) kullanarak bilgisayarınızdaki dosyaları arayın.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Model hizmetinin kullanılabilirliğini doğrulayın.</value>
+        <value>Model hizmetinin kullanılabilirliğini doğrulayın</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Yeni bir yapay zeka asistanı yapılandırması başlatın.</value>
+        <value>Yeni bir yapay zeka asistanı yapılandırması başlatın</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Seçilen asistanı kalıcı olarak siler.</value>
+        <value>Seçilen asistanı kalıcı olarak siler</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Kes</value>
@@ -1385,8 +1379,8 @@
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>İkili dosyaya yazılamıyor.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>Asistan, aracı çağırırken yanlış parametreler geçti, bu genellikle model halüsinasyonu nedeniyle olur.</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>Model, '{0}' parametresi için geçersiz bir değer sağladı, muhtemelen hayal görme nedeniyle.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>Dosya boyutu 10 MB'dan büyük, değiştirme işlemi desteklenmiyor.</value>
@@ -1510,7 +1504,7 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
         <value>Kopyala</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Seçilen asistanı kopyala.</value>
+        <value>Seçilen asistanı kopyala</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Kopyala</value>
@@ -1569,8 +1563,8 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>Asistan tarafından çağrılan araç mevcut değildir, bu genellikle model halüsinasyonu nedeniyle olur.</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>Model, mevcut olmayan '{0}' aracını çağırmaya çalıştı, muhtemelen hayal görme nedeniyle.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* İsim</value>
@@ -1590,32 +1584,26 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>Çalışma Dizini</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>Ortam Değişkenleri</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* Uç Nokta</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>Taşıma Modu</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>İstek Başlıkları</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>Ad (Anahtar)</value>
+    <data name="McpTransportConfigurationForm_KeyTextBox_Watermark" xml:space="preserve">
+        <value>* Lütfen anahtarı girin</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* Lütfen ad girin</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* Değer</value>
     </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
-        <value>Değer</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* Lütfen değer girin</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>Lütfen değer girin (isteğe bağlı)</value>
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
+        <value>Lütfen değeri girin</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>MCP Eklentisini Düzenle ( * ile işaretli alanlar zorunludur)</value>
@@ -1706,5 +1694,29 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     </data>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
+    </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>Lütfen uygulamaya Sistem Ayarları &gt; Gizlilik ve Güvenlik &gt; Erişilebilirlik bölümünden Erişilebilirlik izinlerini verin ve uygulamayı yeniden başlatın.</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere zaten çalışıyor. Lütfen uygulama penceresi için sistem tepsinizi kontrol edin.</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>Gerekli '{0}' parametresi araç çağrısından eksik, muhtemelen hayal görme nedeniyle.</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>Güncelleme Mevcut</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>Güncelleme kontrol ediliyor</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>Güncel durumdasınız</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>Biraz bekleyin...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>Güncelleniyor</value>
     </data>
 </root>

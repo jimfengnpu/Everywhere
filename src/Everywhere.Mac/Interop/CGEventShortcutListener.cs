@@ -1,6 +1,8 @@
 ﻿using System.Reactive.Disposables;
 using Avalonia.Input;
 using CoreFoundation;
+using Everywhere.Common;
+using Everywhere.I18N;
 using Everywhere.Interop;
 using Everywhere.Utilities;
 using Microsoft.Extensions.Logging;
@@ -29,11 +31,7 @@ public sealed class CGEventShortcutListener : IShortcutListener, IDisposable
         _logger = logger;
 
         // It's crucial to check for permissions before attempting to create the tap.
-        if (!PermissionHelper.IsAccessibilityTrusted())
-        {
-            logger.LogWarning("Accessibility permissions are not granted.");
-            return;
-        }
+        PermissionHelper.EnsureAccessibilityTrusted();
 
         var workerThread = new Thread(RunLoopThread)
         {

@@ -89,7 +89,15 @@ public class WindowHelper : IWindowHelper
             window.Show();
             nativeWindow.CollectionBehavior &= ~NSWindowCollectionBehavior.IgnoresCycle;
             nativeWindow.MakeKeyAndOrderFront(null);
-            NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
+
+            if (OperatingSystem.IsMacOSVersionAtLeast(14))
+            {
+                NSApplication.SharedApplication.Activate();
+            }
+            else
+            {
+                NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
+            }
         }
     }
 

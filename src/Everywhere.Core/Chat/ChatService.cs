@@ -709,7 +709,7 @@ public sealed partial class ChatService(
                 }
 
                 missingFunctionMessage.ErrorMessageKey = new FormattedDynamicResourceKey(
-                    LocaleKey.ChatPlugin_Common_FunctionNotFound,
+                    LocaleKey.HandledFunctionInvokingException_FunctionNotFound,
                     new DirectResourceKey(functionCallContentGroup.Key));
 
                 continue;
@@ -898,7 +898,7 @@ public sealed partial class ChatService(
         }
         catch (Exception ex)
         {
-            ex = HandledSystemException.Handle(ex, true); // treat all as expected
+            ex = HandledFunctionInvokingException.Handle(ex);
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             logger.LogError(ex, "Error invoking function '{FunctionName}'", content.FunctionName);
 

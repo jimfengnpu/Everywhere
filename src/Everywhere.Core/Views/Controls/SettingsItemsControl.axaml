@@ -36,7 +36,7 @@
     <Setter Property="ItemTemplate">
       <DataTemplate DataType="c:SettingsItem">
         <Expander
-          Classes="LeftIcon"
+          Classes="LeftIcon" Padding="16,8,16,14"
           at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
           Background="Transparent"
           BorderBrush="{Binding $parent[v:SettingsItemsControl].BorderBrush}"
@@ -171,8 +171,7 @@
           <Expander.Header>
             <StackPanel>
               <TextBlock
-                Classes="p" Margin="0,-8,0,0"
-                IsHitTestVisible="False"
+                Classes="p" IsHitTestVisible="False"
                 Text="{Binding HeaderKey^, FallbackValue={x:Null}}"
                 TextWrapping="Wrap"/>
               <TextBlock

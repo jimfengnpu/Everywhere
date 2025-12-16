@@ -21,7 +21,6 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="JetBrains.Profiler.Api"/>
     <PackageReference Include="LiveMarkdown.Avalonia"/>
     <PackageReference Include="LiveMarkdown.Avalonia.Math"/>
-    <PackageReference Include="MessageBox.Avalonia"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Microsoft.EntityFrameworkCore.Tools">
@@ -82,5 +81,12 @@
     <AvaloniaResource Include="..\..\CHANGELOG.md">
       <Link>Assets\CHANGELOG.md</Link>
     </AvaloniaResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\VisualElementPicker\VisualElementPickerToolTip.axaml.cs">
+      <DependentUpon>ElementPickerToolTip.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

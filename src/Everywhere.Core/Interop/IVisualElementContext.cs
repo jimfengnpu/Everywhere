@@ -1,6 +1,6 @@
 ﻿namespace Everywhere.Interop;
 
-public enum PickElementMode
+public enum ElementPickMode
 {
     /// <summary>
     /// Pick a whole screen.
@@ -28,18 +28,18 @@ public interface IVisualElementContext
     /// <param name="point">Point in screen pixels.</param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    IVisualElement? ElementFromPoint(PixelPoint point, PickElementMode mode = PickElementMode.Element);
+    IVisualElement? ElementFromPoint(PixelPoint point, ElementPickMode mode = ElementPickMode.Element);
 
     /// <summary>
     /// Get the element under the mouse pointer.
     /// </summary>
     /// <param name="mode"></param>
     /// <returns></returns>
-    IVisualElement? ElementFromPointer(PickElementMode mode = PickElementMode.Element);
+    IVisualElement? ElementFromPointer(ElementPickMode mode = ElementPickMode.Element);
 
     /// <summary>
     /// Let the user pick an element from the screen.
     /// </summary>
     /// <returns></returns>
-    Task<IVisualElement?> PickElementAsync(PickElementMode mode);
+    Task<IVisualElement?> PickElementAsync(ElementPickMode mode);
 }

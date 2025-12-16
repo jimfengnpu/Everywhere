@@ -16,6 +16,7 @@ namespace Everywhere.Views;
 
 [TemplatePart("PART_SendButton", typeof(Button), IsRequired = true)]
 [TemplatePart("PART_ChatAttachmentItemsControl", typeof(ItemsControl), IsRequired = true)]
+[TemplatePart("PART_AssistantSelectionMenuItem", typeof(MenuItem))]
 public partial class ChatInputBox : TextBox
 {
     public static readonly StyledProperty<bool> PressCtrlEnterToSendProperty =
@@ -150,6 +151,7 @@ public partial class ChatInputBox : TextBox
     private IDisposable? _textPresenterSizeChangedSubscription;
     private IDisposable? _chatAttachmentItemsControlPointerMovedSubscription;
     private IDisposable? _chatAttachmentItemsControlPointerExitedSubscription;
+    private IDisposable? _assistantSelectionMenuItemPointerWheelChangedSubscription;
 
     private readonly Lazy<OverlayWindow> _visualElementAttachmentOverlayWindow;
 
@@ -183,6 +185,7 @@ public partial class ChatInputBox : TextBox
         DisposeCollector.DisposeToDefault(ref _textPresenterSizeChangedSubscription);
         DisposeCollector.DisposeToDefault(ref _chatAttachmentItemsControlPointerMovedSubscription);
         DisposeCollector.DisposeToDefault(ref _chatAttachmentItemsControlPointerExitedSubscription);
+        DisposeCollector.DisposeToDefault(ref _assistantSelectionMenuItemPointerWheelChangedSubscription);
 
         // We handle the click event of the SendButton here instead of using Command binding,
         // because we need to clear the text after sending the message.
@@ -218,6 +221,16 @@ public partial class ChatInputBox : TextBox
             PointerExitedEvent,
             (_, _) => _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null),
             handledEventsToo: true);
+
+        var assistantSelectionMenuItem = e.NameScope.Find<MenuItem>("PART_AssistantSelectionMenuItem");
+        if (assistantSelectionMenuItem != null)
+        {
+            _assistantSelectionMenuItemPointerWheelChangedSubscription = assistantSelectionMenuItem.AddDisposableHandler(
+                PointerWheelChangedEvent,
+                HandleAssistantSelectionPointerWheelChanged,
+                RoutingStrategies.Bubble,
+                handledEventsToo: true);
+        }
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -273,8 +286,58 @@ public partial class ChatInputBox : TextBox
         SelectedCustomAssistant = sender?.DataContext as CustomAssistant;
     }
 
+    private void HandleAssistantSelectionPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        var assistants = CustomAssistants?.ToList();
+        if (assistants is null || assistants.Count <= 1) return;
+
+        var currentIndex = SelectedCustomAssistant is not null
+            ? assistants.IndexOf(SelectedCustomAssistant)
+            : -1;
+
+        if (currentIndex == -1)
+        {
+            SelectedCustomAssistant = assistants[0];
+            e.Handled = true;
+            return;
+        }
+
+        currentIndex = e.Delta.Y switch
+        {
+            // Up
+            > 0 => (currentIndex - 1 + assistants.Count) % assistants.Count,
+            // Down
+            < 0 => (currentIndex + 1) % assistants.Count,
+            _ => currentIndex
+        };
+
+        SelectedCustomAssistant = assistants[currentIndex];
+        e.Handled = true;
+    }
+
     private void HandleTextBoxKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.KeyModifiers == KeyModifiers.Control)
+        {
+            var index = e.Key switch
+            {
+                >= Key.D1 and <= Key.D9 => e.Key - Key.D1,
+                Key.D0 => 9,
+                _ => -1
+            };
+
+            if (index >= 0 && CustomAssistants != null)
+            {
+                var assistant = CustomAssistants.ElementAtOrDefault(index);
+                if (assistant != null)
+                {
+                    SelectedCustomAssistant = assistant;
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
+
         switch (e.Key)
         {
             case Key.Enter:

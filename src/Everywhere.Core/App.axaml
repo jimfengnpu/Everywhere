@@ -22,13 +22,13 @@
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ChatActionBubble.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ChatPluginDisplayBlockPresenter.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ConsentDecisionCard.axaml"/>
-        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/ElementPickerToolTip.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconPresenter.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/McpTransportConfigurationForm.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/SettingsItemsControl.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceSummaryView.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/VisualElementPicker/VisualElementPickerToolTip.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

@@ -96,7 +96,7 @@
       <Setter Property="IsVisible" Value="False"/>
     </Style>
 
-    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeM}"/>
     <Setter Property="Padding" Value="6"/>
     <Setter Property="SelectionBrush" Value="{DynamicResource PrimaryColor}"/>
     <Setter Property="SelectionForegroundBrush" Value="{DynamicResource PrimaryForegroundColor}"/>
@@ -188,9 +188,9 @@
               ItemsSource="{TemplateBinding ChatAttachmentItemsSource}">
               <ItemsControl.Styles>
                 <Style Selector="Border.FocusedElement">
-                  <Setter Property="BorderBrush" Value="{DynamicResource InfoColor}"/>
+                  <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}"/>
                   <Setter Property="BorderThickness" Value="1"/>
-                  <Setter Property="Padding" Value="-1"/>
+                  <Setter Property="Padding" Value="2,2"/>
                 </Style>
               </ItemsControl.Styles>
 
@@ -204,7 +204,6 @@
               <ItemsControl.DataTemplates>
                 <DataTemplate DataType="chat:ChatFileAttachment">
                   <Border
-                    Height="24"
                     Background="{DynamicResource CardBackgroundColor}"
                     CornerRadius="4">
 
@@ -221,7 +220,8 @@
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
                         <LucideIcon
                           Foreground="{DynamicResource MutedColor}"
-                          Kind="X" Size="12"/>
+                          Kind="X"
+                          Size="{DynamicResource FontSizeS}"/>
                       </Button>
 
                       <Image
@@ -241,9 +241,10 @@
                         <LucideIcon
                           DockPanel.Dock="Left" VerticalAlignment="Center"
                           Kind="{Binding Icon}"
-                          Size="14"/>
+                          Size="{DynamicResource FontSizeM}"/>
                         <TextBlock
-                          VerticalAlignment="Center" FontSize="12"
+                          VerticalAlignment="Center"
+                          FontSize="{DynamicResource FontSizeS}"
                           Text="{Binding HeaderKey^}"
                           TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                       </DockPanel>
@@ -253,7 +254,6 @@
 
                 <DataTemplate DataType="chat:ChatVisualElementAttachment">
                   <Border
-                    Height="24"
                     Background="{DynamicResource CardBackgroundColor}"
                     Classes.FocusedElement="{Binding IsFocusedElement}"
                     CornerRadius="4">
@@ -262,7 +262,7 @@
                       <LucideIcon
                         DockPanel.Dock="Left" VerticalAlignment="Center"
                         Kind="{Binding Icon}"
-                        Size="14"/>
+                        Size="{DynamicResource FontSizeM}"/>
                       <Button
                         DockPanel.Dock="Right" Padding="1"
                         VerticalAlignment="Center" Background="Transparent"
@@ -273,10 +273,12 @@
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
                         <LucideIcon
                           Foreground="{DynamicResource MutedColor}"
-                          Kind="X" Size="12"/>
+                          Kind="X"
+                          Size="{DynamicResource FontSizeS}"/>
                       </Button>
                       <TextBlock
-                        VerticalAlignment="Center" FontSize="12"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSizeS}"
                         Text="{Binding HeaderKey^}"
                         TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                     </DockPanel>
@@ -285,7 +287,6 @@
 
                 <DataTemplate DataType="chat:ChatAttachment">
                   <Border
-                    Height="24"
                     Background="{DynamicResource CardBackgroundColor}"
                     CornerRadius="4">
                     <DockPanel
@@ -294,7 +295,7 @@
                       <LucideIcon
                         DockPanel.Dock="Left" VerticalAlignment="Center"
                         Kind="{Binding Icon}"
-                        Size="14"/>
+                        Size="{DynamicResource FontSizeM}"/>
                       <Button
                         DockPanel.Dock="Right" Padding="1"
                         VerticalAlignment="Center" Background="Transparent"
@@ -305,10 +306,12 @@
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
                         <LucideIcon
                           Foreground="{DynamicResource MutedColor}"
-                          Kind="X" Size="12"/>
+                          Kind="X"
+                          Size="{DynamicResource FontSizeS}"/>
                       </Button>
                       <TextBlock
-                        VerticalAlignment="Center" FontSize="12"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSizeS}"
                         Text="{Binding HeaderKey^}"
                         TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                     </DockPanel>
@@ -323,11 +326,11 @@
             Orientation="Horizontal" Spacing="4">
             <Menu Focusable="False">
               <MenuItem
-                Classes="Outline Rounded" Width="30"
-                Height="30" Margin="0,0,4,0"
-                shadui:MenuItemAssist.PopupMaxHeight="400" shadui:MenuItemAssist.PopupPlacement="Top"
-                shadui:MenuItemAssist.PopupVerticalOffset="-4" Focusable="False"
-                Grid.IsSharedSizeScope="True"
+                x:Name="PART_AssistantSelectionMenuItem" Classes="Outline Rounded"
+                Width="30" Height="30"
+                Margin="0,0,4,0" shadui:MenuItemAssist.PopupMaxHeight="400"
+                shadui:MenuItemAssist.PopupPlacement="Top" shadui:MenuItemAssist.PopupVerticalOffset="-4"
+                Focusable="False" Grid.IsSharedSizeScope="True"
                 ItemsSource="{TemplateBinding CustomAssistants, Mode=OneWay}"
                 SelectedItem="{TemplateBinding SelectedCustomAssistant, Mode=OneWay}">
                 <ToolTip.Tip>
@@ -339,9 +342,9 @@
                 <MenuItem.Header>
                   <v:IconPresenter
                     Width="30" Height="30"
-                    FontSize="16"
+                    FontSize="{DynamicResource FontSizeL}"
                     Icon="{Binding SelectedCustomAssistant.Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
-                    IconSize="16"/>
+                    IconSize="{DynamicResource FontSizeL}"/>
                 </MenuItem.Header>
 
                 <MenuItem.ItemContainerTheme>

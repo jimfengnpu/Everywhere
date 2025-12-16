@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Security.Principal;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using Windows.Win32;
-using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Avalonia.Input;
 using Everywhere.Common;
@@ -177,35 +175,5 @@ public class NativeHelper : INativeHelper
         if (fullPath.IsNullOrWhiteSpace()) return;
         var args = $"/e,/select,\"{fullPath}\"";
         Process.Start(new ProcessStartInfo("explorer.exe", args) { UseShellExecute = true });
-    }
-
-    public unsafe string[] ParseArguments(string? commandLine)
-    {
-        if (string.IsNullOrEmpty(commandLine))
-        {
-            return [];
-        }
-
-        var argv = PInvoke.CommandLineToArgv(commandLine, out var argc);
-        if (argv == null)
-        {
-            throw new ArgumentException(Marshal.GetPInvokeErrorMessage(Marshal.GetLastWin32Error()), nameof(commandLine));
-        }
-
-        try
-        {
-            var args = new string[argc];
-            for (var i = 0; i < argc; i++)
-            {
-                var p = Marshal.ReadIntPtr((nint)argv, i * IntPtr.Size);
-                args[i] = Marshal.PtrToStringUni(p) ?? string.Empty;
-            }
-
-            return args;
-        }
-        finally
-        {
-            PInvoke.LocalFree((HLOCAL)argv);
-        }
     }
 }

@@ -167,7 +167,7 @@
         <value>Abrir Ventana de Depuración</value>
     </data>
     <data name="ChatWindow_History_ToolTip" xml:space="preserve">
-        <value>Historial de Chat</value>
+        <value>Historial de Chat (Ctrl+H)</value>
     </data>
     <data name="ChatWindow_CreateNew_ToolTip" xml:space="preserve">
         <value>Crear Nuevo Chat (Ctrl+N)</value>
@@ -206,7 +206,7 @@
         <value>Haz clic para establecer un atajo</value>
     </data>
     <data name="KeyboardShortcutInputBox_SettingWatermark" xml:space="preserve">
-        <value>Estableciendo...</value>
+        <value>Escribe el atajo...</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Default" xml:space="preserve">
         <value>Sesión sin nombre</value>
@@ -605,29 +605,14 @@
     <data name="Common_Error" xml:space="preserve">
         <value>Error</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_CheckForUpdatesButton_Content" xml:space="preserve">
-        <value>Buscar actualizaciones</value>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableVersionTitle_Text" xml:space="preserve">
+        <value>Versión</value>
     </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run1_Text" xml:space="preserve">
-        <value>Versión actual: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_Run2_Text" xml:space="preserve">
-        <value>Última verificación: </value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_TextBlock_ReleaseNotes_Text" xml:space="preserve">
-        <value>Notas de la versión</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_PerformUpdateButton_Content" xml:space="preserve">
-        <value>Actualizar a </value>
+    <data name="CommonSettings_SoftwareUpdate_LastUpdateCheckTitle_Text" xml:space="preserve">
+        <value>Última verificación:</value>
     </data>
     <data name="Common_Unknown" xml:space="preserve">
         <value>Desconocido</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_AlreadyLatestVersion" xml:space="preserve">
-        <value>Everywhere ya está en la última versión.</value>
-    </data>
-    <data name="CommonSettings_SoftwareUpdate_Toast_NewVersionFound" xml:space="preserve">
-        <value>Nueva versión {0} encontrada.</value>
     </data>
     <data name="CommonSettings_SoftwareUpdate_Header" xml:space="preserve">
         <value>Actualización de Software</value>
@@ -1125,6 +1110,15 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="HandledSystemException_ArgumentOutOfRange" xml:space="preserve">
         <value>El argumento está fuera del rango válido. Por favor, asegúrese de que la configuración sea correcta.</value>
     </data>
+    <data name="HandledSystemException_SSLConnectionError" xml:space="preserve">
+        <value>No se pudo establecer la conexión SSL. Por favor, verifica tu configuración de red o el certificado.</value>
+    </data>
+    <data name="HandledSystemException_ConnectionRefused" xml:space="preserve">
+        <value>La conexión fue rechazada por el servidor. Por favor, verifica si el servicio está en funcionamiento y accesible.</value>
+    </data>
+    <data name="HandledSystemException_HostNotFound" xml:space="preserve">
+        <value>No se pudo encontrar el host. Por favor, verifica la dirección y tu conexión de red.</value>
+    </data>
     <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
@@ -1132,13 +1126,13 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
         <value>Utiliza Everything (un motor de búsqueda de archivos local de alto rendimiento) para buscar archivos en tu computadora.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
-        <value>Confirma la disponibilidad del servicio del modelo.</value>
+        <value>Confirma la disponibilidad del servicio del modelo</value>
     </data>
     <data name="CustomAssistantPage_CreateNewCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Inicia una nueva configuración para un asistente de IA.</value>
+        <value>Inicia una nueva configuración para un asistente de IA</value>
     </data>
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Elimina permanentemente el asistente seleccionado.</value>
+        <value>Elimina permanentemente el asistente seleccionado</value>
     </data>
     <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Cortar</value>
@@ -1391,8 +1385,8 @@ Contenido:
     <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>No se puede escribir en un archivo binario.</value>
     </data>
-    <data name="ChatPlugin_Common_ArgumentError" xml:space="preserve">
-        <value>El asistente pasó parámetros incorrectos al invocar la herramienta, lo que generalmente es causado por alucinaciones del modelo.</value>
+    <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
+        <value>El modelo proporcionó un valor inválido para el parámetro '{0}', probablemente debido a una alucinación.</value>
     </data>
     <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>El tamaño del archivo es mayor a 10 MB, la operación de reemplazo no es compatible.</value>
@@ -1516,7 +1510,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
         <value>Duplicar</value>
     </data>
     <data name="CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip" xml:space="preserve">
-        <value>Duplicar el asistente seleccionado.</value>
+        <value>Duplicar el asistente seleccionado</value>
     </data>
     <data name="Common_Copy" xml:space="preserve">
         <value>Copiar</value>
@@ -1575,8 +1569,8 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="HttpTransportMode_Sse" xml:space="preserve">
         <value>SSE</value>
     </data>
-    <data name="ChatPlugin_Common_FunctionNotFound" xml:space="preserve">
-        <value>La herramienta invocada por el asistente no existe, lo que generalmente es causado por alucinaciones del modelo.</value>
+    <data name="HandledFunctionInvokingException_FunctionNotFound" xml:space="preserve">
+        <value>El modelo intentó invocar la herramienta inexistente '{0}', probablemente debido a una alucinación.</value>
     </data>
     <data name="McpTransportConfigurationForm_NameTextBox_Label" xml:space="preserve">
         <value>* Nombre</value>
@@ -1596,32 +1590,26 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="McpTransportConfigurationForm_WorkingDirectoryTextBox_Label" xml:space="preserve">
         <value>Directorio de trabajo</value>
     </data>
-    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_EnvironmentVariablesDataList_Label" xml:space="preserve">
         <value>Variables de entorno</value>
     </data>
     <data name="McpTransportConfigurationForm_EndpointTextBox_Label" xml:space="preserve">
-        <value>* Endpoint</value>
+        <value>* URL</value>
     </data>
     <data name="McpTransportConfigurationForm_TransportModeComboBox_Label" xml:space="preserve">
         <value>Modo de transporte</value>
     </data>
-    <data name="McpTransportConfigurationForm_HeadersDataGrid_Label" xml:space="preserve">
+    <data name="McpTransportConfigurationForm_HeadersDataList_Label" xml:space="preserve">
         <value>Encabezados de solicitud</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Header" xml:space="preserve">
-        <value>Nombre (Clave)</value>
+    <data name="McpTransportConfigurationForm_KeyTextBox_Watermark" xml:space="preserve">
+        <value>* Por favor, ingrese la clave</value>
     </data>
-    <data name="McpTransportConfigurationForm_NameDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* Por favor ingrese un nombre</value>
+    <data name="McpTransportConfigurationForm_ValueTextBox_Watermark" xml:space="preserve">
+        <value>* Valor</value>
     </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Header" xml:space="preserve">
-        <value>Valor</value>
-    </data>
-    <data name="McpTransportConfigurationForm_ValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>* Por favor ingrese un valor</value>
-    </data>
-    <data name="McpTransportConfigurationForm_OptionalValueDataGridTextColumn_Watermark" xml:space="preserve">
-        <value>Por favor ingrese un valor (opcional)</value>
+    <data name="McpTransportConfigurationForm_OptionalValueTextBox_Watermark" xml:space="preserve">
+        <value>Por favor, ingrese el valor</value>
     </data>
     <data name="ChatPluginPageViewModel_EditMcpPlugin_DialogTitle" xml:space="preserve">
         <value>Editar plugin MCP (Los campos marcados con * son obligatorios)</value>
@@ -1712,5 +1700,29 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     </data>
     <data name="ModelProviderSchema_OpenAI_Responses" xml:space="preserve">
         <value>OpenAI (Responses API)</value>
+    </data>
+    <data name="MacOS_PermissionHelper_PleaseGrantAccessibilityPermission" xml:space="preserve">
+        <value>Por favor, concede permisos de accesibilidad a la aplicación en Configuración del Sistema &gt; Privacidad y Seguridad &gt; Accesibilidad, y reinicia la aplicación.</value>
+    </data>
+    <data name="Entrance_EverywhereAlreadyRunning" xml:space="preserve">
+        <value>Everywhere ya está en ejecución. Por favor, verifica tu bandeja del sistema para la ventana de la aplicación.</value>
+    </data>
+    <data name="HandledFunctionInvokingException_ArgumentMissing" xml:space="preserve">
+        <value>Falta el parámetro requerido '{0}' en la invocación de la herramienta, probablemente debido a una alucinación.</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateAvailableTitle_Text" xml:space="preserve">
+        <value>Actualización disponible</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateTitle_Text" xml:space="preserve">
+        <value>Buscando actualizaciones</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdateNotAvailableTitle_Text" xml:space="preserve">
+        <value>Estás actualizado</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_CheckingUpdateDescription_Text" xml:space="preserve">
+        <value>Un momento...</value>
+    </data>
+    <data name="CommonSettings_SoftwareUpdate_UpdatingTitle_Text" xml:space="preserve">
+        <value>Actualizando</value>
     </data>
 </root>

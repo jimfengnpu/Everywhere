@@ -96,8 +96,7 @@
       Margin="0,-50,12,0" HorizontalAlignment="Right"
       Orientation="Horizontal" Spacing="8">
       <Button
-        Classes="Primary" Height="34"
-        VerticalAlignment="Center"
+        Classes="Secondary" VerticalAlignment="Center"
         shadui:ButtonAssist.Icon="{LucideIconContent Unplug}"
         shadui:ButtonAssist.ShowProgress="{Binding CheckConnectivityCommand.IsRunning}"
         Command="{Binding CheckConnectivityCommand}"

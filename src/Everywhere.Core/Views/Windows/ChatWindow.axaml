@@ -134,7 +134,7 @@
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
             <Button.Flyout>
               <Flyout ShowMode="Transient">
-                <Grid RowDefinitions="*,1,Auto">
+                <Grid RowDefinitions="*,Auto">
                   <ScrollViewer
                     Grid.Row="0" Width="200"
                     MaxHeight="400" HorizontalContentAlignment="Stretch"
@@ -155,7 +155,7 @@
                             Orientation="Vertical" Spacing="4">
                             <TextBlock
                               Classes="Muted" HorizontalAlignment="Left"
-                              FontSize="12">
+                              FontSize="{DynamicResource FontSizeS}">
                               <TextBlock.Text>
                                 <I18N Key="{Binding Date, Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
                               </TextBlock.Text>
@@ -169,8 +169,7 @@
                               SelectedItem="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.CurrentMetadata, FallbackValue={x:Null}}">
                               <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
-                                  <Setter Property="Height" Value="28"/>
-                                  <Setter Property="Padding" Value="6,0"/>
+                                  <Setter Property="Padding" Value="8,6"/>
                                   <Setter Property="CornerRadius" Value="4"/>
                                 </Style>
                               </ListBox.Styles>
@@ -189,13 +188,12 @@
                     </ItemsControl>
                   </ScrollViewer>
 
-                  <Border
-                    Grid.Row="1"
-                    Background="{DynamicResource BorderColor}"/>
-
                   <Button
-                    Grid.Row="2" MinHeight="28"
-                    Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}">
+                    Grid.Row="1" Padding="0,6"
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="0,1,0,0"
+                    Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}"
+                    CornerRadius="0,0,8,8">
                     <Interaction.Behaviors>
                       <ButtonClickEventTriggerBehavior>
                         <ButtonClickEventTriggerBehavior.Actions>
@@ -318,7 +316,8 @@
                   <ItemsPanelTemplate>
                     <WrapPanel
                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                      ItemSpacing="8" LineSpacing="6"/>
+                      ItemSpacing="8" ItemsAlignment="Center"
+                      LineSpacing="6"/>
                   </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
               </ItemsControl>
@@ -355,7 +354,7 @@
                 </Style>
 
                 <Style Selector="Button LucideIcon">
-                  <Setter Property="Size" Value="14"/>
+                  <Setter Property="Size" Value="{DynamicResource FontSizeM}"/>
                 </Style>
 
                 <Style Selector="SelectableTextBlock">
@@ -392,7 +391,8 @@
                           <TextBox
                             x:Name="PART_TextBox" IsVisible="False"/>
                           <TextBlock
-                            VerticalAlignment="Center" FontSize="12"
+                            VerticalAlignment="Center"
+                            FontSize="{DynamicResource FontSizeS}"
                             Foreground="{TemplateBinding Foreground}"
                             TextAlignment="Center" TextWrapping="NoWrap">
                             <Run Text="{Binding Value, StringFormat={}{0:F0}, RelativeSource={RelativeSource TemplatedParent}}"/>
@@ -606,7 +606,7 @@
 
                           <SelectableTextBlock
                             Classes="Muted" Margin="4,0"
-                            FontSize="10">
+                            FontSize="{DynamicResource FontSizeS}">
                             <TextBlock.IsVisible>
                               <MultiBinding Converter="{x:Static BoolConverters.And}">
                                 <Binding Path="$parent[v:ChatWindow].ViewModel.Settings.ChatWindow.ShowChatStatistics"/>
@@ -694,7 +694,6 @@
                                   </Border>
 
                                   <Border
-                                    Height="24"
                                     Background="{DynamicResource CardBackgroundColor}"
                                     CornerRadius="4"
                                     IsVisible="{Binding !IsImage}"
@@ -707,7 +706,8 @@
                                         Kind="{Binding Icon}"
                                         Size="14"/>
                                       <TextBlock
-                                        VerticalAlignment="Center" FontSize="12"
+                                        VerticalAlignment="Center"
+                                        FontSize="{DynamicResource FontSizeS}"
                                         Text="{Binding HeaderKey^}"
                                         TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                                     </DockPanel>
@@ -717,7 +717,6 @@
 
                               <DataTemplate DataType="chat:ChatVisualElementAttachment">
                                 <Border
-                                  Height="24"
                                   Background="{DynamicResource CardBackgroundColor}"
                                   Classes.Invalid="{Binding IsElementValid, Converter={x:Static BoolConverters.Not}}"
                                   CornerRadius="4">
@@ -729,7 +728,8 @@
                                       Kind="{Binding Icon}"
                                       Size="14"/>
                                     <TextBlock
-                                      VerticalAlignment="Center" FontSize="12"
+                                      VerticalAlignment="Center"
+                                      FontSize="{DynamicResource FontSizeS}"
                                       Text="{Binding HeaderKey^}"
                                       TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                                   </DockPanel>
@@ -738,7 +738,6 @@
 
                               <DataTemplate DataType="chat:ChatAttachment">
                                 <Border
-                                  Height="24"
                                   Background="{DynamicResource CardBackgroundColor}"
                                   CornerRadius="4">
                                   <DockPanel
@@ -749,7 +748,8 @@
                                       Kind="{Binding Icon}"
                                       Size="14"/>
                                     <TextBlock
-                                      VerticalAlignment="Center" FontSize="12"
+                                      VerticalAlignment="Center"
+                                      FontSize="{DynamicResource FontSizeS}"
                                       Text="{Binding HeaderKey^}"
                                       TextTrimming="{x:Static TextTrimming.PrefixCharacterEllipsis}"/>
                                   </DockPanel>
@@ -787,7 +787,7 @@
                           <v:ChatActionBubble.ErrorContent>
                             <SelectableTextBlock
                               Classes="Muted" Margin="6,4"
-                              FontSize="13"
+                              FontSize="{DynamicResource FontSizeS}"
                               Text="{Binding ErrorMessageKey^, FallbackValue={x:Null}}"/>
                           </v:ChatActionBubble.ErrorContent>
                         </v:ChatActionBubble>
@@ -842,7 +842,7 @@
                           <v:ChatActionBubble.ErrorContent>
                             <SelectableTextBlock
                               Classes="Muted" Margin="6,4"
-                              FontSize="13"
+                              FontSize="{DynamicResource FontSizeS}"
                               Text="{Binding ErrorMessageKey^, FallbackValue={x:Null}}"/>
                           </v:ChatActionBubble.ErrorContent>
 
@@ -975,12 +975,12 @@
               <v:ChatInputBox.AddChatAttachmentMenuItems>
                 <MenuItem
                   Command="{Binding PickElementCommand}"
-                  CommandParameter="{x:Static interop:PickElementMode.Element}"
+                  CommandParameter="{x:Static interop:ElementPickMode.Element}"
                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement}}">
                   <MenuItem.Icon>
                     <LucideIcon
-                      Width="18" Height="18"
-                      Kind="SquareMousePointer" Size="18"/>
+                      Kind="SquareMousePointer"
+                      Size="{DynamicResource FontSizeL}"/>
                   </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem
@@ -988,8 +988,8 @@
                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard}}">
                   <MenuItem.Icon>
                     <LucideIcon
-                      Width="18" Height="18"
-                      Kind="ClipboardPaste" Size="18"/>
+                      Kind="ClipboardPaste"
+                      Size="{DynamicResource FontSizeL}"/>
                   </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem
@@ -997,8 +997,8 @@
                   Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile}}">
                   <MenuItem.Icon>
                     <LucideIcon
-                      Width="18" Height="18"
-                      Kind="File" Size="18"/>
+                      Kind="File"
+                      Size="{DynamicResource FontSizeL}"/>
                   </MenuItem.Icon>
                 </MenuItem>
               </v:ChatInputBox.AddChatAttachmentMenuItems>
@@ -1010,11 +1010,11 @@
                     Orientation="Horizontal" Spacing="4">
                     <TextBlock
                       Classes="Muted" VerticalAlignment="Center"
-                      FontSize="12"
+                      FontSize="{DynamicResource FontSizeS}"
                       Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit}}"/>
                     <TextBlock
                       Classes="Muted" VerticalAlignment="Center"
-                      FontSize="12"
+                      FontSize="{DynamicResource FontSizeS}"
                       Text="{Binding Settings.Internal.VisualTreeTokenLimit, Mode=OneWay}"/>
                   </StackPanel>
 
@@ -1035,11 +1035,11 @@
                     Orientation="Horizontal" Spacing="4">
                     <TextBlock
                       Classes="Muted" VerticalAlignment="Center"
-                      FontSize="12"
+                      FontSize="{DynamicResource FontSizeS}"
                       Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel}}"/>
                     <TextBlock
                       Classes="Muted" VerticalAlignment="Center"
-                      FontSize="12">
+                      FontSize="{DynamicResource FontSizeS}">
                       <TextBlock.Text>
                         <I18N Key="{Binding Settings.ChatWindow.VisualTreeDetailLevel, Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
                       </TextBlock.Text>
@@ -1081,7 +1081,8 @@
                 <MenuItem.Header>
                   <LucideIcon
                     HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Kind="Ellipsis" Size="16"/>
+                    Kind="Ellipsis"
+                    Size="{DynamicResource FontSizeL}"/>
                 </MenuItem.Header>
 
                 <MenuItem
@@ -1151,15 +1152,16 @@
                   Orientation="Vertical" Spacing="4">
                   <TextBlock
                     Classes="Muted" HorizontalAlignment="Left"
-                    FontSize="12">
+                    FontSize="{DynamicResource FontSizeS}">
                     <TextBlock.Text>
                       <I18N Key="{Binding Date, Converter={x:Static vc:DynamicResourceKeyConverter.Shared}}"/>
                     </TextBlock.Text>
                   </TextBlock>
 
                   <ListBox
-                    Padding="0" Background="Transparent"
-                    BorderThickness="0" CornerRadius="0"
+                    x:Name="ChatContextMetadataListBox" Padding="0"
+                    Background="Transparent" BorderThickness="0"
+                    CornerRadius="0"
                     ItemsSource="{Binding MetadataList}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     SelectedItem="{Binding $parent[v:ChatWindow].ViewModel.ChatContextManager.CurrentMetadata, FallbackValue={x:Null}}">
@@ -1168,7 +1170,7 @@
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                       </Style>
                       <Style Selector="LucideIcon">
-                        <Setter Property="Size" Value="14"/>
+                        <Setter Property="Size" Value="{DynamicResource FontSizeM}"/>
                       </Style>
                     </ListBox.Styles>
 
@@ -1197,6 +1199,7 @@
                           <shadui:EditableTextBlock
                             x:Name="TopicEditableTextBlock" Grid.Column="1"
                             Margin="8,0" VerticalAlignment="Center"
+                            FontSize="{DynamicResource FontSizeM}"
                             IsEditing="{Binding IsRenaming, Mode=TwoWay}"
                             IsVisible="{Binding !IsTemporary}"
                             Text="{Binding Topic, Mode=TwoWay}"
@@ -1229,7 +1232,7 @@
                                   <MenuItem.Icon>
                                     <LucideIcon
                                       Foreground="{DynamicResource DestructiveColor}"
-                                      Kind="Trash2" Size="14"/>
+                                      Kind="Trash2"/>
                                   </MenuItem.Icon>
                                 </MenuItem>
                               </MenuFlyout>

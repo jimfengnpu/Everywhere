@@ -75,7 +75,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
         LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_Description)]
     private Task<ChatFileAttachment> CaptureFullScreenAsync(CancellationToken cancellationToken = default)
     {
-        var visualElement = _visualElementContext.ElementFromPointer(PickElementMode.Screen);
+        var visualElement = _visualElementContext.ElementFromPointer(ElementPickMode.Screen);
         if (visualElement is null)
         {
             throw new HandledException(
@@ -119,15 +119,16 @@ public class VisualTreePlugin : BuiltInChatPlugin
     {
         if (actions == null || actions.Length == 0)
         {
-            throw new HandledException(
-                new ArgumentException($"{nameof(actions)} cannot be empty.", nameof(actions)),
-                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+            throw new HandledFunctionInvokingException(
+                HandledFunctionInvokingExceptionType.ArgumentError,
+                nameof(actions),
+                new ArgumentException($"{nameof(actions)} cannot be empty.", nameof(actions)));
         }
 
         var index = 0;
         foreach (var step in actions)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested(); 
             index++;
 
             switch (step.Type)
@@ -156,9 +157,10 @@ public class VisualTreePlugin : BuiltInChatPlugin
                     var delay = step.EnsureDelayMs();
                     if (delay < 0)
                     {
-                        throw new HandledException(
-                            new ArgumentException($"Delay must be non-negative for wait actions (step {index}).", nameof(actions)),
-                            new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+                        throw new HandledFunctionInvokingException(
+                            HandledFunctionInvokingExceptionType.ArgumentError,
+                            nameof(actions),
+                            new ArgumentException($"Delay must be non-negative for wait actions (step {index}).", nameof(actions)));
                     }
 
                     await Task.Delay(TimeSpan.FromMilliseconds(delay), cancellationToken).ConfigureAwait(false);
@@ -166,11 +168,12 @@ public class VisualTreePlugin : BuiltInChatPlugin
                 }
                 default:
                 {
-                    throw new HandledException(
+                    throw new HandledFunctionInvokingException(
+                        HandledFunctionInvokingExceptionType.ArgumentError,
+                        nameof(actions),
                         new ArgumentOutOfRangeException(
                             nameof(actions),
-                            $"Unsupported action type '{step.Type}' at step {index}."),
-                        new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+                            $"Unsupported action type '{step.Type}' at step {index}."));
                 }
             }
         }
@@ -182,11 +185,12 @@ public class VisualTreePlugin : BuiltInChatPlugin
     {
         if (!chatContext.VisualElements.TryGetValue(elementId, out var visualElement))
         {
-            throw new HandledException(
+            throw new HandledFunctionInvokingException(
+                HandledFunctionInvokingExceptionType.ArgumentError,
+                argumentName ?? nameof(elementId),
                 new ArgumentException(
                     $"Visual element with id '{elementId}' is not found or has been destroyed.",
-                    argumentName ?? nameof(elementId)),
-                new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+                    argumentName ?? nameof(elementId)));
         }
 
         return visualElement;
@@ -245,21 +249,24 @@ public class VisualTreePlugin : BuiltInChatPlugin
         [Description("Delay in milliseconds for wait action")]
         public int? DelayMs { get; init; }
 
-        public int EnsureElementId() => ElementId ?? throw new HandledException(
-            new ArgumentException($"{nameof(ElementId)} is required for this action."),
-            new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+        public int EnsureElementId() => ElementId ?? throw new HandledFunctionInvokingException(
+            HandledFunctionInvokingExceptionType.ArgumentError,
+            nameof(ElementId),
+            new ArgumentException($"{nameof(ElementId)} is required for this action.", nameof(ElementId)));
 
-        public int EnsureDelayMs() => DelayMs ?? throw new HandledException(
-            new ArgumentException($"{nameof(DelayMs)} is required for wait actions."),
-            new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+        public int EnsureDelayMs() => DelayMs ?? throw new HandledFunctionInvokingException(
+            HandledFunctionInvokingExceptionType.ArgumentError,
+            nameof(DelayMs),
+            new ArgumentException($"{nameof(DelayMs)} is required for wait actions.", nameof(DelayMs)));
 
         public KeyboardShortcut ResolveShortcut()
         {
             if (string.IsNullOrWhiteSpace(Key))
             {
-                throw new HandledException(
-                    new ArgumentException("Key is required for SendKey actions."),
-                    new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+                throw new HandledFunctionInvokingException(
+                    HandledFunctionInvokingExceptionType.ArgumentError,
+                    nameof(Key),
+                    new ArgumentException($"{nameof(Key)} is required for SendKey actions.", nameof(Key)));
             }
 
             var key = ParseVirtualKey(Key);
@@ -280,9 +287,10 @@ public class VisualTreePlugin : BuiltInChatPlugin
                         "VK_CONTROL" => KeyModifiers.Control,
                         "VK_MENU" => KeyModifiers.Alt,
                         "VK_LWIN" or "VK_RWIN" => KeyModifiers.Meta,
-                        _ => throw new HandledException(
-                            new ArgumentException($"Invalid modifier key: '{part}'."),
-                            new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError))
+                        _ => throw new HandledFunctionInvokingException(
+                            HandledFunctionInvokingExceptionType.ArgumentError,
+                            nameof(part),
+                            new ArgumentException($"Invalid modifier key: '{part}'.", nameof(part)))
                     };
                 }
             }
@@ -296,9 +304,10 @@ public class VisualTreePlugin : BuiltInChatPlugin
             if (!virtualKey.StartsWith("VK_")) virtualKey = "VK_" + virtualKey;
             if (!Enum.TryParse<VIRTUAL_KEY>(virtualKey, out var vk))
             {
-                throw new HandledException(
-                    new ArgumentException($"Invalid virtual key code: '{virtualKey}'."),
-                    new DynamicResourceKey(LocaleKey.ChatPlugin_Common_ArgumentError));
+                throw new HandledFunctionInvokingException(
+                    HandledFunctionInvokingExceptionType.ArgumentError,
+                    nameof(virtualKey),
+                    new ArgumentException($"Invalid virtual key code: '{virtualKey}'.", nameof(virtualKey)));
             }
 
             return vk switch
