@@ -126,7 +126,7 @@
                   HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
                   <Border
                     Padding="2,4,2,0" HorizontalAlignment="Left"
-                    Background="{DynamicResource TabItemsBackgroundColor}"
+                    Background="{DynamicResource CardBackgroundColor}"
                     CornerRadius="{DynamicResource LgCornerRadius}">
                     <ItemsPresenter
                       Name="PART_ItemsPresenter"

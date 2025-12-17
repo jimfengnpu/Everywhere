@@ -42,5 +42,8 @@ public static class SettingsExtensions
         .AddTransient<SoftwareUpdateControl>()
         .AddTransient<RestartAsAdministratorControl>()
         .AddTransient<DebugFeaturesControl>()
+        .AddSingleton<KeyValueStorage>()
+        .AddSingleton<IKeyValueStorage>(sp => sp.GetRequiredService<KeyValueStorage>())
+        .AddTransient<IAsyncInitializer>(sp => sp.GetRequiredService<KeyValueStorage>())
         .AddTransient<IAsyncInitializer, SettingsInitializer>();
 }

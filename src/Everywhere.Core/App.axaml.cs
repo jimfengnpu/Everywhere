@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Everywhere.AttachedProperties;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
@@ -156,6 +157,7 @@ public class App : Application
                 content.To<ISetLogicalParent>().SetParent(null);
                 window = new TransientWindow
                 {
+                    [SaveWindowPlacementAssist.KeyProperty] = typeof(TContent).FullName,
                     Content = content
                 };
                 window.Show();
