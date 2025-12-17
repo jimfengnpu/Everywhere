@@ -37,13 +37,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>Wählen Sie das Anzeigethema für die Software aus.</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
+    <data name="ThemeMode_System" xml:space="preserve">
         <value>System folgen</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
+    <data name="ThemeMode_Dark" xml:space="preserve">
         <value>Dunkel</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
+    <data name="ThemeMode_Light" xml:space="preserve">
         <value>Hell</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">

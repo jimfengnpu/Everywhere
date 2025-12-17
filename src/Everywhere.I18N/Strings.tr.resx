@@ -36,13 +36,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>Yazılım için ekran temasını seçin.</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
+    <data name="ThemeMode_System" xml:space="preserve">
         <value>Sistemi Takip Et</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
+    <data name="ThemeMode_Dark" xml:space="preserve">
         <value>Karanlık</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
+    <data name="ThemeMode_Light" xml:space="preserve">
         <value>Aydınlık</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">

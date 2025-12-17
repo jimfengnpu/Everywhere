@@ -63,15 +63,18 @@ public partial class CommonSettings : ObservableObject, ISettingsCategory
         }
     }
 
-    [HiddenSettingsItem]
-    public static IEnumerable<string> ThemeSource => ["System", "Dark", "Light"];
-
-    [ObservableProperty]
     [DynamicResourceKey(
         LocaleKey.CommonSettings_Theme_Header,
         LocaleKey.CommonSettings_Theme_Description)]
-    [SettingsSelectionItem(nameof(ThemeSource), I18N = true)]
-    public partial string Theme { get; set; } = ThemeSource.First();
+    public ThemeMode Theme
+    {
+        get;
+        set
+        {
+            if (!SetProperty(ref field, value)) return;
+            App.ThemeManager.SwitchTheme(value);
+        }
+    }
 
     [JsonIgnore]
     [HiddenSettingsItem]

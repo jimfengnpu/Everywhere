@@ -10,6 +10,7 @@ using Everywhere.Interop;
 using Everywhere.Views;
 using LiveMarkdown.Avalonia;
 using Serilog;
+using ShadUI;
 using Window = Avalonia.Controls.Window;
 
 namespace Everywhere;
@@ -17,7 +18,11 @@ namespace Everywhere;
 public class App : Application
 {
     public static string Version => typeof(TransientWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
-    
+
+    public static ThemeManager ThemeManager => _themeManager ?? throw new InvalidOperationException("ThemeManager is not initialized.");
+
+    private static ThemeManager? _themeManager;
+
     public TopLevel TopLevel { get; } = new Window();
 
     private TransientWindow? _mainWindow, _debugWindow;
@@ -25,6 +30,7 @@ public class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        _themeManager = new ThemeManager(this);
 
         // Initialize application mutex to ensure single instance after Locale is ready.
         Entrance.InitializeApplicationMutex(Environment.GetCommandLineArgs());

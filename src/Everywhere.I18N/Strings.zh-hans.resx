@@ -37,13 +37,13 @@
     <data name="CommonSettings_Theme_Description" xml:space="preserve">
         <value>选择软件界面主题。</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_System" xml:space="preserve">
+    <data name="ThemeMode_System" xml:space="preserve">
         <value>跟随系统</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Dark" xml:space="preserve">
+    <data name="ThemeMode_Dark" xml:space="preserve">
         <value>深色</value>
     </data>
-    <data name="SettingsSelectionItem_CommonSettings_Theme_Light" xml:space="preserve">
+    <data name="ThemeMode_Light" xml:space="preserve">
         <value>浅色</value>
     </data>
     <data name="ProxySettings_IsEnabled_Header" xml:space="preserve">
