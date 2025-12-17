@@ -5,15 +5,12 @@
   x:DataType="vm:MainViewModel" x:TypeArguments="vm:MainViewModel">
 
   <v:ReactiveUserControl.Styles>
-    <Style Selector="DockPanel &gt; shadui|NavigationBar">
-      <Style Selector="^ &gt; shadui|NavigationBar">
-        <Setter Property="DockPanel.Dock" Value="Left"/>
-      </Style>
+    <Style Selector="DockPanel#RootPanel">
       <Style Selector="^ &gt; Border">
-        <Setter Property="Margin" Value="0,0,16,0"/>
+        <Setter Property="Margin" Value="0,0,8,16"/>
       </Style>
     </Style>
-    <Style Selector="DockPanel.narrow">
+    <Style Selector="DockPanel#RootPanel.narrow">
       <Style Selector="^ &gt; shadui|NavigationBar">
         <Setter Property="DockPanel.Dock" Value="Bottom"/>
         <Setter Property="Orientation" Value="Horizontal"/>
@@ -22,12 +19,12 @@
         <Setter Property="VerticalAlignment" Value="Bottom"/>
       </Style>
       <Style Selector="^ &gt; Border">
-        <Setter Property="Margin" Value="16,0"/>
+        <Setter Property="Margin" Value="16,0,8,0"/>
       </Style>
     </Style>
   </v:ReactiveUserControl.Styles>
 
-  <DockPanel>
+  <DockPanel x:Name="RootPanel">
     <Interaction.Behaviors>
       <AdaptiveBehavior SourceControl="{Binding $parent[TopLevel]}">
         <AdaptiveClassSetter
@@ -61,13 +58,13 @@
         MaxWidth="1080" LastChildFill="True">
         <Border DockPanel.Dock="Top">
           <TextBlock
-            Classes="h4" Margin="4,12,16,0"
+            Classes="h4" Margin="4,12,16,24"
             VerticalAlignment="Center" ClipToBounds="False"
             Text="{Binding SelectedPage.ToolTip, FallbackValue={x:Null}}"/>
         </Border>
 
         <TransitioningContentControl
-          Margin="0,24,0,16" ClipToBounds="False"
+          x:Name="TransitioningContentControl" ClipToBounds="False"
           Content="{Binding SelectedPage.Route, FallbackValue={x:Null}}"/>
       </DockPanel>
       <!--  <ItemsControl  -->
