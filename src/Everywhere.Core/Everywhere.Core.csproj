@@ -70,6 +70,12 @@
     </AvaloniaResource>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(IsMacOS)' == 'true'">
+    <AvaloniaResource Include="..\..\img\Everywhere-macOS.png">
+      <Link>Assets\Everywhere-macOS.png</Link>
+    </AvaloniaResource>
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Remove="I18N\*.resx"/>
     <AdditionalFiles Include="I18N\*.resx"/>
