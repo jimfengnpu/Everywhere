@@ -17,6 +17,7 @@
         <StackPanel Spacing="4">
           <Border
             HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+            shadui:Timeline.Anchor="{Binding $self.Bounds, Converter={x:Static shadui:TimelineConverters.HalfRect}}"
             Background="{TemplateBinding Background}"
             BorderBrush="{TemplateBinding BorderBrush}"
             BorderThickness="{TemplateBinding BorderThickness}"
@@ -87,8 +88,6 @@
 
           <Border
             x:Name="ContentBorder" Margin="4,0"
-            BorderBrush="{DynamicResource PrimaryColor}"
-            BorderThickness="3,0,0,0" CornerRadius="3"
             IsVisible="{TemplateBinding IsEffectivelyExpanded}"
             Opacity="0.5" RenderTransform="translateY(-16px)">
             <Border.Transitions>
@@ -102,9 +101,7 @@
               </Transitions>
             </Border.Transitions>
 
-            <ContentPresenter
-              Margin="4,0,0,0"
-              Content="{TemplateBinding Content}"/>
+            <ContentPresenter Content="{TemplateBinding Content}"/>
           </Border>
 
           <Border
