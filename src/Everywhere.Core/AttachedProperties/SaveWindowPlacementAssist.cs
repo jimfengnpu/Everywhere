@@ -57,41 +57,63 @@ public static class SaveWindowPlacementAssist
             .Select(x => x.WorkingArea)
             .Aggregate((a, b) => a.Union(b));
 
+        // Calculate scaling based on the target screen
+        var targetScreen = window.Screens.ScreenFromPoint(placement.Position)
+                           ?? window.Screens.Primary
+                           ?? window.Screens.All.FirstOrDefault();
+        var scaling = targetScreen?.Scaling ?? 1.0;
+
         // Leave a safety margin to avoid window being too close to the edge or taskbar
         const int SafetyPadding = 20;
 
+        var widthDevice = placement.Width * scaling;
+        var heightDevice = placement.Height * scaling;
+
         var newX = Math.Clamp(placement.X,
             screenBounds.X + SafetyPadding,
-            Math.Max(screenBounds.X + SafetyPadding, screenBounds.Right - placement.Width - SafetyPadding));
+            Math.Max(screenBounds.X + SafetyPadding, screenBounds.Right - widthDevice - SafetyPadding));
 
         var newY = Math.Clamp(placement.Y,
             screenBounds.Y + SafetyPadding,
-            Math.Max(screenBounds.Y + SafetyPadding, screenBounds.Bottom - placement.Height - SafetyPadding));
+            Math.Max(screenBounds.Y + SafetyPadding, screenBounds.Bottom - heightDevice - SafetyPadding));
 
-        placement.X = newX;
-        placement.Y = newY;
+        placement.X = (int)newX;
+        placement.Y = (int)newY;
 
-        if (placement.WindowState == WindowState.Normal)
-        {
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-            window.Position = placement.Position;
-            window.Width = placement.Width;
-            window.Height = placement.Height;
-            window.WindowState = WindowState.Normal;
-        }
-        else
-        {
-            window.WindowState = placement.WindowState;
-        }
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.SizeToContent = SizeToContent.Manual;
+
+        // Restore bounds first so that maximizing works correctly from the restored position
+        window.Position = placement.Position;
+        window.Width = placement.Width;
+        window.Height = placement.Height;
+
+        window.WindowState = placement.WindowState;
     }
 
     private static void SaveWindowPlacement(string key, Window window)
     {
-        var placement = new WindowPlacement(
-            window.Position,
-            (int)window.Width,
-            (int)window.Height,
-            window.WindowState);
-        KeyValueStorage.Set($"TransientWindow.Placement.{key}", placement);
+        key = $"TransientWindow.Placement.{key}";
+
+        // Only save size and position if the window is in Normal state
+        if (window.WindowState == WindowState.Normal)
+        {
+            var placement = new WindowPlacement(
+                window.Position,
+                (int)window.Width,
+                (int)window.Height,
+                window.WindowState);
+            KeyValueStorage.Set(key, placement);
+        }
+        else
+        {
+            // If maximized/minimized, only update the state, preserving the last normal bounds
+            var existing = KeyValueStorage.Get<WindowPlacement?>(key);
+            if (!existing.HasValue) return;
+
+            var placement = existing.Value;
+            placement.WindowState = window.WindowState;
+            KeyValueStorage.Set(key, placement);
+        }
     }
 }
