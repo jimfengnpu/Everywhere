@@ -7,7 +7,7 @@
     <OpenTelemetryVersion>1.14.0</OpenTelemetryVersion>
     <SentryVersion>5.16.2</SentryVersion>
     <AvaloniaVersion>11.3.9</AvaloniaVersion>
-    <LiveMarkdownVersion>1.5.3</LiveMarkdownVersion>
+    <LiveMarkdownVersion>1.6.0</LiveMarkdownVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <XamlBehaviorsVersion>11.3.9</XamlBehaviorsVersion>
   </PropertyGroup>
@@ -80,7 +80,6 @@
     <PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="Xaml.Behaviors.Avalonia" Version="$(XamlBehaviorsVersion)" />
-    <PackageVersion Include="Xaml.Behaviors.Interactivity" Version="$(XamlBehaviorsVersion)" />
     <!-- Windows packages -->
     <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.5.4" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.257">

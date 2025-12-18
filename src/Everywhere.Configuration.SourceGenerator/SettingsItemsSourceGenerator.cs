@@ -498,7 +498,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
 
                         var resourceKeyExpr = headerKey is not null ?
                             $"new global::Everywhere.I18N.DynamicResourceKey({headerKey})" :
-                            $"new global::Everywhere.I18N.DirectResourceKey(\"{metadata.Type.Name}_{member.Name}\")";
+                            $"new global::Everywhere.I18N.DynamicResourceKey(\"{metadata.Type.Name}_{member.Name}\")";
 
                         sb.AppendLine($"new global::Everywhere.Configuration.SettingsSelectionItem.Item({resourceKeyExpr}, {memberAccess}, null),");
                     }

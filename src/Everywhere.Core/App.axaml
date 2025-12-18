@@ -13,6 +13,7 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <LocaleManager/>
+        <ResourceInclude Source="avares://ShadUI/Utilities/Easings.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Assets/Resources.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Assets/DataTemplates.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/DebugFeaturesControl.axaml"/>
@@ -36,8 +37,12 @@
   <TrayIcon.Icons>
     <TrayIcons>
       <TrayIcon
-        Clicked="HandleOpenMainWindowMenuItemClicked" Icon="avares://Everywhere.Core/Assets/Everywhere.ico"
-        ToolTipText="Everywhere">
+        Clicked="HandleOpenMainWindowMenuItemClicked" ToolTipText="Everywhere">
+        <TrayIcon.Icon>
+          <OnPlatform
+            x:TypeArguments="WindowIcon" Default="avares://Everywhere.Core/Assets/Everywhere.ico"
+            macOS="avares://Everywhere.Core/Assets/Everywhere-macOS.png"/>
+        </TrayIcon.Icon>
         <TrayIcon.Menu>
           <NativeMenu>
             <NativeMenuItem

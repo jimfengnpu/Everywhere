@@ -11,7 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Anthropic.SDK"/>
     <PackageReference Include="Avalonia"/>
-    <PackageReference Include="Avalonia.Themes.Fluent"/>
     <PackageReference Include="Avalonia.Fonts.Inter"/>
     <PackageReference Include="Avalonia.Diagnostics">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
@@ -50,8 +49,6 @@
     <PackageReference Include="Serilog.Sinks.File"/>
     <PackageReference Include="System.Drawing.Common"/>
     <PackageReference Include="Tavily"/>
-    <PackageReference Include="Xaml.Behaviors.Avalonia"/>
-    <PackageReference Include="Xaml.Behaviors.Interactivity"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -69,6 +66,12 @@
     </AvaloniaResource>
     <AvaloniaResource Include="..\..\img\Everywhere.ico">
       <Link>Assets\Everywhere.ico</Link>
+    </AvaloniaResource>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsMacOS)' == 'true'">
+    <AvaloniaResource Include="..\..\img\Everywhere-macOS.png">
+      <Link>Assets\Everywhere-macOS.png</Link>
     </AvaloniaResource>
   </ItemGroup>
 
