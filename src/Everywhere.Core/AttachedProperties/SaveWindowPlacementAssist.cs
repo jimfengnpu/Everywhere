@@ -66,8 +66,8 @@ public static class SaveWindowPlacementAssist
         // Leave a safety margin to avoid window being too close to the edge or taskbar
         const int SafetyPadding = 20;
 
-        var widthDevice = placement.Width * scaling;
-        var heightDevice = placement.Height * scaling;
+        var widthDevice = placement.Width <= 0 ? 200d : placement.Width * scaling;
+        var heightDevice = placement.Height <= 0 ? 200d : placement.Height * scaling;
 
         var newX = Math.Clamp(placement.X,
             screenBounds.X + SafetyPadding,
@@ -77,16 +77,20 @@ public static class SaveWindowPlacementAssist
             screenBounds.Y + SafetyPadding,
             Math.Max(screenBounds.Y + SafetyPadding, screenBounds.Bottom - heightDevice - SafetyPadding));
 
-        placement.X = (int)newX;
-        placement.Y = (int)newY;
+        // Restore bounds first so that maximizing works correctly from the restored position
+        window.Position = new PixelPoint((int)newX, (int)newY);
 
         window.WindowStartupLocation = WindowStartupLocation.Manual;
-        window.SizeToContent = SizeToContent.Manual;
+        window.SizeToContent = (placement.Width, placement.Height) switch
+        {
+            (< 0, < 0) => SizeToContent.WidthAndHeight,
+            (< 0, _) => SizeToContent.Height,
+            (_, < 0) => SizeToContent.Width,
+            _ => SizeToContent.Manual
+        };
 
-        // Restore bounds first so that maximizing works correctly from the restored position
-        window.Position = placement.Position;
-        window.Width = placement.Width;
-        window.Height = placement.Height;
+        if (placement.Width > 0) window.Width = placement.Width;
+        if (placement.Height > 0) window.Height = placement.Height;
 
         window.WindowState = placement.WindowState;
     }
@@ -98,10 +102,18 @@ public static class SaveWindowPlacementAssist
         // Only save size and position if the window is in Normal state
         if (window.WindowState == WindowState.Normal)
         {
+            var (width, height) = window.SizeToContent switch
+            {
+                SizeToContent.Width => (-1, (int)window.Height),
+                SizeToContent.Height => ((int)window.Width, -1),
+                SizeToContent.Manual => ((int)window.Width, (int)window.Height),
+                _ => (-1, -1)
+            };
+
             var placement = new WindowPlacement(
                 window.Position,
-                (int)window.Width,
-                (int)window.Height,
+                width,
+                height,
                 window.WindowState);
             KeyValueStorage.Set(key, placement);
         }

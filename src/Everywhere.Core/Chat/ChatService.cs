@@ -35,6 +35,7 @@ public sealed partial class ChatService(
     IChatPluginManager chatPluginManager,
     IKernelMixinFactory kernelMixinFactory,
     Settings settings,
+    PersistentState persistentState,
     ILogger<ChatService> logger
 ) : IChatService, IChatPluginUserInterface
 {
@@ -188,7 +189,7 @@ public sealed partial class ChatService(
                 chatContext.Add(analyzingContextMessage);
 
                 var maxTokens = customAssistant.MaxTokens.ActualValue;
-                var approximateTokenLimit = Math.Min(settings.Internal.VisualTreeTokenLimit, maxTokens / 2);
+                var approximateTokenLimit = Math.Min(persistentState.VisualTreeTokenLimit, maxTokens / 2);
                 var detailLevel = settings.ChatWindow.VisualTreeDetailLevel;
                 var xmlBuilder = new VisualTreeXmlBuilder(
                     validVisualElements,
@@ -320,7 +321,7 @@ public sealed partial class ChatService(
         builder.Services.AddSingleton(chatContext);
         builder.Services.AddSingleton<IChatPluginUserInterface>(this);
 
-        if (kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled)
+        if (kernelMixin.IsFunctionCallingSupported && persistentState.IsToolCallEnabled)
         {
             var needToStartMcp = chatPluginManager.McpPlugins.AsValueEnumerable().Any(p => p is { IsEnabled: true, IsRunning: false });
             using var _ = needToStartMcp ? chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_StartingMcp)) : null;
@@ -468,7 +469,7 @@ public sealed partial class ChatService(
         var assistantContentBuilder = new StringBuilder();
         var functionCallContentBuilder = new BetterFunctionCallContentBuilder();
         var promptExecutionSettings = kernelMixin.GetPromptExecutionSettings(
-            kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled ?
+            kernelMixin.IsFunctionCallingSupported && persistentState.IsToolCallEnabled ?
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
                 null);
 

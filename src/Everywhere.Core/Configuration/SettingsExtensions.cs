@@ -45,5 +45,6 @@ public static class SettingsExtensions
         .AddSingleton<KeyValueStorage>()
         .AddSingleton<IKeyValueStorage>(sp => sp.GetRequiredService<KeyValueStorage>())
         .AddTransient<IAsyncInitializer>(sp => sp.GetRequiredService<KeyValueStorage>())
+        .AddSingleton<PersistentState>()
         .AddTransient<IAsyncInitializer, SettingsInitializer>();
 }

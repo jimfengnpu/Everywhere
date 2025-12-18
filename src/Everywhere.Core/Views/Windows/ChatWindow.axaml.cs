@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
+using Everywhere.AttachedProperties;
 using Everywhere.Chat;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -47,15 +48,23 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     private readonly ILauncher _launcher;
     private readonly IWindowHelper _windowHelper;
     private readonly Settings _settings;
+    private readonly PersistentState _persistentState;
+
+    /// <summary>
+    /// Indicates whether the window has been resized by the user.
+    /// </summary>
+    private bool _isUserResized;
 
     public ChatWindow(
         ILauncher launcher,
         IWindowHelper windowHelper,
-        Settings settings)
+        Settings settings,
+        PersistentState persistentState)
     {
         _launcher = launcher;
         _windowHelper = windowHelper;
         _settings = settings;
+        _persistentState = persistentState;
 
         InitializeComponent();
         AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, true);
@@ -84,9 +93,13 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         EnsureInitialized();
         ApplyStyling();
         ApplyTemplate();
+
         _windowHelper.SetCloaked(this, true);
-        ShowActivated = true;
         Topmost = true;
+
+        // Setup window placement saving after initialization
+        this[SaveWindowPlacementAssist.KeyProperty] = nameof(ChatWindow);
+        _isUserResized = SizeToContent != SizeToContent.WidthAndHeight;
     }
 
     private void HandleKeyDown(object? sender, KeyEventArgs e)
@@ -131,36 +144,26 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         else if (change.Property == IsWindowPinnedProperty)
         {
             var value = change.NewValue is true;
-            _settings.Internal.IsChatWindowPinned = value;
+            _persistentState.IsChatWindowPinned = value;
             ShowInTaskbar = value;
             _windowHelper.SetCloaked(this, false); // Uncloak when pinned state changes to ensure visibility
         }
     }
 
-    /// <summary>
-    /// Indicates whether the window has been resized by the user.
-    /// </summary>
-    private bool _isUserResized;
-
     protected override void OnResized(WindowResizedEventArgs e)
     {
         base.OnResized(e);
 
-        if (e.Reason == WindowResizeReason.User)
+        if (e.Reason != WindowResizeReason.User) return;
+
+        if (e.ClientSize.NearlyEquals(new Size(MinWidth, MinHeight)))
         {
-            if (e.ClientSize.NearlyEquals(new Size(MinWidth, MinHeight)))
-            {
-                _isUserResized = false;
-                SizeToContent = SizeToContent.WidthAndHeight;
-            }
-            else
-            {
-                _isUserResized = true;
-            }
+            _isUserResized = false;
+            SizeToContent = SizeToContent.WidthAndHeight;
         }
-        else if (!_isUserResized)
+        else
         {
-            ClampToScreen();
+            _isUserResized = true;
         }
     }
 
@@ -228,21 +231,6 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     {
         return new NoneAutomationPeer(this); // Disable automation peer to avoid being detected by self
     }
-
-    private void ClampToScreen()
-    {
-        var position = Position;
-        var actualSize = Bounds.Size.To(s => new PixelSize((int)(s.Width * DesktopScaling), (int)(s.Height * DesktopScaling)));
-        var screenBounds = Screens.ScreenFromPoint(position)?.Bounds ?? Screens.Primary?.Bounds ?? Screens.All[0].Bounds;
-        Position = ClampToArea(position, actualSize, screenBounds);
-    }
-
-    private static PixelPoint ClampToArea(PixelPoint pos, PixelSize size, PixelRect area)
-    {
-        var x = Math.Max(area.X, Math.Min(pos.X, area.X + area.Width - size.Width));
-        var y = Math.Max(area.Y, Math.Min(pos.Y, area.Y + area.Height - size.Height));
-        return new PixelPoint(x, y);
-    }
     
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
@@ -262,7 +250,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
             {
                 case ChatWindowPinMode.RememberLast:
                 {
-                    IsWindowPinned = _settings.Internal.IsChatWindowPinned;
+                    IsWindowPinned = _persistentState.IsChatWindowPinned;
                     break;
                 }
                 case ChatWindowPinMode.AlwaysPinned:
@@ -405,7 +393,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
                 if (hasSupportedFile)
                 {
-                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount)
+                    if (ViewModel.ChatAttachments.Count >= _persistentState.MaxChatAttachmentCount)
                     {
                         e.DragEffects = DragDropEffects.None;
                         DragDropOverlay.IsVisible = false;
@@ -476,7 +464,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                             .LogError(ex, "Failed to add dropped file: {FilePath}", localPath);
                     }
 
-                    if (ViewModel.ChatAttachments.Count >= _settings.Internal.MaxChatAttachmentCount) break;
+                    if (ViewModel.ChatAttachments.Count >= _persistentState.MaxChatAttachmentCount) break;
                 }
             }
 
@@ -487,9 +475,9 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                 var text = e.DataTransfer.TryGetText();
                 if (string.IsNullOrWhiteSpace(text)) return;
 
-                var currentText = _settings.Internal.ChatInputBoxText ?? string.Empty;
+                var currentText = _persistentState.ChatInputBoxText ?? string.Empty;
                 var caretIndex = ChatInputBox.CaretIndex;
-                _settings.Internal.ChatInputBoxText = currentText.Insert(caretIndex, text);
+                _persistentState.ChatInputBoxText = currentText.Insert(caretIndex, text);
                 ChatInputBox.CaretIndex = caretIndex + text.Length;
             }
         }
