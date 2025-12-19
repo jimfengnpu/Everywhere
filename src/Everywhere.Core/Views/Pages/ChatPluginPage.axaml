@@ -167,9 +167,11 @@
         <TabItem.Header>
           <StackPanel
             Orientation="Horizontal" Spacing="4">
-            <Image
-              Width="14" Height="14"
-              Source="{StaticResource McpDrawingImage}"/>
+            <PathIcon
+              Width="{DynamicResource FontSizeM}"
+              Height="{DynamicResource FontSizeM}"
+              Data="{StaticResource McpIconGeometry}"
+              Foreground="{Binding #McpTabItem.Foreground}"/>
             <TextBlock Text="{I18N {x:Static LocaleKey.ChatPluginPage_TabItem_MCP_Header}}"/>
           </StackPanel>
         </TabItem.Header>

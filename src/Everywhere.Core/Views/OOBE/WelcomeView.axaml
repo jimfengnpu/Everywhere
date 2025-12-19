@@ -217,7 +217,7 @@
                   <Border CornerRadius="8">
                     <Image
                       Width="36" Height="36"
-                      md:AsyncImageLoader.Source="{Binding ProviderTemplate.IconUrl, FallbackValue={x:Null}}"/>
+                      md:AsyncImageLoader.Source="{Binding ProviderTemplate.LightIconUrl, FallbackValue={x:Null}}"/>
                   </Border>
 
                   <TextBlock

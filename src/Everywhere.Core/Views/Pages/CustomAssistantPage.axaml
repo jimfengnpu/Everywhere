@@ -91,10 +91,10 @@
       Grid.Column="1" VerticalAlignment="Stretch"
       Background="Transparent"/>
 
-    <StackPanel
+    <shadui:ButtonGroup
       Grid.Row="0" Grid.Column="2"
       Margin="0,-50,12,0" HorizontalAlignment="Right"
-      Orientation="Horizontal" Spacing="8">
+      Orientation="Horizontal">
       <Button
         Classes="Secondary" VerticalAlignment="Center"
         shadui:ButtonAssist.Icon="{LucideIconContent Unplug}"
@@ -104,13 +104,14 @@
         IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
         ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_CheckConnectivityButton_ToolTip}}"/>
       <Button
-        Classes="Destructive" VerticalAlignment="Center"
+        Classes="Secondary" VerticalAlignment="Center"
         shadui:ButtonAssist.Icon="{LucideIconContent Trash2}"
         Command="{Binding DeleteCustomAssistantCommand}"
         Content="{I18N {x:Static LocaleKey.CustomAssistantPage_DeleteCustomAssistantButton_Content}}"
+        Foreground="{DynamicResource DestructiveColor}"
         IsVisible="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"
         ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DeleteCustomAssistantButton_ToolTip}}"/>
-    </StackPanel>
+    </shadui:ButtonGroup>
 
     <ScrollViewer
       Grid.Row="1" Grid.Column="2"

@@ -19,11 +19,14 @@ public record ModelProviderTemplate
     public string? DisplayName { get; set; }
 
     /// <summary>
-    /// A short description of the model provider, used for UI.
-    /// Supports png, jpg, and svg image URLs.
     /// This icon is displayed next to the provider's name in the UI.
     /// </summary>
-    public string? IconUrl { get; set; }
+    public string? LightIconUrl { get; set; }
+
+    /// <summary>
+    /// This icon is displayed next to the provider's name in the UI.
+    /// </summary>
+    public string? DarkIconUrl { get; set; }
 
     /// <summary>
     /// Endpoint URL for the model provider's API.
@@ -83,7 +86,8 @@ public record ModelProviderTemplate
             DisplayName = "OpenAI",
             Endpoint = "https://api.openai.com/v1",
             OfficialWebsiteUrl = "https://openai.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/openai.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/openai-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/openai-light.svg",
             Schema = ModelProviderSchema.OpenAIResponses,
             ModelDefinitions =
             [
@@ -156,7 +160,8 @@ public record ModelProviderTemplate
             DisplayName = "Anthropic (Claude)",
             Endpoint = "https://api.anthropic.com",
             OfficialWebsiteUrl = "https://www.anthropic.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic-light.svg",
             Schema = ModelProviderSchema.Anthropic,
             ModelDefinitions =
             [
@@ -229,7 +234,8 @@ public record ModelProviderTemplate
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
             Endpoint = "https://generativelanguage.googleapis.com/v1beta",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
             Schema = ModelProviderSchema.Google,
             ModelDefinitions =
             [
@@ -282,7 +288,8 @@ public record ModelProviderTemplate
             DisplayName = "DeepSeek",
             Endpoint = "https://api.deepseek.com",
             OfficialWebsiteUrl = "https://www.deepseek.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -315,7 +322,8 @@ public record ModelProviderTemplate
             DisplayName = "Moonshot (Kimi)",
             Endpoint = "https://api.moonshot.cn/v1",
             OfficialWebsiteUrl = "https://www.moonshot.cn",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot-light.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -358,7 +366,8 @@ public record ModelProviderTemplate
             DisplayName = "OpenRouter",
             OfficialWebsiteUrl = "https://openrouter.ai",
             Endpoint = "https://openrouter.ai/api/v1",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter-light.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -401,7 +410,8 @@ public record ModelProviderTemplate
             DisplayName = "SiliconCloud (SiliconFlow)",
             OfficialWebsiteUrl = "https://www.siliconflow.cn",
             Endpoint = "https://api.siliconflow.cn/v1",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -434,7 +444,8 @@ public record ModelProviderTemplate
             DisplayName = "Ollama",
             OfficialWebsiteUrl = "https://ollama.com",
             Endpoint = "http://127.0.0.1:11434",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/ollama.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/ollama-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/ollama-light.svg",
             Schema = ModelProviderSchema.Ollama,
             RequestTimeoutSeconds = 120, // Local models may take longer time.
             ModelDefinitions =
