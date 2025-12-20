@@ -93,6 +93,26 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
+                    Id = "gpt-5.2",
+                    ModelId = "gpt-5.2",
+                    DisplayName = "GPT-5.2",
+                    MaxTokens = 400_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "gpt-5.1",
+                    ModelId = "gpt-5.1",
+                    DisplayName = "GPT-5.1",
+                    MaxTokens = 400_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
                     Id = "gpt-5",
                     ModelId = "gpt-5",
                     DisplayName = "GPT-5",
@@ -167,9 +187,29 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
+                    Id = "claude-opus-4-5-20251101",
+                    ModelId = "claude-opus-4-5-20251101",
+                    DisplayName = "Claude Opus 4.5",
+                    MaxTokens = 200_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
                     Id = "claude-sonnet-4-5-20250929",
                     ModelId = "claude-sonnet-4-5-20250929",
                     DisplayName = "Claude Sonnet 4.5",
+                    MaxTokens = 200_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "claude-haiku-4-5-20251001",
+                    ModelId = "claude-haiku-4-5-20251001",
+                    DisplayName = "Claude Haiku 4.5",
                     MaxTokens = 200_000,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
@@ -251,6 +291,16 @@ public record ModelProviderTemplate
                 },
                 new ModelDefinitionTemplate
                 {
+                    Id = "gemini-3-flash-preview",
+                    ModelId = "gemini-3-flash-preview",
+                    DisplayName = "Gemini 3 Flash Preview",
+                    MaxTokens = 1_048_576,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
                     Id = "gemini-2.5-pro",
                     ModelId = "gemini-2.5-pro",
                     DisplayName = "Gemini 2.5 Pro",
@@ -297,7 +347,7 @@ public record ModelProviderTemplate
                 {
                     Id = "deepseek-chat",
                     ModelId = "deepseek-chat",
-                    DisplayName = "DeepSeek V3.2 Exp (Non-thinking Mode)",
+                    DisplayName = "DeepSeek V3.2 (Non-thinking Mode)",
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
@@ -308,10 +358,10 @@ public record ModelProviderTemplate
                 {
                     Id = "deepseek-reasoner",
                     ModelId = "deepseek-reasoner",
-                    DisplayName = "DeepSeek V3.2 Exp (Thinking Mode)",
+                    DisplayName = "DeepSeek V3.2 (Thinking Mode)",
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
-                    IsFunctionCallingSupported = false,
+                    IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = true,
                 }
             ]
@@ -329,13 +379,43 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
-                    Id = "kimi-k2-0711-preview",
-                    ModelId = "kimi-k2-0711-preview",
+                    Id = "kimi-k2-0905-preview",
+                    ModelId = "kimi-k2-0905-preview",
                     DisplayName = "Kimi K2",
-                    MaxTokens = 128_000,
+                    MaxTokens = 262_144,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-turbo-preview",
+                    ModelId = "kimi-k2-turbo-preview",
+                    DisplayName = "Kimi K2 Turbo",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-thinking",
+                    ModelId = "kimi-k2-thinking",
+                    DisplayName = "Kimi K2 Thinking",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-thinking-turbo",
+                    ModelId = "kimi-k2-thinking-turbo",
+                    DisplayName = "Kimi K2 Thinking Turbo",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
                 },
                 new ModelDefinitionTemplate
                 {
@@ -347,16 +427,6 @@ public record ModelProviderTemplate
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
                     IsDefault = true
-                },
-                new ModelDefinitionTemplate
-                {
-                    Id = "kimi-thinking-preview",
-                    ModelId = "kimi-thinking-preview",
-                    DisplayName = "Kimi Thinking Preview",
-                    MaxTokens = 128_000,
-                    IsImageInputSupported = true,
-                    IsFunctionCallingSupported = false,
-                    IsDeepThinkingSupported = true,
                 }
             ]
         },
@@ -373,20 +443,19 @@ public record ModelProviderTemplate
             [
                 new ModelDefinitionTemplate
                 {
-                    Id = "x-ai/grok-4-fast",
-                    ModelId = "x-ai/grok-4-fast",
-                    DisplayName = "xAI: Grok 4 Fast",
-                    MaxTokens = 2_000_000,
-                    IsImageInputSupported = false,
+                    Id = "google/gemini-2.5-flash",
+                    ModelId = "google/gemini-2.5-flash",
+                    DisplayName = "Google: Gemini 2.5 Flash",
+                    MaxTokens = 1_048_576,
+                    IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
-                    IsDefault = true
+                    IsDeepThinkingSupported = true,
                 },
                 new ModelDefinitionTemplate
                 {
-                    Id = "anthropic/claude-sonnet-4",
-                    ModelId = "anthropic/claude-sonnet-4",
-                    DisplayName = "Anthropic: Claude Sonnet 4",
+                    Id = "anthropic/claude-sonnet-4.5",
+                    ModelId = "anthropic/claude-sonnet-4.5",
+                    DisplayName = "Anthropic: Claude Sonnet 4.5",
                     MaxTokens = 1_000_000,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
@@ -394,13 +463,44 @@ public record ModelProviderTemplate
                 },
                 new ModelDefinitionTemplate
                 {
-                    Id = "google/gemini-2.5-flash",
-                    ModelId = "google/gemini-2.5-flash",
-                    DisplayName = "Google: Gemini 2.5 Flash",
-                    MaxTokens = 1_048_576,
+                    Id = "anthropic/claude-opus-4.5",
+                    ModelId = "anthropic/claude-sonnet-4.5",
+                    DisplayName = "Anthropic: Claude Opus 4.5",
+                    MaxTokens = 200_000,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "deepseek/deepseek-v3.2",
+                    ModelId = "deepseek/deepseek-v3.2",
+                    DisplayName = "DeepSeek: DeepSeek V3.2",
+                    MaxTokens = 163_840,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "openai/gpt-oss-120b",
+                    ModelId = "openai/gpt-oss-120b",
+                    DisplayName = "OpenAI: GPT-OSS 120B",
+                    MaxTokens = 131_072,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "x-ai/grok-4-fast",
+                    ModelId = "x-ai/grok-4-fast",
+                    DisplayName = "X-AI: Grok 4 Fast",
+                    MaxTokens = 2_000_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                    IsDefault = true
                 }
             ]
         },
@@ -423,18 +523,48 @@ public record ModelProviderTemplate
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
+                    IsDeepThinkingSupported = true,
                     IsDefault = true
                 },
                 new ModelDefinitionTemplate
                 {
-                    Id = "deepseek-ai/DeepSeek-V3.1",
-                    ModelId = "deepseek-ai/DeepSeek-V3.1",
-                    DisplayName = "DeepSeek-V3.1",
+                    Id = "zai-org/GLM-4.6V",
+                    ModelId = "zai-org/GLM-4.6V",
+                    DisplayName = "GLM 4.6V",
+                    MaxTokens = 128_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "moonshotai/Kimi-K2-Thinking",
+                    ModelId = "moonshotai/Kimi-K2-Thinking",
+                    DisplayName = "Kimi K2 Thinking",
+                    MaxTokens = 256_000,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "MiniMaxAI/MiniMax-M2",
+                    ModelId = "MiniMaxAI/MiniMax-M2",
+                    DisplayName = "MiniMax M2",
+                    MaxTokens = 192_000,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "deepseek-ai/DeepSeek-V3.2",
+                    ModelId = "deepseek-ai/DeepSeek-V3.2",
+                    DisplayName = "DeepSeek-V3.2",
                     MaxTokens = 160_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
+                    IsDeepThinkingSupported = true,
                 }
             ]
         },
@@ -455,7 +585,7 @@ public record ModelProviderTemplate
                     Id = "gpt-oss:20b",
                     ModelId = "gpt-oss:20b",
                     DisplayName = "GPT-OSS 20B",
-                    MaxTokens = 32_768,
+                    MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = true,
@@ -465,7 +595,7 @@ public record ModelProviderTemplate
                     Id = "deepseek-r1:8b",
                     ModelId = "deepseek-r1:8b",
                     DisplayName = "DeepSeek R1 8B",
-                    MaxTokens = 65_536,
+                    MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = false,
                     IsDeepThinkingSupported = true,
@@ -476,10 +606,10 @@ public record ModelProviderTemplate
                     Id = "qwen3:8b",
                     ModelId = "qwen3:8b",
                     DisplayName = "Qwen 3 8B",
-                    MaxTokens = 64_000,
+                    MaxTokens = 40_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = true,
+                    IsDeepThinkingSupported = false,
                 }
             ]
         }
