@@ -122,7 +122,7 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     /// <summary>
     /// Gets or sets the unique identifier of this MCP plugin.
     /// </summary>
-    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid Id { get; set; }
 
     public override string Key => $"mcp.{Id}";
 
@@ -166,15 +166,16 @@ public sealed partial class McpChatPlugin : ChatPlugin, ILogger
     /// Chat kernel plugin implemented with MCP.
     /// </summary>
     /// <param name="mcpTransportConfiguration"></param>
-    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration) : this(mcpTransportConfiguration, Guid.CreateVersion7()) { }
+    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration) : this(Guid.CreateVersion7(), mcpTransportConfiguration) { }
 
     /// <summary>
     /// Chat kernel plugin implemented with MCP.
     /// </summary>
-    /// <param name="mcpTransportConfiguration"></param>
     /// <param name="id">use GUID to avoid name conflicts</param>
-    public McpChatPlugin(McpTransportConfiguration mcpTransportConfiguration, Guid id) : base(id.ToString("N"))
+    /// <param name="mcpTransportConfiguration"></param>
+    public McpChatPlugin(Guid id, McpTransportConfiguration mcpTransportConfiguration) : base(id.ToString("N"))
     {
+        Id = id;
         TransportConfiguration = mcpTransportConfiguration;
 
         LogEntries = _logEntriesSource
