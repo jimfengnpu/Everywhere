@@ -314,7 +314,7 @@
             Margin="10,0,0,0" ClipToBounds="False"
             DotSize="9"
             Fill="{DynamicResource PrimaryColor}"
-            IgnoreSingleItem="True"
+            IgnoreSingleItem="True" Spacing="3"
             Stroke="{DynamicResource BorderColor}"
             StrokeThickness="3">
             <ItemsControl
@@ -652,7 +652,8 @@
                       <DataTemplate DataType="chat:UserChatMessage">
                         <StackPanel
                           Classes="ChatMessage User" Margin="36,0,0,0"
-                          HorizontalAlignment="Right" Background="Transparent"
+                          HorizontalAlignment="Right" shadui:Timeline.Anchor="0,0"
+                          shadui:Timeline.IsBreak="True" Background="Transparent"
                           Orientation="Vertical" Spacing="4">
                           <Border
                             Classes="ChatBubble" HorizontalAlignment="Right">
