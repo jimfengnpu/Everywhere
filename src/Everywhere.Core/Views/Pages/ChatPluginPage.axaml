@@ -19,38 +19,41 @@
       <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
       <Setter Property="ItemTemplate">
         <DataTemplate DataType="p:ChatPlugin">
-          <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-            <LucideIcon
-              Grid.Column="0" Margin="0,0,12,0"
-              Kind="{Binding Icon}"/>
-            <StackPanel Grid.Column="1">
-              <TextBlock
-                Classes="p" IsHitTestVisible="False"
-                Text="{Binding HeaderKey^}"
-                TextTrimming="CharacterEllipsis"/>
-              <TextBlock
-                Classes="Muted" IsHitTestVisible="False"
-                IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                MaxLines="2"
-                Text="{Binding DescriptionKey^}"
-                TextTrimming="CharacterEllipsis"/>
-            </StackPanel>
-            <Border
-              Grid.Column="2" Width="8"
-              Height="8" Background="Gray"
-              CornerRadius="8"
-              IsVisible="{Binding !(p:McpChatPlugin).IsRunning, FallbackValue=false}"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_NotRunning_ToolTip}}"/>
-            <Border
-              Grid.Column="2" Width="8"
-              Height="8" Background="Green"
-              CornerRadius="8"
-              IsVisible="{Binding (p:McpChatPlugin).IsRunning, FallbackValue=false}"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_Running_ToolTip}}"/>
+          <DockPanel>
             <CheckBox
-              Grid.Column="3" Margin="8,0,0,0"
+              DockPanel.Dock="Right" Margin="8,0,0,0"
               IsChecked="{Binding IsEnabled}"/>
-          </Grid>
+
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <LucideIcon
+                Grid.Column="0" Margin="0,0,12,0"
+                Kind="{Binding Icon}"/>
+              <StackPanel Grid.Column="1">
+                <TextBlock
+                  Classes="p" IsHitTestVisible="False"
+                  Text="{Binding HeaderKey^}"
+                  TextTrimming="CharacterEllipsis"/>
+                <TextBlock
+                  Classes="Muted" IsHitTestVisible="False"
+                  IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                  MaxLines="2"
+                  Text="{Binding DescriptionKey^}"
+                  TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+              <Border
+                Grid.Column="2" Width="8"
+                Height="8" Background="Gray"
+                CornerRadius="8"
+                IsVisible="{Binding !(p:McpChatPlugin).IsRunning, FallbackValue=false}"
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_NotRunning_ToolTip}}"/>
+              <Border
+                Grid.Column="2" Width="8"
+                Height="8" Background="Green"
+                CornerRadius="8"
+                IsVisible="{Binding (p:McpChatPlugin).IsRunning, FallbackValue=false}"
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_PluginStatus_Running_ToolTip}}"/>
+            </Grid>
+          </DockPanel>
         </DataTemplate>
       </Setter>
     </Style>
@@ -281,7 +284,7 @@
                 TextTrimming="CharacterEllipsis"/>
 
               <ScrollViewer
-                MaxHeight="42" HorizontalScrollBarVisibility="Disabled">
+                MaxHeight="80" HorizontalScrollBarVisibility="Disabled">
                 <TextBlock
                   Text="{Binding DescriptionKey^, FallbackValue={x:Null}}"
                   TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
