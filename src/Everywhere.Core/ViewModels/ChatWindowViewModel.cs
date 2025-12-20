@@ -108,6 +108,8 @@ public sealed partial class ChatWindowViewModel :
 
     public bool CanEdit => IsNotBusy && EditingUserMessageNode is null;
 
+    public static int ChatInputBoxTextMaxLength => 100_000;
+
     /// <summary>
     /// The text in the chat input box.
     /// </summary>
@@ -116,6 +118,7 @@ public sealed partial class ChatWindowViewModel :
         get;
         set
         {
+            value = value.SafeSubstring(0, ChatInputBoxTextMaxLength);
             if (!SetProperty(ref field, value)) return;
             if (EditingUserMessageNode is null) PersistentState.ChatInputBoxText = value;
         }

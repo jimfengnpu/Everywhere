@@ -961,6 +961,8 @@
               IsToolCallEnabled="{Binding PersistentState.IsToolCallEnabled, Mode=TwoWay}"
               IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported.BindableValue, FallbackValue=false}"
               MaxChatAttachmentCount="{Binding PersistentState.MaxChatAttachmentCount}"
+              MaxLength="{Binding ChatInputBoxTextMaxLength}"
+              MaxLines="12"
               RemoveAttachmentCommand="{Binding RemoveAttachmentCommand}"
               SelectedCustomAssistant="{Binding Settings.Model.SelectedCustomAssistant, Mode=TwoWay}"
               Text="{Binding ChatInputBoxText, Mode=TwoWay}"
