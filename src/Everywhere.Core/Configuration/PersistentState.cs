@@ -19,7 +19,7 @@ public class PersistentState(IKeyValueStorage storage) : ObservableObject
     /// <summary>
     /// Pop a tray notification when the application is launched for the first time.
     /// </summary>
-    public bool IsFirstTimeHideToTrayIcon
+    public bool IsHideToTrayIconNotificationShown
     {
         get => Get(true);
         set => Set(value);

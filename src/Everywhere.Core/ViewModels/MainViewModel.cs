@@ -143,10 +143,10 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
 
     private void ShowHideToTrayNotificationOnDemand()
     {
-        if (!PersistentState.IsFirstTimeHideToTrayIcon) return;
+        if (PersistentState.IsHideToTrayIconNotificationShown) return;
 
         ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotificationAsync(LocaleResolver.MainView_EverywhereHasMinimizedToTray);
-        PersistentState.IsFirstTimeHideToTrayIcon = false;
+        PersistentState.IsHideToTrayIconNotificationShown = true;
     }
 
     public void Dispose()
