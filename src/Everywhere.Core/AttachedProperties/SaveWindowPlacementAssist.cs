@@ -97,6 +97,9 @@ public static class SaveWindowPlacementAssist
 
     private static void SaveWindowPlacement(string key, Window window)
     {
+        // Do not save placement if the window is minimized
+        if (window.WindowState == WindowState.Minimized) return;
+
         key = $"TransientWindow.Placement.{key}";
 
         // Only save size and position if the window is in Normal state
