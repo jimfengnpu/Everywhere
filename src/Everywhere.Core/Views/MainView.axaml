@@ -7,7 +7,7 @@
   <v:ReactiveUserControl.Styles>
     <Style Selector="DockPanel#RootPanel">
       <Style Selector="^ &gt; TransitioningContentControl">
-        <Setter Property="Margin" Value="0,14,8,16"/>
+        <Setter Property="Margin" Value="0,14,16,16"/>
       </Style>
     </Style>
     <Style Selector="DockPanel#RootPanel.narrow">
@@ -19,7 +19,7 @@
         <Setter Property="VerticalAlignment" Value="Bottom"/>
       </Style>
       <Style Selector="^ &gt; TransitioningContentControl">
-        <Setter Property="Margin" Value="16,14,8,0"/>
+        <Setter Property="Margin" Value="16,14,16,0"/>
       </Style>
     </Style>
   </v:ReactiveUserControl.Styles>
