@@ -65,7 +65,7 @@
           IsVisible="{Binding MaxTokens.ActualValue}"
           ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistant_MaxTokens_Header}}">
           <TextBlock
-            FontSize="12"
+            FontSize="{DynamicResource FontSizeS}"
             Text="{Binding MaxTokens.ActualValue, Converter={x:Static vc:TokenCountHumanizationConverter.Shared}}"/>
         </shadui:Badge>
       </StackPanel>
@@ -76,20 +76,20 @@
     x:Key="{x:Type v:ChatInputBox}"
     TargetType="v:ChatInputBox">
 
-    <Style Selector="^ /template/ ToggleButton.Rounded">
-      <Setter Property="MinHeight" Value="30.4"/>
-      <Setter Property="Height" Value="30.4"/>
-      <Setter Property="MinWidth" Value="30.4"/>
-      <Setter Property="Width" Value="30.4"/>
-      <Setter Property="Padding" Value="8,0"/>
-      <Setter Property="CornerRadius" Value="16"/>
+    <Style Selector="^ /template/ :is(Button).Rounded">
+      <Setter Property="MinHeight" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Height" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="MinWidth" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Width" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="CornerRadius" Value="{DynamicResource FullCornerRadius}"/>
     </Style>
 
     <Style Selector="^ /template/ MenuItem.Rounded">
-      <Setter Property="Width" Value="30.4"/>
-      <Setter Property="Height" Value="30.4"/>
+      <Setter Property="Width" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Height" Value="{DynamicResource FontSize3Xl}"/>
       <Setter Property="Padding" Value="0"/>
-      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="CornerRadius" Value="{DynamicResource FullCornerRadius}"/>
     </Style>
 
     <Style Selector="^ /template/ Button#PART_CancelButton:disabled">
@@ -418,7 +418,8 @@
                 <MenuItem.Header>
                   <LucideIcon
                     HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Kind="Paperclip" Size="16"/>
+                    Kind="Paperclip"
+                    Size="{DynamicResource FontSizeL}"/>
                 </MenuItem.Header>
               </MenuItem>
             </Menu>
@@ -430,14 +431,12 @@
               IsVisible="{TemplateBinding IsToolCallSupported}"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ToolCallButton_ToolTip}}">
               <LucideIcon
-                Margin="-1,-1,1,1" Kind="Hammer"
-                Size="16"/>
+                Margin="1,0,0,0" Kind="Hammer"
+                Size="{DynamicResource FontSizeL}"/>
             </ToggleButton>
 
             <Button
-              Classes="Outline Rounded"
-              Content="{LucideIconContent Settings, Size=16}"
-              Focusable="False"
+              Classes="Outline Rounded" Focusable="False"
               ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_SettingsButton_ToolTip}}">
               <Button.Flyout>
                 <Flyout
@@ -454,6 +453,7 @@
                   </LayoutTransformControl>
                 </Flyout>
               </Button.Flyout>
+
               <Button.Styles>
                 <Style Selector="Button:flyout-open LayoutTransformControl">
                   <Style.Animations>
@@ -474,6 +474,10 @@
                   </Style.Animations>
                 </Style>
               </Button.Styles>
+
+              <LucideIcon
+                Kind="Settings"
+                Size="{DynamicResource FontSizeL}"/>
             </Button>
           </StackPanel>
 
@@ -498,8 +502,8 @@
               </Button.IsEnabled>
 
               <LucideIcon
-                Margin="-1,1,1,-1" Kind="Send"
-                Size="16"/>
+                Margin="-2,0,0,-2" Kind="Send"
+                Size="{DynamicResource FontSizeL}"/>
             </Button>
 
             <Button
