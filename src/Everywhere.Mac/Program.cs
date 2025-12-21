@@ -1,5 +1,7 @@
 ﻿using Avalonia;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using Everywhere.AI;
 using Everywhere.Chat;
 using Everywhere.Chat.Plugins;
@@ -12,6 +14,7 @@ using Everywhere.Interop;
 using Everywhere.Mac.Common;
 using Everywhere.Mac.Configuration;
 using Everywhere.Mac.Interop;
+using HarmonyLib;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -25,6 +28,10 @@ public static class Program
     public static void Main(string[] args)
     {
         NativeMessageBox.MacOSMessageBoxHandler = MessageBoxHandler;
+
+        // Apply Harmony patches
+        new Harmony("io.everywhere.mac.patches").PatchAll(typeof(ControlAutomationPeerPatches).Assembly);
+
         Entrance.Initialize();
 
         ServiceLocator.Build(x => x
@@ -167,4 +174,34 @@ public static class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
+
+
+    /// <summary>
+    /// ControlAutomationPeer.CreatePeerForElement can be only called on UI Thread,
+    /// causing crashing when invoking ChatWindow on MainWindow.
+    /// We use Lib.Harmony to patch it
+    /// </summary>
+    [HarmonyPatch(typeof(ControlAutomationPeer), nameof(ControlAutomationPeer.CreatePeerForElement))]
+    private static class ControlAutomationPeerPatches
+    {
+        [HarmonyReversePatch]
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        // ReSharper disable once MemberCanBePrivate.Local
+        // ReSharper disable once UnusedParameter.Local
+        public static AutomationPeer CreatePeerForElementOriginal(Control element) => throw new NotSupportedException("stub");
+
+        [HarmonyPrefix]
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once InconsistentNaming
+        public static bool Prefix(Control element, ref AutomationPeer __result)
+        {
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                return true;
+            }
+
+            __result = Dispatcher.UIThread.Invoke(() => CreatePeerForElementOriginal(element));
+            return false; // Skip original method
+        }
+    }
 }

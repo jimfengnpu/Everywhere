@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Lib.Harmony" />
   </ItemGroup>
 
   <ItemGroup>

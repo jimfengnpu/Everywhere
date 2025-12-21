@@ -57,11 +57,21 @@ public class ChatWindowInitializer(
             shortcut,
             () => ThreadPool.QueueUserWorkItem(_ =>
             {
-                var element = visualElementContext.KeyboardFocusedElement ??
-                    visualElementContext.ElementFromPointer()?
-                        .GetAncestors(true)
-                        .LastOrDefault();
-                var hWnd = element?.NativeWindowHandle;
+                IVisualElement? element;
+                nint? hWnd;
+                try
+                {
+                    element = visualElementContext.KeyboardFocusedElement ??
+                        visualElementContext.ElementFromPointer()?
+                            .GetAncestors(true)
+                            .LastOrDefault();
+                    hWnd = element?.NativeWindowHandle;
+                }
+                catch
+                {
+                    element = null;
+                    hWnd = null;
+                }
 
                 Dispatcher.UIThread.Invoke(() =>
                 {

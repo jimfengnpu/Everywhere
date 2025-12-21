@@ -13,9 +13,9 @@
   BorderThickness="0" ExtendClientAreaChromeHints="NoChrome"
   ExtendClientAreaToDecorationsHint="True"
   IsOpened="{Binding IsOpened, Mode=OneWayToSource}"
-  IsTitleBarVisible="True" ShowActivated="False"
-  SizeToContent="WidthAndHeight" SystemDecorations="BorderOnly"
-  TransparencyLevelHint="AcrylicBlur" WindowStartupLocation="CenterScreen">
+  ShowActivated="False" SizeToContent="WidthAndHeight"
+  SystemDecorations="BorderOnly" TransparencyLevelHint="AcrylicBlur"
+  WindowStartupLocation="CenterScreen">
 
   <v:ReactiveShadWindow.Hosts>
     <shadui:DialogHost
