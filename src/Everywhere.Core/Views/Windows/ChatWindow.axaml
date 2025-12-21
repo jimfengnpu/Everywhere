@@ -354,6 +354,7 @@
 
                 <Style Selector="Border.Invalid">
                   <Setter Property="Background" Value="{DynamicResource ErrorColor20}"/>
+                  <Setter Property="BorderThickness" Value="0"/>
                   <Setter Property="ToolTip.Tip" Value="Invalid"/>
                 </Style>
 
@@ -688,7 +689,9 @@
                               <DataTemplate DataType="chat:ChatFileAttachment">
                                 <Panel>
                                   <Border
-                                    ClipToBounds="True" CornerRadius="4"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="1" ClipToBounds="True"
+                                    CornerRadius="4"
                                     IsVisible="{Binding IsImage}">
                                     <Image
                                       MaxWidth="64" MaxHeight="64"
@@ -725,6 +728,8 @@
                                 <Border
                                   Padding="2"
                                   Background="{DynamicResource CardBackgroundColor}"
+                                  BorderBrush="{DynamicResource BorderColor}"
+                                  BorderThickness="1"
                                   Classes.Invalid="{Binding IsElementValid, Converter={x:Static BoolConverters.Not}}"
                                   CornerRadius="4">
                                   <DockPanel
@@ -746,7 +751,8 @@
                               <DataTemplate DataType="chat:ChatAttachment">
                                 <Border
                                   Background="{DynamicResource CardBackgroundColor}"
-                                  CornerRadius="4">
+                                  BorderBrush="{DynamicResource BorderColor}"
+                                  BorderThickness="1" CornerRadius="4">
                                   <DockPanel
                                     Margin="6,0" HorizontalSpacing="4"
                                     LastChildFill="True">

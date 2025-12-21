@@ -1831,9 +1831,6 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query" xml:space="preserve">
         <value>Cerca: {0}</value>
     </data>
-    <data name="MacOS_BuiltInChatPlugin_System_ManageNotes_DenyMessage" xml:space="preserve">
-        <value>Hai negato la richiesta di gestire le note.</value>
-    </data>
     <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Header" xml:space="preserve">
         <value>Apri URL</value>
     </data>

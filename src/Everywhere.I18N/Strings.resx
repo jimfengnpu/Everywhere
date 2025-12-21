@@ -1845,9 +1845,6 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query" xml:space="preserve">
         <value>Search: {0}</value>
     </data>
-    <data name="MacOS_BuiltInChatPlugin_System_ManageNotes_DenyMessage" xml:space="preserve">
-        <value>You denied the request to manage notes.</value>
-    </data>
     <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Header" xml:space="preserve">
         <value>Open URL</value>
     </data>

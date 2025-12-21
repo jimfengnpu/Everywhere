@@ -1827,9 +1827,6 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query" xml:space="preserve">
         <value>Suche: {0}</value>
     </data>
-    <data name="MacOS_BuiltInChatPlugin_System_ManageNotes_DenyMessage" xml:space="preserve">
-        <value>Sie haben die Anfrage zur Verwaltung der Notizen abgelehnt.</value>
-    </data>
     <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Header" xml:space="preserve">
         <value>URL öffnen</value>
     </data>

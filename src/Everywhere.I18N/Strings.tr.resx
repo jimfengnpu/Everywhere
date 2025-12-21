@@ -1825,9 +1825,6 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query" xml:space="preserve">
         <value>Arama: {0}</value>
     </data>
-    <data name="MacOS_BuiltInChatPlugin_System_ManageNotes_DenyMessage" xml:space="preserve">
-        <value>Notları yönetme isteğini reddettiniz.</value>
-    </data>
     <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Header" xml:space="preserve">
         <value>URL Aç</value>
     </data>

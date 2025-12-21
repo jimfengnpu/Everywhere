@@ -205,7 +205,8 @@
                 <DataTemplate DataType="chat:ChatFileAttachment">
                   <Border
                     Background="{DynamicResource CardBackgroundColor}"
-                    CornerRadius="4">
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1" CornerRadius="4">
 
                     <DockPanel
                       Margin="6,0,4,0" HorizontalSpacing="4"
@@ -255,6 +256,8 @@
                 <DataTemplate DataType="chat:ChatVisualElementAttachment">
                   <Border
                     Background="{DynamicResource CardBackgroundColor}"
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1"
                     Classes.FocusedElement="{Binding IsFocusedElement}"
                     CornerRadius="4">
                     <DockPanel
@@ -288,7 +291,8 @@
                 <DataTemplate DataType="chat:ChatAttachment">
                   <Border
                     Background="{DynamicResource CardBackgroundColor}"
-                    CornerRadius="4">
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1" CornerRadius="4">
                     <DockPanel
                       Margin="6,0,4,0" HorizontalSpacing="4"
                       LastChildFill="True">
