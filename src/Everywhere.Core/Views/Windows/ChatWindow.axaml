@@ -10,12 +10,17 @@
   MinWidth="400" MinHeight="224"
   x:DataType="vm:ChatWindowViewModel" x:TypeArguments="vm:ChatWindowViewModel"
   Background="{DynamicResource AcrylicWindowBackgroundColor}"
-  BorderThickness="0" ExtendClientAreaChromeHints="NoChrome"
-  ExtendClientAreaToDecorationsHint="True"
+  BorderBrush="{DynamicResource BorderColor}"
+  ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaToDecorationsHint="True"
   IsOpened="{Binding IsOpened, Mode=OneWayToSource}"
   ShowActivated="False" SizeToContent="WidthAndHeight"
-  SystemDecorations="BorderOnly" TransparencyLevelHint="AcrylicBlur"
-  WindowStartupLocation="CenterScreen">
+  TransparencyLevelHint="AcrylicBlur" WindowStartupLocation="CenterScreen">
+
+  <v:ReactiveShadWindow.BorderThickness>
+    <OnPlatform
+      x:TypeArguments="Thickness" Linux="0"
+      Windows="1" macOS="0"/>
+  </v:ReactiveShadWindow.BorderThickness>
 
   <v:ReactiveShadWindow.Hosts>
     <shadui:DialogHost
