@@ -153,7 +153,14 @@ public partial class ChatInputBox : TextBox
     private IDisposable? _chatAttachmentItemsControlPointerExitedSubscription;
     private IDisposable? _assistantSelectionMenuItemPointerWheelChangedSubscription;
 
-    private readonly Lazy<OverlayWindow> _visualElementAttachmentOverlayWindow;
+    private readonly OverlayWindow _visualElementAttachmentOverlayWindow = new()
+    {
+        Content = new Border
+        {
+            Background = Brushes.DodgerBlue,
+            Opacity = 0.2
+        },
+    };
 
     static ChatInputBox()
     {
@@ -162,17 +169,6 @@ public partial class ChatInputBox : TextBox
 
     public ChatInputBox()
     {
-        _visualElementAttachmentOverlayWindow = new Lazy<OverlayWindow>(
-            () => new OverlayWindow(TopLevel.GetTopLevel(this) as WindowBase)
-            {
-                Content = new Border
-                {
-                    Background = Brushes.DodgerBlue,
-                    Opacity = 0.2
-                },
-            },
-            LazyThreadSafetyMode.None);
-
         this.AddDisposableHandler(KeyDownEvent, HandleTextBoxKeyDown, RoutingStrategies.Tunnel);
     }
 
@@ -211,15 +207,15 @@ public partial class ChatInputBox : TextBox
                 {
                     element = element.Parent;
                     if (element is not { DataContext: ChatVisualElementAttachment attachment }) continue;
-                    _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(attachment.Element?.Target);
+                    _visualElementAttachmentOverlayWindow.UpdateForVisualElement(attachment.Element?.Target);
                     return;
                 }
-                _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null);
+                _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null);
             },
             handledEventsToo: true);
         _chatAttachmentItemsControlPointerExitedSubscription = chatAttachmentItemsControl.AddDisposableHandler(
             PointerExitedEvent,
-            (_, _) => _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null),
+            (_, _) => _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null),
             handledEventsToo: true);
 
         var assistantSelectionMenuItem = e.NameScope.Find<MenuItem>("PART_AssistantSelectionMenuItem");
@@ -252,20 +248,14 @@ public partial class ChatInputBox : TextBox
 
     private void HandleChatAttachmentItemsSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (_visualElementAttachmentOverlayWindow.IsValueCreated)
-        {
-            _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null); // Hide the overlay window when the attachment list changes.
-        }
+        _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null); // Hide the overlay window when the attachment list changes.
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
 
-        if (_visualElementAttachmentOverlayWindow.IsValueCreated)
-        {
-            _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null); // Hide the overlay window when the control is unloaded.
-        }
+        _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null); // Hide the overlay window when the control is unloaded.
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
