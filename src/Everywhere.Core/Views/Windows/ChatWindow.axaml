@@ -315,7 +315,7 @@
             Fill="{DynamicResource PrimaryColor}"
             IgnoreSingleItem="True" Spacing="3"
             Stroke="{DynamicResource BorderColor}"
-            StrokeThickness="3">
+            StrokeThickness="2">
             <ItemsControl
               x:Name="ChatMessageItemsControl" Margin="0,0,0,8"
               Padding="8,0"
