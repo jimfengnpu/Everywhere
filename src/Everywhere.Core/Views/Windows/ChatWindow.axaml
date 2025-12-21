@@ -234,7 +234,18 @@
     </Border>
   </v:ReactiveShadWindow.TitleBarContentOverride>
 
-  <Panel Margin="0,36,0,0">
+  <v:ReactiveShadWindow.Styles>
+    <Style Selector=":is(Button).Rounded">
+      <Setter Property="MinHeight" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Height" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="MinWidth" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Width" Value="{DynamicResource FontSize3Xl}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="CornerRadius" Value="{DynamicResource FullCornerRadius}"/>
+    </Style>
+  </v:ReactiveShadWindow.Styles>
+
+  <Panel Margin="0,12,0,0">
     <Grid
       x:Name="ChatMessageRootGrid"
       IsVisible="{Binding !IsViewingHistory}"
@@ -889,7 +900,8 @@
         </Button.IsVisible>
 
         <LucideIcon
-          Kind="ArrowDown" Size="16"/>
+          Kind="ArrowDown"
+          Size="{DynamicResource FontSizeXl}"/>
       </Button>
 
       <Border
