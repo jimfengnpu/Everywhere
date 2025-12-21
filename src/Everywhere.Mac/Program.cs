@@ -1,6 +1,9 @@
-﻿using Avalonia;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Everywhere.AI;
 using Everywhere.Chat;
@@ -28,10 +31,7 @@ public static class Program
     public static void Main(string[] args)
     {
         NativeMessageBox.MacOSMessageBoxHandler = MessageBoxHandler;
-
-        // Apply Harmony patches
-        new Harmony("io.everywhere.mac.patches").PatchAll(typeof(ControlAutomationPeerPatches).Assembly);
-
+        InitializeHarmony();
         Entrance.Initialize();
 
         ServiceLocator.Build(x => x
@@ -169,6 +169,20 @@ public static class Program
         };
     }
 
+    private static void InitializeHarmony()
+    {
+        // Apply Harmony patches
+        var harmony = new Harmony("io.everywhere.mac.patches");
+
+        harmony.PatchAll(typeof(ControlAutomationPeerPatches).Assembly);
+
+#pragma warning disable IL2026 // This is safe because Avalonia is a known dependency
+        var bclLauncherType = typeof(ILauncher).Assembly.GetType("Avalonia.Platform.Storage.FileIO.BclLauncher");
+#pragma warning restore IL2026
+        var execMethod = AccessTools.Method(bclLauncherType, "Exec");
+        harmony.Patch(execMethod, new HarmonyMethod(BclLauncherExecPatch));
+    }
+
     private static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
@@ -185,7 +199,7 @@ public static class Program
     private static class ControlAutomationPeerPatches
     {
         [HarmonyReversePatch]
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         // ReSharper disable once MemberCanBePrivate.Local
         // ReSharper disable once UnusedParameter.Local
         public static AutomationPeer CreatePeerForElementOriginal(Control element) => throw new NotSupportedException("stub");
@@ -203,5 +217,26 @@ public static class Program
             __result = Dispatcher.UIThread.Invoke(() => CreatePeerForElementOriginal(element));
             return false; // Skip original method
         }
+    }
+
+    /// <summary>
+    /// The implementation of BclLauncher.Exec for macOS does not work well when urlOrFile contains spaces or special characters.
+    /// This patch fixes the issue by properly escaping the urlOrFile before passing it to the system command.
+    /// </summary>
+    /// <param name="urlOrFile"></param>
+    /// <param name="__result"></param>
+    /// <returns></returns>
+    // ReSharper disable once InconsistentNaming
+    // ReSharper disable once RedundantAssignment
+    private static bool BclLauncherExecPatch(ref string urlOrFile, ref bool __result)
+    {
+        using var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = "open",
+            ArgumentList = { urlOrFile }, // Use ArgumentList to avoid issues with spaces/special characters
+            CreateNoWindow = true,
+        });
+        __result = true;
+        return false;
     }
 }
