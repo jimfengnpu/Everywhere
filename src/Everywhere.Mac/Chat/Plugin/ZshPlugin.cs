@@ -1,31 +1,27 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 using DynamicData;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
-using Everywhere.Extensions;
 using Everywhere.I18N;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 
-namespace Everywhere.Windows.Chat.Plugins;
+namespace Everywhere.Mac.Chat.Plugin;
 
-public class PowerShellPlugin : BuiltInChatPlugin
+public class ZshPlugin : BuiltInChatPlugin
 {
-    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_Header);
+    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_Zsh_Header);
 
-    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_Description);
+    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_Zsh_Description);
 
     public override LucideIconKind? Icon => LucideIconKind.SquareTerminal;
 
-    public override string BeautifulIcon => "avares://Everywhere/Assets/Icons/PowerShell.svg";
+    private readonly ILogger<ZshPlugin> _logger;
 
-    private readonly ILogger<PowerShellPlugin> _logger;
-
-    public PowerShellPlugin(ILogger<PowerShellPlugin> logger) : base("powershell")
+    public ZshPlugin(ILogger<ZshPlugin> logger) : base("zsh")
     {
         _logger = logger;
 
@@ -36,15 +32,15 @@ public class PowerShellPlugin : BuiltInChatPlugin
     }
 
     [KernelFunction("execute_script")]
-    [Description("Execute PowerShell script and obtain its output.")]
-    [DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_Header)]
+    [Description("Execute Zsh script and obtain its output.")]
+    [DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header)]
     private async Task<string> ExecuteScriptAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("A concise description for user, explaining what you are doing")] string description,
         [Description("Single or multi-line")] string script,
         CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Executing PowerShell script with description: {Description}", description);
+        _logger.LogDebug("Executing Zsh script with description: {Description}", description);
 
         if (string.IsNullOrWhiteSpace(script))
         {
@@ -56,7 +52,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
         if (!trimmedScript.Contains('\n'))
         {
             // single line script, confirm with user
-            var command = trimmedScript[trimmedScript.Split(' ').FirstOrDefault(new Range(0, trimmedScript.Length))].ToString();
+            var command = trimmedScript.ToString().Split(' ')[0];
             consentKey = $"single.{command}";
         }
         else
@@ -68,28 +64,28 @@ public class PowerShellPlugin : BuiltInChatPlugin
         var detailBlock = new ChatPluginContainerDisplayBlock
         {
             new ChatPluginTextDisplayBlock(description),
-            new ChatPluginCodeBlockDisplayBlock(script, "powershell"),
+            new ChatPluginCodeBlockDisplayBlock(script, "bash"),
         };
 
         var consent = await userInterface.RequestConsentAsync(
             consentKey,
-            new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
+            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_ScriptConsent_Header),
             detailBlock,
             cancellationToken);
         if (!consent)
         {
             throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for PowerShell script execution."),
-                new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_DenyMessage),
+                new UnauthorizedAccessException("User denied consent for Zsh script execution."),
+                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_DenyMessage),
                 showDetails: false);
         }
 
         userInterface.DisplaySink.AppendBlocks(detailBlock);
 
-        var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".";
         var psi = new ProcessStartInfo
         {
-            FileName = Path.GetFullPath(Path.Combine(path, "Everywhere.Windows.PowerShell.exe")),
+            FileName = "/bin/zsh",
+            Arguments = "-s",
             RedirectStandardError = true,
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
@@ -102,34 +98,8 @@ public class PowerShellPlugin : BuiltInChatPlugin
         {
             if (process is null)
             {
-                throw new SystemException("Failed to start PowerShell script execution process.");
+                throw new SystemException("Failed to start Zsh script execution process.");
             }
-
-            var pid = process.Id;
-            await using var registration = cancellationToken.Register(() =>
-            {
-                // ReSharper disable once MethodSupportsCancellation
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        Process.Start(
-                            new ProcessStartInfo
-                            {
-                                FileName = "taskkill",
-                                Arguments = $"/PID {pid} /T /F",
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                UseShellExecute = false,
-                                CreateNoWindow = true,
-                            });
-                    }
-                    catch
-                    {
-                        // ignore
-                    }
-                });
-            });
 
             await process.StandardInput.WriteAsync(script);
             process.StandardInput.Close();
@@ -141,9 +111,9 @@ public class PowerShellPlugin : BuiltInChatPlugin
             if (process.ExitCode != 0)
             {
                 throw new HandledException(
-                    new SystemException($"PowerShell script execution failed: {errorOutput}"),
+                    new SystemException($"Zsh script execution failed: {errorOutput}"),
                     new FormattedDynamicResourceKey(
-                        LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
+                        LocaleKey.MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_ErrorMessage,
                         new DirectResourceKey(errorOutput)),
                     showDetails: false);
             }

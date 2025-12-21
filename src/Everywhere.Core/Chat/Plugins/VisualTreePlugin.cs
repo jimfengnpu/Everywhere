@@ -15,8 +15,8 @@ namespace Everywhere.Chat.Plugins;
 
 public class VisualTreePlugin : BuiltInChatPlugin
 {
-    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_VisualTree_Header);
-    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_VisualTree_Description);
+    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_VisualTree_Header);
+    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_VisualTree_Description);
     public override LucideIconKind? Icon => LucideIconKind.Component;
 
     private readonly IBlobStorage _blobStorage;
@@ -58,8 +58,8 @@ public class VisualTreePlugin : BuiltInChatPlugin
     [KernelFunction("capture_visual_element_by_id")]
     [Description("Captures a screenshot of the specified visual element by Id. Use when XML content is inaccessible or element is image-like.")]
     [DynamicResourceKey(
-        LocaleKey.NativeChatPlugin_VisualTree_CaptureVisualElementById_Header,
-        LocaleKey.NativeChatPlugin_VisualTree_CaptureVisualElementById_Description)]
+        LocaleKey.BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Header,
+        LocaleKey.BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Description)]
     private Task<ChatFileAttachment> CaptureVisualElementByIdAsync(
         [FromKernelServices] ChatContext chatContext,
         int elementId,
@@ -71,8 +71,8 @@ public class VisualTreePlugin : BuiltInChatPlugin
     [KernelFunction("capture_full_screen")]
     [Description("Captures a screenshot of the entire screen. Use when no specific visual element is available.")]
     [DynamicResourceKey(
-        LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_Header,
-        LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_Description)]
+        LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Header,
+        LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description)]
     private Task<ChatFileAttachment> CaptureFullScreenAsync(CancellationToken cancellationToken = default)
     {
         var visualElement = _visualElementContext.ElementFromPointer(ElementPickMode.Screen);
@@ -80,7 +80,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
         {
             throw new HandledException(
                 new InvalidOperationException("No screen is available to capture."),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage),
+                new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage),
                 showDetails: false);
         }
 
@@ -110,8 +110,8 @@ public class VisualTreePlugin : BuiltInChatPlugin
         "Executes a reliable UI automation action queue. Supports clicking elements, entering text, sending shortcuts (e.g., Ctrl+V), and waiting without simulating pointer input. " +
         "Useful for automating stable interactions, even when the target window is minimized.")]
     [DynamicResourceKey(
-        LocaleKey.NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header,
-        LocaleKey.NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Description)]
+        LocaleKey.BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Header,
+        LocaleKey.BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Description)]
     private async static Task<string> ExecuteVisualActionQueueAsync(
         [FromKernelServices] ChatContext chatContext,
         VisualActionStep[] actions,

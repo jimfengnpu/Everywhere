@@ -14,6 +14,7 @@ using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Initialization;
 using Everywhere.Interop;
+using Everywhere.Mac.Chat.Plugin;
 using Everywhere.Mac.Common;
 using Everywhere.Mac.Configuration;
 using Everywhere.Mac.Interop;
@@ -60,6 +61,8 @@ public static class Program
 
                 .AddTransient<BuiltInChatPlugin, WebBrowserPlugin>()
                 .AddTransient<BuiltInChatPlugin, FileSystemPlugin>()
+                .AddTransient<BuiltInChatPlugin, SystemPlugin>()
+                .AddTransient<BuiltInChatPlugin, ZshPlugin>()
 
                 #endregion
 

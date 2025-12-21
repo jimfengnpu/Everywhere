@@ -659,22 +659,16 @@
     <data name="WebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
         <value>(Solo Google) Proporciona un ID de motor de búsqueda programable. Para más detalles, consulte la guía.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_Header" xml:space="preserve">
         <value>Navegador Web</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_Description" xml:space="preserve">
         <value>Proporciona capacidades de navegación web, incluyendo funciones de motor de búsqueda y acceso a páginas web, puede reducir alucinaciones del modelo y ofrecer información actualizada. Nota: Usar la herramienta &quot;Búsqueda Web&quot; requiere configurar una clave API de motor de búsqueda (diferente de la clave API del modelo). Si no tiene intención de configurar una clave API, puede desmarcar la herramienta &quot;Búsqueda Web&quot; y usar solo la herramienta &quot;Navegador Web&quot;.</value>
     </data>
-    <data name="NativeChatPlugin_Shell_Header" xml:space="preserve">
-        <value>Terminal</value>
-    </data>
-    <data name="NativeChatPlugin_Shell_Description" xml:space="preserve">
-        <value>Proporciona la capacidad de ejecutar comandos en el terminal, permitiendo interacción directa con el sistema y ofreciendo posibilidades ilimitadas.</value>
-    </data>
-    <data name="NativeChatPlugin_FileSystem_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_Header" xml:space="preserve">
         <value>Sistema de Archivos</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_Description" xml:space="preserve">
         <value>Proporciona la capacidad de acceder a archivos, como enumerar, crear, eliminar, renombrar, leer o escribir.</value>
     </data>
     <data name="FriendlyExceptionMessage_InvalidOperation" xml:space="preserve">
@@ -692,10 +686,10 @@
     <data name="ChatPluginPage_TabItem_Functions_Header" xml:space="preserve">
         <value>Funciones</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_Header" xml:space="preserve">
         <value>Árbol Visual</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_Description" xml:space="preserve">
         <value>Proporciona la capacidad de percibir y manipular elementos de la interfaz en la pantalla.</value>
     </data>
     <data name="ChangeLogView_ViewOnGitHubHyperlinkButton_Content" xml:space="preserve">
@@ -1122,10 +1116,10 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="HandledSystemException_HostNotFound" xml:space="preserve">
         <value>No se pudo encontrar el host. Por favor, verifica la dirección y tu conexión de red.</value>
     </data>
-    <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
-    <data name="NativeChatPlugin_Everything_Description" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_Description" xml:space="preserve">
         <value>Utiliza Everything (un motor de búsqueda de archivos local de alto rendimiento) para buscar archivos en tu computadora.</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
@@ -1191,10 +1185,10 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="TextDifferenceSummaryView_DiscardAllButton_Content" xml:space="preserve">
         <value>Descartar Todo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
         <value>Se eliminarán {0} archivos o carpetas</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
         <value>Se eliminará un archivo o directorio del sistema</value>
     </data>
     <data name="TextDifferenceEditor_DiscardButton_Content" xml:space="preserve">
@@ -1227,37 +1221,37 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="ChatWindowSettings_TemporaryChatMode_Description" xml:space="preserve">
         <value>Si se deben usar chats temporales al crear nuevos chats.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
         <value>Buscar archivos</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
         <value>Obtener información del archivo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
         <value>Buscar contenido del archivo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
         <value>Leer Archivo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
         <value>Mover o Renombrar Archivo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
         <value>Eliminar Archivo(s)</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
         <value>Crear Directorio</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
         <value>Escribir en Archivo</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
         <value>Editar Contenido del Archivo</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
         <value>🔎 {0}</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>Búsqueda Web</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_FileReferences_TotalCountTextBlock_Text" xml:space="preserve">
@@ -1266,31 +1260,28 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="ChatPluginDisplayBlockPresenter_FileReferences_HasMoreReferencesTextBlock_Text" xml:space="preserve">
         <value>etc.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
         <value>Visitar Página Web</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
         <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
         <value>{0} Enlaces</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
-        <value>Se ejecutará el siguiente script de terminal</value>
-    </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
         <value>Capturar Elemento de UI</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
         <value>Capturar Pantalla Completa</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
         <value>Operar elementos de UI</value>
     </data>
-    <data name="NativeChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
         <value>Buscar Archivos con Everything</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
         <value>Ejecutar Script</value>
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
@@ -1338,117 +1329,117 @@ Se pueden usar marcadores de posición dentro del mensaje, encerrados en {}, y s
     <data name="ProxySettings_Description" xml:space="preserve">
         <value>Configuración del proxy de red.</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
         <value>Descripción: {0}
 Contenido:
 {1}</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
         <value>La ejecución del script de PowerShell falló: {0}</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFiles_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFiles_Description" xml:space="preserve">
         <value>Buscar archivos o directorios en una ruta especificada que coincidan con el patrón dado.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_GetFileInformation_Description" xml:space="preserve">
         <value>Obtener información sobre un archivo o directorio en la ruta especificada.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFileContent_Description" xml:space="preserve">
         <value>Buscar un texto específico dentro de archivo(s) y devolver las líneas coincidentes.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_Description" xml:space="preserve">
         <value>Leer el contenido de un archivo en la ruta especificada.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_Description" xml:space="preserve">
         <value>Mover o renombrar un archivo o directorio.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_Description" xml:space="preserve">
         <value>Eliminar archivos o directorios en la ruta especificada.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_CreateDirectory_Description" xml:space="preserve">
         <value>Crear un nuevo directorio en la ruta especificada.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_Description" xml:space="preserve">
         <value>Escribir contenido en un archivo de texto en la ruta especificada.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_Description" xml:space="preserve">
         <value>Reemplazar contenido en un archivo de texto.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>El tamaño del archivo excede 10 MB; la operación de lectura no es compatible.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage" xml:space="preserve">
         <value>No se pudo crear el directorio.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage" xml:space="preserve">
         <value>No se puede eliminar el directorio raíz.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage" xml:space="preserve">
         <value>No se pueden eliminar archivos o directorios del sistema.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>No se puede escribir en un archivo binario.</value>
     </data>
     <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
         <value>El modelo proporcionó un valor inválido para el parámetro '{0}', probablemente debido a una alucinación.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>El tamaño del archivo es mayor a 10 MB, la operación de reemplazo no es compatible.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage" xml:space="preserve">
         <value>No se puede reemplazar el contenido en un archivo binario.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage" xml:space="preserve">
         <value>La ruta especificada es un archivo, no un directorio.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>La ruta especificada no es un archivo o directorio válido.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage" xml:space="preserve">
         <value>La ruta especificada es un directorio, no un archivo.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>El archivo o directorio especificado no fue encontrado.</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>La ruta especificada no existe.</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Description" xml:space="preserve">
         <value>Captura una captura de pantalla de un elemento visual.</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description" xml:space="preserve">
         <value>Captura una captura de pantalla de toda la pantalla.</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Description" xml:space="preserve">
         <value>Ejecuta un conjunto de acciones de automatización de UI como hacer clic, escribir o enviar atajos.</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage" xml:space="preserve">
         <value>No hay pantalla disponible para capturar.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Description" xml:space="preserve">
         <value>Realiza una búsqueda en la web.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Description" xml:space="preserve">
         <value>Captura una instantánea del contenido y la información básica de una página web.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage" xml:space="preserve">
         <value>El proveedor del motor de búsqueda web no está seleccionado. Por favor, configúralo en la configuración del navegador web del plugin.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage" xml:space="preserve">
         <value>El endpoint proporcionado es inválido; asegúrate de que sea una URI absoluta válida.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage" xml:space="preserve">
         <value>El ID del motor de búsqueda de Google no está configurado. Por favor, configúralo en la configuración del plugin.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage" xml:space="preserve">
         <value>El proveedor del motor de búsqueda web no es compatible. Por favor, cámbialo en la configuración del plugin.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage" xml:space="preserve">
         <value>La clave API no está configurada. Por favor, configúralo en la configuración del plugin.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
         <value>Error al conectar con la URL de descarga del navegador Puppeteer.</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>No se pudo iniciar el navegador Puppeteer.</value>
     </data>
     <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
@@ -1488,7 +1479,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
         <value>Tiempo de Espera de Solicitud</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
         <value>El usuario denegó el consentimiento para la ejecución del script de PowerShell.</value>
     </data>
     <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
@@ -1530,7 +1521,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="ChatWindow_Title" xml:space="preserve">
         <value>Chat</value>
     </data>
-    <data name="NativeChatPlugin_Everything_SearchFiles_DetailMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_SearchFiles_DetailMessage" xml:space="preserve">
         <value>{0} Elementos Encontrados</value>
     </data>
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">

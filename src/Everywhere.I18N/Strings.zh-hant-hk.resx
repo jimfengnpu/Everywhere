@@ -659,22 +659,16 @@
     <data name="WebSearchEngineProvider_SearchEngineId_Description" xml:space="preserve">
         <value>（僅限 Google）提供可編程的搜尋引擎 ID。詳情請參閱指南。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_Header" xml:space="preserve">
         <value>網頁瀏覽器</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_Description" xml:space="preserve">
         <value>提供網頁瀏覽功能，包括搜尋引擎和網頁存取功能，可減少模型幻覺並提供最新資訊。注意：使用「網頁搜尋」工具需要配置搜尋引擎 API 金鑰（不同於模型 API 金鑰）。如不打算配置 API 金鑰，可取消勾選「網頁搜尋」工具，只使用「網頁瀏覽器」工具。</value>
     </data>
-    <data name="NativeChatPlugin_Shell_Header" xml:space="preserve">
-        <value>終端機</value>
-    </data>
-    <data name="NativeChatPlugin_Shell_Description" xml:space="preserve">
-        <value>提供在終端機執行命令的能力，允許直接與系統互動，提供無限可能。</value>
-    </data>
-    <data name="NativeChatPlugin_FileSystem_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_Header" xml:space="preserve">
         <value>檔案系統</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_Description" xml:space="preserve">
         <value>提供存取檔案的能力，例如列舉、創建、刪除、重命名、讀取或寫入。</value>
     </data>
     <data name="FriendlyExceptionMessage_InvalidOperation" xml:space="preserve">
@@ -692,10 +686,10 @@
     <data name="ChatPluginPage_TabItem_Functions_Header" xml:space="preserve">
         <value>功能</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_Header" xml:space="preserve">
         <value>視覺樹</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_Description" xml:space="preserve">
         <value>提供感知及操作螢幕上UI元素的能力。</value>
     </data>
     <data name="ChangeLogView_ViewOnGitHubHyperlinkButton_Content" xml:space="preserve">
@@ -1122,10 +1116,10 @@
     <data name="HandledSystemException_HostNotFound" xml:space="preserve">
         <value>找不到主機。請檢查地址和您的網絡連接。</value>
     </data>
-    <data name="NativeChatPlugin_Everything_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_Header" xml:space="preserve">
         <value>Everything</value>
     </data>
-    <data name="NativeChatPlugin_Everything_Description" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_Description" xml:space="preserve">
         <value>使用 Everything（一個高效能的本地檔案搜尋引擎）來搜尋您電腦上的檔案。</value>
     </data>
     <data name="CustomAssistantPage_CheckConnectivityButton_ToolTip" xml:space="preserve">
@@ -1191,10 +1185,10 @@
     <data name="TextDifferenceSummaryView_DiscardAllButton_Content" xml:space="preserve">
         <value>全部捨棄</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_DeletionConsent_Header" xml:space="preserve">
         <value>{0} 個檔案或資料夾將被刪除</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_SystemFile_DeletionConsent_Header" xml:space="preserve">
         <value>系統檔案或目錄將被刪除</value>
     </data>
     <data name="TextDifferenceEditor_DiscardButton_Content" xml:space="preserve">
@@ -1227,37 +1221,37 @@
     <data name="ChatWindowSettings_TemporaryChatMode_Description" xml:space="preserve">
         <value>創建新聊天時是否使用臨時聊天。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFiles_Header" xml:space="preserve">
         <value>搜尋檔案</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_GetFileInformation_Header" xml:space="preserve">
         <value>獲取檔案資訊</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFileContent_Header" xml:space="preserve">
         <value>搜尋檔案內容</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_Header" xml:space="preserve">
         <value>讀取檔案</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_Header" xml:space="preserve">
         <value>移動或重新命名檔案</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_Header" xml:space="preserve">
         <value>刪除檔案</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_CreateDirectory_Header" xml:space="preserve">
         <value>建立目錄</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_Header" xml:space="preserve">
         <value>寫入檔案</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_Header" xml:space="preserve">
         <value>編輯檔案內容</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Searching" xml:space="preserve">
         <value>🔎 {0}</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Header" xml:space="preserve">
         <value>網頁搜尋</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_FileReferences_TotalCountTextBlock_Text" xml:space="preserve">
@@ -1266,31 +1260,31 @@
     <data name="ChatPluginDisplayBlockPresenter_FileReferences_HasMoreReferencesTextBlock_Text" xml:space="preserve">
         <value>等等</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Header" xml:space="preserve">
         <value>訪問網頁</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Visiting" xml:space="preserve">
         <value>🧐 {0}</value>
     </data>
     <data name="ChatPluginDisplayBlockPresenter_Urls_TotalCountTextBlock_Text" xml:space="preserve">
         <value>{0} 個網址</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
-        <value>以下終端機腳本將被執行</value>
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header" xml:space="preserve">
+        <value>以下 PowerShell 腳本將被執行</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Header" xml:space="preserve">
         <value>擷取 UI 元素</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_Header" xml:space="preserve">
         <value>擷取全螢幕</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Header" xml:space="preserve">
         <value>操作 UI 元素</value>
     </data>
-    <data name="NativeChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_SearchFiles_Header" xml:space="preserve">
         <value>透過 Everything 搜尋檔案</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_Header" xml:space="preserve">
         <value>執行腳本</value>
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
@@ -1338,117 +1332,112 @@
     <data name="ProxySettings_Description" xml:space="preserve">
         <value>設定網絡代理。</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DetailMessage" xml:space="preserve">
-        <value>描述: {0}
-內容:
-{1}</value>
-    </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ErrorMessage" xml:space="preserve">
         <value>PowerShell 腳本執行失敗: {0}</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFiles_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFiles_Description" xml:space="preserve">
         <value>在指定路徑中搜索符合給定模式的文件或目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_GetFileInformation_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_GetFileInformation_Description" xml:space="preserve">
         <value>獲取指定路徑下文件或目錄的信息。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_SearchFileContent_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_SearchFileContent_Description" xml:space="preserve">
         <value>在文件中搜索特定文本並返回匹配的行。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_Description" xml:space="preserve">
         <value>讀取指定路徑下文件的內容。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_Description" xml:space="preserve">
         <value>移動或重命名文件或目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_Description" xml:space="preserve">
         <value>刪除指定路徑下的文件或目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_CreateDirectory_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_CreateDirectory_Description" xml:space="preserve">
         <value>在指定路徑下創建新目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_Description" xml:space="preserve">
         <value>在指定路徑下將內容寫入文本文件。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_Description" xml:space="preserve">
         <value>替換文本文件中的內容。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReadFile_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>文件大小超過 10 MB；不支持讀取操作。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_MoveFile_CreateDirectory_ErrorMessage" xml:space="preserve">
         <value>創建目錄失敗。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_RootDirectory_Deletion_ErrorMessage" xml:space="preserve">
         <value>無法刪除根目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_DeleteFiles_SystemFile_Deletion_ErrorMessage" xml:space="preserve">
         <value>無法刪除系統文件或目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_WriteToFile_BinaryFile_Write_ErrorMessage" xml:space="preserve">
         <value>無法寫入二進制文件。</value>
     </data>
     <data name="HandledFunctionInvokingException_ArgumentError" xml:space="preserve">
         <value>模型為參數 '{0}' 提供了無效的值，可能是由於幻覺。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_FileTooLarge_ErrorMessage" xml:space="preserve">
         <value>文件大小超過 10 MB，無法進行替換操作。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_ReplaceFileContent_BinaryFile_ErrorMessage" xml:space="preserve">
         <value>無法替換二進制文件中的內容。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureDirectoryInfo_PathIsFile_ErrorMessage" xml:space="preserve">
         <value>指定的路徑是一個文件，而不是目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureDirectoryInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>指定的路徑不是有效的文件或目錄。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileInfo_PathIsDirectory_ErrorMessage" xml:space="preserve">
         <value>指定的路徑是一個目錄，而不是文件。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>指定的文件或目錄未找到。</value>
     </data>
-    <data name="NativeChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_FileSystem_EnsureFileSystemInfo_PathNotExist_ErrorMessage" xml:space="preserve">
         <value>指定的路徑不存在。</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureVisualElementById_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureVisualElementById_Description" xml:space="preserve">
         <value>捕捉視覺元素的截圖。</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description" xml:space="preserve">
         <value>捕捉整個屏幕的截圖。</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_ExecuteVisualActionQueue_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Description" xml:space="preserve">
         <value>執行一組 UI 自動化操作，例如點擊、輸入或發送快捷鍵。</value>
     </data>
-    <data name="NativeChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_VisualTree_CaptureFullScreen_NoScreenAvailable_ErrorMessage" xml:space="preserve">
         <value>沒有可用的屏幕可供捕捉。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearch_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearch_Description" xml:space="preserve">
         <value>執行網頁搜索。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSnapshot_Description" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSnapshot_Description" xml:space="preserve">
         <value>捕捉網頁內容和基本信息的快照。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_NoWebSearchEngineProviderSelected_ErrorMessage" xml:space="preserve">
         <value>未選擇網頁搜索引擎提供者。請在插件設置的網頁瀏覽器中配置。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_InvalidWebSearchEngineEndpoint_ErrorMessage" xml:space="preserve">
         <value>提供的端點無效；請確保它是一個有效的絕對 URI。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_GoogleSearchEngineIdNotSet_ErrorMessage" xml:space="preserve">
         <value>Google 搜索引擎 ID 未設置。請在插件設置中配置。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage" xml:space="preserve">
         <value>不支持的網頁搜索引擎提供者。請在插件設置中切換。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage" xml:space="preserve">
         <value>API 密鑰未設置。請在插件設置中配置。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage" xml:space="preserve">
         <value>無法連接到 Puppeteer 瀏覽器下載 URL。</value>
     </data>
-    <data name="NativeChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
+    <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>無法啟動 Puppeteer 瀏覽器。</value>
     </data>
     <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
@@ -1488,7 +1477,7 @@
     <data name="CustomAssistant_RequestTimeoutSeconds_Header" xml:space="preserve">
         <value>請求超時持續時間</value>
     </data>
-    <data name="NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_DenyMessage" xml:space="preserve">
         <value>用戶拒絕授權執行 PowerShell 腳本。</value>
     </data>
     <data name="DynamicWebProxy_ApplyProxySettings_EndpointRequired_ErrorMessage" xml:space="preserve">
@@ -1530,7 +1519,7 @@
     <data name="ChatWindow_Title" xml:space="preserve">
         <value>聊天</value>
     </data>
-    <data name="NativeChatPlugin_Everything_SearchFiles_DetailMessage" xml:space="preserve">
+    <data name="Windows_BuiltInChatPlugin_Everything_SearchFiles_DetailMessage" xml:space="preserve">
         <value>{0} 個項目找到</value>
     </data>
     <data name="ChatPluginPage_TabItem_MCP_Header" xml:space="preserve">
