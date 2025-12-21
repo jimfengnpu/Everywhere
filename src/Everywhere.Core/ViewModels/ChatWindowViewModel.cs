@@ -108,19 +108,19 @@ public sealed partial class ChatWindowViewModel :
 
     public bool CanEdit => IsNotBusy && EditingUserMessageNode is null;
 
-    public static int ChatInputBoxTextMaxLength => 100_000;
+    public static int ChatInputAreaTextMaxLength => 100_000;
 
     /// <summary>
     /// The text in the chat input box.
     /// </summary>
-    public string? ChatInputBoxText
+    public string? ChatInputAreaText
     {
         get;
         set
         {
-            value = value.SafeSubstring(0, ChatInputBoxTextMaxLength);
+            value = value.SafeSubstring(0, ChatInputAreaTextMaxLength);
             if (!SetProperty(ref field, value)) return;
-            if (EditingUserMessageNode is null) PersistentState.ChatInputBoxText = value;
+            if (EditingUserMessageNode is null) PersistentState.ChatInputAreaText = value;
         }
     }
 
@@ -164,7 +164,7 @@ public sealed partial class ChatWindowViewModel :
         _logger = logger;
 
         // Load the saved input box text
-        ChatInputBoxText = PersistentState.ChatInputBoxText;
+        ChatInputAreaText = PersistentState.ChatInputAreaText;
 
         ChatAttachments = _chatAttachmentsSource
             .Connect()
@@ -557,7 +557,7 @@ public sealed partial class ChatWindowViewModel :
         if (userChatMessageNode is not { Message: UserChatMessage userChatMessage }) return;
 
         EditingUserMessageNode = userChatMessageNode;
-        ChatInputBoxText = userChatMessage.Inlines.Text;
+        ChatInputAreaText = userChatMessage.Inlines.Text;
         _chatAttachmentsSource.Edit(list =>
         {
             _chatAttachmentsBeforeEditing = list.ToList();
@@ -582,7 +582,7 @@ public sealed partial class ChatWindowViewModel :
             }
         });
 
-        ChatInputBoxText = PersistentState.ChatInputBoxText;
+        ChatInputAreaText = PersistentState.ChatInputAreaText;
     }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]

@@ -120,31 +120,31 @@
     <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>Ne yapacağını bilmiyorsan varsayılan değerde bırak. &quot;http(s)://&quot; ile başlamalıdır.</value>
     </data>
-    <data name="ChatInputBox_Watermark" xml:space="preserve">
+    <data name="ChatInputArea_Watermark" xml:space="preserve">
         <value>Everywhere'e sor veya sohbet et</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
         <value>Mevcut oturuma dosya ekle</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>Dosya ekle</value>
     </data>
-    <data name="ChatInputBox_ImageButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_ToolTip" xml:space="preserve">
         <value>Ekranınıza erişebilmesine izin verin</value>
     </data>
-    <data name="ChatInputBox_ImageButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_Text" xml:space="preserve">
         <value>Fotoğraf</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_ToolTip" xml:space="preserve">
         <value>Araçları kullanarak asistan yeteneklerini geliştirin (Ctrl+T)</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_Text" xml:space="preserve">
         <value>Araçlar</value>
     </data>
-    <data name="ChatInputBox_SendButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SendButton_ToolTip" xml:space="preserve">
         <value>Gönder</value>
     </data>
-    <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CancelButton_ToolTip" xml:space="preserve">
         <value>İptal</value>
     </data>
     <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
@@ -183,13 +183,13 @@
     <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
         <value>Bu öğe türü desteklenmiyor</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Görsel Elemanı Seç</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Panodan Yapıştır</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
         <value>Dosya Ekle</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
@@ -915,13 +915,13 @@
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
         <value>Güncelleme yapılamadı.</value>
     </data>
-    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SettingsButton_ToolTip" xml:space="preserve">
         <value>Ayarlar</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
         <value>Görsel ağ uzunluk sınırı:</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
         <value>Görsel ağ detay seviyesi:</value>
     </data>
     <data name="SoftwareUpdater_UpdateAvailable_Toast_Message" xml:space="preserve">
@@ -1074,7 +1074,7 @@
     <data name="CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title" xml:space="preserve">
         <value>Doğrulama Başarısız</value>
     </data>
-    <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>Asistanı seçin</value>
     </data>
     <data name="CustomAssistant_Icon_Description" xml:space="preserve">
@@ -1131,10 +1131,10 @@
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>Seçilen asistanı kalıcı olarak siler</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Kes</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>Yapıştır</value>
     </data>
     <data name="Common_OK" xml:space="preserve">

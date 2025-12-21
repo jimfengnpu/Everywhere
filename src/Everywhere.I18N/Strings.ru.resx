@@ -121,31 +121,31 @@
     <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>Оставьте это значение по умолчанию, если не знаете, что делать. Должно начинаться с &quot;http(s)://&quot;.</value>
     </data>
-    <data name="ChatInputBox_Watermark" xml:space="preserve">
+    <data name="ChatInputArea_Watermark" xml:space="preserve">
         <value>Спросите Everywhere или просто общайтесь</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
         <value>Добавить вложения в текущую сессию</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>Добавить вложение</value>
     </data>
-    <data name="ChatInputBox_ImageButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_ToolTip" xml:space="preserve">
         <value>Разрешить доступ для анализа экрана</value>
     </data>
-    <data name="ChatInputBox_ImageButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_Text" xml:space="preserve">
         <value>Изображение</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_ToolTip" xml:space="preserve">
         <value>Используйте инструменты для расширения возможностей ассистента (Ctrl+T)</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_Text" xml:space="preserve">
         <value>Инструменты</value>
     </data>
-    <data name="ChatInputBox_SendButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SendButton_ToolTip" xml:space="preserve">
         <value>Отправить</value>
     </data>
-    <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CancelButton_ToolTip" xml:space="preserve">
         <value>Отмена</value>
     </data>
     <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
@@ -184,13 +184,13 @@
     <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
         <value>Этот тип элемента не поддерживается</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Выбрать визуальный элемент</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Вставить из буфера обмена</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
         <value>Прикрепить файл</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
@@ -920,13 +920,13 @@
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
         <value>Не удалось выполнить обновление.</value>
     </data>
-    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SettingsButton_ToolTip" xml:space="preserve">
         <value>Настройки</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
         <value>Ограничение длины визуального дерева:</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
         <value>Уровень детализации визуального дерева:</value>
     </data>
     <data name="SoftwareUpdater_UpdateAvailable_Toast_Message" xml:space="preserve">
@@ -1080,7 +1080,7 @@
     <data name="CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title" xml:space="preserve">
         <value>Проверка не удалась</value>
     </data>
-    <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>Выберите помощника</value>
     </data>
     <data name="CustomAssistant_Icon_Description" xml:space="preserve">
@@ -1137,10 +1137,10 @@
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>Удаляет выбранного ассистента навсегда</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Вырезать</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>Вставить</value>
     </data>
     <data name="Common_OK" xml:space="preserve">

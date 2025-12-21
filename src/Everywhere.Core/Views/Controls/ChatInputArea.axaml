@@ -73,8 +73,8 @@
   </DataTemplate>
 
   <ControlTheme
-    x:Key="{x:Type v:ChatInputBox}"
-    TargetType="v:ChatInputBox">
+    x:Key="{x:Type v:ChatInputArea}"
+    TargetType="v:ChatInputArea">
 
     <Style Selector="^ /template/ :is(Button).Rounded">
       <Setter Property="MinHeight" Value="{DynamicResource FontSize3Xl}"/>
@@ -106,25 +106,25 @@
       <MenuFlyout Placement="Bottom">
         <MenuItem
           x:Name="TextBoxContextFlyoutCutItem"
-          Command="{Binding $parent[v:ChatInputBox].Cut}"
+          Command="{Binding $parent[v:ChatInputArea].Cut}"
           Cursor="Hand"
-          Header="{I18N {x:Static LocaleKey.ChatInputBox_ContextFlyout_CutMenuItem_Header}}"
-          InputGesture="{x:Static v:ChatInputBox.CutGesture}"
-          IsEnabled="{Binding $parent[v:ChatInputBox].CanCut}"/>
+          Header="{I18N {x:Static LocaleKey.ChatInputArea_ContextFlyout_CutMenuItem_Header}}"
+          InputGesture="{x:Static v:ChatInputArea.CutGesture}"
+          IsEnabled="{Binding $parent[v:ChatInputArea].CanCut}"/>
         <MenuItem
           x:Name="TextBoxContextFlyoutCopyItem"
-          Command="{Binding $parent[v:ChatInputBox].Copy}"
+          Command="{Binding $parent[v:ChatInputArea].Copy}"
           Cursor="Hand"
           Header="{I18N {x:Static LocaleKey.Common_Copy}}"
-          InputGesture="{x:Static v:ChatInputBox.CopyGesture}"
-          IsEnabled="{Binding $parent[v:ChatInputBox].CanCopy}"/>
+          InputGesture="{x:Static v:ChatInputArea.CopyGesture}"
+          IsEnabled="{Binding $parent[v:ChatInputArea].CanCopy}"/>
         <MenuItem
           x:Name="TextBoxContextFlyoutPasteItem"
-          Command="{Binding $parent[v:ChatInputBox].Paste}"
+          Command="{Binding $parent[v:ChatInputArea].Paste}"
           Cursor="Hand"
-          Header="{I18N {x:Static LocaleKey.ChatInputBox_ContextFlyout_PasteMenuItem_Header}}"
-          InputGesture="{x:Static v:ChatInputBox.PasteGesture}"
-          IsEnabled="{Binding $parent[v:ChatInputBox].CanPaste}"/>
+          Header="{I18N {x:Static LocaleKey.ChatInputArea_ContextFlyout_PasteMenuItem_Header}}"
+          InputGesture="{x:Static v:ChatInputArea.PasteGesture}"
+          IsEnabled="{Binding $parent[v:ChatInputArea].CanPaste}"/>
       </MenuFlyout>
     </Setter>
     <Setter Property="Template">
@@ -143,7 +143,7 @@
               <TextBlock
                 FontSize="{TemplateBinding FontSize}"
                 Opacity="0.5"
-                Text="{I18N {x:Static LocaleKey.ChatInputBox_Watermark}}"
+                Text="{I18N {x:Static LocaleKey.ChatInputArea_Watermark}}"
                 TextAlignment="{TemplateBinding TextAlignment}"
                 TextWrapping="{TemplateBinding TextWrapping}">
                 <TextBlock.IsVisible>
@@ -214,7 +214,7 @@
                         DockPanel.Dock="Right" Padding="1"
                         VerticalAlignment="Center" Background="Transparent"
                         BorderThickness="0"
-                        Command="{Binding $parent[v:ChatInputBox].RemoveAttachmentCommand}"
+                        Command="{Binding $parent[v:ChatInputArea].RemoveAttachmentCommand}"
                         CommandParameter="{Binding}"
                         Focusable="False"
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
@@ -267,7 +267,7 @@
                         DockPanel.Dock="Right" Padding="1"
                         VerticalAlignment="Center" Background="Transparent"
                         BorderThickness="0"
-                        Command="{Binding $parent[v:ChatInputBox].RemoveAttachmentCommand}"
+                        Command="{Binding $parent[v:ChatInputArea].RemoveAttachmentCommand}"
                         CommandParameter="{Binding}"
                         Focusable="False"
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
@@ -300,7 +300,7 @@
                         DockPanel.Dock="Right" Padding="1"
                         VerticalAlignment="Center" Background="Transparent"
                         BorderThickness="0"
-                        Command="{Binding $parent[v:ChatInputBox].RemoveAttachmentCommand}"
+                        Command="{Binding $parent[v:ChatInputArea].RemoveAttachmentCommand}"
                         CommandParameter="{Binding}"
                         Focusable="False"
                         ToolTip.Tip="{I18N {x:Static LocaleKey.ChatAttachment_RemoveButton_ToolTip}}">
@@ -363,7 +363,7 @@
                     </Style>
 
                     <Setter Property="Focusable" Value="False"/>
-                    <Setter Property="Command" Value="{Binding $parent[v:ChatInputBox].SetSelectedCustomAssistantCommand}"/>
+                    <Setter Property="Command" Value="{Binding $parent[v:ChatInputArea].SetSelectedCustomAssistantCommand}"/>
                     <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}}"/>
                     <Setter Property="Template">
                       <ControlTemplate
@@ -374,7 +374,7 @@
                           <Classes.Selected>
                             <MultiBinding Converter="{x:Static vc:CommonConverters.AllEquals}">
                               <Binding Path="."/>
-                              <Binding Path="$parent[v:ChatInputBox].SelectedCustomAssistant"/>
+                              <Binding Path="$parent[v:ChatInputArea].SelectedCustomAssistant"/>
                             </MultiBinding>
                           </Classes.Selected>
 
@@ -403,14 +403,14 @@
                 Classes="Outline Rounded" shadui:MenuItemAssist.PopupPlacement="Top"
                 shadui:MenuItemAssist.PopupVerticalOffset="-4"
                 ItemsSource="{TemplateBinding AddChatAttachmentMenuItems}"
-                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_ToolTip}}">
+                ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputArea_AddAttachmentMenuItem_ToolTip}}">
                 <shadui:MenuItemAssist.Label>
                   <TextBlock>
-                    <Run Text="{I18N {x:Static LocaleKey.ChatInputBox_AddAttachmentMenuItem_Header}}"/>
+                    <Run Text="{I18N {x:Static LocaleKey.ChatInputArea_AddAttachmentMenuItem_Header}}"/>
                     <Run Text=" ("/>
-                    <Run Text="{Binding $parent[v:ChatInputBox].ChatAttachmentItemsSource.Count, FallbackValue=0}"/>
+                    <Run Text="{Binding $parent[v:ChatInputArea].ChatAttachmentItemsSource.Count, FallbackValue=0}"/>
                     <Run Text="/"/>
-                    <Run Text="{Binding $parent[v:ChatInputBox].MaxChatAttachmentCount}"/>
+                    <Run Text="{Binding $parent[v:ChatInputArea].MaxChatAttachmentCount}"/>
                     <Run Text=")"/>
                   </TextBlock>
                 </shadui:MenuItemAssist.Label>
@@ -429,7 +429,7 @@
               HotKey="Ctrl+T"
               IsChecked="{Binding IsToolCallEnabled, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
               IsVisible="{TemplateBinding IsToolCallSupported}"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_ToolCallButton_ToolTip}}">
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputArea_ToolCallButton_ToolTip}}">
               <LucideIcon
                 Margin="1,0,0,0" Kind="Hammer"
                 Size="{DynamicResource FontSizeL}"/>
@@ -437,7 +437,7 @@
 
             <Button
               Classes="Outline Rounded" Focusable="False"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_SettingsButton_ToolTip}}">
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputArea_SettingsButton_ToolTip}}">
               <Button.Flyout>
                 <Flyout
                   Placement="Top" VerticalOffset="-4">
@@ -488,7 +488,7 @@
             <Button
               x:Name="PART_SendButton" Classes="Primary Rounded"
               IsVisible="{Binding !IsVisible, ElementName=PART_CancelButton}"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_SendButton_ToolTip}}">
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputArea_SendButton_ToolTip}}">
               <Button.IsEnabled>
                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                   <Binding
@@ -510,7 +510,7 @@
               x:Name="PART_CancelButton" Classes="Primary Rounded"
               Command="{TemplateBinding CancelCommand}"
               Focusable="False"
-              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputBox_CancelButton_ToolTip}}">
+              ToolTip.Tip="{I18N {x:Static LocaleKey.ChatInputArea_CancelButton_ToolTip}}">
               <Border
                 Width="12" Height="12"
                 Background="{DynamicResource ForegroundColor}"

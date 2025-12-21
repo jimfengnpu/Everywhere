@@ -961,8 +961,8 @@
             </DockPanel>
           </Border>
 
-          <v:ChatInputBox
-            x:Name="ChatInputBox" AcceptsReturn="True"
+          <v:ChatInputArea
+            x:Name="ChatInputArea" AcceptsReturn="True"
             CancelCommand="{Binding CancelCommand}"
             CaretIndex="{x:Static sys:Int32.MaxValue}"
             ChatAttachmentItemsSource="{Binding ChatAttachments}"
@@ -973,17 +973,17 @@
             IsToolCallEnabled="{Binding PersistentState.IsToolCallEnabled, Mode=TwoWay}"
             IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported.BindableValue, FallbackValue=false}"
             MaxChatAttachmentCount="{Binding PersistentState.MaxChatAttachmentCount}"
-            MaxLength="{Binding ChatInputBoxTextMaxLength}"
+            MaxLength="{Binding ChatInputAreaTextMaxLength}"
             MaxLines="12"
             RemoveAttachmentCommand="{Binding RemoveAttachmentCommand}"
             SelectedCustomAssistant="{Binding Settings.Model.SelectedCustomAssistant, Mode=TwoWay}"
-            Text="{Binding ChatInputBoxText, Mode=TwoWay}"
+            Text="{Binding ChatInputAreaText, Mode=TwoWay}"
             TextWrapping="Wrap">
-            <v:ChatInputBox.AddChatAttachmentMenuItems>
+            <v:ChatInputArea.AddChatAttachmentMenuItems>
               <MenuItem
                 Command="{Binding PickElementCommand}"
                 CommandParameter="{x:Static interop:ElementPickMode.Element}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement}}">
+                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement}}">
                 <MenuItem.Icon>
                   <LucideIcon
                     Kind="SquareMousePointer"
@@ -992,7 +992,7 @@
               </MenuItem>
               <MenuItem
                 Command="{Binding AddClipboardCommand}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard}}">
+                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_AddAttachmentMenuItems_PasteFromClipboard}}">
                 <MenuItem.Icon>
                   <LucideIcon
                     Kind="ClipboardPaste"
@@ -1001,16 +1001,16 @@
               </MenuItem>
               <MenuItem
                 Command="{Binding AddFileCommand}"
-                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile}}">
+                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_AddAttachmentMenuItems_AttachFile}}">
                 <MenuItem.Icon>
                   <LucideIcon
                     Kind="File"
                     Size="{DynamicResource FontSizeL}"/>
                 </MenuItem.Icon>
               </MenuItem>
-            </v:ChatInputBox.AddChatAttachmentMenuItems>
+            </v:ChatInputArea.AddChatAttachmentMenuItems>
 
-            <v:ChatInputBox.SettingsMenuItems>
+            <v:ChatInputArea.SettingsMenuItems>
               <StackPanel
                 Orientation="Vertical" Spacing="4">
                 <StackPanel
@@ -1018,7 +1018,7 @@
                   <TextBlock
                     Classes="Muted" VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSizeS}"
-                    Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit}}"/>
+                    Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeTokenLimit}}"/>
                   <TextBlock
                     Classes="Muted" VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSizeS}"
@@ -1043,7 +1043,7 @@
                   <TextBlock
                     Classes="Muted" VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSizeS}"
-                    Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel}}"/>
+                    Text="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeDetailLevel}}"/>
                   <TextBlock
                     Classes="Muted" VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSizeS}">
@@ -1058,8 +1058,8 @@
                   TickFrequency="1"
                   Value="{Binding Settings.ChatWindow.VisualTreeDetailLevel, Mode=TwoWay, Converter={x:Static vc:Int32Converters.FromEnum}}"/>
               </StackPanel>
-            </v:ChatInputBox.SettingsMenuItems>
-          </v:ChatInputBox>
+            </v:ChatInputArea.SettingsMenuItems>
+          </v:ChatInputArea>
         </StackPanel>
       </Border>
     </Grid>

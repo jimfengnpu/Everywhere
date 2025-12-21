@@ -121,31 +121,31 @@
     <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>如果不確定該怎麼做，請保持預設值。必須以 &quot;http(s)://&quot; 開頭。</value>
     </data>
-    <data name="ChatInputBox_Watermark" xml:space="preserve">
+    <data name="ChatInputArea_Watermark" xml:space="preserve">
         <value>詢問 Everywhere，或只是聊天</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
         <value>新增附件至目前會話</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>新增附件</value>
     </data>
-    <data name="ChatInputBox_ImageButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_ToolTip" xml:space="preserve">
         <value>允許存取以感知您的螢幕</value>
     </data>
-    <data name="ChatInputBox_ImageButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_Text" xml:space="preserve">
         <value>圖片</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_ToolTip" xml:space="preserve">
         <value>使用工具增強助手功能 (Ctrl+T)</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_Text" xml:space="preserve">
         <value>工具</value>
     </data>
-    <data name="ChatInputBox_SendButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SendButton_ToolTip" xml:space="preserve">
         <value>發送</value>
     </data>
-    <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CancelButton_ToolTip" xml:space="preserve">
         <value>取消</value>
     </data>
     <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
@@ -184,13 +184,13 @@
     <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
         <value>此項目類型不受支持</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>選擇視覺元素</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>從剪貼簿貼上</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
         <value>附加檔案</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
@@ -920,13 +920,13 @@
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
         <value>更新失敗。</value>
     </data>
-    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SettingsButton_ToolTip" xml:space="preserve">
         <value>設定</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
         <value>視覺樹長度限制：</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
         <value>視覺樹詳細程度：</value>
     </data>
     <data name="SoftwareUpdater_UpdateAvailable_Toast_Message" xml:space="preserve">
@@ -1080,7 +1080,7 @@
     <data name="CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title" xml:space="preserve">
         <value>檢查失敗</value>
     </data>
-    <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>選擇助手</value>
     </data>
     <data name="CustomAssistant_Icon_Description" xml:space="preserve">
@@ -1137,10 +1137,10 @@
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>永久刪除所選的助理</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>剪下</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>貼上</value>
     </data>
     <data name="Common_OK" xml:space="preserve">

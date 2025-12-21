@@ -49,7 +49,7 @@ public class PersistentState(IKeyValueStorage storage) : ObservableObject
         set => Set(value);
     }
 
-    public string? ChatInputBoxText
+    public string? ChatInputAreaText
     {
         get => Get<string?>();
         set => Set(value);

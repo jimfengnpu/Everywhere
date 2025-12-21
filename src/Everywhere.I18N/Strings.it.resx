@@ -121,31 +121,31 @@
     <data name="WebSearchEngineProvider_EndPoint_Description" xml:space="preserve">
         <value>Lasciare questo valore predefinito se non si sa cosa fare. Deve iniziare con &quot;http(s)://&quot;.</value>
     </data>
-    <data name="ChatInputBox_Watermark" xml:space="preserve">
+    <data name="ChatInputArea_Watermark" xml:space="preserve">
         <value>Chiedi a Everywhere, o semplicemente chatta</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_ToolTip" xml:space="preserve">
         <value>Aggiungi allegati alla sessione corrente</value>
     </data>
-    <data name="ChatInputBox_AddAttachmentMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_AddAttachmentMenuItem_Header" xml:space="preserve">
         <value>Aggiungi Allegato</value>
     </data>
-    <data name="ChatInputBox_ImageButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_ToolTip" xml:space="preserve">
         <value>Consenti l'accesso per rilevare lo schermo</value>
     </data>
-    <data name="ChatInputBox_ImageButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ImageButton_Text" xml:space="preserve">
         <value>Immagine</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_ToolTip" xml:space="preserve">
         <value>Usa strumenti per migliorare le capacità dell'assistente (Ctrl+T)</value>
     </data>
-    <data name="ChatInputBox_ToolCallButton_Text" xml:space="preserve">
+    <data name="ChatInputArea_ToolCallButton_Text" xml:space="preserve">
         <value>Strumenti</value>
     </data>
-    <data name="ChatInputBox_SendButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SendButton_ToolTip" xml:space="preserve">
         <value>Invia</value>
     </data>
-    <data name="ChatInputBox_CancelButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CancelButton_ToolTip" xml:space="preserve">
         <value>Annulla</value>
     </data>
     <data name="ActionChatMessage_Header_AnalyzingContext" xml:space="preserve">
@@ -184,13 +184,13 @@
     <data name="ChatWindow_DragDrop_Overlay_Unsupported" xml:space="preserve">
         <value>Questo tipo di elemento non è supportato</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement" xml:space="preserve">
         <value>Seleziona Elemento Visivo</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_PasteFromClipboard" xml:space="preserve">
         <value>Incolla dagli Appunti</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_AttachFile" xml:space="preserve">
         <value>Allega File</value>
     </data>
     <data name="ChatWindowViewModel_QuickActions_Translate" xml:space="preserve">
@@ -920,13 +920,13 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
     <data name="SoftwareUpdater_PerformUpdate_FailedToast_Message" xml:space="preserve">
         <value>Aggiornamento non riuscito.</value>
     </data>
-    <data name="ChatInputBox_SettingsButton_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_SettingsButton_ToolTip" xml:space="preserve">
         <value>Impostazioni</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeTokenLimit" xml:space="preserve">
         <value>Limite lunghezza albero visivo:</value>
     </data>
-    <data name="ChatWindow_ChatInputBox_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
+    <data name="ChatWindow_ChatInputArea_SettingsMenuItems_VisualTreeDetailLevel" xml:space="preserve">
         <value>Livello di dettaglio albero visivo:</value>
     </data>
     <data name="SoftwareUpdater_UpdateAvailable_Toast_Message" xml:space="preserve">
@@ -1080,7 +1080,7 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
     <data name="CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title" xml:space="preserve">
         <value>Verifica Fallita</value>
     </data>
-    <data name="ChatInputBox_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
+    <data name="ChatInputArea_CustomAssistantsMenuItem_ToolTip" xml:space="preserve">
         <value>Seleziona l'assistente</value>
     </data>
     <data name="CustomAssistant_Icon_Description" xml:space="preserve">
@@ -1137,10 +1137,10 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
     <data name="CustomAssistantPage_DeleteCustomAssistantButton_ToolTip" xml:space="preserve">
         <value>Elimina definitivamente l'assistente selezionato</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_CutMenuItem_Header" xml:space="preserve">
         <value>Taglia</value>
     </data>
-    <data name="ChatInputBox_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
+    <data name="ChatInputArea_ContextFlyout_PasteMenuItem_Header" xml:space="preserve">
         <value>Incolla</value>
     </data>
     <data name="Common_OK" xml:space="preserve">

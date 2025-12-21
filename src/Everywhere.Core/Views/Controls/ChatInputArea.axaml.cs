@@ -17,50 +17,50 @@ namespace Everywhere.Views;
 [TemplatePart("PART_SendButton", typeof(Button), IsRequired = true)]
 [TemplatePart("PART_ChatAttachmentItemsControl", typeof(ItemsControl), IsRequired = true)]
 [TemplatePart("PART_AssistantSelectionMenuItem", typeof(MenuItem))]
-public partial class ChatInputBox : TextBox
+public partial class ChatInputArea : TextBox
 {
     public static readonly StyledProperty<bool> PressCtrlEnterToSendProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(PressCtrlEnterToSend));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(PressCtrlEnterToSend));
 
     public static readonly StyledProperty<IRelayCommand<string>?> CommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand<string>?>(nameof(Command));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand<string>?>(nameof(Command));
 
     public static readonly StyledProperty<IRelayCommand?> CancelCommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand?>(nameof(CancelCommand));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand?>(nameof(CancelCommand));
 
     public static readonly StyledProperty<ICollection<ChatAttachment>?> ChatAttachmentItemsSourceProperty =
-        AvaloniaProperty.Register<ChatInputBox, ICollection<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
+        AvaloniaProperty.Register<ChatInputArea, ICollection<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
 
     public static readonly StyledProperty<IRelayCommand<ChatAttachment>?> RemoveAttachmentCommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand<ChatAttachment>?>(nameof(RemoveAttachmentCommand));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand<ChatAttachment>?>(nameof(RemoveAttachmentCommand));
 
     public static readonly StyledProperty<int> MaxChatAttachmentCountProperty =
-        AvaloniaProperty.Register<ChatInputBox, int>(nameof(MaxChatAttachmentCount));
+        AvaloniaProperty.Register<ChatInputArea, int>(nameof(MaxChatAttachmentCount));
 
     public static readonly StyledProperty<IEnumerable<CustomAssistant>?> CustomAssistantsProperty =
-        AvaloniaProperty.Register<ChatInputBox, IEnumerable<CustomAssistant>?>(nameof(CustomAssistants));
+        AvaloniaProperty.Register<ChatInputArea, IEnumerable<CustomAssistant>?>(nameof(CustomAssistants));
 
     public static readonly StyledProperty<CustomAssistant?> SelectedCustomAssistantProperty =
-        AvaloniaProperty.Register<ChatInputBox, CustomAssistant?>(nameof(SelectedCustomAssistant));
+        AvaloniaProperty.Register<ChatInputArea, CustomAssistant?>(nameof(SelectedCustomAssistant));
 
-    public static readonly DirectProperty<ChatInputBox, IEnumerable?> AddChatAttachmentMenuItemsProperty =
-        AvaloniaProperty.RegisterDirect<ChatInputBox, IEnumerable?>(
+    public static readonly DirectProperty<ChatInputArea, IEnumerable?> AddChatAttachmentMenuItemsProperty =
+        AvaloniaProperty.RegisterDirect<ChatInputArea, IEnumerable?>(
             nameof(AddChatAttachmentMenuItems),
             o => o.AddChatAttachmentMenuItems);
 
-    public static readonly DirectProperty<ChatInputBox, IEnumerable?> SettingsMenuItemsProperty =
-        AvaloniaProperty.RegisterDirect<ChatInputBox, IEnumerable?>(
+    public static readonly DirectProperty<ChatInputArea, IEnumerable?> SettingsMenuItemsProperty =
+        AvaloniaProperty.RegisterDirect<ChatInputArea, IEnumerable?>(
             nameof(SettingsMenuItems),
             o => o.SettingsMenuItems);
 
     public static readonly StyledProperty<bool> IsToolCallSupportedProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsToolCallSupported));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsToolCallSupported));
 
     public static readonly StyledProperty<bool> IsToolCallEnabledProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsToolCallEnabled));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsToolCallEnabled));
 
     public static readonly StyledProperty<bool> IsSendButtonEnabledProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsSendButtonEnabled), true);
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsSendButtonEnabled), true);
 
     /// <summary>
     /// If true, pressing Ctrl+Enter will send the message, Enter will break the line.
@@ -162,12 +162,12 @@ public partial class ChatInputBox : TextBox
         },
     };
 
-    static ChatInputBox()
+    static ChatInputArea()
     {
-        TextProperty.OverrideDefaultValue<ChatInputBox>(string.Empty);
+        TextProperty.OverrideDefaultValue<ChatInputArea>(string.Empty);
     }
 
-    public ChatInputBox()
+    public ChatInputArea()
     {
         this.AddDisposableHandler(KeyDownEvent, HandleTextBoxKeyDown, RoutingStrategies.Tunnel);
     }

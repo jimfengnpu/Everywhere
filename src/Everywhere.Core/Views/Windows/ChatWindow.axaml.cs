@@ -70,8 +70,8 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, true);
 
         ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
-        ChatInputBox.TextChanged += HandleChatInputBoxTextChanged;
-        ChatInputBox.PastingFromClipboard += HandleChatInputBoxPastingFromClipboard;
+        ChatInputArea.TextChanged += HandleChatInputAreaTextChanged;
+        ChatInputArea.PastingFromClipboard += HandleChatInputAreaPastingFromClipboard;
         
         SetupDragDropHandlers();
     }
@@ -268,7 +268,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
 
             ShowInTaskbar = IsWindowPinned;
             _windowHelper.SetCloaked(this, false);
-            ChatInputBox.Focus();
+            ChatInputArea.Focus();
         }
         else
         {
@@ -277,7 +277,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
         }
     }
 
-    private void HandleChatInputBoxTextChanged(object? sender, TextChangedEventArgs e)
+    private void HandleChatInputAreaTextChanged(object? sender, TextChangedEventArgs e)
     {
         if (_settings.ChatWindow.WindowPinMode == ChatWindowPinMode.PinOnInput)
         {
@@ -290,7 +290,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void HandleChatInputBoxPastingFromClipboard(object? sender, RoutedEventArgs e)
+    private void HandleChatInputAreaPastingFromClipboard(object? sender, RoutedEventArgs e)
     {
         if (!ViewModel.AddClipboardCommand.CanExecute(null)) return;
 
@@ -475,10 +475,10 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
                 var text = e.DataTransfer.TryGetText();
                 if (string.IsNullOrWhiteSpace(text)) return;
 
-                var currentText = _persistentState.ChatInputBoxText ?? string.Empty;
-                var caretIndex = ChatInputBox.CaretIndex;
-                _persistentState.ChatInputBoxText = currentText.Insert(caretIndex, text);
-                ChatInputBox.CaretIndex = caretIndex + text.Length;
+                var currentText = _persistentState.ChatInputAreaText ?? string.Empty;
+                var caretIndex = ChatInputArea.CaretIndex;
+                _persistentState.ChatInputAreaText = currentText.Insert(caretIndex, text);
+                ChatInputArea.CaretIndex = caretIndex + text.Length;
             }
         }
     }
