@@ -17,12 +17,6 @@
   SizeToContent="WidthAndHeight" SystemDecorations="BorderOnly"
   TransparencyLevelHint="AcrylicBlur" WindowStartupLocation="CenterScreen">
 
-  <v:ReactiveShadWindow.Resources>
-    <!--  This is used for LaTeX rendering  -->
-    <!--  ReSharper disable once Xaml.RedundantResource  -->
-    <Color x:Key="SystemBaseHighColor">#FFFFFF</Color>
-  </v:ReactiveShadWindow.Resources>
-
   <v:ReactiveShadWindow.Hosts>
     <shadui:DialogHost
       x:Name="PART_DialogHost"
