@@ -1845,12 +1845,6 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query" xml:space="preserve">
         <value>Search: {0}</value>
     </data>
-    <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_Consent_Header" xml:space="preserve">
-        <value>Allow opening Maps?</value>
-    </data>
-    <data name="MacOS_BuiltInChatPlugin_System_OpenMaps_DenyMessage" xml:space="preserve">
-        <value>You denied the request to open Maps.</value>
-    </data>
     <data name="MacOS_BuiltInChatPlugin_System_ManageNotes_DenyMessage" xml:space="preserve">
         <value>You denied the request to manage notes.</value>
     </data>
@@ -1859,12 +1853,6 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Detail_Url" xml:space="preserve">
         <value>URL: {0}</value>
-    </data>
-    <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_Consent_Header" xml:space="preserve">
-        <value>Allow opening URL?</value>
-    </data>
-    <data name="MacOS_BuiltInChatPlugin_System_OpenUrl_DenyMessage" xml:space="preserve">
-        <value>You denied the request to open the URL.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_System_ExecuteScript_Header" xml:space="preserve">
         <value>Execute AppleScript</value>
@@ -1882,7 +1870,7 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>zsh Shell</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value />
+        <value>Provides the ability to execute zsh scripts, allowing direct interaction with the system. However, it is also dangerous and may result in accidental file deletion or system crashes.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Execute Script</value>

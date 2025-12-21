@@ -1868,7 +1868,7 @@
         <value>zsh Shell</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>提供執行 zsh 腳本的能力，允許直接與系統互動。然而，這也可能是危險的，可能導致意外刪除文件或系統崩潰。</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>執行腳本</value>

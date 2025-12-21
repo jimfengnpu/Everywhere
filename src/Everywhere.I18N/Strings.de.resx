@@ -1864,7 +1864,7 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
         <value>zsh-Shell</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>Bietet die Möglichkeit, zsh-Skripte auszuführen, was eine direkte Interaktion mit dem System ermöglicht. Es ist jedoch auch gefährlich und kann zu versehentlichem Löschen von Dateien oder Systemabstürzen führen.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Skript ausführen</value>

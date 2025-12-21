@@ -1862,7 +1862,7 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
         <value>zsh Kabuk</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>zsh betikleri çalıştırma yeteneği sağlar, bu da sistemle doğrudan etkileşim imkanı sunar. Ancak, tehlikeli olabilir ve kazara dosya silinmesine veya sistem çökmesine neden olabilir.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Script'i Çalıştır</value>

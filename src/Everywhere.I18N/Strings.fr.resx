@@ -1868,7 +1868,7 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
         <value>Shell zsh</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>Fournit la possibilité d'exécuter des scripts zsh, permettant une interaction directe avec le système. Cependant, cela peut également être dangereux et entraîner une suppression accidentelle de fichiers ou des pannes système.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Exécuter le script</value>

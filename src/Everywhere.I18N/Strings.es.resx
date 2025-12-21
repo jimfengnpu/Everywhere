@@ -1868,7 +1868,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
         <value>Shell zsh</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>Proporciona la capacidad de ejecutar scripts de zsh, permitiendo la interacción directa con el sistema. Sin embargo, también es peligroso y puede resultar en la eliminación accidental de archivos o fallos del sistema.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Ejecutar Script</value>

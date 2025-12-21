@@ -1868,7 +1868,7 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
         <value>Shell zsh</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_Description" xml:space="preserve">
-        <value/>
+        <value>Fornisce la possibilità di eseguire script zsh, consentendo l'interazione diretta con il sistema. Tuttavia, è anche pericoloso e potrebbe causare eliminazioni accidentali di file o crash del sistema.</value>
     </data>
     <data name="MacOS_BuiltInChatPlugin_Zsh_ExecuteScript_Header" xml:space="preserve">
         <value>Esegui Script</value>

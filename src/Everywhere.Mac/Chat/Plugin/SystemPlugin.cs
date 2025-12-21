@@ -132,18 +132,22 @@ public class SystemPlugin : BuiltInChatPlugin
                         new DirectResourceKey(title))));
         }
 
-        var consent = await userInterface.RequestConsentAsync(
-            null,
-            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageReminders_Consent_Header),
-            detailBlock,
-            cancellationToken);
-
-        if (!consent)
+        // Only show consent for actions that modify data
+        if (action is SystemAction.Delete or SystemAction.Update or SystemAction.Complete)
         {
-            throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for managing reminders."),
-                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageReminders_DenyMessage),
-                showDetails: false);
+            var consent = await userInterface.RequestConsentAsync(
+                action.ToString(),
+                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageReminders_Consent_Header),
+                detailBlock,
+                cancellationToken);
+
+            if (!consent)
+            {
+                throw new HandledException(
+                    new UnauthorizedAccessException("User denied consent for managing reminders."),
+                    new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageReminders_DenyMessage),
+                    showDetails: false);
+            }
         }
 
         userInterface.DisplaySink.AppendBlocks(detailBlock);
@@ -218,14 +222,15 @@ public class SystemPlugin : BuiltInChatPlugin
     }
 
     [KernelFunction("manage_calendar")]
-    [Description("Manage calendar events: create, list, or delete.")]
+    [Description(
+        "Manage calendar events: create, list, or delete. When listing, you can specify a date range to filter events. Default is the next 2 weeks. Maximum range is 31 days.")]
     [DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageCalendar_Header)]
     private async Task<string> ManageCalendarAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("Action: Create, List, Delete")] SystemAction action,
         [Description("Title (required for create)")] string? title,
-        [Description("Start date and time (required for create)")] DateTime? startDate,
-        [Description("End date and time (required for create)")] DateTime? endDate,
+        [Description("Start date and time (required for create, optional for list)")] DateTime? startDate,
+        [Description("End date and time (required for create, optional for list)")] DateTime? endDate,
         [Description("Location (optional)")] string? location,
         [Description("Notes (optional)")] string? notes,
         [Description("Event ID (required for delete)")] string? id,
@@ -263,9 +268,14 @@ public class SystemPlugin : BuiltInChatPlugin
                 title = (await RunAppleScriptAsync(
                     $"""
                      tell application "Calendar"
-                         tell calendar "Calendar"
-                             return summary of (first event whose uid is "{id}")
-                         end tell
+                         repeat with c in calendars
+                             tell c
+                                 try
+                                     return summary of (first event whose uid is "{id}")
+                                 end try
+                             end tell
+                         end repeat
+                         return ""
                      end tell
                      """,
                     cancellationToken)).Trim();
@@ -303,18 +313,22 @@ public class SystemPlugin : BuiltInChatPlugin
                         new DirectResourceKey(location))));
         }
 
-        var consent = await userInterface.RequestConsentAsync(
-            null,
-            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageCalendar_Consent_Header),
-            detailBlock,
-            cancellationToken);
-
-        if (!consent)
+        // Only show consent for actions that modify data
+        if (action is SystemAction.Delete)
         {
-            throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for managing calendar."),
-                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageCalendar_DenyMessage),
-                showDetails: false);
+            var consent = await userInterface.RequestConsentAsync(
+                action.ToString(),
+                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageCalendar_Consent_Header),
+                detailBlock,
+                cancellationToken);
+
+            if (!consent)
+            {
+                throw new HandledException(
+                    new UnauthorizedAccessException("User denied consent for managing calendar."),
+                    new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_ManageCalendar_DenyMessage),
+                    showDetails: false);
+            }
         }
 
         userInterface.DisplaySink.AppendBlocks(detailBlock);
@@ -324,42 +338,66 @@ public class SystemPlugin : BuiltInChatPlugin
         {
             case SystemAction.Create:
             {
-                script = $$"""
-                           tell application "Calendar"
-                               tell calendar "Calendar"
-                                   set newEvent to make new event at end with properties {summary:"{{title}}", start date:date "{{startDate.GetValueOrDefault():G}}", end date:date "{{endDate.GetValueOrDefault():G}}"}
-                                   {{(!location.IsNullOrWhiteSpace() ? $"set location of newEvent to \"{location}\"" : "")}}
-                                   {{(!notes.IsNullOrWhiteSpace() ? $"set description of newEvent to \"{notes}\"" : "")}}
-                                   return uid of newEvent
-                               end tell
-                           end tell
-                           """;
+                script =
+                    $$"""
+                      tell application "Calendar"
+                          if exists calendar "Calendar" then
+                              set targetCalendar to calendar "Calendar"
+                          else
+                              set targetCalendar to first calendar whose writable is true
+                          end if
+                          tell targetCalendar
+                              set newEvent to make new event at end with properties {summary:"{{title}}", start date:date "{{startDate.GetValueOrDefault():D}}", end date:date "{{endDate.GetValueOrDefault():D}}"}
+                              {{(!location.IsNullOrWhiteSpace() ? $"set location of newEvent to \"{location}\"" : "")}}
+                              {{(!notes.IsNullOrWhiteSpace() ? $"set description of newEvent to \"{notes}\"" : "")}}
+                              return uid of newEvent
+                          end tell
+                      end tell
+                      """;
                 break;
             }
             case SystemAction.List:
             {
-                script = """
-                         tell application "Calendar"
-                             set output to ""
-                             tell calendar "Calendar"
-                                 set eventList to every event
-                                 repeat with e in eventList
-                                     set output to output & "ID: " & uid of e & "|Title: " & summary of e & "|Start: " & (start date of e) & "\n"
-                                 end repeat
-                             end tell
-                             return output
-                         end tell
-                         """;
+                var effectiveStart = startDate ?? DateTime.Now.Date;
+                var effectiveEnd = endDate ?? effectiveStart.AddDays(14);
+
+                // Limit the query range to at most 31 days to prevent performance issues
+                if ((effectiveEnd - effectiveStart).TotalDays > 31)
+                {
+                    effectiveEnd = effectiveStart.AddDays(31);
+                }
+
+                script = $"""
+                          tell application "Calendar"
+                              set output to ""
+                              set searchStart to date "{effectiveStart:G}"
+                              set searchEnd to date "{effectiveEnd:G}"
+                              repeat with c in calendars
+                                  tell c
+                                      set eventList to (every event whose start date is greater than or equal to searchStart and start date is less than or equal to searchEnd)
+                                      repeat with e in eventList
+                                          set output to output & "ID: " & uid of e & "|Title: " & summary of e & "|Start: " & (start date of e) & "\n"
+                                      end repeat
+                                  end tell
+                              end repeat
+                              return output
+                          end tell
+                          """;
                 break;
             }
             case SystemAction.Delete:
             {
                 script = $"""
                           tell application "Calendar"
-                              tell calendar "Calendar"
-                                  delete (first event whose uid is "{id}")
-                                  return "Deleted"
-                              end tell
+                              repeat with c in calendars
+                                  tell c
+                                      try
+                                          delete (first event whose uid is "{id}")
+                                          return "Deleted"
+                                      end try
+                                  end tell
+                              end repeat
+                              return "Event not found"
                           end tell
                           """;
                 break;
@@ -393,19 +431,7 @@ public class SystemPlugin : BuiltInChatPlugin
                 new FormattedDynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_SendEmail_Detail_Subject, new DirectResourceKey(subject))),
         };
 
-        var consent = await userInterface.RequestConsentAsync(
-            null,
-            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_SendEmail_Consent_Header),
-            detailBlock,
-            cancellationToken);
-
-        if (!consent)
-        {
-            throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for sending email."),
-                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_SendEmail_DenyMessage),
-                showDetails: false);
-        }
+        // Don't show consent because it already shows before calling this function
 
         userInterface.DisplaySink.AppendBlocks(detailBlock);
 
@@ -438,20 +464,6 @@ public class SystemPlugin : BuiltInChatPlugin
             new ChatPluginDynamicResourceKeyDisplayBlock(
                 new FormattedDynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenMaps_Detail_Query, new DirectResourceKey(query))),
         };
-
-        var consent = await userInterface.RequestConsentAsync(
-            null,
-            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenMaps_Consent_Header),
-            detailBlock,
-            cancellationToken);
-
-        if (!consent)
-        {
-            throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for opening Maps."),
-                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenMaps_DenyMessage),
-                showDetails: false);
-        }
 
         userInterface.DisplaySink.AppendBlocks(detailBlock);
 
@@ -604,20 +616,6 @@ public class SystemPlugin : BuiltInChatPlugin
                 new FormattedDynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenUrl_Detail_Url, new DirectResourceKey(url))),
         };
 
-        var consent = await userInterface.RequestConsentAsync(
-            null,
-            new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenUrl_Consent_Header),
-            detailBlock,
-            cancellationToken);
-
-        if (!consent)
-        {
-            throw new HandledException(
-                new UnauthorizedAccessException("User denied consent for opening URL."),
-                new DynamicResourceKey(LocaleKey.MacOS_BuiltInChatPlugin_System_OpenUrl_DenyMessage),
-                showDetails: false);
-        }
-
         userInterface.DisplaySink.AppendBlocks(detailBlock);
 
         var script = $"""
@@ -667,7 +665,7 @@ public class SystemPlugin : BuiltInChatPlugin
         return await RunAppleScriptAsync(script, cancellationToken);
     }
 
-    private async Task<string> RunAppleScriptAsync(string script, CancellationToken cancellationToken)
+    private async static Task<string> RunAppleScriptAsync(string script, CancellationToken cancellationToken)
     {
         var psi = new ProcessStartInfo
         {
