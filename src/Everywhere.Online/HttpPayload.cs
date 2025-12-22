@@ -1,5 +1,4 @@
-﻿using Everywhere.Extensions;
-using MessagePack;
+﻿using MessagePack;
 
 namespace Everywhere.Online;
 
@@ -12,7 +11,7 @@ public partial class HttpPayload
     public string? Message { get; set; }
 
     [Key("timestamp")]
-    public long Timestamp { get; set; } = TimeExtension.CurrentTimestamp;
+    public long Timestamp { get; set; } = DateTimeOffset.UtcNow.UtcTicks;
 
     public void EnsureSuccessStatusCode()
     {
@@ -20,11 +19,13 @@ public partial class HttpPayload
     }
 
     public override string ToString() =>
-        $"{{\n" +
-        $"	{nameof(Code)}: {Code},\n" +
-        $"	{nameof(Message)}: \"{Message}\",\n" +
-        $"	Time: \"{Timestamp.ToLocalTime():s}\"\n" +
-        $"}}\n";
+        $$"""
+          {
+            {{nameof(Code)}}: {{Code}},
+            {{nameof(Message)}}: "{{Message}}",
+            {{nameof(Timestamp)}}: "{{Timestamp}}"
+          }
+          """;
 }
 
 public partial class HttpPayload<T> : HttpPayload
@@ -40,12 +41,14 @@ public partial class HttpPayload<T> : HttpPayload
     }
 
     public override string ToString() =>
-        $"{{\n" +
-        $"	{nameof(Data)}: {Data},\n" +
-        $"	{nameof(Code)}: {Code},\n" +
-        $"	{nameof(Message)}: \"{Message}\",\n" +
-        $"	Time: \"{Timestamp.ToLocalTime():s}\"\n" +
-        $"}}\n";
+        $$"""
+          {
+            {{nameof(Data)}}: {{Data}},
+            {{nameof(Code)}}: {{Code}},
+            {{nameof(Message)}}: "{{Message}}",
+            {{nameof(Timestamp)}}: "{{Timestamp}}"
+          }
+          """;
 
     public T EnsureData()
     {
