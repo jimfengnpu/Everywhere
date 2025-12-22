@@ -75,6 +75,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
     [DynamicResourceKey(LocaleKey.BuiltInChatPlugin_FileSystem_SearchFiles_Header, LocaleKey.BuiltInChatPlugin_FileSystem_SearchFiles_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private string SearchFiles(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
         string path,
         [Description("Regex search pattern to match file and directory names.")] string filePattern = ".*",
         int skip = 0,
@@ -94,13 +95,15 @@ public class FileSystemPlugin : BuiltInChatPlugin
             maxCount,
             orderBy);
 
-        var regex = new Regex(filePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, RegexTimeout);
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
+        var regex = new Regex(filePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, RegexTimeout);
         var query = new RegexFileSystemInfoEnumerable(EnsureDirectoryInfo(path).FullName, regex, true)
             .WithCancellation(cancellationToken)
             .OfType<FileSystemInfo>()
             .Select(i => new FileRecord(
-                i.Name,
+                i.FullName,
                 i is FileInfo file ? file.Length : -1,
                 i.CreationTime,
                 i.LastWriteTime,
@@ -124,16 +127,18 @@ public class FileSystemPlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_FileSystem_GetFileInformation_Header,
         LocaleKey.BuiltInChatPlugin_FileSystem_GetFileInformation_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
-    private string GetFileInformation(string path)
+    private string GetFileInformation([FromKernelServices] IChatPluginUserInterface userInterface, string path)
     {
         _logger.LogDebug("Getting file information for path: {Path}", path);
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         var info = EnsureFileSystemInfo(path);
         var sb = new StringBuilder();
         return sb.AppendLine(FileRecord.Header).Append(
             new FileRecord(
-                info.Name,
+                info.FullName,
                 info is FileInfo file ? file.Length : -1,
                 info.CreationTime,
                 info.LastWriteTime,
@@ -147,6 +152,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_FileSystem_SearchFileContent_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> SearchFileContentAsync(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("File or directory path to search.")] string path,
         [Description("Regex pattern to search for within the file.")] string pattern,
         bool ignoreCase = true,
@@ -161,6 +167,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
             ignoreCase,
             filePattern);
 
+        ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         var regexOptions = RegexOptions.Compiled | RegexOptions.Multiline;
         if (ignoreCase)
         {
@@ -170,7 +179,6 @@ public class FileSystemPlugin : BuiltInChatPlugin
         var searchRegex = new Regex(pattern, regexOptions, RegexTimeout);
         var fileRegex = new Regex(filePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        ExpandFullPath(ref path);
         var fileSystemInfo = EnsureFileSystemInfo(path);
 
         var resultLines = new List<string>(capacity: 256);
@@ -194,13 +202,13 @@ public class FileSystemPlugin : BuiltInChatPlugin
             if (file.Length > maxSearchFileSize) continue;
 
             await using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            if (await EncodingDetector.DetectEncodingAsync(stream, cancellationToken: cancellationToken) is null)
+            if (await EncodingDetector.DetectEncodingAsync(stream, cancellationToken: cancellationToken) is not { } encoding)
             {
                 continue;
             }
 
             stream.Seek(0, SeekOrigin.Begin);
-            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
             var lineNumber = 0;
 
             while (resultLines.Count < maxCollectedLines && await reader.ReadLineAsync(cancellationToken) is { } line)
@@ -237,6 +245,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
     [DynamicResourceKey(LocaleKey.BuiltInChatPlugin_FileSystem_ReadFile_Header, LocaleKey.BuiltInChatPlugin_FileSystem_ReadFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task<string> ReadFileAsync(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
         string path,
         long startBytes = 0L,
         long maxReadBytes = 10240L,
@@ -249,6 +258,8 @@ public class FileSystemPlugin : BuiltInChatPlugin
             maxReadBytes);
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         var fileInfo = EnsureFileInfo(path);
         if (fileInfo.Length > 10 * 1024 * 1024)
         {
@@ -321,6 +332,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
     [DynamicResourceKey(LocaleKey.BuiltInChatPlugin_FileSystem_MoveFile_Header, LocaleKey.BuiltInChatPlugin_FileSystem_MoveFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private bool MoveFile(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("Source file or directory path.")] string source,
         [Description("Destination file or directory path. Type must match the source.")] string destination)
     {
@@ -328,6 +340,9 @@ public class FileSystemPlugin : BuiltInChatPlugin
 
         ExpandFullPath(ref source);
         ExpandFullPath(ref destination);
+        userInterface.DisplaySink.AppendFileReferences(
+            new ChatPluginFileReference(source),
+            new ChatPluginFileReference(destination));
 
         var isFile = File.Exists(source);
         if (!isFile && !Directory.Exists(source))
@@ -389,6 +404,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         _logger.LogDebug("Deleting file at {Path}", path);
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
 
         if (Path.GetDirectoryName(path) is null)
         {
@@ -479,11 +495,15 @@ public class FileSystemPlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_FileSystem_CreateDirectory_Header,
         LocaleKey.BuiltInChatPlugin_FileSystem_CreateDirectory_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
-    private void CreateDirectory(string path)
+    private void CreateDirectory(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
+        string path)
     {
         _logger.LogDebug("Creating directory at {Path}", path);
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         Directory.CreateDirectory(path);
     }
 
@@ -494,6 +514,7 @@ public class FileSystemPlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_FileSystem_WriteToFile_Description)]
     [FriendlyFunctionCallContentRenderer(typeof(FileRenderer))]
     private async Task WriteToFileAsync(
+        [FromKernelServices] IChatPluginUserInterface userInterface,
         string path,
         string? content,
         bool append = false)
@@ -501,6 +522,8 @@ public class FileSystemPlugin : BuiltInChatPlugin
         _logger.LogDebug("Writing text file at {Path}, append: {Append}", path, append);
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         await using var stream = new FileStream(path, append ? FileMode.Append : FileMode.Create, FileAccess.ReadWrite, FileShare.None);
         if (await EncodingDetector.DetectEncodingAsync(stream) is not { } encoding)
         {
@@ -553,6 +576,8 @@ public class FileSystemPlugin : BuiltInChatPlugin
         }
 
         ExpandFullPath(ref path);
+        userInterface.DisplaySink.AppendFileReferences(new ChatPluginFileReference(path));
+
         var fileInfo = EnsureFileInfo(path);
         if (fileInfo.Length > 10 * 1024 * 1024)
         {
