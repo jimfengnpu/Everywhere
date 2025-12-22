@@ -18,6 +18,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
     public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_VisualTree_Header);
     public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_VisualTree_Description);
     public override LucideIconKind? Icon => LucideIconKind.Component;
+    public override bool IsDefaultEnabled => true;
 
     private readonly IBlobStorage _blobStorage;
     private readonly IVisualElementContext _visualElementContext;

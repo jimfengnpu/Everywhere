@@ -27,34 +27,37 @@ public class SystemPlugin : BuiltInChatPlugin
     {
         _logger = logger;
 
-        _functionsSource.Add(
-            new NativeChatFunction(
-                ManageRemindersAsync,
-                ChatFunctionPermissions.None));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                ManageCalendarAsync,
-                ChatFunctionPermissions.None));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                SendEmailAsync,
-                ChatFunctionPermissions.None));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                OpenMapsAsync,
-                ChatFunctionPermissions.None));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                ManageNotesAsync,
-                ChatFunctionPermissions.None));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                OpenUrlAsync,
-                ChatFunctionPermissions.NetworkAccess));
-        _functionsSource.Add(
-            new NativeChatFunction(
-                ExecuteAppleScriptAsync,
-                ChatFunctionPermissions.ShellExecute));
+        _functionsSource.Edit(list =>
+        {
+            list.Add(
+                new NativeChatFunction(
+                    ManageRemindersAsync,
+                    ChatFunctionPermissions.None));
+            list.Add(
+                new NativeChatFunction(
+                    ManageCalendarAsync,
+                    ChatFunctionPermissions.None));
+            list.Add(
+                new NativeChatFunction(
+                    SendEmailAsync,
+                    ChatFunctionPermissions.None));
+            list.Add(
+                new NativeChatFunction(
+                    OpenMapsAsync,
+                    ChatFunctionPermissions.None));
+            list.Add(
+                new NativeChatFunction(
+                    ManageNotesAsync,
+                    ChatFunctionPermissions.None));
+            list.Add(
+                new NativeChatFunction(
+                    OpenUrlAsync,
+                    ChatFunctionPermissions.NetworkAccess));
+            list.Add(
+                new NativeChatFunction(
+                    ExecuteAppleScriptAsync,
+                    ChatFunctionPermissions.ShellExecute));
+        });
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

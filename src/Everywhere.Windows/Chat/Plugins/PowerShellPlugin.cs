@@ -144,12 +144,12 @@ public class PowerShellPlugin : BuiltInChatPlugin
                     new SystemException($"PowerShell script execution failed: {errorOutput}"),
                     new FormattedDynamicResourceKey(
                         LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
-                        new DirectResourceKey(errorOutput)),
+                        new DirectResourceKey(errorOutput.Trim())),
                     showDetails: false);
             }
         }
 
-        userInterface.DisplaySink.AppendCodeBlock(result, "log");
+        userInterface.DisplaySink.AppendCodeBlock(result.Trim(), "log");
         return result;
     }
 }

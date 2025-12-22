@@ -98,6 +98,8 @@ public abstract partial class ChatPlugin : KernelPlugin, IDisposable
 public abstract class BuiltInChatPlugin(string name) : ChatPlugin(name)
 {
     public override sealed string Key => $"builtin.{Name}";
+
+    public virtual bool IsDefaultEnabled => false;
 }
 
 /// <summary>

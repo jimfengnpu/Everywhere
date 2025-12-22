@@ -50,6 +50,7 @@ public static class Program
 
                 #region Chat Plugins
 
+                .AddTransient<BuiltInChatPlugin, EssentialPlugin>()
                 .AddTransient<BuiltInChatPlugin, VisualTreePlugin>()
                 .AddTransient<BuiltInChatPlugin, WebBrowserPlugin>()
                 .AddTransient<BuiltInChatPlugin, FileSystemPlugin>()

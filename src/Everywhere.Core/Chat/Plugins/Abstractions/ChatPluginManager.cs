@@ -54,7 +54,7 @@ public class ChatPluginManager : IChatPluginManager
         var isEnabledRecords = settings.Plugin.IsEnabledRecords;
         foreach (var plugin in _builtInPluginsSource.Items.AsValueEnumerable().OfType<ChatPlugin>().Concat(_mcpPluginsSource.Items))
         {
-            plugin.IsEnabled = GetIsEnabled(plugin.Key, false);
+            plugin.IsEnabled = GetIsEnabled(plugin.Key, plugin is BuiltInChatPlugin { IsDefaultEnabled: true });
             foreach (var function in plugin.Functions)
             {
                 function.IsEnabled = GetIsEnabled($"{plugin.Key}.{function.KernelFunction.Name}", true);
