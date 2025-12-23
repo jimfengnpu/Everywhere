@@ -502,7 +502,7 @@ public sealed partial class ChatService(
 
         AuthorRole? authorRole = null;
         var assistantContentBuilder = new StringBuilder();
-        var functionCallContentBuilder = new BetterFunctionCallContentBuilder();
+        var functionCallContentBuilder = new FunctionCallContentBuilder();
         var promptExecutionSettings = kernelMixin.GetPromptExecutionSettings(
             kernelMixin.IsFunctionCallingSupported && persistentState.IsToolCallEnabled ?
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
