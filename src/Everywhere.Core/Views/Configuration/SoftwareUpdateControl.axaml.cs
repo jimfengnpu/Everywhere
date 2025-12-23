@@ -5,7 +5,7 @@ using Everywhere.Configuration;
 using Microsoft.Extensions.Logging;
 using ShadUI;
 
-namespace Everywhere.Views.Configuration;
+namespace Everywhere.Views;
 
 public partial class SoftwareUpdateControl(
     Settings settings,

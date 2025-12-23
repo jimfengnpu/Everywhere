@@ -1,0 +1,38 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views">
+
+  <ControlTheme
+    x:Key="{x:Type v:CustomAssistantConfigurationForm}"
+    TargetType="v:CustomAssistantConfigurationForm">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <StackPanel>
+            <shadui:Card>
+              <DockPanel>
+                <Button
+                  HorizontalAlignment="Left" CornerRadius="20">
+                  <v:IconPresenter
+                    MinWidth="40" MinHeight="40"
+                    FontSize="{DynamicResource FontSize2Xl}"
+                    Icon="{Binding CustomAssistant.Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
+                    IconSize="{DynamicResource FontSize2Xl}"
+                    LineHeight="{DynamicResource LineHeight2Xl}"/>
+
+                  <Button.Flyout>
+                    <Flyout>
+                      <v:IconEditor
+                        Width="360" Height="500"
+                        Icon="{Binding CustomAssistant.Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"/>
+                    </Flyout>
+                  </Button.Flyout>
+                </Button>
+              </DockPanel>
+            </shadui:Card>
+          </StackPanel>
+        </ScrollViewer>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

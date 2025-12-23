@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
-using Everywhere.AI;
 using Everywhere.Chat.Permissions;
 using Everywhere.Common;
 using Everywhere.Configuration;
@@ -70,8 +69,8 @@ public abstract partial class ChatPlugin : KernelPlugin, IDisposable
             .BindEx(out _functionsConnection);
     }
 
-    public virtual IEnumerable<ChatFunction> SnapshotFunctions(ChatContext chatContext, CustomAssistant customAssistant) =>
-        _functionsSource.Items.Where(f => f.IsEnabled);
+    public IReadOnlyList<ChatFunction> GetEnabledFunctions() =>
+        _functionsSource.Items.AsValueEnumerable().Where(f => f.IsEnabled).ToList();
 
     public override IEnumerator<KernelFunction> GetEnumerator() =>
         _functionsSource.Items.Where(f => f.IsEnabled).Select(f => f.KernelFunction).GetEnumerator();

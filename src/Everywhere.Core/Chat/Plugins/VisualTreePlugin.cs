@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 using Avalonia.Input;
-using Everywhere.AI;
 using Everywhere.Chat.Permissions;
 using Everywhere.Common;
 using Everywhere.Database;
@@ -44,18 +43,6 @@ public class VisualTreePlugin : BuiltInChatPlugin
         });
     }
 
-    /// <summary>
-    /// When LLM does not support image input or image feature is disabled, and there is no visual element in the chat context, hide this plugin.
-    /// </summary>
-    /// <param name="chatContext"></param>
-    /// <param name="customAssistant"></param>
-    /// <returns></returns>
-    public override IEnumerable<ChatFunction> SnapshotFunctions(ChatContext chatContext, CustomAssistant customAssistant) =>
-        customAssistant.IsImageInputSupported.ActualValue is not true ||
-        chatContext.VisualElements.Count == 0 ?
-            [] :
-            base.SnapshotFunctions(chatContext, customAssistant);
-
     [KernelFunction("capture_visual_element_by_id")]
     [Description("Captures a screenshot of the specified visual element by Id. Use when XML content is inaccessible or element is image-like.")]
     [DynamicResourceKey(
@@ -69,8 +56,8 @@ public class VisualTreePlugin : BuiltInChatPlugin
         return CaptureVisualElementAsync(ResolveVisualElement(chatContext, elementId, nameof(elementId)), cancellationToken);
     }
 
-    [KernelFunction("capture_full_screen")]
-    [Description("Captures a screenshot of the entire screen. Use when no specific visual element is available.")]
+    [KernelFunction("snapshot_full_screen")]
+    [Description("Snapshot an entire screen. Use when no specific visual element is available.")]
     [DynamicResourceKey(
         LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Header,
         LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description)]
@@ -106,7 +93,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
             blob.MimeType);
     }
 
-    [KernelFunction("execute_visual_action_queue")]
+    [KernelFunction("execute_visual_actions")]
     [Description(
         "Executes a reliable UI automation action queue. Supports clicking elements, entering text, sending shortcuts (e.g., Ctrl+V), and waiting without simulating pointer input. " +
         "Useful for automating stable interactions, even when the target window is minimized.")]
@@ -115,7 +102,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_VisualTree_ExecuteVisualActionQueue_Description)]
     private async static Task<string> ExecuteVisualActionQueueAsync(
         [FromKernelServices] ChatContext chatContext,
-        VisualActionStep[] actions,
+        VisualElementAction[] actions,
         CancellationToken cancellationToken = default)
     {
         if (actions == null || actions.Length == 0)
@@ -212,7 +199,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
     /// <summary>
     /// Represents a single action in the visual automation queue.
     /// </summary>
-    public sealed record VisualActionStep
+    public sealed record VisualElementAction
     {
         /// <summary>
         /// The type of action

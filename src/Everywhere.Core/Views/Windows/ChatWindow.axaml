@@ -873,6 +873,7 @@
 
                   <Style Selector="^ Border.Editing">
                     <Setter Property="BorderBrush" Value="{DynamicResource WarningColor60}"/>
+                    <Setter Property="Opacity" Value="0.7"/>
                   </Style>
                 </Style>
               </ItemsControl.Styles>

@@ -24,9 +24,9 @@ public class EssentialPlugin : BuiltInChatPlugin
     private readonly ILogger<EssentialPlugin> _logger;
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum TodoOperation
+    public enum TodoAction
     {
-        Rewrite,
+        Reset,
         Read
     }
 
@@ -41,10 +41,10 @@ public class EssentialPlugin : BuiltInChatPlugin
     [Serializable]
     public class TodoItem
     {
-        [Description("(Required) 1-based unique identifier for the todo item.")]
-        public int Id { get; set; }
+        [Description("1-based unique identifier for the todo item.")]
+        public required int Id { get; set; }
 
-        [Description("(Required) Concise action-oriented todo label displayed in UI.")]
+        [Description("Concise action-oriented todo label displayed in UI.")]
         public required string Title { get; set; }
 
         [Description("(Optional) Detailed context, requirements, or implementation notes.")]
@@ -79,7 +79,7 @@ public class EssentialPlugin : BuiltInChatPlugin
     [Description(
         """
         Launch a new agent to handle complex, multi-step tasks autonomously, which is good for complex tasks that require decision-making and planning.
-        After started, you will wait for the subagent to complete and return the final result as string.
+        The agent can access tools as you can. After started, you will wait for the subagent to complete and return the final result as string.
         Each agent invocation is stateless, so make sure to provide all necessary context and instructions for the subagent to perform its task effectively.
         """)]
     [DynamicResourceKey(LocaleKey.BuiltInChatPlugin_Essential_RunSubagent_Header, LocaleKey.BuiltInChatPlugin_Essential_RunSubagent_Description)]
@@ -131,35 +131,35 @@ public class EssentialPlugin : BuiltInChatPlugin
     private string ManageTodoList(
         [FromKernelServices] ChatContext chatContext,
         [FromKernelServices] IChatPluginUserInterface userInterface,
-        TodoOperation operation,
+        TodoAction action,
         [Description(
-            "Complete array of all todo items (required for rewrite operation, optional for read). ALWAYS provide complete list when rewriting - partial updates not supported.")]
-        List<TodoItem>? todoList)
+            "Complete array of all todo items (required for reset, optional for read). ALWAYS provide complete list when rewriting - partial updates not supported. This MUST be a JSON array instead of a stringified JSON.") ]
+        List<TodoItem>? items)
     {
         var currentList = _todoLists.GetOrCreateValue(chatContext);
 
-        switch (operation)
+        switch (action)
         {
-            case TodoOperation.Rewrite when todoList == null:
+            case TodoAction.Reset when items == null:
             {
                 throw new HandledFunctionInvokingException(
                     HandledFunctionInvokingExceptionType.ArgumentMissing,
-                    nameof(todoList),
-                    new ArgumentException("todoList is required for write operation.", nameof(todoList)));
+                    nameof(items),
+                    new ArgumentException("items is required for reset action.", nameof(items)));
             }
-            case TodoOperation.Rewrite:
+            case TodoAction.Reset:
             {
                 currentList.Clear();
-                currentList.AddRange(todoList);
+                currentList.AddRange(items);
                 AppendDisplayBlock();
-                return "Todo list rewrite successfully.";
+                return "Todo list reset successfully.";
             }
-            case TodoOperation.Read when currentList.Count == 0:
+            case TodoAction.Read when currentList.Count == 0:
             {
                 AppendDisplayBlock();
                 return "Todo list is empty.";
             }
-            case TodoOperation.Read:
+            case TodoAction.Read:
             {
                 // Display the current list to the user
                 AppendDisplayBlock();
@@ -180,8 +180,8 @@ public class EssentialPlugin : BuiltInChatPlugin
             {
                 throw new HandledFunctionInvokingException(
                     HandledFunctionInvokingExceptionType.ArgumentError,
-                    nameof(operation),
-                    new ArgumentException("Invalid operation.", nameof(operation)));
+                    nameof(action),
+                    new ArgumentException("Invalid action.", nameof(action)));
             }
         }
 

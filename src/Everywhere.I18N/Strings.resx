@@ -1906,7 +1906,7 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>🤖 {0}</value>
     </data>
     <data name="BuiltInChatPlugin_Essential_RunSubagent_TokenCount" xml:space="preserve">
-        <value>{0} in · {1} out · {2} total</value>
+        <value>{0} input · {1} output · {2} total</value>
     </data>
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>

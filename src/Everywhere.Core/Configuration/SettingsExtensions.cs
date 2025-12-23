@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Everywhere.Common;
 using Everywhere.Initialization;
-using Everywhere.Views.Configuration;
+using Everywhere.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -291,14 +291,8 @@ public class ChatPluginManager : IChatPluginManager
                 .ToListAsync(cancellationToken));
     }
 
-    public async Task<IChatPluginScope> CreateScopeAsync(
-        ChatContext chatContext,
-        CustomAssistant customAssistant,
-        CancellationToken cancellationToken)
+    public async Task<IChatPluginScope> CreateScopeAsync(CancellationToken cancellationToken)
     {
-        // Ensure that functions in the scope do not have the same name.
-        var functionNames = new HashSet<string>();
-
         var builtInPlugins = _builtInPluginsSource.Items.AsValueEnumerable().Where(p => p.IsEnabled).ToList();
 
         // Activate MCP plugins.
@@ -321,18 +315,21 @@ public class ChatPluginManager : IChatPluginManager
             mcpPlugins.Add(mcpPlugin);
         }
 
+        // Ensure that functions in the scope do not have the same name.
+        var functionNames = new HashSet<string>();
+
         return new ChatPluginScope(
             builtInPlugins
                 .AsValueEnumerable()
                 .Cast<ChatPlugin>()
                 .Concat(mcpPlugins)
-                .Select(p => new ChatPluginSnapshot(p, chatContext, customAssistant, functionNames))
+                .Select(p => new ChatPluginSnapshot(p, functionNames))
                 .ToList());
     }
 
     private class ChatPluginScope(List<ChatPluginSnapshot> pluginSnapshots) : IChatPluginScope
     {
-        public IEnumerable<ChatPlugin> Plugins => pluginSnapshots;
+        public IReadOnlyList<ChatPlugin> Plugins => pluginSnapshots;
 
         public bool TryGetPluginAndFunction(
             string functionName,
@@ -383,15 +380,13 @@ public class ChatPluginManager : IChatPluginManager
 
         public ChatPluginSnapshot(
             ChatPlugin originalChatPlugin,
-            ChatContext chatContext,
-            CustomAssistant customAssistant,
             HashSet<string> functionNames) : base(originalChatPlugin.Name)
         {
             _originalChatPlugin = originalChatPlugin;
             AllowedPermissions = originalChatPlugin.AllowedPermissions.ActualValue;
             _functionsSource.AddRange(
                 originalChatPlugin
-                    .SnapshotFunctions(chatContext, customAssistant)
+                    .GetEnabledFunctions()
                     .Select(EnsureUniqueFunctionName));
 
             ChatFunction EnsureUniqueFunctionName(ChatFunction function)
