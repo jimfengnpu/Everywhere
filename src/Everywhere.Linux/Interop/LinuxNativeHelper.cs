@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text;
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Extensions;

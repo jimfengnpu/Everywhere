@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Input;
-using Avalonia.Controls;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
