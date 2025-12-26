@@ -5,12 +5,10 @@ using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
 
-
-
 /// <summary>
 /// Abstract display backend contract (X11[Xorg] / Wayland Compositor / other).
 /// </summary>
-public interface ILinuxWindowBackend: IWindowHelper
+public interface ILinuxWindowBackend : IWindowHelper
 {
     void SendKeyboardShortcut(KeyboardShortcut shortcut);
 
@@ -23,7 +21,7 @@ public interface ILinuxWindowBackend: IWindowHelper
     IVisualElement? GetWindowElementByPid(int pid);
 
     IVisualElement GetScreenElement();
-    
+
     /// <summary>
     /// Capture screen bitmap of window within rect
     /// </summary>
@@ -31,6 +29,6 @@ public interface ILinuxWindowBackend: IWindowHelper
     /// <param name="rect">captured rect relative to window</param>
     /// <returns></returns>
     Bitmap Capture(IVisualElement? window, PixelRect rect);
-    
+
     void SetPickerWindow(Window? window);
 }

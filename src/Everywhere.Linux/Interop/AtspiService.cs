@@ -48,7 +48,6 @@ public sealed partial class AtspiService
             atspi_event_main();
         });
         _root = GObjWrapper.Wrap(atspi_get_desktop(0));
-        var _rootMain = GetAtspiVisualElement(() => _root);
         _initialized = true;
     }
 
@@ -681,16 +680,16 @@ public sealed partial class AtspiService
 
         public static GObj? WrapAllowNull(IntPtr handle, bool owned = true)
         {
-            return handle == IntPtr.Zero? null : Wrap<GObj>(handle, owned);
+            return handle == IntPtr.Zero ? null : Wrap<GObj>(handle, owned);
         }
-        
+
         public static GObj Wrap(IntPtr handle, bool owned = true)
         {
             return Wrap<GObj>(handle, owned);
         }
     }
 
-    private class GObjArray: IDisposable
+    private class GObjArray : IDisposable
     {
         private IntPtr _handle;
         private readonly NativeGArray _struct;

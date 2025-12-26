@@ -29,7 +29,7 @@ public partial class LinuxVisualElementContext
         private readonly PixelRect _allScreenBounds;
         private readonly VisualElementPickerMaskWindow[] _visualElementPickerMaskWindows;
         private readonly VisualElementPickerToolTipWindow _toolTipWindow;
-        
+
         private ElementPickMode _elementPickMode;
         private IVisualElement? _selectedElement;
 
@@ -63,7 +63,7 @@ public partial class LinuxVisualElementContext
             _backend.SetPickerWindow(this);
             base.OnOpened(e);
         }
-        
+
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
@@ -134,10 +134,12 @@ public partial class LinuxVisualElementContext
         private void HandlePickModeChanged()
         {
             HandlePointerMoved();
-            Dispatcher.UIThread.Post(() =>
-            {
-                _toolTipWindow.ToolTip.Mode = _elementPickMode;
-            }, DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(
+                () =>
+                {
+                    _toolTipWindow.ToolTip.Mode = _elementPickMode;
+                },
+                DispatcherPriority.Background);
         }
 
         private void HandlePointerMoved()
