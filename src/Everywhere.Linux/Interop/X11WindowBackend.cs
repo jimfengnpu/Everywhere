@@ -461,7 +461,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
         // create
         var element = maker();
-        // _logger.LogInformation("Creating window element for {window}", window.ToString("X"));
+        // _logger.LogDebug("Creating window element for {window}", window.ToString("X"));
         _windowCache[window] = element;
         return element;
     }
@@ -520,9 +520,9 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
                 if (sub != X11Window.None)
                 {
-                    _logger.LogInformation(
-                        "< {window}",
-                        window.ToString("X"));
+                    // _logger.LogDebug(
+                    //     "< {window}",
+                    //     window.ToString("X"));
                     return sub;
                 }
             }
@@ -532,9 +532,9 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         {
             return X11Window.None;
         }
-        _logger.LogInformation(
-            "<< get {window}",
-            window.ToString("X"));
+        // _logger.LogDebug(
+        //     "<< get {window}",
+        //     window.ToString("X"));
         return window;
     }
 
@@ -548,7 +548,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             child = _rootWindow;
         }
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "GetWindowElementAt at ({x},{y}) -> window {window}",
             point.X,
             point.Y,
@@ -633,15 +633,6 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
             if (_display == IntPtr.Zero) return;
 
-            XSetWindowAttributes attrs = new()
-            {
-                override_redirect = visible,
-            };
-            unsafe
-            {
-                XChangeWindowAttributes(_display, wnd, (ulong)SetWindowAttrMask.OverrideRedirect, (IntPtr)(&attrs));
-            }
-
             if (XFixesQueryExtension(_display, out _, out _) != 0)
             {
                 if (visible)
@@ -658,7 +649,12 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
                 else
                 {
-                    XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, IntPtr.Zero);
+                    IntPtr emptyRegion = XFixesCreateRegion(
+                        _display,
+                        [],
+                        0);
+                    XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, emptyRegion);
+                    XFixesDestroyRegion(_display, emptyRegion);
                 }
             }
         }

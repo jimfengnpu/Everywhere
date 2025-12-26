@@ -21,7 +21,7 @@ public class LinuxNativeHelper : INativeHelper
                 Path.Combine(home, ".config/systemd/user/Everywhere.service");
         }
     }
-    
+
     public bool IsInstalled => false; // implement proper detection if needed
 
     public bool IsAdministrator => false; // Linux elevation detection omitted
@@ -49,17 +49,18 @@ public class LinuxNativeHelper : INativeHelper
         }
         set
         {
-            const string serviceFileContent = """
-                                              [Unit]
-                                              Description=Everywhere
-                                              After=graphical-session.target
+            const string serviceFileContent =
+                """
+                [Unit]
+                Description=Everywhere
+                After=graphical-session.target
 
-                                              [Service]
-                                              ExecStart=/usr/bin/Everywhere
+                [Service]
+                ExecStart=/usr/bin/Everywhere
 
-                                              [Install]
-                                              WantedBy=graphical-session.target
-                                              """;
+                [Install]
+                WantedBy=graphical-session.target
+                """;
             if (!File.Exists(SystemdServiceFile) || value)
             {
                 File.WriteAllText(SystemdServiceFile, serviceFileContent);
@@ -96,54 +97,5 @@ public class LinuxNativeHelper : INativeHelper
         if (fullPath.IsNullOrWhiteSpace()) return;
         var args = $"\"{fullPath}\"";
         Process.Start(new ProcessStartInfo("xdg-open", args) { UseShellExecute = true });
-    }
-
-    public string[] ParseArguments(string? commandLine)
-    {
-        if (string.IsNullOrEmpty(commandLine))
-        {
-            return [];
-        }
-        var args = new List<string>();
-        var current = new StringBuilder();
-        bool inSingleQuote = false;
-        bool inDoubleQuote = false;
-        bool escapeNext = false;
-        foreach (char c in commandLine)
-        {
-            if (escapeNext)
-            {
-                current.Append(c);
-                escapeNext = false;
-            }
-            else if (c == '\\')
-            {
-                escapeNext = true;
-            }
-            else if (c == '\'' && !inDoubleQuote)
-            {
-                inSingleQuote = !inSingleQuote;
-            }
-            else if (c == '"' && !inSingleQuote)
-            {
-                inDoubleQuote = !inDoubleQuote;
-            }
-            else if (char.IsWhiteSpace(c) && !inSingleQuote && !inDoubleQuote)
-            {
-                if (current.Length > 0)
-                {
-                    args.Add(current.ToString());
-                    current.Clear();
-                }
-            }
-            else
-            {
-                current.Append(c);
-            }
-        }
-        if (current.Length > 0)
-            args.Add(current.ToString());
-
-        return args.ToArray();
     }
 }

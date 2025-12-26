@@ -345,7 +345,9 @@ public partial class X11WindowBackend
     private EventType GetEventType(IntPtr rawEvent)
     {
         var ev = Marshal.PtrToStructure<XAnyEvent>(rawEvent);
-        // _logger.LogInformation("X recv event type={ev}", ev.type);
+#if DEBUG
+        _logger.LogDebug("X recv event type={ev}", ev.type);
+#endif
         var type = (Event)ev.type;
         switch (type)
         {
