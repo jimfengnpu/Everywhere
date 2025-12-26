@@ -46,7 +46,4 @@ public interface ILinuxEventHelper
     void GrabMouseHook(Action<PixelPoint, EventType> hook);
 
     void UngrabMouseHook();
-
-    void WindowPickerHook(Window overlayLayer, Action<PixelPoint, EventType> hook);
-
 }

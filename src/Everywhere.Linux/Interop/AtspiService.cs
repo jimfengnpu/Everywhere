@@ -23,12 +23,14 @@ public sealed partial class AtspiService
     private readonly ILogger<AtspiService> _logger = ServiceLocator.Resolve<ILogger<AtspiService>>();
     private readonly AtspiEventListenerCallback _eventCallback;
     private readonly Lock _focusLock = new();
+    private readonly GObj _root;
 
     private IntPtr _eventListener;
     private GObj? _focusedElement;
 
     public AtspiService(ILinuxWindowBackend backend)
     {
+        _windowBackend = backend;
         GObject.Module.Initialize();
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AT_SPI_BUS")))
             Environment.SetEnvironmentVariable("AT_SPI_BUS", "session");
@@ -45,7 +47,8 @@ public sealed partial class AtspiService
         {
             atspi_event_main();
         });
-        _windowBackend = backend;
+        _root = GObjWrapper.Wrap(atspi_get_desktop(0));
+        var _rootMain = GetAtspiVisualElement(() => _root);
         _initialized = true;
     }
 
@@ -120,7 +123,7 @@ public sealed partial class AtspiService
 
     private static PixelRect ElementBounds(GObj elem)
     {
-        
+
         var rectPtr = atspi_component_get_extents(elem.Handle, (int)AtspiCoordType.Screen, IntPtr.Zero);
         var rect = Marshal.PtrToStructure<AtspiRect>(rectPtr);
         GLib.Functions.Free(rectPtr);
@@ -142,7 +145,7 @@ public sealed partial class AtspiService
                 if (atspi_state_set_contains(elemStateset.Handle, (int)AtspiState.Selected) == 1) states |= VisualElementStates.Selected;
                 if (atspi_state_set_contains(elemStateset.Handle, (int)AtspiState.Editable) == 0) states |= VisualElementStates.ReadOnly;
             }
-            
+
             if (atspi_accessible_get_role(elem.Handle, IntPtr.Zero) == (int)AtspiRole.PasswordText)
                 states |= VisualElementStates.Password;
             return states;
@@ -155,13 +158,15 @@ public sealed partial class AtspiService
 
     private GObj? TryMatchRelationWindow(GObj window, bool down)
     {
-        var array = new GArray<GObj>(atspi_accessible_get_relation_set(window.Handle, IntPtr.Zero));
+        var rawSet = atspi_accessible_get_relation_set(window.Handle, IntPtr.Zero);
+        if (rawSet == IntPtr.Zero) return null;
+        var array = new GObjArray(rawSet);
         if (array.Length == 0)
         {
             return null;
         }
 
-        foreach(var relation in array.Iterate())
+        foreach (var relation in array.Iterate())
         {
             var type = atspi_relation_get_relation_type(relation.Handle);
             var nTarget = atspi_relation_get_n_targets(relation.Handle);
@@ -223,7 +228,7 @@ public sealed partial class AtspiService
     private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point, bool root = false)
     {
 
-        parent ??= GetAtspiVisualElement(() => atspi_get_desktop(0));
+        parent ??= GetAtspiVisualElement(() => _root);
         if (parent is null)
         {
             return null;
@@ -257,7 +262,7 @@ public sealed partial class AtspiService
 
     private AtspiVisualElement? AtspiAppElementByPid(int pid)
     {
-        var root = GetAtspiVisualElement(() => atspi_get_desktop(0));
+        var root = GetAtspiVisualElement(() => _root);
         if (root is null)
         {
             return null;
@@ -332,9 +337,9 @@ public sealed partial class AtspiService
         {
             get
             {
-                var parent = atspi.TryMatchRelationWindow(_element, false) ?? 
-                    GObjWrapper.Wrap(atspi_accessible_get_parent(_element.Handle, IntPtr.Zero));
-                return atspi_accessible_is_application(parent.Handle) != 0 ?
+                var parent = atspi.TryMatchRelationWindow(_element, false) ??
+                    GObjWrapper.WrapAllowNull(atspi_accessible_get_parent(_element.Handle, IntPtr.Zero));
+                return parent != null && atspi_accessible_is_application(parent.Handle) != 0 ?
                     null :
                     atspi.GetAtspiVisualElement(() => parent);
             }
@@ -435,9 +440,9 @@ public sealed partial class AtspiService
                     // So check TopLevel first as the top-most Frame/Window
                     // Sub Frame recognized as Panel
                     var roleEnum = (AtspiRole)atspi_accessible_get_role(_element.Handle, IntPtr.Zero);
-                    var rawParent = GObjWrapper.Wrap(atspi_accessible_get_parent(_element.Handle, IntPtr.Zero));
-                    if (atspi_accessible_is_application(rawParent.Handle) != 0
-                        && roleEnum is AtspiRole.Frame or AtspiRole.Window)
+                    var rawParent = GObjWrapper.WrapAllowNull(atspi_accessible_get_parent(_element.Handle, IntPtr.Zero));
+                    if ((roleEnum is AtspiRole.Frame or AtspiRole.Window) &&
+                        rawParent != null && atspi_accessible_is_application(rawParent.Handle) != 0)
                     {
                         return VisualElementType.TopLevel;
                     }
@@ -645,7 +650,7 @@ public sealed partial class AtspiService
             return null;
         }
     }
-    
+
     private AtspiVisualElement? GetAtspiVisualElement(Func<GObj?> provider)
     {
         try
@@ -666,12 +671,17 @@ public sealed partial class AtspiService
             return null;
         }
     }
-    
-    private static class GObjWrapper 
+
+    private static class GObjWrapper
     {
         public static T Wrap<T>(IntPtr handle, bool owned) where T : GObj
         {
             return (T)GObject.Internal.InstanceWrapper.WrapHandle<T>(handle, owned);
+        }
+
+        public static GObj? WrapAllowNull(IntPtr handle, bool owned = true)
+        {
+            return handle == IntPtr.Zero? null : Wrap<GObj>(handle, owned);
         }
         
         public static GObj Wrap(IntPtr handle, bool owned = true)
@@ -679,8 +689,8 @@ public sealed partial class AtspiService
             return Wrap<GObj>(handle, owned);
         }
     }
-    
-    private class GArray<T> : IDisposable where T : GObj
+
+    private class GObjArray: IDisposable
     {
         private IntPtr _handle;
         private readonly NativeGArray _struct;
@@ -693,7 +703,7 @@ public sealed partial class AtspiService
             public uint Len;
         }
 
-        public GArray(IntPtr handle)
+        public GObjArray(IntPtr handle)
         {
             _handle = handle;
             if (_handle != IntPtr.Zero)
@@ -707,17 +717,17 @@ public sealed partial class AtspiService
         /// <summary>
         /// Iterate GArray Data as T。
         /// </summary>
-        public IEnumerable<T> Iterate()
+        public IEnumerable<GObj> Iterate()
         {
             if (_handle == IntPtr.Zero || _struct.Data == IntPtr.Zero)
                 yield break;
 
             for (var i = 0; i < Length; i++)
             {
-                if (_disposed) throw new ObjectDisposedException(nameof(GArray<>));
+                if (_disposed) throw new ObjectDisposedException(nameof(GObjArray));
                 var ptr = Marshal.ReadIntPtr(_struct.Data, i * IntPtr.Size);
-                if (ptr == IntPtr.Zero)continue;
-                yield return GObjWrapper.Wrap<T>(ptr, true);
+                if (ptr == IntPtr.Zero) continue;
+                yield return GObjWrapper.Wrap<GObj>(ptr, true);
             }
         }
 
@@ -892,7 +902,7 @@ public sealed partial class AtspiService
     [StructLayout(LayoutKind.Sequential)]
     private struct AtspiEvent
     {
-        public IntPtr type;   // char*
+        public IntPtr type; // char*
         public IntPtr source; // AtspiAccessible*
         public int detail1;
         public int detail2;

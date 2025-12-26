@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media.Imaging;
+using Avalonia.Controls;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
@@ -30,4 +31,6 @@ public interface ILinuxWindowBackend: IWindowHelper
     /// <param name="rect">captured rect relative to window</param>
     /// <returns></returns>
     Bitmap Capture(IVisualElement? window, PixelRect rect);
+    
+    void SetPickerWindow(Window? window);
 }

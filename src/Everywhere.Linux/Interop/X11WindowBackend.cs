@@ -757,11 +757,10 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         return new PixelPoint(rx, ry);
     }
 
-    public void WindowPickerHook(Window overlay, Action<PixelPoint, EventType> hook)
+    public void SetPickerWindow(Window? window)
     {
-        var handle = (X11Window?)overlay.TryGetPlatformHandle()?.Handle;
+        var handle = (X11Window?)window?.TryGetPlatformHandle()?.Handle;
         _scanSkipWindowHandle = handle ?? X11Window.None;
-        GrabMouseHook(hook);
     }
 
     public Bitmap Capture(IVisualElement? window, PixelRect rect)
@@ -835,7 +834,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 throw new InvalidOperationException($"XGetImage failed for drawable {drawable}");
             }
             // check pixel format
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "XImage format: depth={depth}, bits_per_pixel={bpp}, bytes_per_line={bpl}",
                 ximage.depth,
                 ximage.bits_per_pixel,
