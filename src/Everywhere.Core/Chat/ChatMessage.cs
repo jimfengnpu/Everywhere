@@ -54,7 +54,7 @@ public partial class SystemChatMessage(string systemPrompt) : ChatMessage
 }
 
 [MessagePackObject(OnlyIncludeKeyedMembers = true, AllowPrivate = true)]
-public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
+public sealed partial class AssistantChatMessage : ChatMessage, IReadOnlyList<AssistantChatMessageSpan>, IDisposable
 {
     public override AuthorRole Role => AuthorRole.Assistant;
 
@@ -125,6 +125,12 @@ public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
     [ObservableProperty]
     public partial double TotalTokenCount { get; set; }
 
+    [IgnoreMember]
+    public int Count => _spansSource.Items.Count;
+
+    [IgnoreMember]
+    public AssistantChatMessageSpan this[int index] => _spansSource.Items[index];
+
     /// <summary>
     /// The private source for function calls.
     /// </summary>
@@ -154,6 +160,11 @@ public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
         _spansSource.Add(span);
     }
 
+    public IEnumerator<AssistantChatMessageSpan> GetEnumerator()
+    {
+        return _spansSource.Items.GetEnumerator();
+    }
+
     public override string ToString()
     {
         var builder = new StringBuilder();
@@ -163,6 +174,11 @@ public sealed partial class AssistantChatMessage : ChatMessage, IDisposable
         }
 
         return builder.TrimEnd().ToString();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable)_spansSource.Items).GetEnumerator();
     }
 
     public void Dispose()
@@ -183,7 +199,7 @@ public sealed partial class AssistantChatMessageSpan : ObservableObject, IDispos
     public ObservableStringBuilder MarkdownBuilder { get; }
 
     [Key(0)]
-    private string Content
+    public string Content
     {
         get => MarkdownBuilder.ToString();
         init => MarkdownBuilder.Append(value);

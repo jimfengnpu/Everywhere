@@ -30,11 +30,13 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         }
     }
 
-    public ChatContextMetadata CurrentMetadata
+    public ChatContextMetadata? CurrentMetadata
     {
         get => Current.Metadata;
         set
         {
+            if (value is null) return;
+
             if (value.Id == Guid.Empty)
                 throw new ArgumentException("The provided chat context does not have a valid ID.", nameof(value));
 
@@ -96,16 +98,6 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
     public IReadOnlyList<ChatContextHistory> AllHistory => ApplyHistory(_allHistory, int.MaxValue);
 
     IRelayCommand<int> IChatContextManager.LoadMoreHistoryCommand => LoadMoreHistoryCommand;
-
-    public IReadOnlyDictionary<string, Func<string>> SystemPromptVariables =>
-        ImmutableDictionary.CreateRange(
-            new KeyValuePair<string, Func<string>>[]
-            {
-                new("Time", () => DateTime.Now.ToString("F")),
-                new("OS", () => Environment.OSVersion.ToString()),
-                new("SystemLanguage", () => _settings.Common.Language.ToEnglishName()),
-                new("WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{DateTime.Now:yyyy-MM-dd}"))
-            });
 
     [field: AllowNull, MaybeNull]
     public IRelayCommand CreateNewCommand => field ??= new RelayCommand(CreateNew, () => !IsEmptyContext(_current));
@@ -245,12 +237,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
             _metadataMap.Remove(_current!.Metadata.Id);
         }
 
-        var renderedSystemPrompt = Prompts.RenderPrompt(
-            _settings.Model.SelectedCustomAssistant?.SystemPrompt ?? Prompts.DefaultSystemPrompt,
-            SystemPromptVariables
-        );
-
-        _current = new ChatContext(renderedSystemPrompt)
+        _current = new ChatContext
         {
             Metadata =
             {
@@ -327,8 +314,22 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         }
     }
 
-    public Task<ChatContext?> LoadChatContextAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default) => 
+    public Task<ChatContext?> LoadChatContextAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default) =>
         metadata.Id == _current?.Metadata.Id ? Task.FromResult<ChatContext?>(_current) : LoadChatContextAsync(metadata.Id, deleteIfFailed: false);
+
+    public void PopulateSystemPrompt(ChatContext chatContext, string systemPrompt)
+    {
+        var variables =
+            ImmutableDictionary.CreateRange(
+                new KeyValuePair<string, Func<string>>[]
+                {
+                    new("Time", () => DateTime.Now.ToString("F")),
+                    new("OS", () => Environment.OSVersion.ToString()),
+                    new("SystemLanguage", () => LocaleManager.CurrentLocale.ToEnglishName()),
+                    new("WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{chatContext.Metadata.DateCreated:yyyy-MM-dd}"))
+                });
+        chatContext.SystemPrompt = Prompts.RenderPrompt(systemPrompt, variables);
+    }
 
     private async Task<ChatContext?> LoadChatContextAsync(Guid id, bool deleteIfFailed)
     {

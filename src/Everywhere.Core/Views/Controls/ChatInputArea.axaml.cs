@@ -17,50 +17,50 @@ namespace Everywhere.Views;
 [TemplatePart("PART_SendButton", typeof(Button), IsRequired = true)]
 [TemplatePart("PART_ChatAttachmentItemsControl", typeof(ItemsControl), IsRequired = true)]
 [TemplatePart("PART_AssistantSelectionMenuItem", typeof(MenuItem))]
-public partial class ChatInputBox : TextBox
+public partial class ChatInputArea : TextBox
 {
     public static readonly StyledProperty<bool> PressCtrlEnterToSendProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(PressCtrlEnterToSend));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(PressCtrlEnterToSend));
 
     public static readonly StyledProperty<IRelayCommand<string>?> CommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand<string>?>(nameof(Command));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand<string>?>(nameof(Command));
 
     public static readonly StyledProperty<IRelayCommand?> CancelCommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand?>(nameof(CancelCommand));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand?>(nameof(CancelCommand));
 
     public static readonly StyledProperty<ICollection<ChatAttachment>?> ChatAttachmentItemsSourceProperty =
-        AvaloniaProperty.Register<ChatInputBox, ICollection<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
+        AvaloniaProperty.Register<ChatInputArea, ICollection<ChatAttachment>?>(nameof(ChatAttachmentItemsSource));
 
     public static readonly StyledProperty<IRelayCommand<ChatAttachment>?> RemoveAttachmentCommandProperty =
-        AvaloniaProperty.Register<ChatInputBox, IRelayCommand<ChatAttachment>?>(nameof(RemoveAttachmentCommand));
+        AvaloniaProperty.Register<ChatInputArea, IRelayCommand<ChatAttachment>?>(nameof(RemoveAttachmentCommand));
 
     public static readonly StyledProperty<int> MaxChatAttachmentCountProperty =
-        AvaloniaProperty.Register<ChatInputBox, int>(nameof(MaxChatAttachmentCount));
+        AvaloniaProperty.Register<ChatInputArea, int>(nameof(MaxChatAttachmentCount));
 
     public static readonly StyledProperty<IEnumerable<CustomAssistant>?> CustomAssistantsProperty =
-        AvaloniaProperty.Register<ChatInputBox, IEnumerable<CustomAssistant>?>(nameof(CustomAssistants));
+        AvaloniaProperty.Register<ChatInputArea, IEnumerable<CustomAssistant>?>(nameof(CustomAssistants));
 
     public static readonly StyledProperty<CustomAssistant?> SelectedCustomAssistantProperty =
-        AvaloniaProperty.Register<ChatInputBox, CustomAssistant?>(nameof(SelectedCustomAssistant));
+        AvaloniaProperty.Register<ChatInputArea, CustomAssistant?>(nameof(SelectedCustomAssistant));
 
-    public static readonly DirectProperty<ChatInputBox, IEnumerable?> AddChatAttachmentMenuItemsProperty =
-        AvaloniaProperty.RegisterDirect<ChatInputBox, IEnumerable?>(
+    public static readonly DirectProperty<ChatInputArea, IEnumerable?> AddChatAttachmentMenuItemsProperty =
+        AvaloniaProperty.RegisterDirect<ChatInputArea, IEnumerable?>(
             nameof(AddChatAttachmentMenuItems),
             o => o.AddChatAttachmentMenuItems);
 
-    public static readonly DirectProperty<ChatInputBox, IEnumerable?> SettingsMenuItemsProperty =
-        AvaloniaProperty.RegisterDirect<ChatInputBox, IEnumerable?>(
+    public static readonly DirectProperty<ChatInputArea, IEnumerable?> SettingsMenuItemsProperty =
+        AvaloniaProperty.RegisterDirect<ChatInputArea, IEnumerable?>(
             nameof(SettingsMenuItems),
             o => o.SettingsMenuItems);
 
     public static readonly StyledProperty<bool> IsToolCallSupportedProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsToolCallSupported));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsToolCallSupported));
 
     public static readonly StyledProperty<bool> IsToolCallEnabledProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsToolCallEnabled));
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsToolCallEnabled));
 
     public static readonly StyledProperty<bool> IsSendButtonEnabledProperty =
-        AvaloniaProperty.Register<ChatInputBox, bool>(nameof(IsSendButtonEnabled), true);
+        AvaloniaProperty.Register<ChatInputArea, bool>(nameof(IsSendButtonEnabled), true);
 
     /// <summary>
     /// If true, pressing Ctrl+Enter will send the message, Enter will break the line.
@@ -153,26 +153,22 @@ public partial class ChatInputBox : TextBox
     private IDisposable? _chatAttachmentItemsControlPointerExitedSubscription;
     private IDisposable? _assistantSelectionMenuItemPointerWheelChangedSubscription;
 
-    private readonly Lazy<OverlayWindow> _visualElementAttachmentOverlayWindow;
-
-    static ChatInputBox()
+    private readonly OverlayWindow _visualElementAttachmentOverlayWindow = new()
     {
-        TextProperty.OverrideDefaultValue<ChatInputBox>(string.Empty);
+        Content = new Border
+        {
+            Background = Brushes.DodgerBlue,
+            Opacity = 0.2
+        },
+    };
+
+    static ChatInputArea()
+    {
+        TextProperty.OverrideDefaultValue<ChatInputArea>(string.Empty);
     }
 
-    public ChatInputBox()
+    public ChatInputArea()
     {
-        _visualElementAttachmentOverlayWindow = new Lazy<OverlayWindow>(
-            () => new OverlayWindow(TopLevel.GetTopLevel(this) as WindowBase)
-            {
-                Content = new Border
-                {
-                    Background = Brushes.DodgerBlue,
-                    Opacity = 0.2
-                },
-            },
-            LazyThreadSafetyMode.None);
-
         this.AddDisposableHandler(KeyDownEvent, HandleTextBoxKeyDown, RoutingStrategies.Tunnel);
     }
 
@@ -211,15 +207,15 @@ public partial class ChatInputBox : TextBox
                 {
                     element = element.Parent;
                     if (element is not { DataContext: ChatVisualElementAttachment attachment }) continue;
-                    _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(attachment.Element?.Target);
+                    _visualElementAttachmentOverlayWindow.UpdateForVisualElement(attachment.Element?.Target);
                     return;
                 }
-                _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null);
+                _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null);
             },
             handledEventsToo: true);
         _chatAttachmentItemsControlPointerExitedSubscription = chatAttachmentItemsControl.AddDisposableHandler(
             PointerExitedEvent,
-            (_, _) => _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null),
+            (_, _) => _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null),
             handledEventsToo: true);
 
         var assistantSelectionMenuItem = e.NameScope.Find<MenuItem>("PART_AssistantSelectionMenuItem");
@@ -252,20 +248,14 @@ public partial class ChatInputBox : TextBox
 
     private void HandleChatAttachmentItemsSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (_visualElementAttachmentOverlayWindow.IsValueCreated)
-        {
-            _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null); // Hide the overlay window when the attachment list changes.
-        }
+        _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null); // Hide the overlay window when the attachment list changes.
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
 
-        if (_visualElementAttachmentOverlayWindow.IsValueCreated)
-        {
-            _visualElementAttachmentOverlayWindow.Value.UpdateForVisualElement(null); // Hide the overlay window when the control is unloaded.
-        }
+        _visualElementAttachmentOverlayWindow.UpdateForVisualElement(null); // Hide the overlay window when the control is unloaded.
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)

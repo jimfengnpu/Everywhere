@@ -57,41 +57,78 @@ public static class SaveWindowPlacementAssist
             .Select(x => x.WorkingArea)
             .Aggregate((a, b) => a.Union(b));
 
+        // Calculate scaling based on the target screen
+        var targetScreen = window.Screens.ScreenFromPoint(placement.Position)
+                           ?? window.Screens.Primary
+                           ?? window.Screens.All.FirstOrDefault();
+        var scaling = targetScreen?.Scaling ?? 1.0;
+
         // Leave a safety margin to avoid window being too close to the edge or taskbar
         const int SafetyPadding = 20;
 
+        var widthDevice = placement.Width <= 0 ? 200d : placement.Width * scaling;
+        var heightDevice = placement.Height <= 0 ? 200d : placement.Height * scaling;
+
         var newX = Math.Clamp(placement.X,
             screenBounds.X + SafetyPadding,
-            Math.Max(screenBounds.X + SafetyPadding, screenBounds.Right - placement.Width - SafetyPadding));
+            Math.Max(screenBounds.X + SafetyPadding, screenBounds.Right - widthDevice - SafetyPadding));
 
         var newY = Math.Clamp(placement.Y,
             screenBounds.Y + SafetyPadding,
-            Math.Max(screenBounds.Y + SafetyPadding, screenBounds.Bottom - placement.Height - SafetyPadding));
+            Math.Max(screenBounds.Y + SafetyPadding, screenBounds.Bottom - heightDevice - SafetyPadding));
 
-        placement.X = newX;
-        placement.Y = newY;
+        // Restore bounds first so that maximizing works correctly from the restored position
+        window.Position = new PixelPoint((int)newX, (int)newY);
 
-        if (placement.WindowState == WindowState.Normal)
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.SizeToContent = (placement.Width, placement.Height) switch
         {
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-            window.Position = placement.Position;
-            window.Width = placement.Width;
-            window.Height = placement.Height;
-            window.WindowState = WindowState.Normal;
-        }
-        else
-        {
-            window.WindowState = placement.WindowState;
-        }
+            (< 0, < 0) => SizeToContent.WidthAndHeight,
+            (< 0, _) => SizeToContent.Height,
+            (_, < 0) => SizeToContent.Width,
+            _ => SizeToContent.Manual
+        };
+
+        if (placement.Width > 0) window.Width = placement.Width;
+        if (placement.Height > 0) window.Height = placement.Height;
+
+        window.WindowState = placement.WindowState;
     }
 
     private static void SaveWindowPlacement(string key, Window window)
     {
-        var placement = new WindowPlacement(
-            window.Position,
-            (int)window.Width,
-            (int)window.Height,
-            window.WindowState);
-        KeyValueStorage.Set($"TransientWindow.Placement.{key}", placement);
+        // Do not save placement if the window is minimized
+        if (window.WindowState == WindowState.Minimized) return;
+
+        key = $"TransientWindow.Placement.{key}";
+
+        // Only save size and position if the window is in Normal state
+        if (window.WindowState == WindowState.Normal)
+        {
+            var (width, height) = window.SizeToContent switch
+            {
+                SizeToContent.Width => (-1, (int)window.Height),
+                SizeToContent.Height => ((int)window.Width, -1),
+                SizeToContent.Manual => ((int)window.Width, (int)window.Height),
+                _ => (-1, -1)
+            };
+
+            var placement = new WindowPlacement(
+                window.Position,
+                width,
+                height,
+                window.WindowState);
+            KeyValueStorage.Set(key, placement);
+        }
+        else
+        {
+            // If maximized/minimized, only update the state, preserving the last normal bounds
+            var existing = KeyValueStorage.Get<WindowPlacement?>(key);
+            if (!existing.HasValue) return;
+
+            var placement = existing.Value;
+            placement.WindowState = window.WindowState;
+            KeyValueStorage.Set(key, placement);
+        }
     }
 }

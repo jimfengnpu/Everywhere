@@ -1,11 +1,9 @@
-﻿using System.Text.Json;
-using Avalonia.Controls;
-using Avalonia.Layout;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat.Plugins;
+using Everywhere.Configuration;
 using Everywhere.Views;
-using Lucide.Avalonia;
 using ShadUI;
 
 namespace Everywhere.ViewModels;
@@ -14,69 +12,63 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
 {
     public IChatPluginManager Manager => manager;
 
-    public ChatPlugin? SelectedBuiltInPlugin
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                if (value != null)
-                {
-                    SelectedMcpPlugin = null;
-                    SelectedPlugin = value;
-                }
-            }
-        }
-    }
-
-    public McpChatPlugin? SelectedMcpPlugin
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                if (value != null)
-                {
-                    SelectedBuiltInPlugin = null;
-                    SelectedPlugin = value;
-                }
-            }
-        }
-    }
-
     public ChatPlugin? SelectedPlugin
     {
         get;
         set
         {
             if (!SetProperty(ref field, value)) return;
+            OnPropertyChanged(nameof(SelectedBuiltInPlugin));
+            OnPropertyChanged(nameof(SelectedMcpPlugin));
 
-            if (value is McpChatPlugin mcp)
+            ContentTabItems.Clear();
+            if (value is null) return;
+
+            if (value.SettingsItems is { Count: > 0 } settingsItems)
             {
-                if (SelectedMcpPlugin != mcp) SelectedMcpPlugin = mcp;
-            }
-            else if (value != null)
-            {
-                if (SelectedBuiltInPlugin != value) SelectedBuiltInPlugin = value;
-            }
-            else
-            {
-                SelectedMcpPlugin = null;
-                SelectedBuiltInPlugin = null;
+                ContentTabItems.Add(new SettingsTabItem(settingsItems));
             }
 
-            // TabItem0 is invisible when there is no SettingsItems, so switch to TabItem1
-            if (value is not { SettingsItems.Count: > 0 })
+            ContentTabItems.Add(new FunctionsTabItem(value));
+
+            if (value is McpChatPlugin mcpPlugin)
             {
-                PluginDetailsTabSelectedIndex = 1;
+                ContentTabItems.Add(new LogsTabItem(mcpPlugin.LogEntries));
             }
         }
     }
 
-    [ObservableProperty]
-    public partial int PluginDetailsTabSelectedIndex { get; set; }
+    /// <summary>
+    /// Helper property to get the selected plugin as a BuiltInChatPlugin.
+    /// </summary>
+    public BuiltInChatPlugin? SelectedBuiltInPlugin
+    {
+        get => SelectedPlugin as BuiltInChatPlugin;
+        set
+        {
+            if (value is not null)
+            {
+                SelectedPlugin = value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Helper property to get the selected plugin as a McpChatPlugin.
+    /// </summary>
+    public McpChatPlugin? SelectedMcpPlugin
+    {
+        get => SelectedPlugin as McpChatPlugin;
+        set
+        {
+            if (value is not null)
+            {
+                SelectedPlugin = value;
+            }
+        }
+    }
+
+    public ObservableCollection<IContentTabItem> ContentTabItems { get; } = [];
 
     [RelayCommand]
     private async Task AddMcpPluginAsync()
@@ -199,4 +191,36 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
         EditMcpPluginCommand.NotifyCanExecuteChanged();
         RemoveMcpPluginCommand.NotifyCanExecuteChanged();
     }
+
+    #region ContentTabItems
+
+    // Helpers for content tab items in MVVM pattern
+
+    public interface IContentTabItem
+    {
+        DynamicResourceKeyBase Header { get; }
+    }
+
+    public class SettingsTabItem(IReadOnlyList<SettingsItem> settingsItems) : IContentTabItem
+    {
+        public DynamicResourceKeyBase Header => new DynamicResourceKey(LocaleKey.ChatPluginPage_TabItem_Settings_Header);
+
+        public IReadOnlyList<SettingsItem> SettingsItems { get; } = settingsItems;
+    }
+
+    public class FunctionsTabItem(ChatPlugin plugin) : IContentTabItem
+    {
+        public DynamicResourceKeyBase Header => new DynamicResourceKey(LocaleKey.ChatPluginPage_TabItem_Functions_Header);
+
+        public ChatPlugin Plugin { get; } = plugin;
+    }
+
+    public class LogsTabItem(ReadOnlyObservableCollection<McpChatPlugin.LogEntry> logEntries) : IContentTabItem
+    {
+        public DynamicResourceKeyBase Header => new DynamicResourceKey(LocaleKey.ChatPluginPage_TabItem_Logs_Header);
+
+        public ReadOnlyObservableCollection<McpChatPlugin.LogEntry> LogEntries { get; } = logEntries;
+    }
+
+    #endregion
 }

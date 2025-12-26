@@ -5,7 +5,7 @@ using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
 using ShadUI;
 
-namespace Everywhere.Views.Configuration;
+namespace Everywhere.Views;
 
 public partial class RestartAsAdministratorControl(INativeHelper nativeHelper, ToastManager toastManager, ILogger<RestartAsAdministratorControl> logger)
     : TemplatedControl

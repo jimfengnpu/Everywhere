@@ -15,9 +15,9 @@ namespace Everywhere.Windows.Chat.Plugins;
 
 public class PowerShellPlugin : BuiltInChatPlugin
 {
-    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_Shell_Header);
+    public override DynamicResourceKeyBase HeaderKey { get; } = new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_Header);
 
-    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.NativeChatPlugin_Shell_Description);
+    public override DynamicResourceKeyBase DescriptionKey { get; } = new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_Description);
 
     public override LucideIconKind? Icon => LucideIconKind.SquareTerminal;
 
@@ -37,7 +37,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
     [KernelFunction("execute_script")]
     [Description("Execute PowerShell script and obtain its output.")]
-    [DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_Header)]
+    [DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_Header)]
     private async Task<string> ExecuteScriptAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
         [Description("A concise description for user, explaining what you are doing")] string description,
@@ -73,14 +73,14 @@ public class PowerShellPlugin : BuiltInChatPlugin
 
         var consent = await userInterface.RequestConsentAsync(
             consentKey,
-            new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
+            new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ScriptConsent_Header),
             detailBlock,
             cancellationToken);
         if (!consent)
         {
             throw new HandledException(
                 new UnauthorizedAccessException("User denied consent for PowerShell script execution."),
-                new DynamicResourceKey(LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_DenyMessage),
+                new DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_DenyMessage),
                 showDetails: false);
         }
 
@@ -143,13 +143,13 @@ public class PowerShellPlugin : BuiltInChatPlugin
                 throw new HandledException(
                     new SystemException($"PowerShell script execution failed: {errorOutput}"),
                     new FormattedDynamicResourceKey(
-                        LocaleKey.NativeChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
-                        new DirectResourceKey(errorOutput)),
+                        LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_ErrorMessage,
+                        new DirectResourceKey(errorOutput.Trim())),
                     showDetails: false);
             }
         }
 
-        userInterface.DisplaySink.AppendCodeBlock(result, "log");
+        userInterface.DisplaySink.AppendCodeBlock(result.Trim(), "log");
         return result;
     }
 }

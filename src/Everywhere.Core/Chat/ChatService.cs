@@ -35,6 +35,7 @@ public sealed partial class ChatService(
     IChatPluginManager chatPluginManager,
     IKernelMixinFactory kernelMixinFactory,
     Settings settings,
+    PersistentState persistentState,
     ILogger<ChatService> logger
 ) : IChatService, IChatPluginUserInterface
 {
@@ -53,6 +54,7 @@ public sealed partial class ChatService(
     }
 
     private readonly ActivitySource _activitySource = new(typeof(ChatService).FullName.NotNull());
+    private readonly Stack<FunctionCallContext> _functionCallContextStack = new();
     private FunctionCallContext? _currentFunctionCallContext;
 
     public async Task SendMessageAsync(UserChatMessage message, CancellationToken cancellationToken)
@@ -71,7 +73,7 @@ public sealed partial class ChatService(
         var assistantChatMessage = new AssistantChatMessage { IsBusy = true };
         chatContext.Add(assistantChatMessage);
 
-        await Task.Run(() => GenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
+        await RunGenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken);
     }
 
     public async Task RetryAsync(ChatMessageNode node, CancellationToken cancellationToken)
@@ -90,7 +92,7 @@ public sealed partial class ChatService(
         var assistantChatMessage = new AssistantChatMessage { IsBusy = true };
         node.Context.CreateBranchOn(node, assistantChatMessage);
 
-        await Task.Run(() => GenerateAsync(node.Context, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
+        await RunGenerateAsync(node.Context, customAssistant, assistantChatMessage, cancellationToken);
     }
 
     public async Task EditAsync(ChatMessageNode originalNode, UserChatMessage newMessage, CancellationToken cancellationToken)
@@ -115,7 +117,7 @@ public sealed partial class ChatService(
         var assistantChatMessage = new AssistantChatMessage { IsBusy = true };
         chatContext.Add(assistantChatMessage);
 
-        await Task.Run(() => GenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
+        await RunGenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken);
     }
 
     private async Task ProcessUserChatMessageAsync(
@@ -188,7 +190,7 @@ public sealed partial class ChatService(
                 chatContext.Add(analyzingContextMessage);
 
                 var maxTokens = customAssistant.MaxTokens.ActualValue;
-                var approximateTokenLimit = Math.Min(settings.Internal.VisualTreeTokenLimit, maxTokens / 2);
+                var approximateTokenLimit = Math.Min(persistentState.VisualTreeTokenLimit, maxTokens / 2);
                 var detailLevel = settings.ChatWindow.VisualTreeDetailLevel;
                 var xmlBuilder = new VisualTreeXmlBuilder(
                     validVisualElements,
@@ -316,16 +318,19 @@ public sealed partial class ChatService(
 
         var builder = Kernel.CreateBuilder();
 
+        builder.Services.AddSingleton(this);
         builder.Services.AddSingleton(kernelMixin.ChatCompletionService);
+        builder.Services.AddSingleton(chatContextManager);
         builder.Services.AddSingleton(chatContext);
+        builder.Services.AddSingleton(customAssistant);
         builder.Services.AddSingleton<IChatPluginUserInterface>(this);
 
-        if (kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled)
+        if (kernelMixin.IsFunctionCallingSupported && persistentState.IsToolCallEnabled)
         {
             var needToStartMcp = chatPluginManager.McpPlugins.AsValueEnumerable().Any(p => p is { IsEnabled: true, IsRunning: false });
             using var _ = needToStartMcp ? chatContext.SetBusyMessage(new DynamicResourceKey(LocaleKey.ChatContext_BusyMessage_StartingMcp)) : null;
 
-            var chatPluginScope = await chatPluginManager.CreateScopeAsync(chatContext, customAssistant, cancellationToken);
+            var chatPluginScope = await chatPluginManager.CreateScopeAsync(cancellationToken);
             builder.Services.AddSingleton(chatPluginScope);
             activity?.SetTag("plugins.count", chatPluginScope.Plugins.AsValueEnumerable().Count());
 
@@ -338,7 +343,36 @@ public sealed partial class ChatService(
         return builder.Build();
     }
 
-    private async Task GenerateAsync(
+    /// <summary>
+    /// Runs the GenerateAsync method in a separate task.
+    /// This will clear the function call context stack before running.
+    /// Means a fresh generation.
+    /// </summary>
+    /// <param name="chatContext"></param>
+    /// <param name="customAssistant"></param>
+    /// <param name="assistantChatMessage"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    private Task RunGenerateAsync(
+        ChatContext chatContext,
+        CustomAssistant customAssistant,
+        AssistantChatMessage assistantChatMessage,
+        CancellationToken cancellationToken)
+    {
+        // Clear the function call context stack.
+        _functionCallContextStack.Clear();
+
+        return Task.Run(() => GenerateAsync(chatContext, customAssistant, assistantChatMessage, cancellationToken), cancellationToken);
+    }
+
+    /// <summary>
+    /// Generates a response for the given chat context and assistant chat message.
+    /// </summary>
+    /// <param name="chatContext"></param>
+    /// <param name="customAssistant"></param>
+    /// <param name="assistantChatMessage"></param>
+    /// <param name="cancellationToken"></param>
+    public async Task GenerateAsync(
         ChatContext chatContext,
         CustomAssistant customAssistant,
         AssistantChatMessage assistantChatMessage,
@@ -355,11 +389,13 @@ public sealed partial class ChatService(
             var kernel = await BuildKernelAsync(kernelMixin, chatContext, customAssistant, cancellationToken);
 
             var chatHistory = new ChatHistory();
+
             // Because the custom assistant maybe changed, we need to re-render the system prompt.
-            chatContext.SystemPrompt = Prompts.RenderPrompt(customAssistant.SystemPrompt.ActualValue, chatContextManager.SystemPromptVariables);
+            chatContextManager.PopulateSystemPrompt(chatContext, customAssistant.SystemPrompt.ActualValue);
 
             // Build the chat history from the chat context.
             foreach (var chatMessage in chatContext
+                         .Items
                          .AsValueEnumerable()
                          .Select(n => n.Message)
                          .Where(m => !ReferenceEquals(m, assistantChatMessage)) // exclude the current assistant message
@@ -466,9 +502,9 @@ public sealed partial class ChatService(
 
         AuthorRole? authorRole = null;
         var assistantContentBuilder = new StringBuilder();
-        var functionCallContentBuilder = new BetterFunctionCallContentBuilder();
+        var functionCallContentBuilder = new FunctionCallContentBuilder();
         var promptExecutionSettings = kernelMixin.GetPromptExecutionSettings(
-            kernelMixin.IsFunctionCallingSupported && settings.Internal.IsToolCallEnabled ?
+            kernelMixin.IsFunctionCallingSupported && persistentState.IsToolCallEnabled ?
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
                 null);
 
@@ -721,6 +757,14 @@ public sealed partial class ChatService(
             {
                 IsBusy = true,
             };
+
+            // Set the current function call context.
+            // Push the previous context to the stack, allowing nested function calls.
+            if (_currentFunctionCallContext is not null)
+            {
+                _functionCallContextStack.Push(_currentFunctionCallContext);
+            }
+
             _currentFunctionCallContext = new FunctionCallContext(
                 kernel,
                 chatContext,
@@ -798,7 +842,16 @@ public sealed partial class ChatService(
             {
                 functionCallChatMessage.FinishedAt = DateTimeOffset.UtcNow;
                 functionCallChatMessage.IsBusy = false;
-                _currentFunctionCallContext = null;
+
+                // Restore the previous function call context.
+                if (_functionCallContextStack.Count > 0)
+                {
+                    _currentFunctionCallContext = _functionCallContextStack.Pop();
+                }
+                else
+                {
+                    _currentFunctionCallContext = null;
+                }
 
                 if (cancellationToken.IsCancellationRequested)
                 {

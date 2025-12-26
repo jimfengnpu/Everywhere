@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Everywhere.Common;
 using Everywhere.Initialization;
-using Everywhere.Views.Configuration;
+using Everywhere.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -45,5 +45,6 @@ public static class SettingsExtensions
         .AddSingleton<KeyValueStorage>()
         .AddSingleton<IKeyValueStorage>(sp => sp.GetRequiredService<KeyValueStorage>())
         .AddTransient<IAsyncInitializer>(sp => sp.GetRequiredService<KeyValueStorage>())
+        .AddSingleton<PersistentState>()
         .AddTransient<IAsyncInitializer, SettingsInitializer>();
 }

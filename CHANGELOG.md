@@ -1,3 +1,47 @@
+## [v0.5.5](https://github.com/DearVa/Everywhere/releases/tag/v0.5.5) - 2025-12-21
+
+### 🚀 Improvements
+- Optimized various UI visual details.
+
+### 🐛 Bug Fixes
+- Fixed an issue where the "Everywhere minimized to tray" notification appeared every time.
+- Fixed an issue where the enabled state of MCP tools failed to load correctly.
+- Fixed an issue where the tool permission consent dialog failed to display.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.4...v0.5.5
+
+
+
+## [v0.5.4](https://github.com/DearVa/Everywhere/releases/tag/v0.5.4) - 2025-12-20
+
+### ⚠️ Important Changes
+- Changed the software license from Apache 2.0 to **BSL 1.1**.
+
+### ✨ Features
+- 🎨 Brand New UI: 
+  - A complete refactor of the user interface, featuring a modern design, responsive layout, and a fresh chat window style with Light Mode support. The app now automatically syncs with the system accent color and includes more helpful tooltips.
+- Added support for the OpenAI Responses API.
+- Added shortcuts for quick navigation:
+  - Scroll on the assistant icon or use `Ctrl` + `0-9` keys to switch assistants.
+  - Press `Ctrl` + `H` to toggle the chat history view.
+
+### 🚀 Improvements
+- Window position and size (for both Settings and Chat) are now automatically saved and restored.
+- Improved the visual style of the element selector popup.
+- Streamlined the MCP configuration process.
+- Font size settings now correctly apply to the chat window.
+
+### 🐛 Bug Fixes
+- Fixed an issue where the element selector was offset on multi-monitor setups with different scaling factors (#17).
+- Fixed an issue where the screenshot tool could freeze (#177).
+- Fixed an issue where Anthropic API calls would fail (#198).
+- Fixed an issue where DeepSeek models encountered errors when using tools during the reasoning process (#208).
+- Fixed a potential memory leak (#207).
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.3...v0.5.4
+
+
+
 ## [v0.5.3](https://github.com/DearVa/Everywhere/releases/tag/v0.5.3) - 2025-12-7
 
 ### ✨ Features

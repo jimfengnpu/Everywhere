@@ -38,13 +38,14 @@
         <DataTemplate DataType="plugins:ChatPluginTextDisplayBlock">
           <ScrollViewer MaxHeight="300">
             <SelectableTextBlock
-              FontFamily="{Binding FontFamily, Converter={x:Static shadui:StringConverters.ToFontFamily}}"
+              shadui:ControlAssist.ClassName="{Binding ClassName}"
               Text="{Binding Text}"
               TextWrapping="Wrap"/>
           </ScrollViewer>
         </DataTemplate>
         <DataTemplate DataType="plugins:ChatPluginDynamicResourceKeyDisplayBlock">
           <SelectableTextBlock
+            shadui:ControlAssist.ClassName="{Binding ClassName}"
             Text="{Binding Key^}"
             TextWrapping="Wrap"/>
         </DataTemplate>

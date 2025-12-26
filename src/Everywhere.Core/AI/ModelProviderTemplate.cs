@@ -19,11 +19,14 @@ public record ModelProviderTemplate
     public string? DisplayName { get; set; }
 
     /// <summary>
-    /// A short description of the model provider, used for UI.
-    /// Supports png, jpg, and svg image URLs.
     /// This icon is displayed next to the provider's name in the UI.
     /// </summary>
-    public string? IconUrl { get; set; }
+    public string? LightIconUrl { get; set; }
+
+    /// <summary>
+    /// This icon is displayed next to the provider's name in the UI.
+    /// </summary>
+    public string? DarkIconUrl { get; set; }
 
     /// <summary>
     /// Endpoint URL for the model provider's API.
@@ -83,10 +86,31 @@ public record ModelProviderTemplate
             DisplayName = "OpenAI",
             Endpoint = "https://api.openai.com/v1",
             OfficialWebsiteUrl = "https://openai.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/openai.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/openai-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/openai-light.svg",
             Schema = ModelProviderSchema.OpenAIResponses,
             ModelDefinitions =
             [
+                new ModelDefinitionTemplate
+                {
+                    Id = "gpt-5.2",
+                    ModelId = "gpt-5.2",
+                    DisplayName = "GPT-5.2",
+                    MaxTokens = 400_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "gpt-5.1",
+                    ModelId = "gpt-5.1",
+                    DisplayName = "GPT-5.1",
+                    MaxTokens = 400_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
                 new ModelDefinitionTemplate
                 {
                     Id = "gpt-5",
@@ -156,15 +180,36 @@ public record ModelProviderTemplate
             DisplayName = "Anthropic (Claude)",
             Endpoint = "https://api.anthropic.com",
             OfficialWebsiteUrl = "https://www.anthropic.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/anthropic-light.svg",
             Schema = ModelProviderSchema.Anthropic,
             ModelDefinitions =
             [
                 new ModelDefinitionTemplate
                 {
+                    Id = "claude-opus-4-5-20251101",
+                    ModelId = "claude-opus-4-5-20251101",
+                    DisplayName = "Claude Opus 4.5",
+                    MaxTokens = 200_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
                     Id = "claude-sonnet-4-5-20250929",
                     ModelId = "claude-sonnet-4-5-20250929",
                     DisplayName = "Claude Sonnet 4.5",
+                    MaxTokens = 200_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "claude-haiku-4-5-20251001",
+                    ModelId = "claude-haiku-4-5-20251001",
+                    DisplayName = "Claude Haiku 4.5",
                     MaxTokens = 200_000,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
@@ -229,7 +274,8 @@ public record ModelProviderTemplate
             DisplayName = "Google (Gemini)",
             OfficialWebsiteUrl = "https://gemini.google.com",
             Endpoint = "https://generativelanguage.googleapis.com/v1beta",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/google-color.svg",
             Schema = ModelProviderSchema.Google,
             ModelDefinitions =
             [
@@ -238,6 +284,16 @@ public record ModelProviderTemplate
                     Id = "gemini-3-pro-preview",
                     ModelId = "gemini-3-pro-preview",
                     DisplayName = "Gemini 3 Pro Preview",
+                    MaxTokens = 1_048_576,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "gemini-3-flash-preview",
+                    ModelId = "gemini-3-flash-preview",
+                    DisplayName = "Gemini 3 Flash Preview",
                     MaxTokens = 1_048_576,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
@@ -282,7 +338,8 @@ public record ModelProviderTemplate
             DisplayName = "DeepSeek",
             Endpoint = "https://api.deepseek.com",
             OfficialWebsiteUrl = "https://www.deepseek.com",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/deepseek-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -290,7 +347,7 @@ public record ModelProviderTemplate
                 {
                     Id = "deepseek-chat",
                     ModelId = "deepseek-chat",
-                    DisplayName = "DeepSeek V3.2 Exp (Non-thinking Mode)",
+                    DisplayName = "DeepSeek V3.2 (Non-thinking Mode)",
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
@@ -301,10 +358,10 @@ public record ModelProviderTemplate
                 {
                     Id = "deepseek-reasoner",
                     ModelId = "deepseek-reasoner",
-                    DisplayName = "DeepSeek V3.2 Exp (Thinking Mode)",
+                    DisplayName = "DeepSeek V3.2 (Thinking Mode)",
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
-                    IsFunctionCallingSupported = false,
+                    IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = true,
                 }
             ]
@@ -315,19 +372,50 @@ public record ModelProviderTemplate
             DisplayName = "Moonshot (Kimi)",
             Endpoint = "https://api.moonshot.cn/v1",
             OfficialWebsiteUrl = "https://www.moonshot.cn",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/moonshot-light.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
                 new ModelDefinitionTemplate
                 {
-                    Id = "kimi-k2-0711-preview",
-                    ModelId = "kimi-k2-0711-preview",
+                    Id = "kimi-k2-0905-preview",
+                    ModelId = "kimi-k2-0905-preview",
                     DisplayName = "Kimi K2",
-                    MaxTokens = 128_000,
+                    MaxTokens = 262_144,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-turbo-preview",
+                    ModelId = "kimi-k2-turbo-preview",
+                    DisplayName = "Kimi K2 Turbo",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-thinking",
+                    ModelId = "kimi-k2-thinking",
+                    DisplayName = "Kimi K2 Thinking",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "kimi-k2-thinking-turbo",
+                    ModelId = "kimi-k2-thinking-turbo",
+                    DisplayName = "Kimi K2 Thinking Turbo",
+                    MaxTokens = 262_144,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
                 },
                 new ModelDefinitionTemplate
                 {
@@ -339,16 +427,6 @@ public record ModelProviderTemplate
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
                     IsDefault = true
-                },
-                new ModelDefinitionTemplate
-                {
-                    Id = "kimi-thinking-preview",
-                    ModelId = "kimi-thinking-preview",
-                    DisplayName = "Kimi Thinking Preview",
-                    MaxTokens = 128_000,
-                    IsImageInputSupported = true,
-                    IsFunctionCallingSupported = false,
-                    IsDeepThinkingSupported = true,
                 }
             ]
         },
@@ -358,31 +436,11 @@ public record ModelProviderTemplate
             DisplayName = "OpenRouter",
             OfficialWebsiteUrl = "https://openrouter.ai",
             Endpoint = "https://openrouter.ai/api/v1",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/openrouter-light.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
-                new ModelDefinitionTemplate
-                {
-                    Id = "x-ai/grok-4-fast",
-                    ModelId = "x-ai/grok-4-fast",
-                    DisplayName = "xAI: Grok 4 Fast",
-                    MaxTokens = 2_000_000,
-                    IsImageInputSupported = false,
-                    IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
-                    IsDefault = true
-                },
-                new ModelDefinitionTemplate
-                {
-                    Id = "anthropic/claude-sonnet-4",
-                    ModelId = "anthropic/claude-sonnet-4",
-                    DisplayName = "Anthropic: Claude Sonnet 4",
-                    MaxTokens = 1_000_000,
-                    IsImageInputSupported = true,
-                    IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
-                },
                 new ModelDefinitionTemplate
                 {
                     Id = "google/gemini-2.5-flash",
@@ -391,7 +449,58 @@ public record ModelProviderTemplate
                     MaxTokens = 1_048_576,
                     IsImageInputSupported = true,
                     IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "anthropic/claude-sonnet-4.5",
+                    ModelId = "anthropic/claude-sonnet-4.5",
+                    DisplayName = "Anthropic: Claude Sonnet 4.5",
+                    MaxTokens = 1_000_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "anthropic/claude-opus-4.5",
+                    ModelId = "anthropic/claude-sonnet-4.5",
+                    DisplayName = "Anthropic: Claude Opus 4.5",
+                    MaxTokens = 200_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = false,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "deepseek/deepseek-v3.2",
+                    ModelId = "deepseek/deepseek-v3.2",
+                    DisplayName = "DeepSeek: DeepSeek V3.2",
+                    MaxTokens = 163_840,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "openai/gpt-oss-120b",
+                    ModelId = "openai/gpt-oss-120b",
+                    DisplayName = "OpenAI: GPT-OSS 120B",
+                    MaxTokens = 131_072,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "x-ai/grok-4-fast",
+                    ModelId = "x-ai/grok-4-fast",
+                    DisplayName = "X-AI: Grok 4 Fast",
+                    MaxTokens = 2_000_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true,
+                    IsDefault = true
                 }
             ]
         },
@@ -401,7 +510,8 @@ public record ModelProviderTemplate
             DisplayName = "SiliconCloud (SiliconFlow)",
             OfficialWebsiteUrl = "https://www.siliconflow.cn",
             Endpoint = "https://api.siliconflow.cn/v1",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/siliconcloud-color.svg",
             Schema = ModelProviderSchema.OpenAI,
             ModelDefinitions =
             [
@@ -413,18 +523,48 @@ public record ModelProviderTemplate
                     MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
+                    IsDeepThinkingSupported = true,
                     IsDefault = true
                 },
                 new ModelDefinitionTemplate
                 {
-                    Id = "deepseek-ai/DeepSeek-V3.1",
-                    ModelId = "deepseek-ai/DeepSeek-V3.1",
-                    DisplayName = "DeepSeek-V3.1",
+                    Id = "zai-org/GLM-4.6V",
+                    ModelId = "zai-org/GLM-4.6V",
+                    DisplayName = "GLM 4.6V",
+                    MaxTokens = 128_000,
+                    IsImageInputSupported = true,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "moonshotai/Kimi-K2-Thinking",
+                    ModelId = "moonshotai/Kimi-K2-Thinking",
+                    DisplayName = "Kimi K2 Thinking",
+                    MaxTokens = 256_000,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "MiniMaxAI/MiniMax-M2",
+                    ModelId = "MiniMaxAI/MiniMax-M2",
+                    DisplayName = "MiniMax M2",
+                    MaxTokens = 192_000,
+                    IsImageInputSupported = false,
+                    IsFunctionCallingSupported = true,
+                    IsDeepThinkingSupported = true
+                },
+                new ModelDefinitionTemplate
+                {
+                    Id = "deepseek-ai/DeepSeek-V3.2",
+                    ModelId = "deepseek-ai/DeepSeek-V3.2",
+                    DisplayName = "DeepSeek-V3.2",
                     MaxTokens = 160_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = false,
+                    IsDeepThinkingSupported = true,
                 }
             ]
         },
@@ -434,7 +574,8 @@ public record ModelProviderTemplate
             DisplayName = "Ollama",
             OfficialWebsiteUrl = "https://ollama.com",
             Endpoint = "http://127.0.0.1:11434",
-            IconUrl = "avares://Everywhere.Core/Assets/Icons/ollama.svg",
+            DarkIconUrl = "avares://Everywhere.Core/Assets/Icons/ollama-dark.svg",
+            LightIconUrl = "avares://Everywhere.Core/Assets/Icons/ollama-light.svg",
             Schema = ModelProviderSchema.Ollama,
             RequestTimeoutSeconds = 120, // Local models may take longer time.
             ModelDefinitions =
@@ -444,7 +585,7 @@ public record ModelProviderTemplate
                     Id = "gpt-oss:20b",
                     ModelId = "gpt-oss:20b",
                     DisplayName = "GPT-OSS 20B",
-                    MaxTokens = 32_768,
+                    MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
                     IsDeepThinkingSupported = true,
@@ -454,7 +595,7 @@ public record ModelProviderTemplate
                     Id = "deepseek-r1:8b",
                     ModelId = "deepseek-r1:8b",
                     DisplayName = "DeepSeek R1 8B",
-                    MaxTokens = 65_536,
+                    MaxTokens = 128_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = false,
                     IsDeepThinkingSupported = true,
@@ -465,10 +606,10 @@ public record ModelProviderTemplate
                     Id = "qwen3:8b",
                     ModelId = "qwen3:8b",
                     DisplayName = "Qwen 3 8B",
-                    MaxTokens = 64_000,
+                    MaxTokens = 40_000,
                     IsImageInputSupported = false,
                     IsFunctionCallingSupported = true,
-                    IsDeepThinkingSupported = true,
+                    IsDeepThinkingSupported = false,
                 }
             ]
         }

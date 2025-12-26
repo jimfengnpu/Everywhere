@@ -4,7 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Interop;
-using Everywhere.Views.Configuration;
+using Everywhere.Views;
 using Lucide.Avalonia;
 using Microsoft.Extensions.Logging;
 using ShadUI;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -34,6 +34,7 @@ public sealed partial class ChatWindowViewModel :
     IDisposable
 {
     public Settings Settings { get; }
+    public PersistentState PersistentState { get; }
 
     public bool IsOpened
     {
@@ -107,16 +108,19 @@ public sealed partial class ChatWindowViewModel :
 
     public bool CanEdit => IsNotBusy && EditingUserMessageNode is null;
 
+    public static int ChatInputAreaTextMaxLength => 100_000;
+
     /// <summary>
     /// The text in the chat input box.
     /// </summary>
-    public string? ChatInputBoxText
+    public string? ChatInputAreaText
     {
         get;
         set
         {
+            value = value.SafeSubstring(0, ChatInputAreaTextMaxLength);
             if (!SetProperty(ref field, value)) return;
-            if (EditingUserMessageNode is null) Settings.Internal.ChatInputBoxText = value;
+            if (EditingUserMessageNode is null) PersistentState.ChatInputAreaText = value;
         }
     }
 
@@ -140,6 +144,7 @@ public sealed partial class ChatWindowViewModel :
 
     public ChatWindowViewModel(
         Settings settings,
+        PersistentState persistentState,
         IChatContextManager chatContextManager,
         IChatService chatService,
         IVisualElementContext visualElementContext,
@@ -148,6 +153,7 @@ public sealed partial class ChatWindowViewModel :
         ILogger<ChatWindowViewModel> logger)
     {
         Settings = settings;
+        PersistentState = persistentState;
         ChatContextManager = chatContextManager;
         ChatContextManager.PropertyChanged += HandleChatContextManagerPropertyChanged;
 
@@ -158,7 +164,7 @@ public sealed partial class ChatWindowViewModel :
         _logger = logger;
 
         // Load the saved input box text
-        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
+        ChatInputAreaText = PersistentState.ChatInputAreaText;
 
         ChatAttachments = _chatAttachmentsSource
             .Connect()
@@ -286,7 +292,7 @@ public sealed partial class ChatWindowViewModel :
     private Task PickElementAsync(ElementPickMode mode) => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
-            if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+            if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
 
             // Hide the chat window to avoid picking itself
             var chatWindow = ServiceLocator.Resolve<ChatWindow>();
@@ -305,7 +311,7 @@ public sealed partial class ChatWindowViewModel :
     private Task AddClipboardAsync() => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
-            if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+            if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
 
             var formats = await Clipboard.GetDataFormatsAsync();
             if (formats.Count == 0)
@@ -324,7 +330,7 @@ public sealed partial class ChatWindowViewModel :
                         var uri = storageItem.Path;
                         if (!uri.IsFile) break;
                         await AddFileUncheckAsync(uri.AbsolutePath, cancellationToken);
-                        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) break;
+                        if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) break;
                     }
                 }
             }
@@ -364,7 +370,7 @@ public sealed partial class ChatWindowViewModel :
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
     private async Task AddFileAsync()
     {
-        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+        if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
 
         IReadOnlyList<IStorageFile> files;
         IsPickingFiles = true;
@@ -456,7 +462,7 @@ public sealed partial class ChatWindowViewModel :
     /// <param name="filePath">The file path to add.</param>
     public async Task AddFileFromDragDropAsync(string filePath)
     {
-        if (_chatAttachmentsSource.Count >= Settings.Internal.MaxChatAttachmentCount) return;
+        if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
 
         await AddFileUncheckAsync(filePath, _cancellationTokenSource.Token);
     }
@@ -551,7 +557,7 @@ public sealed partial class ChatWindowViewModel :
         if (userChatMessageNode is not { Message: UserChatMessage userChatMessage }) return;
 
         EditingUserMessageNode = userChatMessageNode;
-        ChatInputBoxText = userChatMessage.Inlines.Text;
+        ChatInputAreaText = userChatMessage.Inlines.Text;
         _chatAttachmentsSource.Edit(list =>
         {
             _chatAttachmentsBeforeEditing = list.ToList();
@@ -576,7 +582,7 @@ public sealed partial class ChatWindowViewModel :
             }
         });
 
-        ChatInputBoxText = Settings.Internal.ChatInputBoxText;
+        ChatInputAreaText = PersistentState.ChatInputAreaText;
     }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]

@@ -1,7 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
+using System.Text.Json.Serialization;
 using Microsoft.SemanticKernel;
 
 namespace Everywhere.Chat;
@@ -11,7 +10,7 @@ partial class ChatService
     /// <summary>
     /// A builder class for creating <see cref="FunctionCallContent"/> objects from incremental function call updates represented by <see cref="StreamingFunctionCallUpdateContent"/>.
     /// </summary>
-    public sealed class BetterFunctionCallContentBuilder
+    public sealed class FunctionCallContentBuilder
     {
         public int Count => _functionNamesByIndex?.Count ?? 0;
 
@@ -19,26 +18,13 @@ partial class ChatService
         private Dictionary<string, string>? _functionNamesByIndex;
         private Dictionary<string, StringBuilder>? _functionArgumentBuildersByIndex;
         private Dictionary<string, IReadOnlyDictionary<string, object?>>? _functionMetadataByIndex;
-        private readonly JsonSerializerOptions? _jsonSerializerOptions;
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="BetterFunctionCallContentBuilder"/> class.
-        /// </summary>
-        [RequiresUnreferencedCode("Uses reflection to deserialize function arguments, making it incompatible with AOT scenarios.")]
-        [RequiresDynamicCode("Uses reflection to deserialize function arguments, making it incompatible with AOT scenarios.")]
-        public BetterFunctionCallContentBuilder()
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="BetterFunctionCallContentBuilder"/> class.
-        /// </summary>
-        /// <param name="jsonSerializerOptions">The <see cref="JsonSerializerOptions"/> to use for deserializing function arguments.</param>
-        [Experimental("SKEXP0120")]
-        public BetterFunctionCallContentBuilder(JsonSerializerOptions jsonSerializerOptions)
-        {
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            TypeInfoResolver = FunctionCallContentBuilderJsonSerializerContext.Default,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+        };
 
         /// <summary>
         /// Extracts function call updates from the content and track them for later building.
@@ -81,7 +67,7 @@ partial class ChatService
                     functionName = fqn;
                 }
 
-                var (arguments, exception) = GetFunctionArgumentsSafe(functionCallIndexAndId.Key);
+                var (arguments, exception) = GetFunctionArguments(functionCallIndexAndId.Key);
 
                 IReadOnlyDictionary<string, object?>? metadata = null;
                 _functionMetadataByIndex?.TryGetValue(functionCallIndexAndId.Key, out metadata);
@@ -97,23 +83,6 @@ partial class ChatService
                 };
             }
 
-            [UnconditionalSuppressMessage(
-                "Trimming",
-                "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-                Justification =
-                    "The warning is shown and should be addressed at the class creation site; there is no need to show it again at the function invocation sites.")]
-            [UnconditionalSuppressMessage(
-                "AOT",
-                "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
-                Justification =
-                    "The warning is shown and should be addressed at the class creation site; there is no need to show it again at the function invocation sites.")]
-            (KernelArguments? Arguments, Exception? Exception) GetFunctionArgumentsSafe(string functionCallIndex)
-            {
-                return _jsonSerializerOptions is not null ?
-                    GetFunctionArguments(functionCallIndex, _jsonSerializerOptions) :
-                    GetFunctionArguments(functionCallIndex);
-            }
-
             return functionCalls;
         }
 
@@ -121,23 +90,17 @@ partial class ChatService
         /// Gets function arguments for a given function call index.
         /// </summary>
         /// <param name="functionCallIndex">The function call index to get the function arguments for.</param>
-        /// <param name="jsonSerializerOptions">The <see cref="JsonSerializerOptions"/> to use for deserializing function arguments.</param>
         /// <returns>A tuple containing the KernelArguments and an Exception if any.</returns>
-        [RequiresUnreferencedCode(
-            "Uses reflection to deserialize function arguments if no JSOs are provided, making it incompatible with AOT scenarios.")]
-        [RequiresDynamicCode("Uses reflection to deserialize function arguments if no JSOs are provided, making it incompatible with AOT scenarios.")]
-        private (KernelArguments? Arguments, Exception? Exception) GetFunctionArguments(
-            string functionCallIndex,
-            JsonSerializerOptions? jsonSerializerOptions = null)
+        private (KernelArguments? Arguments, Exception? Exception) GetFunctionArguments(string functionCallIndex)
         {
             if (_functionArgumentBuildersByIndex is null ||
-                !_functionArgumentBuildersByIndex.TryGetValue(functionCallIndex, out StringBuilder? functionArgumentsBuilder))
+                !_functionArgumentBuildersByIndex.TryGetValue(functionCallIndex, out var functionArgumentsBuilder))
             {
                 return (null, null);
             }
 
-            var argumentsString = functionArgumentsBuilder.ToString();
-            if (string.IsNullOrEmpty(argumentsString))
+            var argumentsJson = functionArgumentsBuilder.ToString();
+            if (string.IsNullOrEmpty(argumentsJson))
             {
                 return (null, null);
             }
@@ -146,15 +109,7 @@ partial class ChatService
             KernelArguments? arguments = null;
             try
             {
-                if (jsonSerializerOptions is not null)
-                {
-                    var typeInfo = (JsonTypeInfo<KernelArguments>)jsonSerializerOptions.GetTypeInfo(typeof(KernelArguments));
-                    arguments = JsonSerializer.Deserialize(argumentsString, typeInfo);
-                }
-                else
-                {
-                    arguments = JsonSerializer.Deserialize<KernelArguments>(argumentsString);
-                }
+                arguments = JsonSerializer.Deserialize<KernelArguments>(argumentsJson, JsonSerializerOptions);
             }
             catch (JsonException ex)
             {
@@ -186,7 +141,7 @@ partial class ChatService
             }
 
             // Create index that is unique across many requests.
-            var functionCallIndex = $"{update.RequestIndex}-{update.FunctionCallIndex}";
+            var functionCallIndex = $"{update.CallId}-{update.RequestIndex}-{update.FunctionCallIndex}";
 
             // If we have a call id, ensure the index is being tracked. Even if it's not a function update,
             // we want to keep track of it so we can send back an error.
@@ -222,4 +177,7 @@ partial class ChatService
             arguments.Append(argumentsUpdate);
         }
     }
+
+    [JsonSerializable(typeof(KernelArguments))]
+    private sealed partial class FunctionCallContentBuilderJsonSerializerContext : JsonSerializerContext;
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Everywhere.Configuration;
@@ -21,7 +22,4 @@ public class Settings : ObservableObject
 
     [HiddenSettingsItem]
     public PluginSettings Plugin { get; set; } = new();
-
-    [HiddenSettingsItem]
-    public InternalSettings Internal { get; set; } = new();
 }

@@ -6,8 +6,8 @@
     <SemanticKernelVersion>1.68.0</SemanticKernelVersion>
     <OpenTelemetryVersion>1.14.0</OpenTelemetryVersion>
     <SentryVersion>5.16.2</SentryVersion>
-    <AvaloniaVersion>11.3.9</AvaloniaVersion>
-    <LiveMarkdownVersion>1.6.0</LiveMarkdownVersion>
+    <AvaloniaVersion>11.3.10</AvaloniaVersion>
+    <LiveMarkdownVersion>1.6.1</LiveMarkdownVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <XamlBehaviorsVersion>11.3.9</XamlBehaviorsVersion>
   </PropertyGroup>
@@ -20,6 +20,7 @@
     <PackageVersion Include="Grpc.Core.Api" Version="2.71.0" />
     <PackageVersion Include="Grpc.Tools" Version="2.71.0" />
     <PackageVersion Include="JetBrains.Profiler.Api" Version="1.4.10" />
+    <PackageVersion Include="Lib.Harmony" Version="2.4.2" />
     <PackageVersion Include="LiveMarkdown.Avalonia" Version="$(LiveMarkdownVersion)" />
     <PackageVersion Include="LiveMarkdown.Avalonia.Math" Version="$(LiveMarkdownVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
@@ -32,6 +33,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(MicrosoftPackageVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftPackageVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MicrosoftPackageVersion)" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Core" Version="1.68.0" />
     <PackageVersion Include="Nito.AsyncEx" Version="5.1.2" />
     <PackageVersion Include="OpenTelemetry" Version="$(OpenTelemetryVersion)" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)" />
@@ -53,8 +55,6 @@
     <PackageVersion Include="Microsoft.SemanticKernel.Abstractions" Version="$(SemanticKernelVersion)" />
     <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="$(SemanticKernelVersion)-alpha" />
     <PackageVersion Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="$(SemanticKernelVersion)" />
-    <PackageVersion Include="Sylinko.SemanticKernel.Connectors.Google" Version="$(SemanticKernelVersion)-alpha.1" />
-    <PackageVersion Include="Sylinko.SemanticKernel.Plugins.Web" Version="$(SemanticKernelVersion)-alpha.1" />
     <PackageVersion Include="ModelContextProtocol" Version="0.4.0-preview.3" />
     <PackageVersion Include="PuppeteerSharp" Version="20.2.4" />
     <PackageVersion Include="Tavily" Version="1.0.0" />

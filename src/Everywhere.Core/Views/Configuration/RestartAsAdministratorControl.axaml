@@ -1,10 +1,10 @@
 ﻿<ResourceDictionary
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:configuration="clr-namespace:Everywhere.Views.Configuration" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI">
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:v="clr-namespace:Everywhere.Views">
 
   <ControlTheme
-    x:Key="{x:Type configuration:RestartAsAdministratorControl}"
-    TargetType="configuration:RestartAsAdministratorControl">
+    x:Key="{x:Type v:RestartAsAdministratorControl}"
+    TargetType="v:RestartAsAdministratorControl">
 
     <Setter Property="Template">
       <ControlTemplate>

@@ -115,8 +115,8 @@ public class App : Application
         }
 
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-        var settings = ServiceLocator.Resolve<Settings>();
-        if (settings.Internal.PreviousLaunchVersion == version) return;
+        var persistentState = ServiceLocator.Resolve<PersistentState>();
+        if (persistentState.PreviousLaunchVersion == version) return;
 
         ShowWindow<MainView>(ref _mainWindow);
     }

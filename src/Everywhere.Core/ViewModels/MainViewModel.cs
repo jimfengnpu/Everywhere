@@ -40,18 +40,23 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
 
     [ObservableProperty] public partial INavigationItem? CurrentNavigationItem { get; private set; }
 
-    public Settings Settings { get; }
+    /// <summary>
+    /// Use public property for MVVM binding
+    /// </summary>
+    public PersistentState PersistentState { get; }
 
     private readonly SourceList<NavigationBarItem> _pagesSource = new();
     private readonly SourceList<INavigationItem> _navigationItemsSource = new();
     private readonly CompositeDisposable _disposables = new(2);
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly Settings _settings;
 
-    public MainViewModel(IServiceProvider serviceProvider, Settings settings)
+    public MainViewModel(IServiceProvider serviceProvider, Settings settings, PersistentState persistentState)
     {
+        PersistentState = persistentState;
         _serviceProvider = serviceProvider;
-        Settings = settings;
+        _settings = settings;
 
         Pages = _pagesSource
             .Connect()
@@ -111,8 +116,8 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
     private void ShowOobeDialogOnDemand()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version;
-        if (!Version.TryParse(Settings.Internal.PreviousLaunchVersion, out var previousLaunchVersion)) previousLaunchVersion = null;
-        if (Settings.Model.CustomAssistants.Count == 0)
+        if (!Version.TryParse(PersistentState.PreviousLaunchVersion, out var previousLaunchVersion)) previousLaunchVersion = null;
+        if (_settings.Model.CustomAssistants.Count == 0)
         {
             DialogManager
                 .CreateCustomDialog(ServiceLocator.Resolve<WelcomeView>())
@@ -126,7 +131,7 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
                 .ShowAsync();
         }
 
-        Settings.Internal.PreviousLaunchVersion = version?.ToString();
+        PersistentState.PreviousLaunchVersion = version?.ToString();
     }
 
     protected internal override Task ViewUnloaded()
@@ -138,10 +143,10 @@ public sealed partial class MainViewModel : ReactiveViewModelBase, IDisposable
 
     private void ShowHideToTrayNotificationOnDemand()
     {
-        if (!Settings.Internal.IsFirstTimeHideToTrayIcon) return;
+        if (PersistentState.IsHideToTrayIconNotificationShown) return;
 
         ServiceLocator.Resolve<INativeHelper>().ShowDesktopNotificationAsync(LocaleResolver.MainView_EverywhereHasMinimizedToTray);
-        Settings.Internal.IsFirstTimeHideToTrayIcon = false;
+        PersistentState.IsHideToTrayIconNotificationShown = true;
     }
 
     public void Dispose()
