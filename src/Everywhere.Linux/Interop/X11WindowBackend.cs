@@ -520,9 +520,6 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
                 if (sub != X11Window.None)
                 {
-                    // _logger.LogDebug(
-                    //     "< {window}",
-                    //     window.ToString("X"));
                     return sub;
                 }
             }
@@ -772,7 +769,6 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             if (window != null)
             {
                 wnd = (X11Window)window.NativeWindowHandle;
-                captureRect = window.BoundingRectangle;
             }
             if (wnd == X11Window.None)
             {
@@ -797,10 +793,15 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
     private Bitmap StandardXGetImageCapture(X11Window drawable, PixelRect rect)
     {
-        if (!IsValidDrawable(drawable))
+        uint winW = 0, winH = 0;
+        if (!IsValidDrawable(drawable, ref winW, ref winH))
         {
             _logger.LogError("Invalid drawable: {drawable}", drawable.ToString("X"));
             throw new InvalidOperationException("Invalid drawable");
+        }
+        if (rect.Y < 0 || rect.Y + rect.Height > winH || rect.X < 0 || rect.X + rect.Width > winW)
+        {
+            rect = rect.Intersect(new PixelRect(0, 0, (int)winW, (int)winH));
         }
 
         _logger.LogDebug(
@@ -988,14 +989,14 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         return c;
     }
 
-    private bool IsValidDrawable(X11Window drawable)
+    private bool IsValidDrawable(X11Window drawable, ref uint w, ref uint h)
     {
         try
         {
             // check by getgeometry
             var r = X11Window.None;
             int x = 0, y = 0;
-            uint w = 0, h = 0, border = 0, depth = 0;
+            uint border = 0, depth = 0;
             var result = Xlib.XGetGeometry(
                 _display,
                 drawable,
@@ -1402,13 +1403,13 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                             {
                                 while (true)
                                 {
-                                    _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
+                                    // _logger.LogDebug("About to read from wakePipe fd={fd}", _wakePipeR);
                                     int r;
                                     fixed (byte* pbuf = buf)
                                     {
                                         r = (int)LibC.read(_wakePipeR, pbuf, buf.Length);
                                     }
-                                    _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
+                                    // _logger.LogDebug("Read from wakePipe fd={fd} returned={r}", _wakePipeR, r);
                                     if (r > 0) continue;
                                     if (r == 0) break;
                                     var errno = Marshal.GetLastPInvokeError();

@@ -159,10 +159,6 @@ public partial class LinuxVisualElementContext
         private void PickElement(PixelPoint pixelPoint)
         {
             SetToolTipWindowPosition(pixelPoint);
-            if (_selectedElement != null && _selectedElement.BoundingRectangle.Contains(pixelPoint))
-            {
-                return;
-            }
             _selectedElement = _context.ElementFromPoint(pixelPoint, _elementPickMode);
             if (_selectedElement == null) return;
             var maskRect = _selectedElement.BoundingRectangle;

@@ -210,13 +210,16 @@ public sealed partial class AtspiService
             var i = 0;
             while (i < count)
             {
-                var child = GObjWrapper.Wrap(atspi_accessible_get_child_at_index(elem.Handle, i, IntPtr.Zero));
-                if (ElementVisible(child, true))
+                var child = GObjWrapper.WrapAllowNull(atspi_accessible_get_child_at_index(elem.Handle, i, IntPtr.Zero));
+                if (child != null)
                 {
-                    var childElem = GetAtspiVisualElement(() => child);
-                    if (childElem != null)
+                    if (ElementVisible(child, true))
                     {
-                        yield return childElem;
+                        var childElem = GetAtspiVisualElement(() => child);
+                        if (childElem != null)
+                        {
+                            yield return childElem;
+                        }
                     }
                 }
                 i++;
@@ -224,14 +227,16 @@ public sealed partial class AtspiService
         }
     }
 
-    private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point, bool root = false)
+    private AtspiVisualElement? AtspiElementFromPoint(AtspiVisualElement? parent, PixelPoint point, out int depth, bool root = false)
     {
 
         parent ??= GetAtspiVisualElement(() => _root);
+        depth = 0;
         if (parent is null)
         {
             return null;
         }
+        // _logger.LogDebug("find: {Name}, {Rect}, {Visible}", parent.Name, parent.BoundingRectangle, ElementVisible(parent._element));
         if (!root && !ElementVisible(parent._element, true))
         {
             return null;
@@ -241,16 +246,23 @@ public sealed partial class AtspiService
         {
             return null;
         }
+        var maxDepth = -1;
+        AtspiVisualElement? foundChild = null;
         foreach (var child in ElementChildren(parent._element)
                      .OrderByDescending(child => child.Order))
         {
-            var found = AtspiElementFromPoint(child, point);
-            if (found != null)
+            var found = AtspiElementFromPoint(child, point, out var subdepth);
+            if (found != null && subdepth > maxDepth)
             {
-                return found;
+                maxDepth = subdepth;
+                foundChild = found;
             }
         }
-
+        if (foundChild != null)
+        {
+            depth = maxDepth + 1;
+            return foundChild;
+        }
         if (rect is { Height: > 0, Width: > 0 } && rect.Contains(point) && ElementVisible(parent._element))
         {
             return parent;
@@ -288,11 +300,11 @@ public sealed partial class AtspiService
 #endif
             return null;
         }
-        var elem = AtspiElementFromPoint(app, point, true);
+        var elem = AtspiElementFromPoint(app, point, out _, true);
 #if DEBUG
         if (elem == null)
         {
-            _logger.LogWarning("AtspiElementFromPoint {Point} not found", point);
+            _logger.LogDebug("AtspiElementFromPoint {Point} not found", point);
         }
         else
         {
@@ -452,22 +464,23 @@ public sealed partial class AtspiService
                         AtspiRole.CheckBox or AtspiRole.Switch => VisualElementType.CheckBox,
                         AtspiRole.ComboBox => VisualElementType.ComboBox,
                         AtspiRole.DocumentEmail or AtspiRole.DocumentFrame or AtspiRole.DocumentPresentation or AtspiRole.DocumentSpreadsheet or
-                            AtspiRole.DocumentText or AtspiRole.DocumentWeb or AtspiRole.HtmlContainer or AtspiRole.Paragraph or AtspiRole.Form or
-                            AtspiRole.DescriptionValue or AtspiRole.Article => VisualElementType.Document,
+                            AtspiRole.DocumentText or AtspiRole.DocumentWeb or AtspiRole.HtmlContainer or 
+                            AtspiRole.Article => VisualElementType.Document,
                         AtspiRole.Entry or AtspiRole.Editbar or AtspiRole.PasswordText => VisualElementType.TextEdit,
                         AtspiRole.Image or AtspiRole.DesktopIcon or AtspiRole.Icon => VisualElementType.Image,
                         AtspiRole.Label or AtspiRole.Text or AtspiRole.Footer or AtspiRole.Caption or AtspiRole.Comment or
-                            AtspiRole.DescriptionTerm or AtspiRole.Footnote => VisualElementType.Label,
+                            AtspiRole.DescriptionTerm or AtspiRole.Footnote or AtspiRole.Paragraph or AtspiRole.DescriptionValue 
+                            => VisualElementType.Label,
                         AtspiRole.Header => VisualElementType.Header,
                         AtspiRole.Link => VisualElementType.Hyperlink,
                         AtspiRole.List or AtspiRole.ListBox or AtspiRole.DescriptionList => VisualElementType.ListView,
                         AtspiRole.ListItem => VisualElementType.ListViewItem,
-                        AtspiRole.Menu => VisualElementType.Menu,
+                        AtspiRole.Menu or AtspiRole.LandMark => VisualElementType.Menu,
                         AtspiRole.MenuItem or AtspiRole.CheckMenuItem or AtspiRole.TearoffMenuItem => VisualElementType.MenuItem,
                         AtspiRole.PageTabList => VisualElementType.TabControl,
                         AtspiRole.PageTab => VisualElementType.TabItem,
-                        AtspiRole.Panel or AtspiRole.ScrollPane or AtspiRole.RootPane or AtspiRole.Canvas or AtspiRole.Frame or AtspiRole.Window =>
-                            VisualElementType.Panel,
+                        AtspiRole.Panel or AtspiRole.ScrollPane or AtspiRole.RootPane or AtspiRole.Canvas or AtspiRole.Frame or AtspiRole.Window 
+                            or AtspiRole.Section => VisualElementType.Panel,
                         AtspiRole.ProgressBar => VisualElementType.ProgressBar,
                         AtspiRole.RadioButton => VisualElementType.RadioButton,
                         AtspiRole.ScrollBar => VisualElementType.ScrollBar,
@@ -475,7 +488,7 @@ public sealed partial class AtspiService
                         AtspiRole.SplitPane => VisualElementType.Splitter,
                         AtspiRole.StatusBar => VisualElementType.StatusBar,
                         AtspiRole.Slider => VisualElementType.Slider,
-                        AtspiRole.Table => VisualElementType.Table,
+                        AtspiRole.Table or AtspiRole.Form => VisualElementType.Table,
                         AtspiRole.TableRow => VisualElementType.TableRow,
                         AtspiRole.ToolBar => VisualElementType.ToolBar,
                         AtspiRole.Tree => VisualElementType.TreeViewItem,
@@ -597,7 +610,7 @@ public sealed partial class AtspiService
             {
                 var layer = atspi_component_get_layer(_element.Handle, IntPtr.Zero);
                 var z = atspi_component_get_mdi_z_order(_element.Handle, IntPtr.Zero);
-                return LayerOrder((AtspiLayer)layer) * 256 + z * 16 + IndexInParent;
+                return LayerOrder((AtspiLayer)layer) * 256 + z * 16 - IndexInParent;
             }
         }
 
@@ -615,13 +628,13 @@ public sealed partial class AtspiService
                     return unionRect;
                 }
                 var rect = ElementBounds(_element);
-                atspi._logger.LogDebug(
-                    "Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
-                    Name,
-                    rect.X,
-                    rect.Y,
-                    rect.Width,
-                    rect.Height);
+                // atspi._logger.LogDebug(
+                //     "Element {Name} BoundingRectangle: {X},{Y} - {W}x{H}",
+                //     Name,
+                //     rect.X,
+                //     rect.Y,
+                //     rect.Width,
+                //     rect.Height);
                 return rect;
             }
         }
@@ -637,19 +650,6 @@ public sealed partial class AtspiService
         }
     }
 
-    private AtspiVisualElement? GetAtspiVisualElement(Func<IntPtr> provider)
-    {
-        try
-        {
-            var element = provider();
-            return element == IntPtr.Zero ? null : GetAtspiVisualElement(() => GObjWrapper.Wrap(element));
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-
     private AtspiVisualElement? GetAtspiVisualElement(Func<GObj?> provider)
     {
         try
@@ -661,7 +661,7 @@ public sealed partial class AtspiService
             }
             if (_cachedElement.TryGetValue(elementObj, out var visualElement)) return visualElement;
             var elem = new AtspiVisualElement(this, elementObj);
-            _logger.LogDebug("Element add: {Name}({Type})[{States}]", elem.Name, elem.Type, elem.States);
+            // _logger.LogDebug("Element add: {Name}({Type})[{States}]", elem.Name, elem.Type, elem.States);
             _cachedElement[elementObj] = elem;
             return elem;
         }
@@ -772,6 +772,8 @@ public sealed partial class AtspiService
         Comment = 97,
         DescriptionTerm = 122,
         Footnote = 124,
+        Paragraph = 73,
+        DescriptionValue = 123,
         // Button
         Button = 43,
         ToggleButton = 62,
@@ -789,9 +791,7 @@ public sealed partial class AtspiService
         DocumentWeb = 95,
         DocumentEmail = 96,
         HtmlContainer = 25,
-        Paragraph = 73,
         Form = 87,
-        DescriptionValue = 123,
         // Hyperlink
         Link = 88,
         // Image
@@ -824,6 +824,7 @@ public sealed partial class AtspiService
         TableRow = 90,
         // Menu
         Menu = 33,
+        LandMark = 110,
         // MenuItem
         MenuItem = 35,
         CheckMenuItem = 8,
@@ -847,6 +848,7 @@ public sealed partial class AtspiService
         RootPane = 46,
         Panel = 39,
         Canvas = 6,
+        Section = 85,
         // TopLevel
         Frame = 23,
         Window = 69,
