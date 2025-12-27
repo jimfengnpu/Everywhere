@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Avalonia.Input;
 using Everywhere.Common;
 using Everywhere.Extensions;
+using Everywhere.I18N;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
@@ -75,7 +76,7 @@ public class LinuxNativeHelper : INativeHelper
     public void RestartAsAdministrator()
     {
         // No-op on Linux by default. Could re-exec with sudo if desired.
-        ShowDesktopNotificationAsync("Administrator is usually unnecessary on Linux. if needed, Please re-exec with sudo.");
+        ShowDesktopNotificationAsync(LocaleKey.Linux_NativeHelper_RestartAsAdministrator_DesktopNotification);
     }
 
     public bool GetKeyState(KeyModifiers keyModifiers)

@@ -1897,4 +1897,7 @@
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>在 Linux 上通常不需要以系統管理員身份執行。如有需要，請使用 sudo 重新執行。</value>
+    </data>
 </root>

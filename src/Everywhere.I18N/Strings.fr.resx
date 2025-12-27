@@ -1897,4 +1897,7 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>Les droits administrateur sont généralement inutiles sous Linux. Si nécessaire, veuillez relancer avec sudo.</value>
+    </data>
 </root>

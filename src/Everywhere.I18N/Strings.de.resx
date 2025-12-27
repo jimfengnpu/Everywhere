@@ -1893,4 +1893,7 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>Administratorrechte sind unter Linux normalerweise nicht erforderlich. Falls nötig, bitte mit sudo erneut ausführen.</value>
+    </data>
 </root>

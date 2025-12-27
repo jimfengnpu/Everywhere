@@ -1891,4 +1891,7 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>Linux'ta genellikle yönetici yetkisi gerekmez. Gerekirse lütfen sudo ile yeniden çalıştırın.</value>
+    </data>
 </root>

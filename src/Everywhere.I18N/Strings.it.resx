@@ -1897,4 +1897,7 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>L'amministratore di solito non è necessario su Linux. Se necessario, riavvia con sudo.</value>
+    </data>
 </root>
