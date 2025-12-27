@@ -84,6 +84,26 @@ public class SettingsSelectionItemAttribute(string itemsSourceBindingPath) : Att
 }
 
 /// <summary>
+/// Indicates this Property is a single item that should use a DataTemplate for display
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+public class SettingsTemplatedItemAttribute : Attribute
+{
+    /// <summary>
+    /// An optional key to use for the DataTemplate to display the item.
+    /// If null, typeof the property will be used as the key.
+    /// </summary>
+    public object? DataTemplateKey { get; set; }
+
+    public SettingsTemplatedItemAttribute() { }
+
+    public SettingsTemplatedItemAttribute(object dataTemplateKey)
+    {
+        DataTemplateKey = dataTemplateKey;
+    }
+}
+
+/// <summary>
 /// Indicates this Property should generate items
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]

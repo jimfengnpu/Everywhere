@@ -3,10 +3,11 @@
 
 ### New Rules
 
- Rule ID | Category                                 | Severity | Notes       
----------|------------------------------------------|----------|-------------
- STG001  | Everywhere.Configuration.SourceGenerator | Error    | Diagnostics 
- STG002  | Everywhere.Configuration.SourceGenerator | Error    | Diagnostics 
- STG003  | Everywhere.Configuration.SourceGenerator | Error    | Diagnostics 
- STG004  | Everywhere.Configuration.SourceGenerator | Error    | Diagnostics 
- STG005  | Everywhere.Configuration.SourceGenerator | Error    | Diagnostics 
+ Rule ID | Category                                 | Severity  | Notes       
+---------|------------------------------------------|-----------|-------------
+ STG001  | Everywhere.Configuration.SourceGenerator | Error     | Diagnostics 
+ STG002  | Everywhere.Configuration.SourceGenerator | Error     | Diagnostics 
+ STG003  | Everywhere.Configuration.SourceGenerator | Error     | Diagnostics 
+ STG004  | Everywhere.Configuration.SourceGenerator | Error     | Diagnostics 
+ STG005  | Everywhere.Configuration.SourceGenerator | Error     | Diagnostics 
+ STG006  | Everywhere.Configuration.SourceGenerator | Warning   | Diagnostics

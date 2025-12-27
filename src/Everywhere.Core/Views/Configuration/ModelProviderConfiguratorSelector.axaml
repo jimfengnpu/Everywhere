@@ -1,0 +1,27 @@
+﻿<ResourceDictionary
+  xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:v="using:Everywhere.Views">
+  <ControlTheme
+    x:Key="{x:Type v:ModelProviderConfiguratorSelector}"
+    TargetType="v:ModelProviderConfiguratorSelector">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel Spacing="8">
+          <ListBox
+            Width="{Binding $parent[DockPanel].Bounds.Width}"
+            ItemsSource="{Binding AvailableTypes, RelativeSource={RelativeSource TemplatedParent}}"
+            SelectedValue="{TemplateBinding SelectedType, Mode=TwoWay}">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid
+                  ColumnSpacing="4" Columns="0"/>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+          </ListBox>
+
+          <v:SettingsItemsControl ItemsSource="{TemplateBinding SettingsItems}"/>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

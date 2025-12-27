@@ -13,9 +13,18 @@ namespace Everywhere.Configuration;
 /// <typeparam name="T"></typeparam>
 public partial class Customizable<T> : ObservableObject where T : notnull
 {
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActualValue), nameof(BindableValue))]
-    public required partial T DefaultValue { get; set; }
+    public required T DefaultValue
+    {
+        get;
+        set
+        {
+            if (_isDefaultValueReadonly) return;
+            if (!SetProperty(ref field, value)) return;
+
+            OnPropertyChanged(nameof(ActualValue));
+            OnPropertyChanged(nameof(BindableValue));
+        }
+    }
 
     /// <summary>
     /// If T is a value type, T? will not be a nullable type.
@@ -95,14 +104,26 @@ public partial class Customizable<T> : ObservableObject where T : notnull
         }
     }
 
+    /// <summary>
+    /// Indicates whether the default value is read-only. Which means the CustomValue cannot be set after construction.
+    /// </summary>
+    private readonly bool _isDefaultValueReadonly;
+
     [JsonConstructor]
     public Customizable() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Customizable{T}"/> class.
+    /// </summary>
+    /// <param name="defaultValue"></param>
+    /// <param name="customValue"></param>
+    /// <param name="isDefaultValueReadonly"></param>
     [SetsRequiredMembers]
-    public Customizable(T defaultValue, T? customValue = default) : this()
+    public Customizable(T defaultValue, T? customValue = default, bool isDefaultValueReadonly = false) : this()
     {
         DefaultValue = defaultValue;
         CustomValue = customValue;
+        _isDefaultValueReadonly = isDefaultValueReadonly;
     }
 
     [RelayCommand]

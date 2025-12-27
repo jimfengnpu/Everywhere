@@ -91,5 +91,8 @@
       <DependentUpon>ElementPickerToolTip.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Configuration\ModelProviderConfiguratorSelector.axaml.cs">
+      <DependentUpon>ModelProviderConfiguratorSelector.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

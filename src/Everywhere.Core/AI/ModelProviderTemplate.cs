@@ -56,13 +56,6 @@ public record ModelProviderTemplate
     public ModelProviderSchema Schema { get; set; }
 
     /// <summary>
-    /// API key used to authenticate requests to the model provider.
-    /// This key is required to access the model provider's API and is
-    /// specific to the user's account.
-    /// </summary>
-    public string? ApiKey { get; set; }
-
-    /// <summary>
     /// Timeout for each request to the model, in seconds.
     /// </summary>
     public int RequestTimeoutSeconds { get; set; } = 20;

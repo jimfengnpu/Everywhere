@@ -150,7 +150,7 @@
                     </ComboBox>
                   </DataTemplate>
 
-                  <DataTemplate DataType="c:SettingsTypedItem">
+                  <DataTemplate DataType="c:SettingsTemplatedItem">
                     <ContentControl
                       at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
                       Content="{Binding}"
@@ -208,6 +208,7 @@
                   TextWrapping="Wrap"/>
                 <TextBlock
                   Classes="Muted Small" IsHitTestVisible="False"
+                  IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                   Text="{Binding DescriptionKey^, FallbackValue={x:Null}}"
                   TextWrapping="Wrap"/>
               </StackPanel>

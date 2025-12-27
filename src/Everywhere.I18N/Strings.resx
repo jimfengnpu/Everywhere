@@ -1911,4 +1911,7 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
+        <value>Configure AI provider</value>
+    </data>
 </root>

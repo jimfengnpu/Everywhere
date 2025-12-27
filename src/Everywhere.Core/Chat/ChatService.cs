@@ -287,9 +287,7 @@ public sealed partial class ChatService(
         try
         {
             var kernelMixin = kernelMixinFactory.GetOrCreate(customAssistant);
-            activity?.SetTag("llm.provider.id", customAssistant.ModelProviderTemplateId);
-            activity?.SetTag("llm.model.id", customAssistant.ModelDefinitionTemplateId);
-            activity?.SetTag("llm.model.actual_id", customAssistant.ModelId.ActualValue);
+            activity?.SetTag("llm.model.id", customAssistant.ModelId.ActualValue);
             activity?.SetTag("llm.model.max_embedding", customAssistant.MaxTokens.ActualValue);
             return kernelMixin;
         }
@@ -508,9 +506,7 @@ public sealed partial class ChatService(
                 FunctionChoiceBehavior.Auto(autoInvoke: false) :
                 null);
 
-        activity?.SetTag("llm.provider.id", customAssistant.ModelProviderTemplateId);
-        activity?.SetTag("llm.model.id", customAssistant.ModelDefinitionTemplateId);
-        activity?.SetTag("llm.model.actual_id", customAssistant.ModelId.ActualValue);
+        activity?.SetTag("llm.model.id", customAssistant.ModelId.ActualValue);
         activity?.SetTag("llm.model.max_embedding", customAssistant.MaxTokens.ActualValue);
 
         IDisposable? callingToolsBusyMessage = null;
