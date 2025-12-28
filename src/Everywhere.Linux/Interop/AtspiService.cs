@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using CSharpMath;
 using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
@@ -507,7 +508,14 @@ public sealed partial class AtspiService
 
         public string? Name => ElementName(_element);
 
-        public string Id => atspi_accessible_get_accessible_id(_element.Handle, IntPtr.Zero);
+        public string Id
+        {
+            get
+            {
+                var idStr = atspi_accessible_get_accessible_id(_element.Handle, IntPtr.Zero);
+                return idStr.IsEmpty()?  _element.GetHashCode().ToString("X") : idStr;
+            }
+        }
 
         public int ProcessId => ElementPid(_element);
 
