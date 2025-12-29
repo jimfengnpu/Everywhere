@@ -1900,4 +1900,7 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>L'amministratore di solito non è necessario su Linux. Se necessario, riavvia con sudo.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Impossibile acquisire la scorciatoia. La combinazione di tasti potrebbe essere già in uso.</value>
+    </data>
 </root>

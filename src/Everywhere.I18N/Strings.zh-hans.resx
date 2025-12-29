@@ -1901,4 +1901,7 @@
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux系统下通常仅使用用户权限。如果需要管理员权限，请使用sudo重新启动应用。</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>无法注册快捷键。该组合键可能已被占用。</value>
+    </data>
 </root>

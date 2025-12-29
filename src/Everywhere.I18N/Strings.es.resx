@@ -1900,4 +1900,7 @@ Rueda de desplazamiento o teclas numéricas para cambiar modos de selección</va
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Normalmente no es necesario ser administrador en Linux. Si es necesario, vuelva a ejecutar con sudo.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>No se pudo capturar la tecla de acceso rápido. Es posible que la combinación ya esté en uso.</value>
+    </data>
 </root>

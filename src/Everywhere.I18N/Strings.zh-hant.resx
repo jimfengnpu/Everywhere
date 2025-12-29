@@ -1900,4 +1900,7 @@
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>在 Linux 上通常不需要使用管理員權限。如有需要，請使用 sudo 重新執行。</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>無法取得快捷鍵。該按鍵組合可能已被使用。</value>
+    </data>
 </root>

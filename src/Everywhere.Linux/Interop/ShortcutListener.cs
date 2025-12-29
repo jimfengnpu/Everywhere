@@ -1,6 +1,8 @@
 using Avalonia.Input;
 using Everywhere.Interop;
 using System.Reactive.Disposables;
+using Everywhere.Common;
+using Everywhere.I18N;
 
 namespace Everywhere.Linux.Interop;
 
@@ -14,9 +16,15 @@ public class ShortcutListener(IEventHelper eventHelper) : IShortcutListener
             throw new ArgumentException("Invalid keyboard hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
         var id = eventHelper.GrabKey(hotkey, handler);
-        return id != 0 ?
-            Disposable.Create(() => eventHelper.UngrabKey(id)) :
-            throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
+        if (id != 0)
+        {
+            return Disposable.Create(() => eventHelper.UngrabKey(id));
+        }
+        var ex = new HandledException(
+            new InvalidOperationException("Failed to grab keyboard hotkey"),
+            new DynamicResourceKey(LocaleKey.Linux_ShortcutListener_Register_FailedToGrabHotkey)
+        );
+        throw ex;
     }
 
     // Register a mouse hotkey. Multiple handlers for the same MouseKey (with different delays) are supported.
@@ -27,9 +35,15 @@ public class ShortcutListener(IEventHelper eventHelper) : IShortcutListener
             throw new ArgumentException("Invalid mouse hotkey.", nameof(hotkey));
         ArgumentNullException.ThrowIfNull(handler);
         var id = eventHelper.GrabMouse(hotkey, handler);
-        return id != 0 ?
-            Disposable.Create(() => eventHelper.UngrabMouse(id)) :
-            throw new InvalidOperationException("Failed to grab the hotkey. The key combination may be already in use.");
+        if (id != 0)
+        {
+            return Disposable.Create(() => eventHelper.UngrabMouse(id));
+        }
+        var ex = new HandledException(
+            new InvalidOperationException("Failed to grab mouse hotkey"),
+            new DynamicResourceKey(LocaleKey.Linux_ShortcutListener_Register_FailedToGrabHotkey)
+        );
+        throw ex;
     }
 
     /// <summary>

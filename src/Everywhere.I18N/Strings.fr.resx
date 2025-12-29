@@ -1900,4 +1900,7 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Les droits administrateur sont généralement inutiles sous Linux. Si nécessaire, veuillez relancer avec sudo.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Impossible de capturer le raccourci clavier. La combinaison de touches est peut-être déjà utilisée.</value>
+    </data>
 </root>

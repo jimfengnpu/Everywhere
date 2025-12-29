@@ -1896,4 +1896,7 @@ Scrollrad oder Zifferntasten zum Wechseln der Auswahlmodi</value>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Administratorrechte sind unter Linux normalerweise nicht erforderlich. Falls nötig, bitte mit sudo erneut ausführen.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Hotkey konnte nicht erfasst werden. Die Tastenkombination wird möglicherweise bereits verwendet.</value>
+    </data>
 </root>

@@ -1894,4 +1894,7 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux'ta genellikle yönetici yetkisi gerekmez. Gerekirse lütfen sudo ile yeniden çalıştırın.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Kısayol tuşu alınamadı. Tuş kombinasyonu zaten kullanımda olabilir.</value>
+    </data>
 </root>

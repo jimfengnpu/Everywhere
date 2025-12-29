@@ -1900,4 +1900,7 @@
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Права администратора обычно не требуются в Linux. Если необходимо, выполните повторный запуск с sudo.</value>
     </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Не удалось захватить горячую клавишу. Возможно, комбинация клавиш уже используется.</value>
+    </data>
 </root>
