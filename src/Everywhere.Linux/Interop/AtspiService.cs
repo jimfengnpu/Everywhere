@@ -464,12 +464,12 @@ public sealed partial class AtspiService
                         AtspiRole.CheckBox or AtspiRole.Switch => VisualElementType.CheckBox,
                         AtspiRole.ComboBox => VisualElementType.ComboBox,
                         AtspiRole.DocumentEmail or AtspiRole.DocumentFrame or AtspiRole.DocumentPresentation or AtspiRole.DocumentSpreadsheet or
-                            AtspiRole.DocumentText or AtspiRole.DocumentWeb or AtspiRole.HtmlContainer or 
+                            AtspiRole.DocumentText or AtspiRole.DocumentWeb or AtspiRole.HtmlContainer or
                             AtspiRole.Article => VisualElementType.Document,
                         AtspiRole.Entry or AtspiRole.Editbar or AtspiRole.PasswordText => VisualElementType.TextEdit,
                         AtspiRole.Image or AtspiRole.DesktopIcon or AtspiRole.Icon => VisualElementType.Image,
                         AtspiRole.Label or AtspiRole.Text or AtspiRole.Footer or AtspiRole.Caption or AtspiRole.Comment or
-                            AtspiRole.DescriptionTerm or AtspiRole.Footnote or AtspiRole.Paragraph or AtspiRole.DescriptionValue 
+                            AtspiRole.DescriptionTerm or AtspiRole.Footnote or AtspiRole.Paragraph or AtspiRole.DescriptionValue
                             => VisualElementType.Label,
                         AtspiRole.Header => VisualElementType.Header,
                         AtspiRole.Link => VisualElementType.Hyperlink,
@@ -479,7 +479,7 @@ public sealed partial class AtspiService
                         AtspiRole.MenuItem or AtspiRole.CheckMenuItem or AtspiRole.TearoffMenuItem => VisualElementType.MenuItem,
                         AtspiRole.PageTabList => VisualElementType.TabControl,
                         AtspiRole.PageTab => VisualElementType.TabItem,
-                        AtspiRole.Panel or AtspiRole.ScrollPane or AtspiRole.RootPane or AtspiRole.Canvas or AtspiRole.Frame or AtspiRole.Window 
+                        AtspiRole.Panel or AtspiRole.ScrollPane or AtspiRole.RootPane or AtspiRole.Canvas or AtspiRole.Frame or AtspiRole.Window
                             or AtspiRole.Section => VisualElementType.Panel,
                         AtspiRole.ProgressBar => VisualElementType.ProgressBar,
                         AtspiRole.RadioButton => VisualElementType.RadioButton,
@@ -512,7 +512,7 @@ public sealed partial class AtspiService
             get
             {
                 var idStr = atspi_accessible_get_accessible_id(_element.Handle, IntPtr.Zero);
-                return idStr.IsNullOrEmpty()?  _element.GetHashCode().ToString("X") : idStr;
+                return idStr.IsNullOrEmpty() ? _element.GetHashCode().ToString("X") : idStr;
             }
         }
 

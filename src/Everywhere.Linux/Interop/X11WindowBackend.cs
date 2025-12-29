@@ -216,7 +216,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                 tcs.SetResult(0);
             }
         });
-        
+
         return tcs.Task.GetAwaiter().GetResult();
     }
 
@@ -1481,7 +1481,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
             _logger.LogWarning(ex, "Failed to write wake pipe");
         }
     }
-    
+
     /// <summary>
     /// X11 Error Handler
     /// If Error occurs inside X11 interface, this callback is invoked.
