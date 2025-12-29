@@ -290,10 +290,10 @@ public sealed partial class AtspiService
         return null;
     }
 
-    public IVisualElement? ElementFromPoint(PixelPoint point, int pid)
+    public IVisualElement? ElementFromWindow(PixelPoint point, IVisualElement window)
     {
         CheckInitialized();
-        var app = AtspiAppElementByPid(pid);
+        var app = AtspiAppElementByPid(window.ProcessId);
         if (app == null)
         {
 #if DEBUG
@@ -513,13 +513,23 @@ public sealed partial class AtspiService
             get
             {
                 var idStr = atspi_accessible_get_accessible_id(_element.Handle, IntPtr.Zero);
-                return idStr.IsEmpty()?  _element.GetHashCode().ToString("X") : idStr;
+                return idStr.IsNullOrEmpty()?  _element.GetHashCode().ToString("X") : idStr;
             }
         }
 
         public int ProcessId => ElementPid(_element);
 
-        private IVisualElement? OwnerWindow => atspi._windowBackend.GetWindowElementByPid(ProcessId);
+        private IVisualElement? OwnerWindow
+        {
+            get
+            {
+                if (field != null) return field;
+                var owner = atspi._windowBackend.GetWindowElementByInfo(ProcessId, BoundingRectangle)
+                    ?? ((AtspiVisualElement?)Parent)?.OwnerWindow;
+                field = owner;
+                return field;
+            }
+        }
 
         public nint NativeWindowHandle => OwnerWindow?.NativeWindowHandle ?? IntPtr.Zero;
 

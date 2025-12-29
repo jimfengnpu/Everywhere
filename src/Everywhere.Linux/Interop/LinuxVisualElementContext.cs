@@ -52,7 +52,7 @@ public partial class LinuxVisualElementContext(
             {
                 case ElementPickMode.Element:
                     var win = backend.GetWindowElementAt(point);
-                    var elem = _atspi.ElementFromPoint(point, win.ProcessId);
+                    var elem = _atspi.ElementFromWindow(point, win);
                     return elem ?? win; // fallback to window mode
 
                 case ElementPickMode.Window:

@@ -554,12 +554,48 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         return GetWindowElement(child);
     }
 
-    public IVisualElement? GetWindowElementByPid(int pid)
+    private PixelRect XGetWindowBound(X11Window window)
+    {
+        try
+        {
+            if (window == X11Window.None)
+            {
+                _logger.LogWarning("BoundingRectangle called with zero window handle");
+                return default;
+            }
+            Xlib.XGetWindowAttributes(_display, window, out var windowAttr);
+            var x = windowAttr.x;
+            var y = windowAttr.y;
+            var w = windowAttr.width;
+            var h = windowAttr.height;
+            var result = XTranslateCoordinates(
+                _display,
+                window,
+                _rootWindow,
+                0,
+                0,
+                out var absX,
+                out var absY,
+                out _);
+
+            if (result != 0) return new PixelRect(absX, absY, (int)w, (int)h);
+            _logger.LogWarning("XTranslateCoordinates failed for window {window}", window.ToString("X"));
+            return new PixelRect(x, y, (int)w, (int)h);
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BoundingRectangle failed for window {window}", window.ToString("X"));
+            return default;
+        }
+    }
+
+    public IVisualElement? GetWindowElementByInfo(int pid, PixelRect rect)
     {
         var target = X11Window.None;
         XForEachTopWindow((window) =>
         {
-            if (XGetWindowPid(window) == pid)
+            if (XGetWindowPid(window) == pid && XGetWindowBound(window) == rect)
             {
                 target = window;
             }
@@ -1140,45 +1176,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                 }
             }
         }
-        public PixelRect BoundingRectangle
-        {
-            get
-            {
-                try
-                {
-                    var display = backend._display;
-                    if (windowHandle == X11Window.None)
-                    {
-                        backend._logger.LogWarning("BoundingRectangle called with zero window handle");
-                        return default;
-                    }
-                    Xlib.XGetWindowAttributes(display, windowHandle, out var windowAttr);
-                    var x = windowAttr.x;
-                    var y = windowAttr.y;
-                    var w = windowAttr.width;
-                    var h = windowAttr.height;
-                    var result = XTranslateCoordinates(
-                        display,
-                        windowHandle,
-                        backend._rootWindow,
-                        0,
-                        0,
-                        out var absX,
-                        out var absY,
-                        out _);
-
-                    if (result != 0) return new PixelRect(absX, absY, (int)w, (int)h);
-                    backend._logger.LogWarning("XTranslateCoordinates failed for window {window}", windowHandle.ToString("X"));
-                    return new PixelRect(x, y, (int)w, (int)h);
-
-                }
-                catch (Exception ex)
-                {
-                    backend._logger.LogError(ex, "BoundingRectangle failed for window {window}", windowHandle.ToString("X"));
-                    return default;
-                }
-            }
-        }
+        public PixelRect BoundingRectangle => backend.XGetWindowBound((X11Window)NativeWindowHandle);
         public int ProcessId
         {
             get

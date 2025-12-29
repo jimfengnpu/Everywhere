@@ -18,7 +18,7 @@ public interface ILinuxWindowBackend : IWindowHelper
 
     IVisualElement GetWindowElementAt(PixelPoint point);
 
-    IVisualElement? GetWindowElementByPid(int pid);
+    IVisualElement? GetWindowElementByInfo(int pid, PixelRect rect);
 
     IVisualElement GetScreenElement();
 

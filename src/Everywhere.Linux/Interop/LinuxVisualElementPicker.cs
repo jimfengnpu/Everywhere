@@ -162,6 +162,10 @@ public partial class LinuxVisualElementContext
             _selectedElement = _context.ElementFromPoint(pixelPoint, _elementPickMode);
             if (_selectedElement == null) return;
             var maskRect = _selectedElement.BoundingRectangle;
+            if (maskRect.Width < 0 || maskRect.Height < 0)
+            {
+                return;
+            }
             foreach (var maskWindow in _visualElementPickerMaskWindows) maskWindow.SetMask(maskRect);
             _toolTipWindow.ToolTip.Element = _selectedElement;
         }
