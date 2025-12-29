@@ -97,50 +97,6 @@ public partial class X11WindowBackend
 
     #endregion
 
-    /// <summary>
-    /// X11 Error Handler
-    /// If Error occurs inside X11 interface, this callback is invoked.
-    /// </summary>
-    private int OnXError(IntPtr display, ref XErrorEvent ev)
-    {
-        try
-        {
-            string text;
-            try
-            {
-                var buffer = new byte[256]; // X11 Error Text Give 256 Bytes
-                unsafe
-                {
-                    fixed (byte* buff = buffer)
-                    {
-                        Xlib.XGetErrorText(display, ev.error_code, (IntPtr)buff, buffer.Length);
-                    }
-                }
-                text = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to get X error text for code {code}", ev.error_code);
-                text = $"Unknown error code {ev.error_code}";
-            }
-
-            _logger.LogError(
-                "X Error: code={code}({errorName}) request={req}({reqName}) minor={minor} resource={res} text={text}",
-                ev.error_code,
-                GetErrorCodeName(ev.error_code),
-                ev.request_code,
-                GetRequestCodeName(ev.request_code),
-                ev.minor_code,
-                ev.resourceid,
-                text);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to handle X error");
-        }
-        return 0;
-    }
-
     #region X11 Code Conversion Functions
 
     private static string GetErrorCodeName(int code)

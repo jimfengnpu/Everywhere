@@ -195,6 +195,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                     KeyButtonMask.LockMask | KeyButtonMask.Mod2Mask
                 };
                 foreach (var v in variants)
+                {
                     Xlib.XGrabKey(
                         _display,
                         keycode,
@@ -203,6 +204,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                         false,
                         GrabMode.Async,
                         GrabMode.Async);
+                }
                 Xlib.XFlush(_display);
                 var id = Interlocked.Increment(ref _nextId);
                 _regs[id] = new RegInfo { Keycode = keycode, Mods = mods, Handler = handler };
@@ -214,7 +216,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                 tcs.SetResult(0);
             }
         });
-
+        
         return tcs.Task.GetAwaiter().GetResult();
     }
 
@@ -231,7 +233,6 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
             };
             foreach (var v in variants) Xlib.XUngrabKey(_display, info.Keycode, (KeyButtonMask)(info.Mods | (uint)v), _rootWindow);
             Xlib.XFlush(_display);
-
         });
     }
 
@@ -1479,6 +1480,49 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
         {
             _logger.LogWarning(ex, "Failed to write wake pipe");
         }
+    }
+    
+    /// <summary>
+    /// X11 Error Handler
+    /// If Error occurs inside X11 interface, this callback is invoked.
+    /// </summary>
+    private int OnXError(IntPtr display, ref XErrorEvent ev)
+    {
+        try
+        {
+            string text;
+            try
+            {
+                var buffer = new byte[256]; // X11 Error Text Give 256 Bytes
+                unsafe
+                {
+                    fixed (byte* buff = buffer)
+                    {
+                        Xlib.XGetErrorText(display, ev.error_code, (IntPtr)buff, buffer.Length);
+                    }
+                }
+                text = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to get X error text for code {code}", ev.error_code);
+                text = $"Unknown error code {ev.error_code}";
+            }
+            _logger.LogError(
+                "X Error: code={code}({errorName}) request={req}({reqName}) minor={minor} resource={res} text={text}",
+                ev.error_code,
+                GetErrorCodeName(ev.error_code),
+                ev.request_code,
+                GetRequestCodeName(ev.request_code),
+                ev.minor_code,
+                ev.resourceid,
+                text);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to handle X error");
+        }
+        return 0;
     }
 
     private class RegInfo
