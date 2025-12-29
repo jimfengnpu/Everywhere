@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
-using CSharpMath;
 using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
