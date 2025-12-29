@@ -18,7 +18,7 @@ namespace Everywhere.Linux.Interop;
 public sealed partial class AtspiService
 {
     private readonly bool _initialized;
-    private readonly ILinuxWindowBackend _windowBackend;
+    private readonly IWindowBackend _windowBackend;
     private readonly ConcurrentDictionary<GObj, AtspiVisualElement> _cachedElement = new();
     private readonly ILogger<AtspiService> _logger = ServiceLocator.Resolve<ILogger<AtspiService>>();
     private readonly AtspiEventListenerCallback _eventCallback;
@@ -28,7 +28,7 @@ public sealed partial class AtspiService
     private IntPtr _eventListener;
     private GObj? _focusedElement;
 
-    public AtspiService(ILinuxWindowBackend backend)
+    public AtspiService(IWindowBackend backend)
     {
         _windowBackend = backend;
         GObject.Module.Initialize();
@@ -523,6 +523,9 @@ public sealed partial class AtspiService
             get
             {
                 if (field != null) return field;
+                // note: one process may open several root windows, only pid is not enough
+                // for not matched element, match its parent continuely.
+                // window level is always coresponded with that in at-spi
                 var owner = atspi._windowBackend.GetWindowElementByInfo(ProcessId, BoundingRectangle)
                     ?? ((AtspiVisualElement?)Parent)?.OwnerWindow;
                 field = owner;

@@ -1,16 +1,13 @@
 using System.Diagnostics;
 using Avalonia.Input;
-using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
 
 namespace Everywhere.Linux.Interop;
 
-public class LinuxNativeHelper : INativeHelper
+public class NativeHelper(IEventHelper eventHelper) : INativeHelper
 {
-    private readonly ILinuxEventHelper _eventHelper = ServiceLocator.Resolve<ILinuxEventHelper>();
-
     private static string SystemdServiceFile
     {
         get
@@ -81,7 +78,7 @@ public class LinuxNativeHelper : INativeHelper
 
     public bool GetKeyState(KeyModifiers keyModifiers)
     {
-        return _eventHelper.GetKeyState(keyModifiers);
+        return eventHelper.GetKeyState(keyModifiers);
     }
 
     public Task<bool> ShowDesktopNotificationAsync(string message, string? title = null)

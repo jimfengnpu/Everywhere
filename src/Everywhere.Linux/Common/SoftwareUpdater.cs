@@ -10,7 +10,6 @@ using Everywhere.Configuration;
 using Everywhere.Extensions;
 using Everywhere.I18N;
 using Everywhere.Interop;
-using Everywhere.Linux.Interop;
 using Microsoft.Extensions.Logging;
 #if !DEBUG
 using Everywhere.Utilities;
@@ -124,7 +123,7 @@ public sealed partial class SoftwareUpdater(
             if (_notifiedVersion != LatestVersion && LatestVersion is not null)
             {
                 _notifiedVersion = LatestVersion;
-                new LinuxNativeHelper().ShowDesktopNotificationAsync(
+                await nativeHelper.ShowDesktopNotificationAsync(
                     LocaleKey.SoftwareUpdater_UpdateAvailable_Toast_Message,
                     LocaleKey.Common_Info);
             }
@@ -290,9 +289,9 @@ public sealed partial class SoftwareUpdater(
                 Process.Start(new ProcessStartInfo("sudo", $"dpkg -i \"{packagePath}\"") { UseShellExecute = true })?.WaitForExit();
             }
         }
-        catch
+        catch (Exception ex)
         {
-            
+            throw new InvalidOperationException("Failed to install package.", ex);
         }
 
         Environment.Exit(0);

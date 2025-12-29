@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <AssemblyName>Everywhere</AssemblyName>
+    <ApplicationTitle>Everywhere</ApplicationTitle>
     <SelfContained>true</SelfContained>
     <TargetFramework>$(TargetFrameworkPrefix)</TargetFramework>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -17,7 +19,6 @@
     <PackageReference Include="Tmds.LibC" />
     <PackageReference Include="X11.Net" />
     <PackageReference Include="GirCore.GObject-2.0" />
-    <PackageReference Include="GirCore.GObject-2.0.Integration" />
   </ItemGroup>
 
   <ItemGroup>

@@ -37,8 +37,8 @@ public static class Program
             // not x11, may be not fully supported
             Log.Logger.Warning("Not X11 Session, Maybe not supported well");
         }
-        services.AddSingleton<ILinuxEventHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
-        services.AddSingleton<ILinuxWindowBackend>(sp => sp.GetRequiredService<X11WindowBackend>());
+        services.AddSingleton<IEventHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
+        services.AddSingleton<IWindowBackend>(sp => sp.GetRequiredService<X11WindowBackend>());
         services.AddSingleton<IWindowHelper>(sp => sp.GetRequiredService<X11WindowBackend>());
         return services;
     }
@@ -57,9 +57,9 @@ public static class Program
                     .AddFilter<SerilogLoggerProvider>("Microsoft.EntityFrameworkCore", LogLevel.Debug))
                 .AddSingleton<IRuntimeConstantProvider, RuntimeConstantProvider>()
                 .AddWindowEventHelper()
-                .AddSingleton<IVisualElementContext, LinuxVisualElementContext>()
-                .AddSingleton<IShortcutListener, LinuxShortcutListener>()
-                .AddSingleton<INativeHelper, LinuxNativeHelper>()
+                .AddSingleton<IVisualElementContext, VisualElementContext>()
+                .AddSingleton<IShortcutListener, ShortcutListener>()
+                .AddSingleton<INativeHelper, NativeHelper>()
                 .AddSingleton<ISoftwareUpdater, SoftwareUpdater>()
                 .AddSettings()
                 .AddWatchdogManager()

@@ -93,7 +93,6 @@
     <PackageVersion Include="Tmds.LibC" Version="0.5.0" />
     <PackageVersion Include="X11.Net" Version="1.0.7" />
     <PackageVersion Include="GirCore.GObject-2.0" Version="0.7.0" />
-    <PackageVersion Include="GirCore.GObject-2.0.Integration" Version="0.7.0" />
     <!-- NUnit packages -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />

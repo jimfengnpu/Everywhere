@@ -21,7 +21,7 @@ public enum EventType
     FocusChange,
 }
 
-public interface ILinuxEventHelper
+public interface IEventHelper
 {
     bool GetKeyState(KeyModifiers keyModifiers);
 

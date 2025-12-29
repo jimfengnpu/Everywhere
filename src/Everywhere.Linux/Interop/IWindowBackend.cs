@@ -8,7 +8,7 @@ namespace Everywhere.Linux.Interop;
 /// <summary>
 /// Abstract display backend contract (X11[Xorg] / Wayland Compositor / other).
 /// </summary>
-public interface ILinuxWindowBackend : IWindowHelper
+public interface IWindowBackend : IWindowHelper
 {
     void SendKeyboardShortcut(KeyboardShortcut shortcut);
 

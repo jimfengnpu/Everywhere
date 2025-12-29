@@ -6,13 +6,13 @@ using Everywhere.Views;
 
 namespace Everywhere.Linux.Interop;
 
-public partial class LinuxVisualElementContext
+public partial class VisualElementContext
 {
     private class ElementPicker : VisualElementPickerTransparentWindow
     {
         public static Task<IVisualElement?> PickAsync(
-            LinuxVisualElementContext context,
-            ILinuxWindowBackend backend,
+            VisualElementContext context,
+            IWindowBackend backend,
             ElementPickMode mode)
         {
             var window = new ElementPicker(context, backend, mode);
@@ -24,8 +24,8 @@ public partial class LinuxVisualElementContext
         /// A promise that resolves to the picked visual element.
         /// </summary>
         private readonly TaskCompletionSource<IVisualElement?> _pickingPromise = new();
-        private readonly LinuxVisualElementContext _context;
-        private readonly ILinuxWindowBackend _backend;
+        private readonly VisualElementContext _context;
+        private readonly IWindowBackend _backend;
         private readonly PixelRect _allScreenBounds;
         private readonly VisualElementPickerMaskWindow[] _visualElementPickerMaskWindows;
         private readonly VisualElementPickerToolTipWindow _toolTipWindow;
@@ -34,8 +34,8 @@ public partial class LinuxVisualElementContext
         private IVisualElement? _selectedElement;
 
         private ElementPicker(
-            LinuxVisualElementContext context,
-            ILinuxWindowBackend backend,
+            VisualElementContext context,
+            IWindowBackend backend,
             ElementPickMode elementPickMode)
         {
             _context = context;

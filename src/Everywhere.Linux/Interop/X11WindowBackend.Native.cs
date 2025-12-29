@@ -8,6 +8,8 @@ namespace Everywhere.Linux.Interop;
 
 /// <summary>
 /// X11 Backend Impl
+/// This file contains needed declarations of native libs.
+/// nuget X11.Net is used possibly
 /// </summary>
 public partial class X11WindowBackend
 {
@@ -17,13 +19,6 @@ public partial class X11WindowBackend
     [LibraryImport(LibX11)] private static partial int XScreenCount(IntPtr display);
     [LibraryImport(LibX11)] private static partial int XDisplayWidth(IntPtr display, int screenNumber);
     [LibraryImport(LibX11)] private static partial int XDisplayHeight(IntPtr display, int screenNumber);
-
-    [LibraryImport(LibX11)] private static partial int XChangeWindowAttributes(
-        IntPtr display,
-        X11Window window,
-        ulong valueMask,
-        IntPtr setAttributes);
-
     [LibraryImport(LibX11)] private static partial IntPtr XKeysymToString(KeySym keysym);
     [LibraryImport(LibX11)] private static partial void XQueryKeymap(IntPtr display, byte[] keymap);
 
@@ -89,25 +84,6 @@ public partial class X11WindowBackend
 
     #region X11 Constants and Structures
 
-    private enum SetWindowAttrMask : ulong
-    {
-        BackPixmap = 1 << 0,
-        BackPixel = 1 << 1,
-        BorderPixmap = 1 << 2,
-        BorderPixel = 1 << 3,
-        BitGravity = 1 << 4,
-        WinGravity = 1 << 5,
-        BackingStore = 1 << 6,
-        BackingPlanes = 1 << 7,
-        BackingPixel = 1 << 8,
-        SaveUnder = 1 << 9,
-        EventMask = 1 << 10,
-        DontPropagate = 1 << 11,
-        Colormap = 1 << 13,
-        Cursor = 1 << 14,
-        OverrideRedirect = 1 << 15,
-    }
-
     private enum MapState
     {
         IsUnmapped = 0,
@@ -121,8 +97,11 @@ public partial class X11WindowBackend
 
     #endregion
 
-    // X11 Error Handler
-    private int OnXError(IntPtr d, ref XErrorEvent ev)
+    /// <summary>
+    /// X11 Error Handler
+    /// If Error occurs inside X11 interface, this callback is invoked.
+    /// </summary>
+    private int OnXError(IntPtr display, ref XErrorEvent ev)
     {
         try
         {
@@ -134,7 +113,7 @@ public partial class X11WindowBackend
                 {
                     fixed (byte* buff = buffer)
                     {
-                        Xlib.XGetErrorText(d, ev.error_code, (IntPtr)buff, buffer.Length);
+                        Xlib.XGetErrorText(display, ev.error_code, (IntPtr)buff, buffer.Length);
                     }
                 }
                 text = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');

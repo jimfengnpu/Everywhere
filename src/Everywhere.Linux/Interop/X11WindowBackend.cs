@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
-using Everywhere.Common;
 using Everywhere.Extensions;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
@@ -14,9 +13,17 @@ using X11Window = X11.Window;
 
 namespace Everywhere.Linux.Interop;
 
-public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventHelper
+/// <summary>
+/// X11 Backend Impl
+/// </summary>
+/// <remarks>
+/// nuget X11.Net is used possibly
+/// X11 lib doc: https://www.x.org/releases/current/doc/libX11/libX11/libX11.html
+/// Extended Window Manager Hints (EWMH): https://specifications.freedesktop.org/wm/latest/
+/// </remarks>
+public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
 {
-    private readonly ILogger<X11WindowBackend> _logger = ServiceLocator.Resolve<ILogger<X11WindowBackend>>();
+    private readonly ILogger<X11WindowBackend> _logger;
     private readonly X11Window _rootWindow;
     private readonly ConcurrentDictionary<int, RegInfo> _regs = new();
     private readonly BlockingCollection<Action> _ops = new(new ConcurrentQueue<Action>());
@@ -33,9 +40,9 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
     private Action<KeyboardShortcut, EventType>? _keyboardHook;
     private Action<PixelPoint, EventType>? _mouseHook;
 
-    public X11WindowBackend()
+    public X11WindowBackend(ILogger<X11WindowBackend> logger)
     {
-        // XInitThreads();
+        _logger = logger;
         _display = Xlib.XOpenDisplay(Environment.GetEnvironmentVariable("DISPLAY"));
         if (_display == IntPtr.Zero) return;
         _rootWindow = Xlib.XDefaultRootWindow(_display);
@@ -639,7 +646,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
                             _display,
                             wnd,
                             atomHints,
-                            Xlib.XInternAtom(_display, "WM_HINTS", false),
+                            atomHints,
                             32,
                             (int)PropertyMode.Replace,
                             (IntPtr)pHints,
@@ -1101,9 +1108,9 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
             X11WindowBackend backend
         ) : VisualElementSiblingAccessor
         {
-            private List<X11Window> _childArr = [];
             private int _childCount;
             private int _selfIndex;
+            private readonly List<X11Window> _childArr = [];
 
             protected override void EnsureResources()
             {
@@ -1273,7 +1280,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
         public VisualElementType Type => VisualElementType.Screen;
         public VisualElementStates States => VisualElementStates.None;
-        public string? Name => Id;
+        public string Name => Id;
         public PixelRect BoundingRectangle
         {
             get
@@ -1286,7 +1293,7 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
         }
         public int ProcessId => 0;
         public IntPtr NativeWindowHandle => (IntPtr)Xlib.XRootWindow(backend._display, index);
-        public string? GetText(int maxLength = -1) => Name;
+        public string GetText(int maxLength = -1) => Name;
         public string? GetSelectionText() => null;
 
         public void Invoke() { }
@@ -1476,8 +1483,8 @@ public sealed partial class X11WindowBackend : ILinuxWindowBackend, ILinuxEventH
 
     private class RegInfo
     {
-        public KeyCode Keycode { get; set; }
-        public uint Mods { get; set; }
-        public Action Handler { get; set; } = () => { };
+        public KeyCode Keycode { get; init; }
+        public uint Mods { get; init; }
+        public Action Handler { get; init; } = () => { };
     }
 }
