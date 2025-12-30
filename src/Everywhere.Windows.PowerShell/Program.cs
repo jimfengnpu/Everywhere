@@ -46,11 +46,19 @@ public static partial class Program
         }
 
         using var powerShell = System.Management.Automation.PowerShell.Create(runspace);
-        powerShell.AddScript($"& {{ {scriptBuilder} }} | Out-String"); // Ensure results are returned as string
+        
+        // Use *>&1 to redirect all streams (Error, Warning, Verbose, Debug, Information) to the Success stream.
+        // Then pipe to Out-String to format everything as text (e.g. "WARNING: ...").
+        powerShell.AddScript($"& {{ {scriptBuilder} }} *>&1 | Out-String");
 
         var results = await powerShell.InvokeAsync();
-        if (powerShell.HadErrors)
+        
+        // Since we redirected Error stream to Success stream, HadErrors might be false, 
+        // or even if true, the error details are already in 'results'.
+        // We only check for infrastructure errors here if needed, but generally we want to return everything to the caller.
+        if (powerShell.HadErrors && results.Count == 0)
         {
+            // Fallback if something went wrong and wasn't captured in output
             var errorMessage = string.Join(Environment.NewLine, powerShell.Streams.Error.Select(e => e.ToString()));
             await Console.Error.WriteAsync(errorMessage);
             Environment.Exit(1);
