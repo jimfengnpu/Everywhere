@@ -3,7 +3,6 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Everywhere.Common;
 using Everywhere.Interop;
-using Everywhere.Storage;
 using Everywhere.Utilities;
 using Lucide.Avalonia;
 using MessagePack;
@@ -89,7 +88,15 @@ public partial class ChatFileAttachment(
     public override LucideIconKind Icon => LucideIconKind.File;
 
     [Key(1)]
-    public string FilePath { get; set; } = filePath;
+    public string FilePath
+    {
+        get;
+        set
+        {
+            if (!SetProperty(ref field, value)) return;
+            _isImageLoaded = false;
+        }
+    } = filePath;
 
     [Key(2)]
     public string Sha256 { get; } = sha256;
@@ -103,45 +110,46 @@ public partial class ChatFileAttachment(
     {
         get
         {
-            if (field is not null) return field;
+            if (_isImageLoaded) return field;
 
-            Task.Run(() => GetImageAsync(1024, 1024)).ContinueWith(task =>
+            Task.Run(async () =>
             {
-                if (task is { IsCompletedSuccessfully: true, Result: not null })
+                try
                 {
-                    field = task.Result;
+                    field = await LoadImageAsync();
                 }
-                else
+                catch (Exception ex)
                 {
+                    ex = HandledSystemException.Handle(ex);
+                    Log.Logger.ForContext<ChatFileAttachment>().Error(ex, "Failed to load image from file: {FilePath}", FilePath);
                     field = null;
                 }
-
-                // Notify property changed on the UI thread
-                OnPropertyChanged();
+                finally
+                {
+                    _isImageLoaded = true;
+                    OnPropertyChanged();
+                }
             });
 
             return field;
+
+            async ValueTask<Bitmap?> LoadImageAsync()
+            {
+                const int maxWidth = 512;
+                const int maxHeight = 512;
+
+                if (!IsImage) return null;
+                if (!File.Exists(FilePath)) return null;
+
+                await using var stream = File.OpenRead(FilePath);
+                var bitmap = Bitmap.DecodeToWidth(stream, maxWidth);
+                return await ResizeImageOnDemandAsync(bitmap, maxWidth, maxHeight).ConfigureAwait(false);
+            }
         }
     }
 
-    public async Task<Bitmap?> GetImageAsync(int maxWidth = 2560, int maxHeight = 2560)
-    {
-        if (!IsImage) return null;
-
-        try
-        {
-            if (!File.Exists(FilePath)) return null;
-            await using var stream = File.OpenRead(FilePath);
-            var bitmap = Bitmap.DecodeToWidth(stream, maxWidth);
-            return await ResizeImageOnDemandAsync(bitmap, maxWidth, maxHeight);
-        }
-        catch (Exception ex)
-        {
-            ex = HandledSystemException.Handle(ex);
-            Log.Logger.ForContext<ChatFileAttachment>().Error(ex, "Failed to load image from file: {FilePath}", FilePath);
-            return null;
-        }
-    }
+    [IgnoreMember]
+    private bool _isImageLoaded;
 
     public override string ToString()
     {
