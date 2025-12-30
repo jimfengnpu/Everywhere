@@ -79,7 +79,7 @@ cat > DEBIAN/postinst <<EOF
 set -e
 
 # Create symlink
-ln -sf "$INSTALLPATH/Everywhere.Linux" /usr/bin/Everywhere
+ln -sf "$INSTALLPATH/Everywhere" /usr/bin/Everywhere
 desktop-file-install "$INSTALLPATH/Everywhere.desktop"
 
 exit 0
