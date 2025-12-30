@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using DynamicData;
 using Everywhere.Chat;
 using Everywhere.Chat.Permissions;
@@ -96,6 +97,9 @@ public class PowerShellPlugin : BuiltInChatPlugin
             RedirectStandardError = true,
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+            StandardInputEncoding = new UTF8Encoding(false), // remove BOM header
             UseShellExecute = false,
             CreateNoWindow = true,
             WorkingDirectory = chatContextManager.EnsureWorkingDirectory(chatContext)

@@ -10,6 +10,10 @@ public static partial class Program
 {
     public static async Task Main()
     {
+        // Ensure we use UTF-8 for all I/O to avoid encoding issues (e.g. ??? in output)
+        Console.InputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = Encoding.UTF8;
+
         var path = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
         var modulesPath = Path.Combine(path ?? ".", "runtimes", "win", "lib", "net9.0", "Modules");
 
