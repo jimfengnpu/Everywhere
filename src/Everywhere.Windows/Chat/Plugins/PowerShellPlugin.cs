@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using DynamicData;
+using Everywhere.Chat;
 using Everywhere.Chat.Permissions;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -40,6 +41,8 @@ public class PowerShellPlugin : BuiltInChatPlugin
     [DynamicResourceKey(LocaleKey.Windows_BuiltInChatPlugin_PowerShell_ExecuteScript_Header)]
     private async Task<string> ExecuteScriptAsync(
         [FromKernelServices] IChatPluginUserInterface userInterface,
+        [FromKernelServices] IChatContextManager chatContextManager,
+        [FromKernelServices] ChatContext chatContext,
         [Description("A concise description for user, explaining what you are doing")] string description,
         [Description("Single or multi-line")] string script,
         CancellationToken cancellationToken)
@@ -95,6 +98,7 @@ public class PowerShellPlugin : BuiltInChatPlugin
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
+            WorkingDirectory = chatContextManager.EnsureWorkingDirectory(chatContext)
         };
 
         string result;
