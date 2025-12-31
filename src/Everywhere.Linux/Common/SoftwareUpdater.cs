@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -49,6 +49,47 @@ public sealed partial class SoftwareUpdater(
     [ObservableProperty] public partial DateTimeOffset? LastCheckTime { get; private set; }
 
     [ObservableProperty] public partial Version? LatestVersion { get; private set; }
+    
+    private static string OsIdentifier => RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "Linux-arm64" : "Linux-x64";
+
+    public static string OsDistro
+    {
+        get
+        {
+            string[] paths = { "/etc/os-release", "/usr/lib/os-release" };
+            foreach (var path in paths)
+            {
+                if (!File.Exists(path))
+                    continue;
+                var lines = File.ReadAllLines(path);
+                foreach (var line in lines)
+                {
+                    if (!line.StartsWith("ID=", StringComparison.Ordinal)) continue;
+                    // Remove "ID=" and trim quotes if present
+                    var id = line.Substring(3).Trim();
+                    if (id.StartsWith('"') && id.EndsWith('"') && id.Length >= 2)
+                        id = id.Substring(1, id.Length - 2);
+                    return id;
+                }
+            }
+            return "unknown"; // Not found or not on Linux
+        }
+    }
+
+    private static string OsPackageType
+    {
+        get
+        {
+            var distro = OsDistro;
+            return distro switch
+            {
+                "debian" or "ubuntu" or "linuxmint" or "kali" => "deb",
+                "rhel" or "centos" or "fedora" => "rpm",
+                _ => ""
+            };
+        }
+    }
+    
 
     public void RunAutomaticCheckInBackground(TimeSpan interval, CancellationToken cancellationToken = default)
     {
@@ -101,11 +142,15 @@ public sealed partial class SoftwareUpdater(
             }
 
             var assets = root.GetProperty("assets").Deserialize<List<AssetMetadata>>();
-            var isInstalled = nativeHelper.IsInstalled;
 
             // Determine asset type and construct download URL
-            var assetType = "zip";
-            var assetNameSuffix = $"-Linux-x64-v{versionString}.zip";
+            var assetType = OsPackageType;
+            if (assetType.IsNullOrWhiteSpace())
+            {
+                logger.LogError("Could not get package type or package in {OsDistro} is unsupported", OsDistro);
+                return;
+            }
+            var assetNameSuffix = $"-{OsIdentifier}-v{versionString}.{assetType}";
 
             var assetMetadata = assets?.FirstOrDefault(a => a.Name.EndsWith(assetNameSuffix, StringComparison.OrdinalIgnoreCase));
 
@@ -158,15 +203,7 @@ public sealed partial class SoftwareUpdater(
                 try
                 {
                     var assetPath = await DownloadAssetAsync(asset, progress);
-
-                    if (assetPath.EndsWith(".deb"))
-                    {
-                        UpdateViaInstaller(assetPath);
-                    }
-                    else
-                    {
-                        await UpdateViaPortableAsync(assetPath);
-                    }
+                    UpdateViaPackage(assetPath);
                 }
                 catch (Exception ex)
                 {
@@ -274,7 +311,7 @@ public sealed partial class SoftwareUpdater(
         }
     }
 
-    private static void UpdateViaInstaller(string packagePath)
+    private static void UpdateViaPackage(string packagePath)
     {
         // On Linux installers are uncommon for this project; if an executable installer/script is provided,
         // try to make it executable and run it. Otherwise, fall back to attempting to execute directly.
@@ -283,102 +320,21 @@ public sealed partial class SoftwareUpdater(
             if (!OperatingSystem.IsLinux())
                 return;
 
-            if (packagePath.EndsWith(".deb") && File.Exists("/etc/debian_version"))
+            switch (OsPackageType)
             {
-                // Use chmod to set executable permission
-                Process.Start(new ProcessStartInfo("sudo", $"dpkg -i \"{packagePath}\"") { UseShellExecute = true })?.WaitForExit();
+                case "deb":
+                    Process.Start(
+                        new ProcessStartInfo("sudo", $"dpkg -i \"{packagePath}\"") { UseShellExecute = true }
+                        )?.WaitForExit();
+                    break;
+                case "rpm":
+                    // Todo: 
+                    break;
             }
         }
         catch (Exception ex)
         {
             throw new InvalidOperationException("Failed to install package.", ex);
-        }
-
-        Environment.Exit(0);
-    }
-
-    private async static Task UpdateViaPortableAsync(string archivePath)
-    {
-        // Use Entry Assembly location where possible; fall back to AppContext.BaseDirectory for single-file builds.
-        var entryAssembly = Assembly.GetEntryAssembly();
-        var exeLocation = entryAssembly?.Location;
-        if (string.IsNullOrEmpty(exeLocation))
-        {
-            // In single-file publish, Assembly.Location may be empty; use base directory + executable name.
-            var exeName = entryAssembly?.GetName().Name ?? "Everywhere.Linux";
-            exeLocation = Path.Combine(AppContext.BaseDirectory, exeName);
-        }
-
-        var scriptPath = Path.Combine(Path.GetTempPath(), $"everywhere_update_{Guid.NewGuid():N}.sh");
-
-        // Prepare a shell script that will wait for the app to exit, backup current installation, unpack new files and start the new binary.
-        var scriptContent =
-            "#!/usr/bin/env bash\n" +
-            "set -e\n" +
-            "EXE_LOCATION='" + exeLocation.Replace("'", "'\\''") + "'\n" +
-            "ARCHIVE_PATH='" + archivePath.Replace("'", "'\\''") + "'\n" +
-            "PARENT_DIR=\"$(dirname \\\"$EXE_LOCATION\\\")\"\n" +
-            "EXE_NAME=\"$(basename \\\"$EXE_LOCATION\\\")\"\n\n" +
-            "echo \"Waiting for the application to close...\"\n" +
-            "# Try to terminate running instances by path or by name\n" +
-            "pkill -f -- \"$EXE_LOCATION\" || true\n" +
-            "pkill -f -- \"${EXE_NAME}\" || true\n" +
-            "sleep 1\n\n" +
-            "echo \"Backing up old version...\"\n" +
-            "mv \"$PARENT_DIR\" \"${PARENT_DIR}_old\"\n\n" +
-            "echo \"Unpacking new version...\"\n" +
-            "mkdir -p \"$PARENT_DIR\"\n" +
-            "if [[ \"$ARCHIVE_PATH\" == *.zip ]]; then\n" +
-            "    if ! command -v unzip >/dev/null 2>&1; then\n" +
-            "        echo \"unzip not available\" >&2\n" +
-            "        mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
-            "        exit 1\n" +
-            "    fi\n" +
-            "    unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-            "else\n" +
-            "    # assume tar.gz or tar.xz\n" +
-            "    if [[ \"$ARCHIVE_PATH\" == *.tar.gz || \"$ARCHIVE_PATH\" == *.tgz ]]; then\n" +
-            "        tar -xzf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-            "    elif [[ \"$ARCHIVE_PATH\" == *.tar.xz ]]; then\n" +
-            "        tar -xJf \"$ARCHIVE_PATH\" -C \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-            "    else\n" +
-            "        # try unzip as fallback\n" +
-            "        if command -v unzip >/dev/null 2>&1; then\n" +
-            "            unzip -q \"$ARCHIVE_PATH\" -d \"$PARENT_DIR\" || { echo \"Unpack failed\" >&2; mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"; exit 1; }\n" +
-            "        else\n" +
-            "            echo \"Unknown archive format and no unzip available\" >&2\n" +
-            "            mv \"${PARENT_DIR}_old\" \"$PARENT_DIR\"\n" +
-            "            exit 1\n" +
-            "        fi\n" +
-            "    fi\n" +
-            "fi\n\n" +
-            "echo \"Cleaning up old files...\"\n" +
-            "rm -rf \"${PARENT_DIR}_old\"\n\n" +
-            "echo \"Starting new version...\"\n" +
-            "# Ensure executable bit is set for the new binary\n" +
-            "if [ -f \"$EXE_LOCATION\" ]; then\n" +
-            "    chmod +x \"$EXE_LOCATION\" || true\n" +
-            "    nohup \"$EXE_LOCATION\" >/dev/null 2>&1 &\n" +
-            "fi\n\n" +
-            "# Remove the updater script\n" +
-            "rm -- \"$scriptPath\" || true\n";
-
-        await File.WriteAllTextAsync(scriptPath, scriptContent);
-        try
-        {
-            // Make script executable (best-effort)
-            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-            {
-                Process.Start(new ProcessStartInfo("chmod", $"+x \"{scriptPath}\"") { UseShellExecute = false })?.WaitForExit();
-            }
-
-            // Start the script with bash and exit the current process to allow the updater to replace files.
-            Process.Start(new ProcessStartInfo("/bin/bash", scriptPath) { UseShellExecute = false, CreateNoWindow = true });
-        }
-        catch (Exception ex)
-        {
-            // If spawning the script failed, log and rethrow to surface the error to caller.
-            throw new InvalidOperationException("Failed to start updater script.", ex);
         }
 
         Environment.Exit(0);

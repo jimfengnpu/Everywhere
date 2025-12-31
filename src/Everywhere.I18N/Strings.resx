@@ -1912,7 +1912,7 @@ Scroll wheel or number keys to switch pick modes</value>
         <value>📂 {0}</value>
     </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
-        <value>Administrator is usually unnecessary on Linux. if needed, Please re-exec with sudo.</value>
+        <value>Administrator privileges are usually unnecessary on Linux. If needed, please re-exec with sudo.</value>
     </data>
     <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
         <value>Failed to grab the hotkey. The key combination may be already in use.</value>

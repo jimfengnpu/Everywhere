@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
+using System.Text;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Everywhere.Common;
@@ -211,15 +212,12 @@ public sealed partial class AtspiService
             while (i < count)
             {
                 var child = GObjWrapper.WrapAllowNull(atspi_accessible_get_child_at_index(elem.Handle, i, IntPtr.Zero));
-                if (child != null)
+                if (child != null && ElementVisible(child, true))
                 {
-                    if (ElementVisible(child, true))
+                    var childElem = GetAtspiVisualElement(() => child);
+                    if (childElem != null)
                     {
-                        var childElem = GetAtspiVisualElement(() => child);
-                        if (childElem != null)
-                        {
-                            yield return childElem;
-                        }
+                        yield return childElem;
                     }
                 }
                 i++;
@@ -296,7 +294,7 @@ public sealed partial class AtspiService
         if (app == null)
         {
 #if DEBUG
-            _logger.LogDebug("App {pid} do not support At-SPI", pid);
+            _logger.LogDebug("App {ProcessId} do not support At-SPI", window.ProcessId);
 #endif
             return null;
         }
@@ -552,21 +550,20 @@ public sealed partial class AtspiService
         {
             if (atspi_accessible_is_text(_element.Handle) == 0) return null;
             var nSelections = atspi_text_get_n_selections(_element.Handle, IntPtr.Zero);
-            String selected = "";
+            var selected = new StringBuilder();
             for (var i = 0; i < nSelections; i++)
             {
                 using (var rawRange = GObjWrapper.Wrap(atspi_text_get_selection(_element.Handle, i, IntPtr.Zero)))
                 {
                     var range = Marshal.PtrToStructure<AtspiRange>(rawRange.Handle.DangerousGetHandle());
                     var text = atspi_text_get_text(_element.Handle, range.start, range.end, IntPtr.Zero);
-                    if (text.IsNullOrEmpty())
+                    if (!text.IsNullOrEmpty())
                     {
-                        continue;
+                        selected.Append(text);
                     }
-                    selected += text;
                 }
             }
-            return selected;
+            return selected.Length > 0 ? selected.ToString() : null;
         }
 
         public void Invoke()
@@ -734,7 +731,7 @@ public sealed partial class AtspiService
         public uint Length => _struct.Len;
 
         /// <summary>
-        /// Iterate GArray Data as T。
+        /// Iterate GArray data as <see cref="GObj" /> instances.
         /// </summary>
         public IEnumerable<GObj> Iterate()
         {

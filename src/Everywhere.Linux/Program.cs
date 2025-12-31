@@ -30,7 +30,8 @@ public static class Program
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY")))
             throw new InvalidOperationException("Fatal Error: DISPLAY environment variable is not set. You should start in GUI env.");
         var session = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE");
-        var desktop = Environment.GetEnvironmentVariable("XDG_SESSION_DESKTOP");
+        // for future use
+        // var desktop = Environment.GetEnvironmentVariable("XDG_SESSION_DESKTOP");
         services.AddSingleton<X11WindowBackend>();
         if (session != "x11")
         {

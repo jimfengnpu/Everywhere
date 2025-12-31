@@ -103,7 +103,3 @@ chmod +x DEBIAN/prerm
 
 cd "$PWD"
 dpkg-deb --build "$PACKAGINGPATH/" "$PWD/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
-
-
-
-

@@ -131,11 +131,9 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
         var ks = Xlib.XStringToKeysym(key.ToString());
         KeyCode keycode = 0;
         if (ks != 0) keycode = Xlib.XKeysymToKeycode(_display, ks);
-        if (keycode == 0)
-        {
-            ks = Xlib.XStringToKeysym(key.ToString().ToUpperInvariant());
-            if (ks != 0) keycode = Xlib.XKeysymToKeycode(_display, ks);
-        }
+        if (keycode != 0) return keycode;
+        ks = Xlib.XStringToKeysym(key.ToString().ToUpperInvariant());
+        if (ks != 0) keycode = Xlib.XKeysymToKeycode(_display, ks);
         return keycode;
     }
 
@@ -148,14 +146,18 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
             [KeyModifiers.Shift] = [Key.LeftShift, Key.RightShift],
             [KeyModifiers.Meta] = [Key.LWin, Key.RWin],
         };
+        
+        if (!testKey.TryGetValue(keyModifier, out var keys))
+        {
+            // Unknown or unsupported modifier; consider it not pressed.
+            return false;
+        }
+        
         var keymap = new byte[32];
         XQueryKeymap(_display, keymap);
-        bool state = true;
-        foreach (var key in testKey)
-        {
-            state &= Check(keymap, key.Value[0]) | Check(keymap, key.Value[1]);
-        }
-        return state;
+        
+        // The modifier is considered pressed if either the left or right key is pressed.
+        return Check(keymap, keys[0]) || Check(keymap, keys[1]);
 
         bool Check(byte[] map, Key key)
         {
