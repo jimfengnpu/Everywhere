@@ -128,10 +128,11 @@ Every moment, Every place. Your AI - `Everywhere`
         • Web Browser<br>
         • File System<br>
         • Terminal<br>
+        • MCP tools<br>
         • Everything *(Windows)*
       </td>
       <td>
-        • MCP tools
+        • System Utils *(MacOS)*
       </td>
     </tr>
     <tr>

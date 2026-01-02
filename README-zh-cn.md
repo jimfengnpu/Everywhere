@@ -128,10 +128,11 @@
         • 网络浏览器<br>
         • 文件系统<br>
         • 终端<br>
+        • MCP 工具<br>
         • Everything *(Windows)*
       </td>
-      <td><br>
-        • MCP 工具
+      <td>
+        • 系统工具 *(MacOS)*
       </td>
     </tr>
     <tr>
