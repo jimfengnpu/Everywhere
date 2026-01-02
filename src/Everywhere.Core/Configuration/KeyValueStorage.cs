@@ -18,14 +18,15 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
 
     private readonly string _primaryPath;
     private readonly string _tempPath;
-    
+
     private readonly ILogger<KeyValueStorage> _logger;
     private readonly ConcurrentDictionary<string, byte[]> _store = new();
     private readonly DebounceExecutor<bool, ThreadingTimerImpl> _saveExecutor;
 
     private readonly Lock _fileLock = new();
-    private volatile bool _isDisposed;    
+    private volatile bool _isDisposed;
     private volatile bool _isLoaded;
+    private int _isDirty;
 
     public KeyValueStorage(IRuntimeConstantProvider runtimeConstantProvider, ILogger<KeyValueStorage> logger)
     {
@@ -44,7 +45,6 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
     {
         Load();
         _isLoaded = true;
-        _saveExecutor.Trigger();
         return Task.CompletedTask;
     }
 
@@ -77,7 +77,19 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
         try
         {
             var bytes = MessagePackSerializer.Serialize(value);
+
+            if (bytes.Length > 256 * 1024)
+            {
+                throw new InvalidOperationException($"Serialized data for key {key} exceeds the size limit of 256KB.");
+            }
+
+            if (_store.TryGetValue(key, out var existingBytes) && existingBytes.AsSpan().SequenceEqual(bytes))
+            {
+                return;
+            }
+
             _store[key] = bytes;
+            Interlocked.Exchange(ref _isDirty, 1);
             _saveExecutor.Trigger();
         }
         catch (Exception ex)
@@ -94,6 +106,7 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
 
         if (_store.TryRemove(key, out _))
         {
+            Interlocked.Exchange(ref _isDirty, 1);
             _saveExecutor.Trigger();
         }
     }
@@ -105,7 +118,7 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
         try
         {
             using var fileStream = new FileStream(_primaryPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            
+
             // Deserialize
             var loadedData = MessagePackSerializer.Deserialize<Dictionary<string, byte[]>?>(fileStream);
             if (loadedData is null) return;
@@ -123,6 +136,7 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
     private void Save()
     {
         if (_isDisposed || !_isLoaded) return;
+        if (Interlocked.Exchange(ref _isDirty, 0) == 0) return;
 
         // Snapshot the data outside the lock to minimize blocking time.
         // ConcurrentDictionary is thread-safe for enumeration/snapshotting.
@@ -134,7 +148,7 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
         catch
         {
             // In case of concurrent modification issues
-            return; 
+            return;
         }
 
         lock (_fileLock)
@@ -166,8 +180,8 @@ public sealed class KeyValueStorage : IKeyValueStorage, IAsyncInitializer, IDisp
         _isDisposed = true;
 
         _saveExecutor.Dispose();
-        
-        // Final save
-        Save();
+
+        // Final save if there are unsaved changes
+        if (Interlocked.Exchange(ref _isDirty, 0) == 1) Save();
     }
 }
