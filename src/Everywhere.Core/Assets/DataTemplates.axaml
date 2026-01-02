@@ -45,8 +45,9 @@
   <DataTemplate x:Key="{x:Type interop:KeyboardShortcut}">
     <DataTemplate.DataType>
       <x:Type
-        x:TypeArguments="interop:KeyboardShortcut" TypeName="c:SettingsTypedItem"/>
+        x:TypeArguments="interop:KeyboardShortcut" TypeName="c:SettingsTemplatedItem"/>
     </DataTemplate.DataType>
+
     <v:KeyboardShortcutInputBox
       MinWidth="160" MinHeight="32"
       HorizontalAlignment="Left"
@@ -56,7 +57,7 @@
   <DataTemplate x:Key="{x:Type common:ColoredIcon}">
     <DataTemplate.DataType>
       <x:Type
-        x:TypeArguments="common:ColoredIcon" TypeName="c:SettingsTypedItem"/>
+        x:TypeArguments="common:ColoredIcon" TypeName="c:SettingsTemplatedItem"/>
     </DataTemplate.DataType>
 
     <Button

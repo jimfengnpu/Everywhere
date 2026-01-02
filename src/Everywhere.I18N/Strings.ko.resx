@@ -1897,6 +1897,9 @@
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
+        <value>AI 제공자 설정</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux에서는 관리자 권한이 일반적으로 필요하지 않습니다. 필요한 경우 sudo로 다시 실행하세요.</value>
     </data>

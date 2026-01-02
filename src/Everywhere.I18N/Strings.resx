@@ -1911,6 +1911,9 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
+        <value>Configure AI provider</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Administrator privileges are usually unnecessary on Linux. If needed, please re-exec with sudo.</value>
     </data>

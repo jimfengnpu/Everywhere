@@ -8,13 +8,14 @@
     <Setter Property="Template">
       <ControlTemplate>
         <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-          <StackPanel>
+          <StackPanel Spacing="8">
             <shadui:Card>
-              <DockPanel>
+              <DockPanel HorizontalSpacing="16">
                 <Button
-                  HorizontalAlignment="Left" CornerRadius="20">
+                  DockPanel.Dock="Left" VerticalAlignment="Top"
+                  CornerRadius="{DynamicResource FullCornerRadius}">
                   <v:IconPresenter
-                    MinWidth="40" MinHeight="40"
+                    Width="80" Height="80"
                     FontSize="{DynamicResource FontSize2Xl}"
                     Icon="{Binding CustomAssistant.Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
                     IconSize="{DynamicResource FontSize2Xl}"
@@ -28,7 +29,32 @@
                     </Flyout>
                   </Button.Flyout>
                 </Button>
+
+                <StackPanel Spacing="8">
+                  <TextBox
+                    MinWidth="160"
+                    shadui:ControlAssist.Label="{I18N {x:Static LocaleKey.CustomAssistant_Name_Header}}"
+                    MaxLength="32"
+                    Text="{Binding CustomAssistant.Name, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}"
+                    Watermark="{I18N {x:Static LocaleKey.CustomAssistant_Name_Description}}"/>
+
+                  <TextBox
+                    Height="80" HorizontalAlignment="Stretch"
+                    shadui:ControlAssist.Label="{I18N {x:Static LocaleKey.CustomAssistant_Description_Header}}"
+                    AcceptsReturn="True" MaxLength="4096"
+                    Text="{Binding CustomAssistant.Description, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}"
+                    Watermark="{I18N {x:Static LocaleKey.CustomAssistant_Description_Description}}"/>
+                </StackPanel>
               </DockPanel>
+            </shadui:Card>
+
+            <shadui:Card>
+              <TextBox
+                Height="80" HorizontalAlignment="Stretch"
+                shadui:ControlAssist.Label="{I18N {x:Static LocaleKey.CustomAssistant_Description_Header}}"
+                AcceptsReturn="True" MaxLength="4096"
+                Text="{Binding CustomAssistant.Description, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}"
+                Watermark="{I18N {x:Static LocaleKey.CustomAssistant_Description_Description}}"/>
             </shadui:Card>
           </StackPanel>
         </ScrollViewer>

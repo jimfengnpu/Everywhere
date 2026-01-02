@@ -1897,6 +1897,9 @@
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
+        <value>Настроить поставщика ИИ</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Права администратора обычно не требуются в Linux. Если необходимо, выполните повторный запуск с sudo.</value>
     </data>

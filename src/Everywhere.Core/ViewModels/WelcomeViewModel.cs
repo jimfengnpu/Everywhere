@@ -136,6 +136,7 @@ public partial class WelcomeViewModel : BusyViewModelBase
             Name = LocaleResolver.CustomAssistant_Name_Default,
             Icon = new ColoredIcon(ColoredIconType.Text) { Text = "🥳" },
             ApiKey = ApiKey,
+            ConfiguratorType = ModelProviderConfiguratorType.Templated,
             ModelProviderTemplateId = SelectedModelProvider.ProviderTemplate.Id,
             ModelDefinitionTemplateId = SelectedModelDefinition.Id
         };

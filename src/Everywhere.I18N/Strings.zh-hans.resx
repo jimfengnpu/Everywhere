@@ -1898,6 +1898,9 @@
     <data name="BuiltInChatPlugin_FileSystem_SearchFiles_OperationStarted_Message" xml:space="preserve">
         <value>📂 {0}</value>
     </data>
+    <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
+        <value>配置 AI 提供商</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux系统下通常仅使用用户权限。如果需要管理员权限，请使用sudo重新启动应用。</value>
     </data>

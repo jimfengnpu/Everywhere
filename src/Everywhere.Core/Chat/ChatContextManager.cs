@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -159,6 +161,8 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         );
 
         WeakReferenceMessenger.Default.Register(this);
+
+        Task.Run(CleanupUnusedWorkingDirectories);
     }
 
     /// <summary>
@@ -183,6 +187,36 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
         _saveDebounceExecutor.Trigger();
 
         Dispatcher.UIThread.InvokeOnDemand(CreateNewCommand.NotifyCanExecuteChanged);
+    }
+
+    /// <summary>
+    /// Delete all directories in _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins") that named with date (yyyy-MM-dd)
+    /// </summary>
+    private void CleanupUnusedWorkingDirectories()
+    {
+        var regex = WorkingDirectoryRegex();
+        var pluginsDir = _runtimeConstantProvider.EnsureWritableDataFolderPath("plugins");
+        foreach (var dir in Directory.GetDirectories(pluginsDir))
+        {
+            var dirName = Path.GetFileName(dir);
+            if (!regex.IsMatch(dirName)) continue;
+
+            if (!DateTime.TryParseExact(dirName, "yyyy-MM-dd", null, DateTimeStyles.None, out var dirDate))
+                continue;
+
+            // If the directory is 3 days later and is empty, delete it
+            if ((DateTime.Now - dirDate).TotalDays > 3 && !Directory.EnumerateFileSystemEntries(dir).Any())
+            {
+                try
+                {
+                    Directory.Delete(dir); // do not use recursive delete
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to delete unused working directory: {Directory}", dir);
+                }
+            }
+        }
     }
 
     [RelayCommand]
@@ -317,6 +351,9 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
     public Task<ChatContext?> LoadChatContextAsync(ChatContextMetadata metadata, CancellationToken cancellationToken = default) =>
         metadata.Id == _current?.Metadata.Id ? Task.FromResult<ChatContext?>(_current) : LoadChatContextAsync(metadata.Id, deleteIfFailed: false);
 
+    public string EnsureWorkingDirectory(ChatContext chatContext)=>
+        _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{chatContext.Metadata.DateCreated:yyyy-MM-dd}");
+
     public void PopulateSystemPrompt(ChatContext chatContext, string systemPrompt)
     {
         var variables =
@@ -326,7 +363,7 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
                     new("Time", () => DateTime.Now.ToString("F")),
                     new("OS", () => Environment.OSVersion.ToString()),
                     new("SystemLanguage", () => LocaleManager.CurrentLocale.ToEnglishName()),
-                    new("WorkingDirectory", () => _runtimeConstantProvider.EnsureWritableDataFolderPath($"plugins/{chatContext.Metadata.DateCreated:yyyy-MM-dd}"))
+                    new("WorkingDirectory", () => EnsureWorkingDirectory(chatContext))
                 });
         chatContext.SystemPrompt = Prompts.RenderPrompt(systemPrompt, variables);
     }
@@ -509,6 +546,9 @@ public partial class ChatContextManager : ObservableObject, IChatContextManager,
     public Task InitializeAsync() => LoadMetadataAsync(9, null);
 
     private static bool IsEmptyContext([NotNullWhen(true)] ChatContext? chatContext) => chatContext is { Count: 1 };
+
+    [GeneratedRegex(@"^\d{4}-\d{2}-\d{2}$")]
+    private static partial Regex WorkingDirectoryRegex();
 }
 
 public static class ChatContextManagerExtension

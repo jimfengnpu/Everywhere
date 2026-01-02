@@ -316,11 +316,10 @@ public class SettingsCustomizableItem(SettingsItem customValueItem) : SettingsIt
 }
 
 /// <summary>
-/// A settings item that holds a value of a specific type.
-/// TType is used for DataTemplate selection.
+/// A settings item that holds a value of a specific data template.
 /// </summary>
 /// <param name="dataTemplate"></param>
-public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsItem
+public abstract class SettingsTemplatedItem(IDataTemplate? dataTemplate) : SettingsItem
 {
     public IDataTemplate? DataTemplate => dataTemplate;
 
@@ -329,34 +328,34 @@ public abstract class SettingsTypedItem(IDataTemplate? dataTemplate) : SettingsI
     /// </summary>
     /// <param name="propertyType"></param>
     /// <returns></returns>
-    public static SettingsTypedItem Create(Type propertyType)
+    public static SettingsTemplatedItem Create(Type propertyType)
     {
         if (Application.Current?.Resources.TryGetResource(propertyType, null, out var resource) is not true ||
             resource is not IDataTemplate dataTemplate)
         {
-            return new EmptySettingsTypedItem();
+            return new EmptySettingsTemplatedItem();
         }
 
-        var typedItem = typeof(SettingsTypedItem<>).MakeGenericType(propertyType);
+        var typedItem = typeof(SettingsTemplatedItem<>).MakeGenericType(propertyType);
         var constructor = typedItem.GetConstructor([typeof(IDataTemplate)]);
-        return (SettingsTypedItem?)constructor?.Invoke([dataTemplate]) ?? new EmptySettingsTypedItem();
+        return (SettingsTemplatedItem?)constructor?.Invoke([dataTemplate]) ?? new EmptySettingsTemplatedItem();
     }
 }
 
 /// <summary>
 /// Stands for a SettingsTypedItem with no specific type, usually used as a placeholder.
 /// </summary>
-public sealed class EmptySettingsTypedItem() : SettingsTypedItem(null)
+public sealed class EmptySettingsTemplatedItem() : SettingsTemplatedItem(null)
 {
     public override bool IsEmpty => true;
 }
 
 /// <summary>
-/// A settings item that holds a value of a specific type.
+/// A settings item that holds a value of a specific data template.
 /// TType is used for DataTemplate selection.
 /// </summary>
 /// <typeparam name="TType"></typeparam>
-public sealed class SettingsTypedItem<TType>(IDataTemplate? dataTemplate) : SettingsTypedItem(dataTemplate);
+public sealed class SettingsTemplatedItem<TType>(IDataTemplate? dataTemplate) : SettingsTemplatedItem(dataTemplate);
 
 /// <summary>
 /// A settings item that contains a custom control.

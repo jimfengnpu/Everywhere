@@ -19,6 +19,7 @@ public partial class ChatWindowSettings : ObservableObject, ISettingsCategory
     [DynamicResourceKey(
         LocaleKey.ChatWindowSettings_Shortcut_Header,
         LocaleKey.ChatWindowSettings_Shortcut_Description)]
+    [SettingsTemplatedItem]
     public partial KeyboardShortcut Shortcut { get; set; } = new(Key.E, KeyModifiers.Control | KeyModifiers.Shift);
 
     [ObservableProperty]
