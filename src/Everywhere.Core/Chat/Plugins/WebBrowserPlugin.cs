@@ -130,7 +130,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
 
         _logger.LogDebug("Ensuring web search engine connector is initialized.");
 
-        if (_webSearchEngineSettings.SelectedWebSearchEngineProvider is not { } provider)
+        if (_webSearchEngineSettings.SelectedProvider is not { } provider)
         {
             throw new HandledException(
                 new ArgumentException("Web search engine provider is not selected."),

@@ -21,8 +21,8 @@ public enum WebSearchEngineProviderId
 [GeneratedSettingsItems]
 public sealed partial class WebSearchEngineProvider(ObservableCollection<ApiKey> apiKeys) : ObservableObject
 {
+    [JsonIgnore]
     [HiddenSettingsItem]
-    [IgnoreDataMember]
     public required WebSearchEngineProviderId Id { get; init; }
 
     [JsonIgnore]
@@ -34,7 +34,6 @@ public sealed partial class WebSearchEngineProvider(ObservableCollection<ApiKey>
         LocaleKey.WebSearchEngineProvider_EndPoint_Description)]
     public required Customizable<string> EndPoint { get; init; }
 
-    [JsonIgnore]
     [ObservableProperty]
     [HiddenSettingsItem]
     public partial Guid ApiKey { get; set; }
@@ -52,7 +51,6 @@ public sealed partial class WebSearchEngineProvider(ObservableCollection<ApiKey>
         LocaleKey.CustomAssistant_ApiKey_Header,
         LocaleKey.CustomAssistant_ApiKey_Description)]
     [SettingsItem(IsVisibleBindingPath = nameof(IsApiKeyVisible))]
-    [HiddenSettingsItem]
     public SettingsControl<ApiKeyComboBox> ApiKeyControl => new(
         new ApiKeyComboBox(apiKeys)
         {

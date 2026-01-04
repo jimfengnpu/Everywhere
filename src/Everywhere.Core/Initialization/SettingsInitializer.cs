@@ -3,6 +3,7 @@ using Everywhere.Configuration;
 using Everywhere.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ZLinq;
 
 namespace Everywhere.Initialization;
 
@@ -29,7 +30,7 @@ public class SettingsInitializer : IAsyncInitializer
                 lock (saveBuffer)
                 {
                     if (saveBuffer.Count == 0) return;
-                    foreach (var (key, value) in saveBuffer) configuration.Set(key, value);
+                    foreach (var (key, value) in saveBuffer.AsValueEnumerable()) configuration.Set(key, value);
                     saveBuffer.Clear();
                 }
             },
