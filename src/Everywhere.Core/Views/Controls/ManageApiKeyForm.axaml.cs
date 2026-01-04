@@ -139,10 +139,15 @@ public sealed partial class ManageApiKeyForm : TemplatedControl, IDisposable
     private readonly IDisposable _selectionSubscription;
     private readonly IObservableList<DataGridApiKeyModel> _sharedList;
 
-    public ManageApiKeyForm(string? defaultName)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ManageApiKeyForm"/> class.
+    /// </summary>
+    /// <param name="itemsSource"></param>
+    /// <param name="defaultName"></param>
+    public ManageApiKeyForm(ObservableCollection<ApiKey> itemsSource, string? defaultName)
     {
         _defaultName = defaultName;
-        _apiKeys = ServiceLocator.Resolve<Settings>().Model.ApiKeys;
+        _apiKeys = itemsSource;
 
         _sharedList = _apiKeys
             .ToObservableChangeSet()

@@ -79,7 +79,7 @@ public sealed partial class ApiKeyComboBox : TemplatedControl, IDisposable
     [RelayCommand]
     private async Task ManageApiKeyAsync(CancellationToken cancellationToken)
     {
-        var form = new ManageApiKeyForm(DefaultName);
+        var form = new ManageApiKeyForm(_itemsSource, DefaultName);
         await ServiceLocator.Resolve<DialogManager>()
             .CreateDialog(form, LocaleResolver.ApiKeyComboBox_ManageApiKey)
             .WithPrimaryButton(LocaleResolver.Common_OK)

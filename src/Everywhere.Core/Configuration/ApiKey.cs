@@ -15,6 +15,12 @@ namespace Everywhere.Configuration;
 /// </summary>
 public partial class ApiKey : ObservableValidator
 {
+    /// <summary>
+    /// The service name used for secure storage of API keys.
+    /// TODO: Move to a centralized constant location?
+    /// </summary>
+    private const string ServiceName = "com.sylinko.everywhere.apikeys";
+
     public static ApiKey Empty { get; } = new()
     {
         Id = Guid.Empty,
@@ -26,13 +32,13 @@ public partial class ApiKey : ObservableValidator
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public static string? GetKey(Guid id) => id == Guid.Empty ? null : OsSecretVault.GetSecret(nameof(ApiKey), id.ToString("N"));
+    public static string? GetKey(Guid id) => id == Guid.Empty ? null : OsSecretVault.GetSecret(ServiceName, id.ToString("N"));
 
     /// <summary>
     /// Deletes the API key from secure storage based on the given ID.
     /// </summary>
     /// <param name="id"></param>
-    public static void DeleteKey(Guid id) => OsSecretVault.DeleteSecret(nameof(ApiKey), id.ToString("N"));
+    public static void DeleteKey(Guid id) => OsSecretVault.DeleteSecret(ServiceName, id.ToString("N"));
 
     public Guid Id { get; init; } = Guid.CreateVersion7();
 
@@ -110,7 +116,7 @@ public partial class ApiKey : ObservableValidator
 
         try
         {
-            OsSecretVault.SetSecret(nameof(ApiKey), Id.ToString("N"), _pendingKey);
+            OsSecretVault.SetSecret(ServiceName, Id.ToString("N"), _pendingKey);
         }
         catch (Exception ex)
         {
