@@ -7,6 +7,7 @@
     <shadui:ShadTheme/>
     <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
     <StyleInclude Source="avares://Everywhere.Core/Assets/Styles.axaml"/>
+    <StyleInclude Source="avares://Everywhere.Core/Assets/AvaloniaEditStyles.axaml"/>
   </Application.Styles>
 
   <Application.Resources>
@@ -27,6 +28,7 @@
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/IconPresenter.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/McpTransportConfigurationForm.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/McpImportForm.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/SettingsItemsControl.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceEditor.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Controls/TextDifferenceSummaryView.axaml"/>

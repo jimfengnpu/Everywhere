@@ -120,15 +120,14 @@
             Command="{Binding AddMcpPluginCommand}"
             Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMcpPluginButton_Content}}"/>
 
-          <!--  <Button  -->
-          <!--  Classes="Secondary"  -->
-          <!--  Command="{Binding DuplicateCustomAssistantCommand}"  -->
-          <!--  IsEnabled="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"  -->
-          <!--  ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}">  -->
-          <!--  <LucideIcon  -->
-          <!--  Kind="Copy"  -->
-          <!--  Size="{DynamicResource FontSizeL}"/>  -->
-          <!-- </Button> -->
+          <Button
+            Classes="Secondary"
+            Command="{Binding ImportMcpPluginCommand}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_ImportMcpPluginButton_ToolTip}}">
+            <LucideIcon
+              Kind="Import"
+              Size="{DynamicResource FontSizeL}"/>
+          </Button>
         </shadui:ButtonGroup>
       </DockPanel>
     </shadui:NavigationView.PaneHeader>
