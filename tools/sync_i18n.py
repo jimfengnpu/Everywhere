@@ -219,8 +219,8 @@ Translation Guidelines:
 
         for filename in localized_files:
             file_path = os.path.join(self.i18n_path, filename)
-
-            lang_name = self._get_language_comment(file_path)
+            lang_comment = self._get_language_comment(file_path)
+            lang_name = lang_comment
 
             if not lang_name:
                 match = re.match(r'Strings\.(.+)\.resx', filename)
