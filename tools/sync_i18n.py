@@ -56,7 +56,7 @@ class I18nSync:
         self.model_id = config.model_id
         self.batch_size = config.batch_size
         self.i18n_path = os.path.abspath(config.i18n_path)
-        self.base_resx_path = os.path.join(self.i18n_path, "Strings.resx")
+        self.base_resx_path = os.path.join(self.i18n_path, "Strings.zh-hans.resx")
 
         # Initialize the OpenAI client
         self.client = OpenAI(
@@ -206,7 +206,7 @@ Translation Guidelines:
             log(f"[x] Error: Base resource file not found: {self.base_resx_path}")
             return
 
-        log("Reading base resources from Strings.resx...")
+        log(f"Reading base resources from {base_resx_path}...")
         base_resources_ordered = self._read_resx_ordered(self.base_resx_path)
         base_resources = dict(base_resources_ordered)
         base_resource_keys = [key for key, _ in base_resources_ordered]
@@ -219,13 +219,16 @@ Translation Guidelines:
 
         for filename in localized_files:
             file_path = os.path.join(self.i18n_path, filename)
-            match = re.match(r'Strings\.(.+)\.resx', filename)
-            if not match:
-                continue
 
-            lang_code = match.group(1)
-            lang_comment = self._get_language_comment(file_path)
-            lang_name = lang_comment if lang_comment else lang_code
+            lang_name = self._get_language_comment(file_path)
+
+            if not lang_name:
+                match = re.match(r'Strings\.(.+)\.resx', filename)
+                if not match:
+                    log(f"  [x] Could not determine language code from filename: {filename}. Skipping.")
+                    continue
+
+                lang_name = match.group(1) # Fallback to language code from filename
 
             log(f"Processing: {filename} ({lang_name})")
             existing_resources = self._read_resx(file_path)
