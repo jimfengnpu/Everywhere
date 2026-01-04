@@ -10,6 +10,7 @@
           <ListBox
             Width="{Binding $parent[DockPanel].Bounds.Width}"
             ItemsSource="{Binding ConfiguratorModels, RelativeSource={RelativeSource TemplatedParent}}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
             SelectedValue="{TemplateBinding SelectedType, Mode=TwoWay}"
             SelectedValueBinding="{Binding Type, DataType=v:ModelProviderConfiguratorSelector+ConfiguratorModel}">
             <ListBox.ItemsPanel>
