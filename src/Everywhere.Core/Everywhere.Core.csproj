@@ -19,6 +19,7 @@
     <PackageReference Include="Avalonia.AvaloniaEdit"/>
     <PackageReference Include="AvaloniaEdit.TextMate"/>
     <PackageReference Include="FuzzySharp"/>
+    <PackageReference Include="GnomeStack.Os.Secrets"/>
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="JetBrains.Profiler.Api"/>
     <PackageReference Include="LiveMarkdown.Avalonia"/>
     <PackageReference Include="LiveMarkdown.Avalonia.Math"/>
