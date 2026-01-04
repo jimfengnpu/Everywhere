@@ -446,7 +446,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>重新命名</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>刪除</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -525,10 +525,7 @@
         <value>數值越高，詞彙越多樣豐富；數值越低，語言越簡單直接。此設定僅對某些模型有效。如遇錯誤，請嘗試恢復預設值。</value>
     </data>
     <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>API Url</value>
-    </data>
-    <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>如果不確定該如何設定，請保持預設值。必須以 &quot;http(s)://&quot; 開頭。</value>
+        <value>URL</value>
     </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>API Key</value>
@@ -539,23 +536,11 @@
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
         <value>支援圖片輸入</value>
     </data>
-    <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>您可以在聊天內容中上傳圖片。如果不確定該如何設定，請保持預設值。如果模型不支援圖片輸入，啟用此功能可能導致失敗。</value>
-    </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>支援工具使用</value>
     </data>
-    <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>模型可以使用您在聊天內容中配置的工具。如果不確定該如何設定，請保持預設值。如果模型不支援函數調用，啟用此功能可能導致失敗。</value>
-    </data>
-    <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>模型可以在回覆前進行思考。如果不確定該如何設定，請保持預設值。如果模型不支援深度思考，啟用此功能可能導致失敗。</value>
-    </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>支援深度思考</value>
-    </data>
-    <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>單次聊天的最大內容長度。如果不確定該如何設定，請保持預設值。將此設定大於預設值可能導致失敗。</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>最大內容長度 (max_tokens)</value>
@@ -565,9 +550,6 @@
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
         <value>API 架構</value>
-    </data>
-    <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>選擇 API 協議。如果不確定該如何設定，請保持預設值。</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>開機時啟動</value>
@@ -634,9 +616,6 @@
     </data>
     <data name="CustomAssistant_ModelId_Header" xml:space="preserve">
         <value>模型 ID</value>
-    </data>
-    <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>用於 API 呼叫的模型識別碼，例如 gpt-4o。如不確定，請保持預設值。</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>聊天插件</value>
@@ -733,13 +712,6 @@
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>下一步</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>好的，讓我們進入第 1 步：為我選擇一個「大腦」！
-我的智慧來自強大的大型語言模型（LLMs），這些模型由以下列出的專業服務提供商提供。您可以選擇其中任何一個來為我提供動力。</value>
-    </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>請選擇您擁有或計劃使用的提供商，我會告訴您更多相關資訊。別擔心，Everywhere 只是獨立客戶端，與他們並無官方關聯。</value>
-    </data>
     <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
         <value>OpenAI 是知名的 AI 模型提供商，以其 GPT 系列等聞名。您可以在其官方網站註冊並獲取 API 金鑰。請查看他們支持的國家和地區列表。</value>
     </data>
@@ -761,12 +733,6 @@
     <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
         <value>SiliconFlow 是一個高效的 AI 推理平台，支持多種開源和專有模型（包括免費模型）。它為開發者提供靈活、高效能的模型部署和推理服務。欲了解具體支持的模型和定價，請訪問他們的官方網站。</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>太好了！現在我們需要一個 API 金鑰來開始。請輸入或粘貼到下面的文本框中。然後點擊「驗證 API 金鑰」。</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>不用擔心，你的金鑰是高度安全的。它僅用於與模型提供商的身份驗證，我不會讀取它。</value>
-    </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 官方網站</value>
     </data>
@@ -782,25 +748,13 @@
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>如果這是你第一次使用，我會引導你完成三個簡單步驟的初始設置。</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>如果你不確定如何獲取它，你可以查看我為你準備的這個教程：</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>小提示：它通常以「sk-」或「AI」開頭，所以不要錯過！</value>
-    </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 點擊打開</value>
-    </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>驗證 API 金鑰</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>此外，你可以選擇一個模型或保持默認。</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>在此輸入 API 金鑰...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 驗證成功！讓我們進入最後一步！</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -986,10 +940,6 @@
     <data name="CustomAssistant_Description_Description" xml:space="preserve">
         <value>指定助手的描述，僅用於顯示和區分。</value>
     </data>
-    <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>系統提示會在對話開始時預設發送給模型。一個精心設計的提示包括介紹、任務描述和上下文信息。
-提示中可以使用佔位符，並用 {} 括起來，發送給模型前會替換為相應內容。</value>
-    </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>系統提示</value>
     </data>
@@ -1007,18 +957,6 @@
     </data>
     <data name="Common_No" xml:space="preserve">
         <value>否</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>模型提供者範本</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>模型定義範本</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>選擇一個模板以自動填充選項，例如「模型 ID、支持圖像輸入、支持工具使用」。您可以根據需要修改這些設置。</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>選擇一個模板以自動填充選項，例如「API 地址和 API 架構」。您可以根據需要修改這些設置。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>發生了一般的 I/O 錯誤。這可能是由於讀取或寫入檔案時出現問題。</value>

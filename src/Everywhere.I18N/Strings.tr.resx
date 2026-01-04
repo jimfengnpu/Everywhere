@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Turkish (Turkey) -->
 <root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
@@ -444,7 +445,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>Yeniden Adlandır</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>Sil</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -523,10 +524,7 @@
         <value>Değer ne kadar yüksekse kelime hazinesi o kadar çeşitli ve zengin olur; değer ne kadar düşükse dil daha basit ve doğrudan olur. Bu ayar yalnızca bazı modeller için etkilidir. Hata alırsanız, varsayılan değeri geri yüklemeyi deneyin.</value>
     </data>
     <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>API URL'si</value>
-    </data>
-    <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>Ne yapacağınızı bilmiyorsanız varsayılan değeri bırakın. 'http(s)://' ile başlamalıdır.</value>
+        <value>URL</value>
     </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>API Anahtarı</value>
@@ -537,23 +535,11 @@
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
         <value>Görüntü Girişi Desteği</value>
     </data>
-    <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>Sohbet bağlamında resim yükleyebilirsiniz. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Model görüntü girişini desteklemiyorsa bu özelliği etkinleştirmek hatalara yol açabilir.</value>
-    </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Araç Kullanım Desteği</value>
     </data>
-    <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>Model, sohbet bağlamında yapılandırdığınız araçları kullanabilir. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Model fonksiyon çağrısını desteklemiyorsa bu özelliği etkinleştirmek hatalara yol açabilir.</value>
-    </data>
-    <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>Model yanıtlar öncesinde düşünebilir. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Model derin düşünmeyi desteklemiyorsa bu özelliği etkinleştirmek hatalara yol açabilir.</value>
-    </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Derin Düşünme Desteği</value>
-    </data>
-    <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>Tek bir sohbetin maksimum bağlam uzunluğu. Ne yaptığınızı bilmiyorsanız varsayılan değeri koruyun. Bu değeri varsayılanın üzerinde ayarlamak hatalara yol açabilir.</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>Maksimum Bağlam Uzunluğu (max_tokens)</value>
@@ -563,9 +549,6 @@
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
         <value>API Şeması</value>
-    </data>
-    <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>API şemasını seçin. Ne yapacağınızı bilmiyorsanız varsayılan değeri bırakın.</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>Başlangıçta Çalıştır</value>
@@ -632,9 +615,6 @@
     </data>
     <data name="CustomAssistant_ModelId_Header" xml:space="preserve">
         <value>Model Kimliği</value>
-    </data>
-    <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>API çağrılarında kullanılan model kimliği (örneğin gpt-4o). Ne olduğunu bilmiyorsanız varsayılan değeri koruyun.</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>Sohbet Eklentileri</value>
@@ -729,12 +709,6 @@
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>Sonraki adım</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>Tamam, Şimdi Adım 1'e geçelim: Benim için bir &quot;beyin&quot; seçmek! Aklım güçlü Büyük Dil Modelleri (LLM'ler) tarafından sağlanıyor; aşağıda listelenen özel hizmet sağlayıcıları bu modelleri sunuyor. Herhangi birini seçerek beni güçlendirebilirsiniz.</value>
-    </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>Elinizde olan veya kullanmayı planladığınız bir sağlayıcı seçin; size hakkında daha fazla bilgi vereceğim. Endişelenmeyin, Everywhere yalnızca bağımsız bir istemci ve resmi olarak onlarla ilişkilendirilmemiştir.</value>
-    </data>
     <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
         <value>OpenAI, GPT serisi ve diğerleriyle tanınan popüler bir yapay zeka modeli sağlayıcısıdır. Resmi web sitesinde kaydolabilir ve bir API anahtarı alabilirsiniz. Desteklenen ülkeler ve bölgeler listesini kontrol edin.</value>
     </data>
@@ -756,12 +730,6 @@
     <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
         <value>SiliconFlow, açık kaynak ve özelleştirilmiş modelleri (ücretsiz modeller dahil) destekleyen verimli bir yapay zeka çıkarım platformudur. Geliştiricilere esnek, yüksek performanslı model dağıtımı ve çıkarım hizmetleri sunar. Desteklenen belirli modeller ve fiyatlandırma için resmi web sitesini ziyaret edin.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>Harika! Şimdi başlamak için bir API anahtarına ihtiyacımız var. Lütfen aşağıdaki metin kutusuna girin veya yapıştırın. Ardından &quot;API Anahtarı Doğrula&quot;ya tıklayın.</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>Endişelenmeyin, anahtarınız çok güvenli. Sadece model sağlayıcısıyla kimlik doğrulama için kullanılır ve ben onu okumam.</value>
-    </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Resmi web sitesi</value>
     </data>
@@ -777,25 +745,13 @@
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>Bu ilk kez kullanıyorsanız, yeni kurulum adımlarını üç basit adımda yönlendireceğim.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>Eğer nasıl elde edeceğinizi bilmiyorsanız, sizin için hazırladığım bu öğreticiyi inceleyebilirsiniz:</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>Fısıldanmış ipucu: Genellikle &quot;sk-&quot; veya &quot;AI,&quot; ile başlar, bu yüzden kaçırmayın!</value>
-    </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Tıklayarak aç</value>
-    </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>API Anahtarı Doğrula</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>Ayrıca bir model seçebilir veya varsayılanı koruyabilirsiniz.</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>API anahtarını buraya girin...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 Doğrulama başarılı! Son adım için ilerleyelim!</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -981,9 +937,6 @@
     <data name="CustomAssistant_Description_Description" xml:space="preserve">
         <value>Asistanın açıklamasını belirtin; yalnızca görüntüleme ve ayırt etme amacıyla kullanılır.</value>
     </data>
-    <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>Sistem istemi, sohbetin başında varsayılan olarak modele gönderilir. İyi hazırlanmış bir istem, bir giriş, görev açıklaması ve bağlamsal bilgileri içerir. İstem içinde {} ile çevrelenmiş yer tutucular kullanılabilir ve modeli göndermeden önce ilgili içeriğe değiştirilecektir.</value>
-    </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>Sistem İstemi</value>
     </data>
@@ -1001,18 +954,6 @@
     </data>
     <data name="Common_No" xml:space="preserve">
         <value>Hayır</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>Model Sağlayıcı Şablonu</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>Model Tanımlama Şablonu</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Seçenekleri otomatik olarak doldurmak için bir şablon seçin, örneğin “Model Kimliği, Görüntü Girişi Desteği, Araç Kullanımı Desteği.” Bu ayarları gerektiği gibi değiştirebilirsiniz.</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Seçenekleri otomatik olarak doldurmak için bir şablon seçin, örneğin “API Adresi ve API Şeması.” Bu ayarları gerektiği gibi değiştirebilirsiniz.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>A genel G/Ç hatası oluştu. Bu, dosya okuma veya yazma sorunu nedeniyle olabilir.</value>

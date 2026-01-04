@@ -339,7 +339,7 @@ public sealed partial class ChatWindowViewModel :
                     }
                 }
             }
-            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true &&
+            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported is true &&
                      formats.Contains(DataFormat.Bitmap) &&
                      await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {

@@ -47,6 +47,7 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
 
     private IWebSearchEngineConnector? _connector;
     private int _maxSearchCount;
+    private string? _previousLaunchedBrowserPath;
     private IBrowser? _browser;
     private Process? _browserProcess;
 
@@ -149,9 +150,9 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
         // Extract only the base URI without query parameters
         uri = new UriBuilder(uri) { Query = string.Empty }.Uri;
 
-        (_connector, _maxSearchCount) = provider.Id.ToLower() switch
+        (_connector, _maxSearchCount) = provider.Id switch
         {
-            "google" => (new GoogleConnector(
+            WebSearchEngineProviderId.Google => (new GoogleConnector(
                 EnsureApiKey(provider.ApiKey),
                 provider.SearchEngineId ??
                 throw new HandledException(
@@ -161,24 +162,27 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                 _httpClientFactory.CreateClient(),
                 uri,
                 _loggerFactory) as IWebSearchEngineConnector, 10),
-            "tavily" => (new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
-            "brave" => (new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
-            "bocha" => (new BoChaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
-            "jina" => (new JinaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 50),
-            "searxng" => (new SearxngConnector(_httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
+            WebSearchEngineProviderId.Tavily => (
+                new TavilyConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 20),
+            WebSearchEngineProviderId.Brave => (
+                new BraveConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 20),
+            WebSearchEngineProviderId.Bocha => (
+                new BoChaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
+            WebSearchEngineProviderId.Jina => (
+                new JinaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 50),
+            WebSearchEngineProviderId.SearXNG => (new SearxngConnector(_httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             _ => throw new HandledException(
                 new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported."),
                 new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_UnsupportedWebSearchEngineProvider_ErrorMessage),
                 showDetails: false)
         };
 
-        string EnsureApiKey(string? apiKey) =>
-            string.IsNullOrWhiteSpace(apiKey) ?
+        string EnsureApiKey(Guid id) =>
+            ApiKey.GetKey(id) ??
                 throw new HandledException(
                     new UnauthorizedAccessException("API key is not set."),
                     new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_WebSearchEngineApiKeyNotSet_ErrorMessage),
-                    showDetails: false) :
-                apiKey;
+                    showDetails: false);
     }
 
     /// <summary>
@@ -249,65 +253,91 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
             await _watchdogManager.UnregisterProcessAsync(processId);
         }
 
-        var executablePath = BrowserHelper.GetEdgePath() ?? BrowserHelper.GetChromePath();
-        if (executablePath is null)
-        {
-            var cachePath = _runtimeConstantProvider.EnsureWritableDataFolderPath("cache/plugins/puppeteer");
-            var browserFetcher = new BrowserFetcher
-            {
-                CacheDir = cachePath,
-                Browser = SupportedBrowser.Chromium
-            };
-            const string buildId = "1499281";
-            executablePath = browserFetcher.GetExecutablePath(buildId);
-            if (!File.Exists(executablePath))
-            {
-                _logger.LogDebug("Downloading Puppeteer browser to cache directory: {CachePath}", cachePath);
-                browserFetcher.BaseUrl =
-                    await TestUrlConnectionAsync("https://storage.googleapis.com/chromium-browser-snapshots") ??
-                    await TestUrlConnectionAsync("https://cdn.npmmirror.com/binaries/chromium-browser-snapshots") ??
-                    throw new HandledException(
-                        new HttpRequestException("Failed to connect to the Puppeteer browser download URL."),
-                        new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
-                        showDetails: true);
+        // First try to launch previously launched browser
+        _browser = await TryLaunchBrowserAsync(_previousLaunchedBrowserPath, SupportedBrowser.Chromium);
+        if (_browser is not null) return _browser;
 
-                try
-                {
-                    await browserFetcher.DownloadAsync(buildId);
-                }
-                catch (Exception e)
-                {
-                    throw new HandledException(
-                        new InvalidOperationException("Failed to download Puppeteer browser.", e),
-                        new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
-                        showDetails: true);
-                }
-            }
-        }
+        // Then try to launch installed Edge browser
+        _browser = await TryLaunchBrowserAsync(BrowserHelper.GetEdgePath(), SupportedBrowser.Chromium);
+        if (_browser is not null) return _browser;
+
+        // Then try to launch installed Chrome browser
+        _browser = await TryLaunchBrowserAsync(BrowserHelper.GetChromePath(), SupportedBrowser.Chrome);
+        if (_browser is not null) return _browser;
+
+        // Finally download and launch Puppeteer browser
+        var cachePath = _runtimeConstantProvider.EnsureWritableDataFolderPath("cache/plugins/puppeteer");
+        var browserFetcher = new BrowserFetcher
+        {
+            CacheDir = cachePath,
+            Browser = SupportedBrowser.Chromium
+        };
+        const string buildId = "1499281";
+        var executablePath = browserFetcher.GetExecutablePath(buildId);
+
+        // Try to launch again in case the browser was downloaded previously
+        _browser = await TryLaunchBrowserAsync(executablePath, SupportedBrowser.Chrome);
+        if (_browser is not null) return _browser;
+
+        // We use two different URLs to download the browser for better reliability
+        _logger.LogDebug("Downloading Puppeteer browser to cache directory: {CachePath}", cachePath);
+        browserFetcher.BaseUrl =
+            await TestUrlConnectionAsync("https://storage.googleapis.com/chromium-browser-snapshots") ??
+            await TestUrlConnectionAsync("https://cdn.npmmirror.com/binaries/chromium-browser-snapshots") ??
+            throw new HandledException(
+                new HttpRequestException("Failed to connect to the Puppeteer browser download URL."),
+                new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
+                showDetails: true);
 
         try
         {
-            _logger.LogDebug("Using Puppeteer browser executable at: {ExecutablePath}", executablePath);
-            var launcher = new Launcher(_loggerFactory);
-            _browser = await launcher.LaunchAsync(
-                new LaunchOptions
-                {
-                    ExecutablePath = executablePath,
-                    Browser = SupportedBrowser.Chromium,
-                    Headless = true
-                });
-
-            _browserProcess = launcher.Process.Process;
-            await _watchdogManager.RegisterProcessAsync(_browserProcess.Id);
-
-            return _browser;
+            await browserFetcher.DownloadAsync(buildId);
         }
         catch (Exception e)
         {
             throw new HandledException(
-                new InvalidOperationException("Failed to launch Puppeteer browser.", e),
-                new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage),
+                new InvalidOperationException("Failed to download Puppeteer browser.", e),
+                new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserDownloadConnectionError_ErrorMessage),
                 showDetails: true);
+        }
+
+        // Try to launch again after download
+        _browser = await TryLaunchBrowserAsync(executablePath, SupportedBrowser.Chromium);
+        if (_browser is not null) return _browser;
+
+        throw new HandledException(
+            new InvalidOperationException("All attempts to launch Puppeteer browser have failed."),
+            new DynamicResourceKey(LocaleKey.BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage),
+            showDetails: true);
+
+        async ValueTask<IBrowser?> TryLaunchBrowserAsync(string? path, SupportedBrowser browserType)
+        {
+            if (path.IsNullOrEmpty()) return null;
+            if (!File.Exists(path)) return null;
+
+            try
+            {
+                _logger.LogDebug("Try launch Puppeteer browser executable at: {Path}", path);
+                var launcher = new Launcher(_loggerFactory);
+                _browser = await launcher.LaunchAsync(
+                    new LaunchOptions
+                    {
+                        ExecutablePath = path,
+                        Browser = browserType,
+                        Headless = true
+                    });
+
+                _previousLaunchedBrowserPath = path;
+                _browserProcess = launcher.Process.Process;
+                await _watchdogManager.RegisterProcessAsync(_browserProcess.Id);
+
+                return _browser;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Failed to launch Puppeteer browser at: {Path}", path);
+                return null;
+            }
         }
 
         async ValueTask<string?> TestUrlConnectionAsync(string testUrl)

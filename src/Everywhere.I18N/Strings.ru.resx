@@ -446,7 +446,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>Переименовать</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>Удалить</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -525,10 +525,7 @@
         <value>Чем выше значение, тем разнообразнее и богаче словарный запас; чем ниже значение, тем проще и прямолинейнее язык. Эта настройка эффективна только для некоторых моделей. Если возникает ошибка, попробуйте восстановить значение по умолчанию.</value>
     </data>
     <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>API Url</value>
-    </data>
-    <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>Оставьте значение по умолчанию, если не знаете, что делать. Должно начинаться с &quot;http(s)://&quot;.</value>
+        <value>URL</value>
     </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>API Key</value>
@@ -539,23 +536,11 @@
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
         <value>Поддержка ввода изображений</value>
     </data>
-    <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>Вы можете загружать изображения в контексте чата. Если вы не уверены, что делаете, оставьте значение по умолчанию. Если модель не поддерживает ввод изображений, включение этой функции может привести к сбоям.</value>
-    </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Поддержка использования инструментов</value>
     </data>
-    <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>Модель может использовать инструменты, которые вы настроили в контексте чата. Если вы не уверены, что делаете, оставьте значение по умолчанию. Если модель не поддерживает вызов функций, включение этой функции может привести к сбоям.</value>
-    </data>
-    <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>Модель может обдумывать перед ответами. Если вы не уверены, что делаете, оставьте значение по умолчанию. Если модель не поддерживает глубокое мышление, включение этой функции может привести к сбоям.</value>
-    </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Поддержка глубокого мышления</value>
-    </data>
-    <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>Максимальная длина контекста одного чата. Если вы не уверены, что делаете, оставьте значение по умолчанию. Установка этого значения больше, чем значение по умолчанию, может привести к сбоям.</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>Максимальная длина контекста (max_tokens)</value>
@@ -565,9 +550,6 @@
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
         <value>Схема API</value>
-    </data>
-    <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>Выберите схему API. Оставьте значение по умолчанию, если не знаете, что делать.</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>Запуск при старте</value>
@@ -634,9 +616,6 @@
     </data>
     <data name="CustomAssistant_ModelId_Header" xml:space="preserve">
         <value>ID модели</value>
-    </data>
-    <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>Идентификатор модели, используемый для API вызовов, например, gpt-4o. Если вы не уверены, что это такое, оставьте значение по умолчанию.</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>Чат-плагины</value>
@@ -733,13 +712,6 @@
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>Следующий шаг</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>Хорошо, перейдем к Шагу 1: выбору &quot;мозга&quot; для меня!
-Мой интеллект исходит от мощных больших языковых моделей (LLM), которые предоставляются специализированными поставщиками услуг, перечисленными ниже. Вы можете выбрать любого из них, чтобы дать мне силу.</value>
-    </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>Пожалуйста, выберите поставщика, которого вы используете или планируете использовать, и я расскажу вам больше о нем. Не волнуйтесь, Everywhere - это просто независимый клиент и не имеет официальной связи с ними.</value>
-    </data>
     <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
         <value>OpenAI - популярный поставщик AI моделей, известный своей серией GPT и другими. Вы можете зарегистрироваться и получить API ключ на их официальном сайте. Пожалуйста, проверьте их список поддерживаемых стран и регионов.</value>
     </data>
@@ -761,12 +733,6 @@
     <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
         <value>SiliconFlow — это эффективная платформа AI-инференса, поддерживающая широкий спектр открытых и проприетарных моделей (включая бесплатные модели). Она предоставляет разработчикам гибкие, высокопроизводительные услуги по развертыванию и инференсу моделей. Для получения информации о поддерживаемых моделях и ценах посетите их официальный сайт.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>Отлично! Теперь нам нужен API ключ, чтобы начать. Пожалуйста, введите или вставьте его в текстовое поле ниже. Затем нажмите &quot;Проверить API ключ&quot;.</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>Не волнуйтесь, ваш ключ в полной безопасности. Он используется только для аутентификации с поставщиком модели, и я его не читаю.</value>
-    </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Официальный сайт</value>
     </data>
@@ -782,25 +748,13 @@
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>Если вы используете это впервые, я проведу вас через начальную настройку в три простых шага.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>Если вы не уверены, как его получить, вы можете ознакомиться с этим руководством, которое я подготовил для вас:</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>Шепотом: Обычно он начинается с «sk-» или «AI», так что не пропустите его!</value>
-    </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Нажмите, чтобы открыть</value>
-    </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>Проверить API ключ</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>Также вы можете выбрать модель или оставить по умолчанию.</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>Введите API ключ здесь...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 Проверка успешна! Переходим к последнему шагу!</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -986,10 +940,6 @@
     <data name="CustomAssistant_Description_Description" xml:space="preserve">
         <value>Укажите описание ассистента, используемое исключительно для отображения и различения.</value>
     </data>
-    <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>Системная подсказка отправляется модели по умолчанию в начале разговора. Хорошо составленная подсказка включает введение, описание задачи и контекстную информацию.
-В подсказке можно использовать заполнители, заключенные в {}, которые будут заменены соответствующим содержимым перед отправкой модели.</value>
-    </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>Системный запрос</value>
     </data>
@@ -1007,18 +957,6 @@
     </data>
     <data name="Common_No" xml:space="preserve">
         <value>Нет</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>Шаблон поставщика модели</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>Шаблон определения модели</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Выберите шаблон для автоматического заполнения таких параметров, как «Идентификатор модели, Поддержка ввода изображений, Поддержка использования инструментов». Вы можете изменять эти настройки по мере необходимости.</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Выберите шаблон для автоматического заполнения таких параметров, как «Адрес API и Схема API». Вы можете изменять эти настройки по мере необходимости.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>Произошла общая ошибка ввода-вывода. Это может быть связано с проблемой чтения или записи файла.</value>

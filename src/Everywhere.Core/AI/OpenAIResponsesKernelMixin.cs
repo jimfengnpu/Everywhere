@@ -46,9 +46,11 @@ public sealed class OpenAIResponsesKernelMixin : KernelMixinBase
         double? topP = _customAssistant.TopP.IsCustomValueSet ? _customAssistant.TopP.ActualValue : null;
         double? presencePenalty = _customAssistant.PresencePenalty.IsCustomValueSet ? _customAssistant.PresencePenalty.ActualValue : null;
         double? frequencyPenalty = _customAssistant.FrequencyPenalty.IsCustomValueSet ? _customAssistant.FrequencyPenalty.ActualValue : null;
+        int? maxTokens = _customAssistant.MaxTokens <= 0 ? null : _customAssistant.MaxTokens;
 
         return new OpenAIPromptExecutionSettings
         {
+            MaxTokens = maxTokens,
             Temperature = temperature,
             TopP = topP,
             PresencePenalty = presencePenalty,

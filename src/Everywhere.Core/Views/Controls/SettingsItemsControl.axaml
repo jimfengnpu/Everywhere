@@ -64,6 +64,7 @@
                       shadui:ControlAssist.Height="{Binding Height}"
                       AcceptsReturn="{Binding IsMultiline}"
                       MaxLength="{Binding MaxLength}"
+                      MaxLines="6"
                       PasswordChar="{Binding PasswordChar}"
                       Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       TextWrapping="{Binding TextWrapping}"
@@ -122,8 +123,8 @@
                         Command="{Binding ResetCommand}"
                         ToolTip.Tip="{I18N {x:Static LocaleKey.SettingsPage_Reset_Button_ToolTip}}">
                         <LucideIcon
-                          Width="18" Height="18"
-                          Kind="RotateCcw" Size="18"/>
+                          Kind="RotateCcw"
+                          Size="{DynamicResource FontSizeL}"/>
                       </Button>
 
                       <ContentControl
@@ -204,6 +205,7 @@
                 VerticalAlignment="Center" Spacing="4">
                 <TextBlock
                   IsHitTestVisible="False"
+                  IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                   Text="{Binding HeaderKey^, FallbackValue={x:Null}}"
                   TextWrapping="Wrap"/>
                 <TextBlock

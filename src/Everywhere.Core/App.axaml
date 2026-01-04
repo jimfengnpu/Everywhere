@@ -18,6 +18,7 @@
         <ResourceInclude Source="avares://Everywhere.Core/Assets/Resources.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Assets/DataTemplates.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/ApiKeyComboBox.axaml"/>
+        <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/CustomAssistantInformationForm.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/DebugFeaturesControl.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/ModelProviderConfiguratorSelector.axaml"/>
         <ResourceInclude Source="avares://Everywhere.Core/Views/Configuration/RestartAsAdministratorControl.axaml"/>

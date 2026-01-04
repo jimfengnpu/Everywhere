@@ -446,7 +446,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>Renommer</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>Supprimer</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -524,12 +524,6 @@
     <data name="CustomAssistant_FrequencyPenalty_Description" xml:space="preserve">
         <value>Plus la valeur est élevée, plus le vocabulaire est diversifié et riche ; plus la valeur est basse, plus le langage est simple et direct. Ce réglage n'est efficace que pour certains modèles. Si vous rencontrez une erreur, essayez de rétablir la valeur par défaut.</value>
     </data>
-    <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>URL de l'API</value>
-    </data>
-    <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>Laissez cette valeur par défaut si vous ne savez pas quoi faire. Doit commencer par &quot;http(s)://&quot;.</value>
-    </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>Clé API</value>
     </data>
@@ -539,23 +533,11 @@
     <data name="CustomAssistant_IsImageInputSupported_Header" xml:space="preserve">
         <value>Support d'entrée d'image</value>
     </data>
-    <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>Vous pouvez télécharger des images dans le contexte de chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas les entrées d'image, activer cette option peut entraîner des échecs.</value>
-    </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Support de l'utilisation des outils</value>
     </data>
-    <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>Le modèle peut utiliser les outils que vous avez configurés dans le contexte de chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas l'appel de fonctions, activer cette option peut entraîner des échecs.</value>
-    </data>
-    <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>Le modèle peut réfléchir avant de répondre. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Si le modèle ne supporte pas la réflexion approfondie, activer cette option peut entraîner des échecs.</value>
-    </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Support de la réflexion approfondie</value>
-    </data>
-    <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>La longueur maximale du contexte d'un seul chat. Si vous n'êtes pas sûr de ce que vous faites, gardez la valeur par défaut. Définir cette valeur plus grande que la valeur par défaut peut entraîner des échecs.</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>Longueur Maximale du Contexte (max_tokens)</value>
@@ -565,9 +547,6 @@
     </data>
     <data name="CustomAssistant_Schema_Header" xml:space="preserve">
         <value>Schéma de l'API</value>
-    </data>
-    <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>Sélectionnez le schéma de l'API. Laissez cette valeur par défaut si vous ne savez pas quoi faire.</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>Lancer au démarrage</value>
@@ -634,9 +613,6 @@
     </data>
     <data name="CustomAssistant_ModelId_Header" xml:space="preserve">
         <value>ID du Modèle</value>
-    </data>
-    <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>Identifiant du modèle utilisé pour les appels API, tel que gpt-4o. Si vous ne savez pas ce que c'est, conservez la valeur par défaut.</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>Plugins de Chat</value>
@@ -733,13 +709,6 @@ Astuce : Vous pouvez rouvrir ce message en cliquant sur « À propos - Quoi de n
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>Étape suivante</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>D'accord, passons à l'étape 1 : choisir un « cerveau » pour moi !
-Mon intelligence provient de puissants modèles de langage de grande taille (LLM), fournis par les prestataires spécialisés listés ci-dessous. Vous pouvez en choisir un pour me propulser.</value>
-    </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>Veuillez sélectionner un fournisseur que vous avez ou prévoyez d'utiliser, et je vous en dirai plus à son sujet. Ne vous inquiétez pas, Everywhere est juste un client indépendant et n'est pas officiellement affilié avec eux.</value>
-    </data>
     <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
         <value>OpenAI est un fournisseur populaire de modèles d'IA, connu pour sa série GPT et autres. Vous pouvez vous inscrire et obtenir une clé API sur leur site officiel. Veuillez vérifier leur liste de pays et régions pris en charge.</value>
     </data>
@@ -761,12 +730,6 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
         <value>SiliconFlow est une plateforme d'inférence IA efficace qui prend en charge une large gamme de modèles open-source et propriétaires (y compris des modèles gratuits). Elle offre aux développeurs des services de déploiement et d'inférence de modèles flexibles et performants. Pour les modèles pris en charge et les tarifs spécifiques, veuillez visiter leur site officiel.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>Super ! Nous avons maintenant besoin d'une clé API pour commencer. Veuillez l'entrer ou la coller dans la zone de texte ci-dessous. Ensuite, cliquez sur &quot;Vérifier la clé API&quot;.</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>Ne vous inquiétez pas, votre clé est hautement sécurisée. Elle est uniquement utilisée pour l'authentification avec le fournisseur de modèles, et je ne la lirai pas.</value>
-    </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Site officiel</value>
     </data>
@@ -782,25 +745,13 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>Si c'est votre première utilisation, je vous guiderai à travers la configuration initiale en trois étapes simples.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>Si vous ne savez pas comment l'obtenir, vous pouvez consulter ce tutoriel que j'ai préparé pour vous :</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>Indice chuchoté : Elle commence généralement par « sk- » ou « AI », alors ne la manquez pas !</value>
-    </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Cliquez pour ouvrir</value>
-    </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>Vérifier la clé API</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>Vous pouvez également sélectionner un modèle ou conserver le modèle par défaut.</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>Entrez la clé API ici...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 Vérification réussie ! Passons à l'étape finale !</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -986,10 +937,6 @@ Mon intelligence provient de puissants modèles de langage de grande taille (LLM
     <data name="CustomAssistant_Description_Description" xml:space="preserve">
         <value>Spécifiez la description de l'assistant, utilisée uniquement à des fins d'affichage et de différenciation.</value>
     </data>
-    <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>L'invite système est envoyée au modèle par défaut au début de la conversation. Une invite bien conçue inclut une introduction, une description de la tâche et des informations contextuelles.
-Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, et seront remplacés par le contenu correspondant avant d'être envoyés au modèle.</value>
-    </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>Invite du Système</value>
     </data>
@@ -1007,18 +954,6 @@ Des espaces réservés peuvent être utilisés dans l'invite, entourés de {}, e
     </data>
     <data name="Common_No" xml:space="preserve">
         <value>Non</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>Modèle de Fournisseur</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>Modèle de Définition</value>
-    </data>
-    <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Sélectionnez un modèle pour remplir automatiquement des options telles que « ID de modèle, Support d'entrée d'image, Support d'utilisation d'outils. » Vous pouvez modifier ces paramètres si nécessaire.</value>
-    </data>
-    <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Sélectionnez un modèle pour remplir automatiquement des options telles que « Adresse API et Schéma API. » Vous pouvez modifier ces paramètres si nécessaire.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>Une erreur d'E/S générale s'est produite. Cela peut être dû à un problème de lecture ou d'écriture d'un fichier.</value>
@@ -1899,6 +1834,9 @@ Molette de défilement ou touches numériques pour changer de mode de sélection
     </data>
     <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
         <value>Configurer le fournisseur d'IA</value>
+    </data>
+    <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
+        <value>URL</value>
     </data>
     <data name="ChatWindowSettings_AlwaysStartNewChat_Header" xml:space="preserve">
         <value>Toujours commencer un nouveau chat</value>

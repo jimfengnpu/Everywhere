@@ -1,7 +1,9 @@
 ﻿using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Data;
 using Avalonia.Media;
 using ZLinq;
 
@@ -10,7 +12,7 @@ namespace Everywhere.Configuration;
 /// <summary>
 /// Represents a single settings item for View.
 /// </summary>
-public abstract class SettingsItem : AvaloniaObject
+public abstract class SettingsItem : AvaloniaObject, INotifyDataErrorInfo
 {
     public DynamicResourceKey? HeaderKey { get; set; }
 
@@ -20,7 +22,8 @@ public abstract class SettingsItem : AvaloniaObject
 
     public object? StyleKey { get; set; }
 
-    public static readonly StyledProperty<object?> ValueProperty = AvaloniaProperty.Register<SettingsItem, object?>(nameof(Value));
+    public static readonly StyledProperty<object?> ValueProperty =
+        AvaloniaProperty.Register<SettingsItem, object?>(nameof(Value), enableDataValidation: true);
 
     public object? Value
     {
@@ -66,6 +69,32 @@ public abstract class SettingsItem : AvaloniaObject
     public virtual bool IsEmpty => false;
 
     public List<SettingsItem> Items { get; } = [];
+
+    private object? _error;
+
+    public IEnumerable GetErrors(string? propertyName) => _error is not null ? new[] { _error } : [];
+
+    public static readonly DirectProperty<SettingsItem, bool> HasErrorsProperty =
+        AvaloniaProperty.RegisterDirect<SettingsItem, bool>(nameof(HasErrors), o => o.HasErrors);
+
+    public bool HasErrors => _error is not null;
+
+    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+    protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception? error)
+    {
+        if (property == ValueProperty) UpdateValueError(state, error);
+    }
+
+    private void UpdateValueError(BindingValueType state, Exception? error)
+    {
+        var oldError = _error;
+        _error = state == BindingValueType.DataValidationError && error is DataValidationException { ErrorData: { } errorData } ? errorData : null;
+        if (Equals(oldError, _error)) return;
+
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(null));
+        RaisePropertyChanged(HasErrorsProperty, false, true);
+    }
 }
 
 public class SettingsBooleanItem : SettingsItem

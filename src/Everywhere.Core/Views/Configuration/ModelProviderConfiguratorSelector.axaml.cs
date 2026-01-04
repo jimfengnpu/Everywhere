@@ -1,17 +1,31 @@
 ﻿using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using Everywhere.AI;
 using Everywhere.Configuration;
-using System;
-using System.Collections.Generic;
 
 namespace Everywhere.Views;
 
 public class ModelProviderConfiguratorSelector : TemplatedControl
 {
-    /// <summary>
-    /// Gets the available model provider configurator types.
-    /// </summary>
-    public IEnumerable<ModelProviderConfiguratorType> AvailableTypes { get; } = Enum.GetValues<ModelProviderConfiguratorType>();
+    public sealed record ConfiguratorModel(
+        ModelProviderConfiguratorType Type,
+        DynamicResourceKeyBase HeaderKey,
+        DynamicResourceKeyBase DescriptionKey,
+        IBrush? Background);
+
+    public IReadOnlyList<ConfiguratorModel> ConfiguratorModels { get; } =
+    [
+        new ConfiguratorModel(
+            ModelProviderConfiguratorType.PresetBased,
+            new DynamicResourceKey(LocaleKey.ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Header),
+            new DynamicResourceKey(LocaleKey.ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Description),
+            null),
+        new ConfiguratorModel(
+            ModelProviderConfiguratorType.Advanced,
+            new DynamicResourceKey(LocaleKey.ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Header),
+            new DynamicResourceKey(LocaleKey.ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Description),
+            null),
+    ];
 
     /// <summary>
     /// Defines the <see cref="SelectedType"/> property.
