@@ -118,7 +118,7 @@
             Classes="Secondary"
             shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
             Command="{Binding AddMcpPluginCommand}"
-            Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMCPPluginButton_Content}}"/>
+            Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMcpPluginButton_Content}}"/>
 
           <!--  <Button  -->
           <!--  Classes="Secondary"  -->

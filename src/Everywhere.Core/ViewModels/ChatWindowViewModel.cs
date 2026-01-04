@@ -245,6 +245,11 @@ public sealed partial class ChatWindowViewModel :
 
         try
         {
+            if (Settings.ChatWindow.AlwaysStartNewChat && ChatContextManager.CreateNewCommand.CanExecute(null))
+            {
+                ChatContextManager.CreateNewCommand.Execute(null);
+            }
+
             IsOpened = true;
 
             // Avoid adding duplicate attachments
