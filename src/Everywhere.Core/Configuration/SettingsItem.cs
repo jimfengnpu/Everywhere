@@ -63,12 +63,22 @@ public abstract class SettingsItem : AvaloniaObject, INotifyDataErrorInfo
         set => SetValue(IsExpandableProperty, value);
     }
 
+    public static readonly DirectProperty<SettingsItem, IEnumerable<SettingsItem>?> ChildrenProperty =
+        AvaloniaProperty.RegisterDirect<SettingsItem, IEnumerable<SettingsItem>?>(
+        nameof(Children),
+        o => o.Children,
+        (o, v) => o.Children = v);
+
+    public IEnumerable<SettingsItem>? Children
+    {
+        get;
+        set => SetAndRaise(ChildrenProperty, ref field, value);
+    }
+
     /// <summary>
     /// Indicates whether this settings item contains no content (but may have child items).
     /// </summary>
     public virtual bool IsEmpty => false;
-
-    public List<SettingsItem> Items { get; } = [];
 
     private object? _error;
 

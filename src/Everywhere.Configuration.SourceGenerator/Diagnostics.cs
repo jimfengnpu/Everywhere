@@ -53,4 +53,12 @@ internal static class Diagnostics
         category: Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor InvalidSettingsItemsType = new(
+        id: "STG007",
+        title: "Invalid SettingsItems Type",
+        messageFormat: "Property '{0}' is marked with [SettingsItems] but does not have a property of 'IEnumerable<SettingsItem> SettingsItems' type",
+        category: Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

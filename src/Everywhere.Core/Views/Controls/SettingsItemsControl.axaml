@@ -219,7 +219,7 @@
 
           <v:SettingsItemsControl
             HorizontalAlignment="Stretch"
-            ItemsSource="{Binding Items}"/>
+            ItemsSource="{Binding Children}"/>
         </Expander>
       </DataTemplate>
     </Setter>
