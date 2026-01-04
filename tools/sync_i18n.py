@@ -206,7 +206,7 @@ Translation Guidelines:
             log(f"[x] Error: Base resource file not found: {self.base_resx_path}")
             return
 
-        log(f"Reading base resources from {base_resx_path}...")
+        log(f"Reading base resources from {self.base_resx_path}...")
         base_resources_ordered = self._read_resx_ordered(self.base_resx_path)
         base_resources = dict(base_resources_ordered)
         base_resource_keys = [key for key, _ in base_resources_ordered]
