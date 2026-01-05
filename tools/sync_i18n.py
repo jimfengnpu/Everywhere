@@ -235,7 +235,12 @@ Translation Guidelines:
             log(f"Processing: {filename} ({lang_name})")
             existing_resources = self._read_resx(file_path)
             all_resources = existing_resources.copy()
-            missing_keys = [key for key in base_resources if key not in existing_resources]
+            
+            # Identify keys that are missing OR have empty values in the target file
+            missing_keys = [
+                key for key, val in base_resources.items()
+                if key not in existing_resources or (not existing_resources[key] and val)
+            ]
 
             if not missing_keys:
                 log("  [OK] No missing resources. Verifying order...")
@@ -243,7 +248,7 @@ Translation Guidelines:
                 log("  [OK] File order synchronized.")
                 continue
 
-            log(f"  Found {len(missing_keys)} missing resources.")
+            log(f"  Found {len(missing_keys)} missing or empty resources.")
             to_translate = {}
             for key in missing_keys:
                 if any(re.match(pattern, key) for pattern in NO_TRANSLATE_PATTERNS):
@@ -267,9 +272,7 @@ Translation Guidelines:
 
                     if translations:
                         for key, value in translations.items():
-                            if key in all_resources:
-                                log(f"  ! Warning: AI returned an already existing key '{key}'. Ignoring.")
-                            elif key not in to_translate:
+                            if key not in to_translate:
                                 log(f"  ! Warning: AI returned an unexpected key '{key}'. Ignoring.")
                             else:
                                 all_resources[key] = value
