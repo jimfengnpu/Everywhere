@@ -5,13 +5,13 @@ namespace Everywhere.Configuration.Migrations;
 
 /// <summary>
 /// This migration handles 0.5.6 settings changes.
-/// It has 4 changes:
+/// It has 6 changes:
 /// 1. Flatten properties from a Customizable{string} to a simple string, delete the DefaultValue of "SystemPrompt" property
 /// 2. Moves the ApiKeys that not in GUID format to a new "$.LegacyApiKeys" dictionary (Key is path, Value is ApiKey)
 /// 3. Flatten the "Endpoint" property in $.Common.Proxy
 /// 4. Convert $Plugin.WebSearchEngine.WebSearchEngineProviders to dictionary at ($Plugin.WebSearchEngine.Providers) with provider id as key and delete key property, also move ApiKey property to "$.LegacyApiKeys" if not in GUID format
 /// 5. Move $Plugin.WebSearchEngine.SelectedWebSearchEngineProviderId to $Plugin.WebSearchEngine.SelectedProviderId
-/// 6. Delete $.Internal and $.Behavior sections
+/// 6. Delete $.Model.ModelProvider, $.Model.SelectedModelProviderId, $.Model.SelectedModelDefinitionId $.Internal and $.Behavior sections
 /// </summary>
 public class _20260103124001_0_5_6 : SettingsMigration
 {
@@ -181,6 +181,10 @@ public class _20260103124001_0_5_6 : SettingsMigration
     private static bool MigrateTask6(JsonObject root)
     {
         var modified = false;
+        var modelNode = GetPathNode(root, "Model") as JsonObject;
+        modified |= modelNode?.Remove("ModelProvider") ?? false;
+        modified |= modelNode?.Remove("SelectedModelProviderId") ?? false;
+        modified |= modelNode?.Remove("SelectedModelDefinitionId") ?? false;
         modified |= root.Remove("Internal");
         modified |= root.Remove("Behavior");
         return modified;
