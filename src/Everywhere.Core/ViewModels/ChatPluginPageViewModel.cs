@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Everywhere.Chat.Plugins;
 using Everywhere.Common;
@@ -413,13 +414,15 @@ public partial class ChatPluginPageViewModel(IChatPluginManager manager) : BusyV
         public ChatPlugin Plugin { get; } = plugin;
     }
 
-    public class LogsTabItem(ReadOnlyObservableCollection<McpChatPlugin.LogEntry> logEntries) : IContentTabItem
+    public partial class LogsTabItem(ReadOnlyObservableCollection<McpChatPlugin.LogEntry> logEntries) : ObservableObject, IContentTabItem
     {
         public DynamicResourceKeyBase Header => new DynamicResourceKey(LocaleKey.ChatPluginPage_TabItem_Logs_Header);
 
         public ReadOnlyObservableCollection<McpChatPlugin.LogEntry> LogEntries { get; } = logEntries;
+
+        [ObservableProperty]
+        public partial bool ShowTimestamp { get; set; }
     }
 
     #endregion
-
 }
