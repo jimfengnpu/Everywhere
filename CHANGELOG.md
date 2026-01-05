@@ -1,3 +1,34 @@
+## [v0.5.6](https://github.com/DearVa/Everywhere/releases/tag/v0.5.6) - 2026-01-05
+
+### ⚠️ Important Changes
+**Security Update**: API keys are now stored using a more secure encryption method.
+
+**IMPORTANT WARNING**: This version will automatically migrate your settings file. It is recommended to backup `C:\Users\[Username]\AppData\Roaming\Everywhere\settings.json` beforehand. Migration completes upon startup. All existing API keys will be cleared and moved to the `LegacyApiKeys` property in `settings.json`. You will need to reconfigure them. For security reasons, please delete `LegacyApiKeys` immediately after reconfiguring your keys.
+
+### ✨ Features
+- **New "Essential" Plugin**: Adds support for running Sub-Agents and managing Todo lists, enhancing LLM performance on complex tasks.
+- **Refactored Custom Assistant & Welcome Page**: Now features "Preset Mode" and "Advanced Mode" for a more user-friendly experience.
+- Added the ability to import MCP servers from JSON (#191).
+- Added a setting to automatically create a new chat every time the chat window is opened (#32).
+
+### 🚀 Improvements
+- Assistants now reliably use the correct working directory instead of defaulting to `C:\Windows\System32` (#161).
+- Optimized the default system prompt.
+- Improved the UI for checking updates.
+- Various other UI/UX improvements.
+
+### 🐛 Bug Fixes
+- Fixed a critical issue where file attachments could cause an infinite loop and memory exhaustion crash.
+- Fixed an issue where Gemini 3 might fail when calling tools.
+- Fixed an issue where the File System plugin returned incomplete paths during file search.
+- Fixed an issue where the PowerShell plugin failed to capture Warning output (#225).
+- Fixed encoding issues in the PowerShell plugin.
+- Fixed an issue where LaTeX formulas were not clearly visible in Light Mode.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.5...v0.5.6
+
+
+
 ## [v0.5.5](https://github.com/DearVa/Everywhere/releases/tag/v0.5.5) - 2025-12-21
 
 ### 🚀 Improvements

@@ -79,6 +79,11 @@
               </Style>
             </Style>
 
+            <Style Selector="ToggleButton.TitleBar">
+              <Setter Property="shadui:ButtonAssist.CheckedForeground" Value="{DynamicResource PrimaryForegroundColor}"/>
+              <Setter Property="shadui:ButtonAssist.CheckedBackground" Value="{DynamicResource PrimaryColor50}"/>
+            </Style>
+
             <Style Selector="FlyoutPresenter">
               <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
               <Setter Property="BorderThickness" Value="1"/>
@@ -119,11 +124,29 @@
             ToolTip.Tip="{I18N {x:Static LocaleKey.ChatWindow_History_ToolTip}}">
             <Button.Flyout>
               <Flyout ShowMode="Transient">
-                <Grid RowDefinitions="*,Auto">
+                <DockPanel>
+                  <Button
+                    DockPanel.Dock="Bottom" Padding="0,6"
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="0,1,0,0"
+                    Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}"
+                    CornerRadius="0,0,8,8">
+                    <Interaction.Behaviors>
+                      <ButtonClickEventTriggerBehavior>
+                        <ButtonClickEventTriggerBehavior.Actions>
+                          <HideFlyoutAction Flyout="{Binding #HistoryButton.Flyout}"/>
+                          <InvokeCommandAction
+                            Command="{Binding SwitchViewingHistoryCommand}"
+                            CommandParameter="True"/>
+                        </ButtonClickEventTriggerBehavior.Actions>
+                      </ButtonClickEventTriggerBehavior>
+                    </Interaction.Behaviors>
+                  </Button>
+
                   <ScrollViewer
-                    Grid.Row="0" Width="200"
-                    MaxHeight="400" HorizontalContentAlignment="Stretch"
-                    HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    Width="200" MaxHeight="400"
+                    HorizontalContentAlignment="Stretch" HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
                     <ItemsControl
                       Margin="8" Padding="0"
                       ItemsSource="{Binding ChatContextManager.RecentHistory}">
@@ -172,25 +195,7 @@
                       </ItemsControl.ItemTemplate>
                     </ItemsControl>
                   </ScrollViewer>
-
-                  <Button
-                    Grid.Row="1" Padding="0,6"
-                    BorderBrush="{DynamicResource BorderColor}"
-                    BorderThickness="0,1,0,0"
-                    Content="{I18N {x:Static LocaleKey.ChatWindow_ViewAllHistoryButton_Content}}"
-                    CornerRadius="0,0,8,8">
-                    <Interaction.Behaviors>
-                      <ButtonClickEventTriggerBehavior>
-                        <ButtonClickEventTriggerBehavior.Actions>
-                          <HideFlyoutAction Flyout="{Binding #HistoryButton.Flyout}"/>
-                          <InvokeCommandAction
-                            Command="{Binding SwitchViewingHistoryCommand}"
-                            CommandParameter="True"/>
-                        </ButtonClickEventTriggerBehavior.Actions>
-                      </ButtonClickEventTriggerBehavior>
-                    </Interaction.Behaviors>
-                  </Button>
-                </Grid>
+                </DockPanel>
               </Flyout>
             </Button.Flyout>
           </Button>
@@ -978,7 +983,7 @@
             Focusable="True"
             IsSendButtonEnabled="{Binding !IsBusy}"
             IsToolCallEnabled="{Binding PersistentState.IsToolCallEnabled, Mode=TwoWay}"
-            IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported.BindableValue, FallbackValue=false}"
+            IsToolCallSupported="{Binding Settings.Model.SelectedCustomAssistant.IsFunctionCallingSupported, FallbackValue={x:False}}"
             MaxChatAttachmentCount="{Binding PersistentState.MaxChatAttachmentCount}"
             MaxLength="{Binding ChatInputAreaTextMaxLength}"
             MaxLines="12"
@@ -1036,7 +1041,7 @@
                   MinWidth="200" VerticalAlignment="Center">
                   <Interaction.Behaviors>
                     <be:LogarithmicSliderBehavior
-                      Maximum="{Binding Settings.Model.SelectedCustomAssistant.MaxTokens.ActualValue, FallbackValue=8192, Converter={x:Static vc:DoubleConverters.Multiply}, ConverterParameter=0.5}"
+                      Maximum="{Binding Settings.Model.SelectedCustomAssistant.MaxTokens, FallbackValue=8192, Converter={x:Static vc:DoubleConverters.Multiply}, ConverterParameter=0.5}"
                       Minimum="512"
                       Value="{Binding PersistentState.VisualTreeTokenLimit, Mode=TwoWay}"/>
                   </Interaction.Behaviors>

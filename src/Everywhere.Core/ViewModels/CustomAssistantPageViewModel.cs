@@ -60,7 +60,8 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
                 background: RandomAssistantIconBackgrounds[Random.Shared.Next(RandomAssistantIconBackgrounds.Length)])
             {
                 Kind = LucideIconKind.Bot
-            }
+            },
+            ConfiguratorType = ModelProviderConfiguratorType.PresetBased
         };
         settings.Model.CustomAssistants.Add(newAssistant);
         SelectedCustomAssistant = newAssistant;
@@ -86,6 +87,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
     private async Task CheckConnectivityAsync(CancellationToken cancellationToken)
     {
         if (SelectedCustomAssistant is not { } customAssistant) return;
+        if (!customAssistant.Configurator.Validate()) return;
 
         try
         {
@@ -101,7 +103,7 @@ public partial class CustomAssistantPageViewModel(IKernelMixinFactory kernelMixi
             Log.Logger.ForContext<CustomAssistantPageViewModel>().Error(
                 ex,
                 "Failed to check connectivity key for endpoint {ProviderId} and model {ModelId}",
-                customAssistant.Endpoint.ActualValue,
+                customAssistant.Endpoint,
                 customAssistant.ModelId);
             ToastManager
                 .CreateToast(LocaleResolver.CustomAssistantPageViewModel_CheckConnectivity_FailedToast_Title)

@@ -446,7 +446,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>Rinomina</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>Elimina</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -525,10 +525,10 @@
         <value>Più alto è il valore, più il vocabolario è vario e ricco; più basso è il valore, più il linguaggio è semplice e diretto. Questa impostazione è efficace solo per alcuni modelli. Se riscontri un errore, prova a ripristinare il valore predefinito.</value>
     </data>
     <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>URL API</value>
+        <value>URL</value>
     </data>
     <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>Lasciare questo valore predefinito se non sai cosa fare. Deve iniziare con &quot;http(s)://&quot;.</value>
+        <value>Deve iniziare con http:// o https://.</value>
     </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>Chiave API</value>
@@ -540,22 +540,22 @@
         <value>Supporto per Input Immagine</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>Puoi caricare immagini nel contesto della chat. Se non sei sicuro di cosa stai facendo, mantieni il valore predefinito. Se il modello non supporta input di immagini, abilitare questa opzione potrebbe causare errori.</value>
+        <value>Il modello supporta l'input di immagini. Se il modello non lo supporta, attivare questa opzione potrebbe causare errori durante la conversazione.</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>Supporto per Uso Strumenti</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>Il modello può utilizzare gli strumenti configurati nel contesto della chat. Se non sei sicuro di cosa stai facendo, mantieni il valore predefinito. Se il modello non supporta la chiamata di funzioni, abilitare questa opzione potrebbe causare errori.</value>
+        <value>Il modello supporta l'uso degli strumenti configurati. Se il modello non lo supporta, attivare questa opzione potrebbe causare errori durante la conversazione.</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>Il modello può riflettere prima di rispondere. Se non sei sicuro di cosa stai facendo, mantieni il valore predefinito. Se il modello non supporta il pensiero profondo, abilitare questa opzione potrebbe causare errori.</value>
+        <value>Il modello supporta il pensiero profondo prima di rispondere. Se il modello non lo supporta, attivare questa opzione potrebbe causare errori durante la conversazione.</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>Supporto per Pensiero Profondo</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>La lunghezza massima del contesto di una singola chat. Se non sei sicuro di cosa stai facendo, mantieni il valore predefinito. Impostare questo valore più grande del valore predefinito potrebbe causare errori.</value>
+        <value>La lunghezza massima del contesto della conversazione. Questo influenzerà la strategia di costruzione dell'albero visivo, cerca di impostarlo su un valore reale.</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>Lunghezza Massima del Contesto (max_tokens)</value>
@@ -567,7 +567,7 @@
         <value>Schema API</value>
     </data>
     <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>Seleziona lo schema API. Lasciare questo valore predefinito se non sai cosa fare.</value>
+        <value>Seleziona il protocollo API. Tieni presente che questo non è sempre associato al modello, ad esempio Gemini fornirà un protocollo compatibile con OpenAI, per dettagli consulta le istruzioni ufficiali del modello corrispondente.</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>Esegui all'avvio</value>
@@ -636,7 +636,7 @@
         <value>ID Modello</value>
     </data>
     <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>Identificatore del modello utilizzato per le chiamate API, come gpt-4o. Se non sei sicuro di cosa sia, mantieni il valore predefinito.</value>
+        <value>Identificatore del modello per le chiamate API, ad esempio gpt-4o.</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>Plugin di Chat</value>
@@ -733,39 +733,18 @@ Suggerimento: puoi riaprire questo messaggio cliccando su &quot;Informazioni - N
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>Passo successivo</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>Bene, passiamo al Passo 1: scegliere un &quot;cervello&quot; per Me!
-La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni (LLM), forniti dai servizi specializzati elencati di seguito. Puoi scegliere uno di loro per alimentarmi.</value>
+    <data name="WelcomeView_ConfiguratorStep_Message1" xml:space="preserve">
+        <value>Ora facciamo il primo passo: scegli un “cervello” per me!
+La mia intelligenza è fornita da un grande modello linguistico e ho bisogno del tuo aiuto per configurarlo. Ti offro diverse modalità di configurazione, scegli quella che ti si addice di più.</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>Seleziona un fornitore che hai o che intendi utilizzare, e ti dirò di più al riguardo. Non preoccuparti, Everywhere è solo un client indipendente e non è ufficialmente affiliato con loro.</value>
+    <data name="WelcomeView_ConfiguratorStep_Message2" xml:space="preserve">
+        <value>Non preoccuparti, se non va bene, puoi tornare indietro e scegliere di nuovo in qualsiasi momento.</value>
     </data>
-    <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
-        <value>OpenAI è un fornitore popolare di modelli AI, noto per la sua serie GPT e altri. Puoi registrarti e ottenere una chiave API sul loro sito ufficiale. Controlla la loro lista di paesi e regioni supportati.</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message1" xml:space="preserve">
+        <value>Benvenuto nella modalità preimpostata. Devi solo scegliere il fornitore del grande modello che vuoi utilizzare, poi ottenere la chiave API e compilarla, infine selezionare il modello per iniziare a usarlo!</value>
     </data>
-    <data name="WelcomeView_ModelProviderWrapper_anthropic_Description" xml:space="preserve">
-        <value>Anthropic si concentra sullo sviluppo di modelli AI sicuri e affidabili, con il suo prodotto di punta che è la serie Claude. Visita il loro sito ufficiale per i dettagli sui modelli e i prezzi delle API.</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_google_Description" xml:space="preserve">
-        <value>Google sviluppa la serie di modelli AI multimodali Gemini. Puoi ottenere una chiave API tramite Google AI Studio o Google Cloud Platform. Verifica che il servizio sia disponibile nella tua regione.</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_deepseek_Description" xml:space="preserve">
-        <value>DeepSeek è un'azienda focalizzata sull'intelligenza artificiale generale, con modelli che eccellono nella generazione di codice e nell'elaborazione della lingua cinese. Puoi registrarti e iniziare sul loro sito ufficiale.</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_moonshot_Description" xml:space="preserve">
-        <value>Moonshot AI è nota per il suo assistente intelligente Kimi, che supporta input di testi lunghi. L'azienda offre una piattaforma aperta con servizi API. Per maggiori dettagli, visita il loro sito ufficiale.</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_openrouter_Description" xml:space="preserve">
-        <value>OpenRouter è un servizio di aggregazione e instradamento API che ti consente di accedere a una varietà di modelli da diversi fornitori (come OpenAI, Anthropic, Google, ecc.) tramite un'unica interfaccia unificata. Questo è molto conveniente per testare e confrontare diversi modelli (inclusi modelli gratuiti). Consulta la loro documentazione ufficiale per prezzi e modelli disponibili.</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
-        <value>SiliconFlow è una piattaforma di inferenza AI efficiente che supporta una vasta gamma di modelli open-source e proprietari (inclusi modelli gratuiti). Fornisce agli sviluppatori servizi di distribuzione e inferenza di modelli flessibili e ad alte prestazioni. Per i modelli supportati specifici e i prezzi, visita il loro sito ufficiale.</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>Ottimo! Ora abbiamo bisogno di una chiave API per iniziare. Inseriscila o incollala nella casella di testo qui sotto. Poi clicca su &quot;Verifica chiave API&quot;.</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>Non preoccuparti, la tua chiave è altamente sicura. Viene utilizzata solo per l'autenticazione con il fornitore del modello e non la leggerò.</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message2" xml:space="preserve">
+        <value>Non preoccuparti, la tua chiave sarà memorizzata in modo crittografato e io non posso leggerla.</value>
     </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Sito ufficiale</value>
@@ -782,25 +761,22 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>Se è la prima volta che lo usi, ti guiderò attraverso la configurazione iniziale in tre semplici passaggi.</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>Se non sei sicuro di come ottenerla, puoi dare un'occhiata a questo tutorial che ho preparato per te:</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>Suggerimento sussurrato: di solito inizia con “sk-” o “AI”, quindi non perderla!</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message3" xml:space="preserve">
+        <value>Se non sai come scegliere o come ottenere la chiave API, consulta qui le istruzioni.</value>
     </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 Clicca per aprire</value>
     </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>Verifica chiave API</value>
+    <data name="WelcomeView_CheckConnectivityButton_Content" xml:space="preserve">
+        <value>Testa la disponibilità dell'assistente</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>Inoltre, puoi selezionare un modello o mantenere quello predefinito.</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message4" xml:space="preserve">
+        <value>Dopo aver completato la selezione, fai clic su “Testa la disponibilità dell'assistente”, controllerò se la configurazione è corretta.</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>Inserisci qui la chiave API...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 Verifica riuscita! Passiamo all'ultimo passaggio!</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -987,8 +963,8 @@ La mia intelligenza deriva da potenti modelli di linguaggio di grandi dimensioni
         <value>Specifica la descrizione dell'assistente, usata solo per scopi di visualizzazione e differenziazione.</value>
     </data>
     <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>Il prompt di sistema viene inviato al modello per impostazione predefinita all'inizio della conversazione. Un prompt ben strutturato include un'introduzione, una descrizione del compito e informazioni contestuali.
-I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e saranno sostituiti con il contenuto corrispondente prima di essere inviati al modello.</value>
+        <value>Il prompt di sistema verrà inviato al modello all'inizio della conversazione e sarà aggiornato ad ogni invio di messaggio.
+Nel prompt possono essere utilizzati segnaposto, racchiusi in {}, che verranno sostituiti con i contenuti corrispondenti prima di essere inviati al modello.</value>
     </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>Prompt di Sistema</value>
@@ -1009,16 +985,16 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
         <value>No</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>Modello del Fornitore</value>
+        <value>Fornitore del modello</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>Modello di Definizione</value>
+        <value>Nome del modello</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>Seleziona un modello per popolare automaticamente opzioni come “ID modello, Supporto input immagine, Supporto utilizzo strumenti.” Puoi modificare queste impostazioni secondo necessità.</value>
+        <value>Seleziona un nome di modello preimpostato.</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>Seleziona un modello per popolare automaticamente opzioni come “Indirizzo API e Schema API.” Puoi modificare queste impostazioni secondo necessità.</value>
+        <value>Seleziona un fornitore di modelli preimpostato.</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>Si è verificato un errore generale di I/O. Questo potrebbe essere dovuto a un problema con la lettura o la scrittura di un file.</value>
@@ -1296,13 +1272,13 @@ I segnaposto possono essere usati all'interno del prompt, racchiusi in {}, e sar
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
         <value>Documento</value>
     </data>
-    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles" xml:space="preserve">
+    <data name="FilePickerFileType_SupportedFiles" xml:space="preserve">
         <value>File Supportati</value>
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
         <value>Immagini</value>
     </data>
-    <data name="ChatWindowViewModel_FilePickerFileType_AllFiles" xml:space="preserve">
+    <data name="FilePickerFileType_AllFiles" xml:space="preserve">
         <value>Tutti i File</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
@@ -1618,7 +1594,7 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     <data name="ChatPluginPageViewModel_RemoveMcpPlugin_ConfirmationMessage" xml:space="preserve">
         <value>Sei sicuro di voler rimuovere “{0}”?</value>
     </data>
-    <data name="ChatPluginPage_AddMCPPluginButton_Content" xml:space="preserve">
+    <data name="ChatPluginPage_AddMcpPluginButton_Content" xml:space="preserve">
         <value>Aggiungi</value>
     </data>
     <data name="ChatPluginPage_CopyLogsButton_ToolTip" xml:space="preserve">
@@ -1900,10 +1876,118 @@ Rotellina o tasti numerici per cambiare modalità di selezione</value>
     <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
         <value>Configura il fornitore di AI</value>
     </data>
-    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
-        <value>L'amministratore di solito non è necessario su Linux. Se necessario, riavvia con sudo.</value>
+    <data name="ApiKeyComboBox_AddApiKey" xml:space="preserve">
+        <value>Aggiungi chiave API</value>
     </data>
-    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
-        <value>Impossibile acquisire la scorciatoia. La combinazione di tasti potrebbe essere già in uso.</value>
+    <data name="ApiKeyComboBox_ManageApiKey" xml:space="preserve">
+        <value>Gestisci chiavi API</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeys_Dialog_Message" xml:space="preserve">
+        <value>Sei sicuro di voler eliminare {0} chiavi API? Questa operazione non può essere annullata!</value>
+    </data>
+    <data name="Common_Copied" xml:space="preserve">
+        <value>Copiato</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKey_Flyout_Content" xml:space="preserve">
+        <value>Sei sicuro di voler eliminare? Questa operazione non può essere annullata!</value>
+    </data>
+    <data name="ManageApiKeyForm_SecretKeyDataGridTemplateColumn_Header" xml:space="preserve">
+        <value>Chiave</value>
+    </data>
+    <data name="ManageApiKeyForm_NameDataGridTextColumn_Header" xml:space="preserve">
+        <value>Nome</value>
+    </data>
+    <data name="CustomAssistantInformationForm_IconButton_ToolTip" xml:space="preserve">
+        <value>Clicca per cambiare l'icona</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Header" xml:space="preserve">
+        <value>Modalità avanzata</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Description" xml:space="preserve">
+        <value>Configura liberamente tutti i parametri del modello, compatibile con modelli di terze parti</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Header" xml:space="preserve">
+        <value>Modalità preimpostata</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Description" xml:space="preserve">
+        <value>Seleziona modelli comuni dalle preimpostazioni e inizia rapidamente</value>
+    </data>
+    <data name="CreateApiKeyForm_NameTextBox_Label" xml:space="preserve">
+        <value>Nome (solo per visualizzazione e distinzione)</value>
+    </data>
+    <data name="CreateApiKeyForm_SecretKeyTextBox_Label" xml:space="preserve">
+        <value>Chiave</value>
+    </data>
+    <data name="ManageApiKeyForm_AddApiKeyButton_Content" xml:space="preserve">
+        <value>Aggiungi</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeysButton_Content" xml:space="preserve">
+        <value>Elimina selezionati</value>
+    </data>
+    <data name="WelcomeView_ModelProviderHyperlinkButton_Content" xml:space="preserve">
+        <value>Clicca qui per vedere</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message1" xml:space="preserve">
+        <value>Benvenuto nella modalità avanzata. Puoi configurare i modelli di terze parti supportati dal protocollo API.</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message2" xml:space="preserve">
+        <value>Tieni presente che non posso garantire la compatibilità perfetta con tutti i modelli di terze parti.</value>
+    </data>
+    <data name="AdvancedModelProviderConfigurator_InvalidEndpoint" xml:space="preserve">
+        <value>Deve essere un URL valido che inizia con http:// o https://</value>
+    </data>
+    <data name="VisualElementType_Spinner" xml:space="preserve">
+        <value>Elenco a discesa</value>
+    </data>
+    <data name="VisualElementType_Splitter" xml:space="preserve">
+        <value>Divisore</value>
+    </data>
+    <data name="VisualElementType_StatusBar" xml:space="preserve">
+        <value>Barra di stato</value>
+    </data>
+    <data name="VisualElementType_ToolBar" xml:space="preserve">
+        <value>Barra degli strumenti</value>
+    </data>
+    <data name="VisualElementType_Header" xml:space="preserve">
+        <value>Intestazione</value>
+    </data>
+    <data name="VisualElementType_HeaderItem" xml:space="preserve">
+        <value>Elemento intestazione</value>
+    </data>
+    <data name="ApiKey_EmptyName" xml:space="preserve">
+        <value>(vuoto)</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Header" xml:space="preserve">
+        <value>Inizia sempre una nuova chat</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Description" xml:space="preserve">
+        <value>Avvia automaticamente una nuova sessione quando richiami l'app tramite scorciatoia, bypassando la conversazione precedente.</value>
+    </data>
+    <data name="ChatPluginPage_ImportMcpPluginButton_ToolTip" xml:space="preserve">
+        <value>Importa da JSON</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_DialogTitle" xml:space="preserve">
+        <value>Importa plugin MCP</value>
+    </data>
+    <data name="McpImportForm_Description" xml:space="preserve">
+        <value>Incolla la tua configurazione MCP JSON qui sotto, oppure importala da un file locale.</value>
+    </data>
+    <data name="McpImportForm_OpenButton_Content" xml:space="preserve">
+        <value>Apri</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_SuccessToast_Title" xml:space="preserve">
+        <value>Importati {0} plugin MCP</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_FailedToast_Title" xml:space="preserve">
+        <value>Importazione dei plugin MCP fallita</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_NotFoundToast_Title" xml:space="preserve">
+        <value>Nessun plugin MCP valido trovato</value>
+    </data>
+    <data name="McpTransportConfiguration_DefaultName" xml:space="preserve">
+        <value>Server MCP</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
+        <value>Importati {0} plugin con successo, {1} falliti</value>
     </data>
 </root>

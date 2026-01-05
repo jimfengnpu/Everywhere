@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using Everywhere.Common;
 using Everywhere.Initialization;
 using Everywhere.Views;
@@ -16,11 +17,31 @@ public static class SettingsExtensions
             typeof(Settings),
             (xx, _) =>
             {
-                IConfiguration configuration;
+                // Forward compatibility: use FallbackGuidConverter to handle invalid GUIDs and set them to Guid.Empty
+                TypeDescriptor.AddAttributes(typeof(Guid), new TypeConverterAttribute(typeof(FallbackGuidConverter)));
+
                 var settingsJsonPath = Path.Combine(
                     xx.GetRequiredService<IRuntimeConstantProvider>().Get<string>(RuntimeConstantType.WritableDataPath),
                     "settings.json");
                 var loggerFactory = xx.GetRequiredService<ILoggerFactory>();
+
+                // Run Migrations
+                try
+                {
+                    var migrations = typeof(SettingsExtensions).Assembly.GetTypes()
+                        .Where(t => typeof(SettingsMigration).IsAssignableFrom(t) && !t.IsAbstract)
+                        .Select(Activator.CreateInstance)
+                        .Cast<SettingsMigration>();
+
+                    var migrator = new SettingsMigrator(settingsJsonPath, migrations, loggerFactory.CreateLogger<SettingsMigrator>());
+                    migrator.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    loggerFactory.CreateLogger("SettingsMigration").LogError(ex, "Error running settings migrations");
+                }
+
+                IConfiguration configuration;
                 try
                 {
                     configuration = WritableJsonConfigurationFabric.Create(settingsJsonPath, loggerFactory: loggerFactory);

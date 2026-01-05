@@ -1901,6 +1901,120 @@
     <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
         <value>配置 AI 提供商</value>
     </data>
+    <data name="ApiKeyComboBox_AddApiKey" xml:space="preserve">
+        <value>添加 API 密钥</value>
+    </data>
+    <data name="ApiKeyComboBox_ManageApiKey" xml:space="preserve">
+        <value>管理 API 密钥</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeys_Dialog_Message" xml:space="preserve">
+        <value>你确定要删除 {0} 个 API 密钥吗？此操作无法撤销！</value>
+    </data>
+    <data name="Common_Copied" xml:space="preserve">
+        <value>已复制</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKey_Flyout_Content" xml:space="preserve">
+        <value>你确定要删除吗？此操作无法撤销！</value>
+    </data>
+    <data name="ManageApiKeyForm_SecretKeyDataGridTemplateColumn_Header" xml:space="preserve">
+        <value>密钥</value>
+    </data>
+    <data name="ManageApiKeyForm_NameDataGridTextColumn_Header" xml:space="preserve">
+        <value>名称</value>
+    </data>
+    <data name="CustomAssistantInformationForm_IconButton_ToolTip" xml:space="preserve">
+        <value>点击更换图标</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Header" xml:space="preserve">
+        <value>进阶模式</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Description" xml:space="preserve">
+        <value>自由配置所有的模型参数，兼容第三方模型</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Header" xml:space="preserve">
+        <value>预设模式</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Description" xml:space="preserve">
+        <value>在预设中选择常见模型并快速上手</value>
+    </data>
+    <data name="CreateApiKeyForm_NameTextBox_Label" xml:space="preserve">
+        <value>名称 (仅用于显示和区分)</value>
+    </data>
+    <data name="CreateApiKeyForm_SecretKeyTextBox_Label" xml:space="preserve">
+        <value>密钥</value>
+    </data>
+    <data name="ManageApiKeyForm_AddApiKeyButton_Content" xml:space="preserve">
+        <value>添加</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeysButton_Content" xml:space="preserve">
+        <value>删除选中项</value>
+    </data>
+    <data name="WelcomeView_ModelProviderHyperlinkButton_Content" xml:space="preserve">
+        <value>点我查看</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message1" xml:space="preserve">
+        <value>欢迎使用进阶模式。你可以自行配置 API 协议支持的第三方模型。</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message2" xml:space="preserve">
+        <value>请注意，我无法保证完美兼容所有第三方模型。</value>
+    </data>
+    <data name="AdvancedModelProviderConfigurator_InvalidEndpoint" xml:space="preserve">
+        <value>必须是 http:// 或 https:// 开头的有效 URL</value>
+    </data>
+    <data name="VisualElementType_Spinner" xml:space="preserve">
+        <value>下拉列表</value>
+    </data>
+    <data name="VisualElementType_Splitter" xml:space="preserve">
+        <value>分割线</value>
+    </data>
+    <data name="VisualElementType_StatusBar" xml:space="preserve">
+        <value>状态栏</value>
+    </data>
+    <data name="VisualElementType_ToolBar" xml:space="preserve">
+        <value>工具栏</value>
+    </data>
+    <data name="VisualElementType_Header" xml:space="preserve">
+        <value>标题</value>
+    </data>
+    <data name="VisualElementType_HeaderItem" xml:space="preserve">
+        <value>标题项</value>
+    </data>
+    <data name="ApiKey_EmptyName" xml:space="preserve">
+        <value>(空)</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Header" xml:space="preserve">
+        <value>始终开启新对话</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Description" xml:space="preserve">
+        <value>使用快捷键唤起应用时，将自动忽略上次对话并开启全新会话。</value>
+    </data>
+    <data name="ChatPluginPage_ImportMcpPluginButton_ToolTip" xml:space="preserve">
+        <value>从 JSON 导入</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_DialogTitle" xml:space="preserve">
+        <value>导入 MCP 插件</value>
+    </data>
+    <data name="McpImportForm_Description" xml:space="preserve">
+        <value>请将 MCP 配置的 JSON 内容粘贴至下方，或直接从本地文件导入。</value>
+    </data>
+    <data name="McpImportForm_OpenButton_Content" xml:space="preserve">
+        <value>打开</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_SuccessToast_Title" xml:space="preserve">
+        <value>导入了 {0} 个 MCP 插件</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_FailedToast_Title" xml:space="preserve">
+        <value>导入 MCP 插件失败</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_NotFoundToast_Title" xml:space="preserve">
+        <value>未找到有效的 MCP 配置</value>
+    </data>
+    <data name="McpTransportConfiguration_DefaultName" xml:space="preserve">
+        <value>MCP 服务器</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
+        <value>成功导入了 {0} 个 MCP 插件，但有 {1} 个失败</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux系统下通常仅使用用户权限。如果需要管理员权限，请使用sudo重新启动应用。</value>
     </data>

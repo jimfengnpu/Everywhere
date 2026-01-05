@@ -1,4 +1,5 @@
 ﻿using Everywhere.Common;
+using Everywhere.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Everywhere.AI;
@@ -23,25 +24,25 @@ public class KernelMixinFactory(IHttpClientFactory httpClientFactory, ILoggerFac
     {
         using var lockScope = _syncLock.EnterScope();
 
-        if (!Uri.TryCreate(customAssistant.Endpoint.ActualValue, UriKind.Absolute, out _))
+        if (!Uri.TryCreate(customAssistant.Endpoint, UriKind.Absolute, out _))
         {
             throw new HandledChatException(
                 new InvalidOperationException("Invalid endpoint URL."),
                 HandledChatExceptionType.InvalidEndpoint);
         }
 
-        if (customAssistant.ModelId.ActualValue.IsNullOrWhiteSpace())
+        if (customAssistant.ModelId.IsNullOrWhiteSpace())
         {
             throw new HandledChatException(
                 new InvalidOperationException("Model ID cannot be empty."),
                 HandledChatExceptionType.InvalidConfiguration);
         }
 
-        var apiKey = apiKeyOverride ?? customAssistant.ApiKey;
+        var apiKey = apiKeyOverride ?? ApiKey.GetKey(customAssistant.ApiKey);
         if (_cachedKernelMixin is not null &&
-            _cachedKernelMixin.Schema == customAssistant.Schema.ActualValue &&
-            _cachedKernelMixin.ModelId == customAssistant.ModelId.ActualValue &&
-            _cachedKernelMixin.Endpoint == customAssistant.Endpoint.ActualValue.Trim().Trim('/') &&
+            _cachedKernelMixin.Schema == customAssistant.Schema &&
+            _cachedKernelMixin.ModelId == customAssistant.ModelId &&
+            _cachedKernelMixin.Endpoint == customAssistant.Endpoint?.Trim().Trim('/') &&
             _cachedKernelMixin.ApiKey == apiKey &&
             _cachedKernelMixin.RequestTimeoutSeconds == customAssistant.RequestTimeoutSeconds.ActualValue)
         {
@@ -54,7 +55,7 @@ public class KernelMixinFactory(IHttpClientFactory httpClientFactory, ILoggerFac
         // It will have the configured settings (timeout and proxy).
         var httpClient = httpClientFactory.CreateClient();
         httpClient.Timeout = TimeSpan.FromSeconds(customAssistant.RequestTimeoutSeconds.ActualValue);
-        return _cachedKernelMixin = customAssistant.Schema.ActualValue switch
+        return _cachedKernelMixin = customAssistant.Schema switch
         {
             ModelProviderSchema.OpenAI => new OpenAIKernelMixin(customAssistant, httpClient, loggerFactory),
             ModelProviderSchema.OpenAIResponses => new OpenAIResponsesKernelMixin(customAssistant, httpClient, loggerFactory),

@@ -446,7 +446,7 @@
     <data name="ChatWindow_HistoryAction_Rename" xml:space="preserve">
         <value>重新命名</value>
     </data>
-    <data name="ChatWindow_HistoryAction_Delete" xml:space="preserve">
+    <data name="Common_Delete" xml:space="preserve">
         <value>刪除</value>
     </data>
     <data name="AboutPage_WelcomePage" xml:space="preserve">
@@ -525,10 +525,10 @@
         <value>數值越高，詞彙越多樣豐富；數值越低，語言越簡單直接。此設定僅對某些模型有效。如遇錯誤，請嘗試恢復預設值。</value>
     </data>
     <data name="CustomAssistant_Endpoint_Header" xml:space="preserve">
-        <value>API Url</value>
+        <value>URL</value>
     </data>
     <data name="CustomAssistant_Endpoint_Description" xml:space="preserve">
-        <value>如果不確定該如何設定，請保持預設值。必須以 &quot;http(s)://&quot; 開頭。</value>
+        <value>必須以 http:// 或 https:// 開頭。</value>
     </data>
     <data name="CustomAssistant_ApiKey_Header" xml:space="preserve">
         <value>API Key</value>
@@ -540,22 +540,22 @@
         <value>支援圖片輸入</value>
     </data>
     <data name="CustomAssistant_IsImageInputSupported_Description" xml:space="preserve">
-        <value>您可以在聊天內容中上傳圖片。如果不確定該如何設定，請保持預設值。如果模型不支援圖片輸入，啟用此功能可能導致失敗。</value>
+        <value>模型支持圖像輸入。如果模型不支持，開啟此選項可能會導致對話時出現錯誤。</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Header" xml:space="preserve">
         <value>支援工具使用</value>
     </data>
     <data name="CustomAssistant_IsFunctionCallingSupported_Description" xml:space="preserve">
-        <value>模型可以使用您在聊天內容中配置的工具。如果不確定該如何設定，請保持預設值。如果模型不支援函數調用，啟用此功能可能導致失敗。</value>
+        <value>模型支持使用已配置的工具。如果模型不支持，開啟此選項可能會導致對話時出現錯誤。</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Description" xml:space="preserve">
-        <value>模型可以在回覆前進行思考。如果不確定該如何設定，請保持預設值。如果模型不支援深度思考，啟用此功能可能導致失敗。</value>
+        <value>模型支持先思考再回答。如果模型不支持，開啟此選項可能會導致對話時出現錯誤。</value>
     </data>
     <data name="CustomAssistant_IsDeepThinkingSupported_Header" xml:space="preserve">
         <value>支援深度思考</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Description" xml:space="preserve">
-        <value>單次聊天的最大內容長度。如果不確定該如何設定，請保持預設值。將此設定大於預設值可能導致失敗。</value>
+        <value>對話的最大上下文長度。此項會影響構建視覺樹的策略，請盡可能設為真實值。</value>
     </data>
     <data name="CustomAssistant_MaxTokens_Header" xml:space="preserve">
         <value>最大內容長度 (max_tokens)</value>
@@ -567,7 +567,7 @@
         <value>API 架構</value>
     </data>
     <data name="CustomAssistant_Schema_Description" xml:space="preserve">
-        <value>選擇 API 協議。如果不確定該如何設定，請保持預設值。</value>
+        <value>選擇 API 協議。請注意此項並不總是和模型相關聯，例如 Gemini 會提供 OpenAI 兼容協議，具體請詳閱對應模型的官方使用說明。</value>
     </data>
     <data name="CommonSettings_IsStartupEnabled_Header" xml:space="preserve">
         <value>開機時啟動</value>
@@ -636,7 +636,7 @@
         <value>模型 ID</value>
     </data>
     <data name="CustomAssistant_ModelId_Description" xml:space="preserve">
-        <value>用於 API 呼叫的模型識別碼，例如 gpt-4o。如不確定，請保持預設值。</value>
+        <value>用於 API 調用的模型標識，例如 gpt-4o。</value>
     </data>
     <data name="ChatPluginPage_Title" xml:space="preserve">
         <value>聊天插件</value>
@@ -733,39 +733,18 @@
     <data name="WelcomeView_NextStepButton_Content" xml:space="preserve">
         <value>下一步</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message1" xml:space="preserve">
-        <value>好的，讓我們進入第 1 步：為我選擇一個「大腦」！
-我的智慧來自強大的大型語言模型（LLMs），這些模型由以下列出的專業服務提供商提供。您可以選擇其中任何一個來為我提供動力。</value>
+    <data name="WelcomeView_ConfiguratorStep_Message1" xml:space="preserve">
+        <value>現在讓我們進行第一步：為我選擇一個“大腦”！
+我的智能由大語言模型提供，需要拜託你幫我配置好。我為你提供了幾種配置模式，選擇最適合你的即可。</value>
     </data>
-    <data name="WelcomeView_SelectModelProviderStep_Message2" xml:space="preserve">
-        <value>請選擇您擁有或計劃使用的提供商，我會告訴您更多相關資訊。別擔心，Everywhere 只是獨立客戶端，與他們並無官方關聯。</value>
+    <data name="WelcomeView_ConfiguratorStep_Message2" xml:space="preserve">
+        <value>別擔心，如果不合適，你可以隨時返回重新選擇。</value>
     </data>
-    <data name="WelcomeView_ModelProviderWrapper_openai_Description" xml:space="preserve">
-        <value>OpenAI 是知名的 AI 模型提供商，以其 GPT 系列等聞名。您可以在其官方網站註冊並獲取 API 金鑰。請查看他們支持的國家和地區列表。</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message1" xml:space="preserve">
+        <value>歡迎使用預設模式。只需要選擇你想用的大模型提供商，之後獲取 API 密鑰並填寫，最後選擇模型就可以開始使用啦！</value>
     </data>
-    <data name="WelcomeView_ModelProviderWrapper_anthropic_Description" xml:space="preserve">
-        <value>Anthropic 專注於開發安全可靠的 AI 模型，其旗艦產品為 Claude 系列。請訪問其官方網站了解模型詳情和 API 價格。</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_google_Description" xml:space="preserve">
-        <value>Google 開發了 Gemini 系列的多模態 AI 模型。你可以透過 Google AI Studio 或 Google Cloud Platform 獲取 API 金鑰。請確認該服務在你的地區可用。</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_deepseek_Description" xml:space="preserve">
-        <value>DeepSeek 是一家專注於通用人工智能的公司，其模型在代碼生成和中文語言處理方面表現出色。你可以在他們的官方網站註冊並開始使用。</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_moonshot_Description" xml:space="preserve">
-        <value>Moonshot AI 以其 Kimi 智能助手而聞名，支持長文本輸入。該公司提供開放平台與 API 服務。欲了解更多詳情，請訪問他們的官方網站。</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_openrouter_Description" xml:space="preserve">
-        <value>OpenRouter 是一個 API 聚合和路由服務，讓你可以通過單一的統一介面訪問多個提供商（如 OpenAI、Anthropic、Google 等）的多種模型。這對於測試和比較不同模型（包括免費模型）非常方便。請參考他們的官方文件以了解定價和可用模型。</value>
-    </data>
-    <data name="WelcomeView_ModelProviderWrapper_siliconflow_Description" xml:space="preserve">
-        <value>SiliconFlow 是一個高效的 AI 推理平台，支持多種開源和專有模型（包括免費模型）。它為開發者提供靈活、高效能的模型部署和推理服務。欲了解具體支持的模型和定價，請訪問他們的官方網站。</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message1" xml:space="preserve">
-        <value>太好了！現在我們需要一個 API 金鑰來開始。請輸入或粘貼到下面的文本框中。然後點擊「驗證 API 金鑰」。</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message2" xml:space="preserve">
-        <value>不用擔心，你的金鑰是高度安全的。它僅用於與模型提供商的身份驗證，我不會讀取它。</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message2" xml:space="preserve">
+        <value>別擔心，你的密鑰將會被加密存儲，我無法讀取。</value>
     </data>
     <data name="WelcomeView_SelectModelProviderStep_OfficialWebsiteHyperlinkButton_Content" xml:space="preserve">
         <value>👉 官方網站</value>
@@ -782,25 +761,22 @@
     <data name="WelcomeView_IntroStep_Message4" xml:space="preserve">
         <value>如果這是你第一次使用，我會引導你完成三個簡單步驟的初始設置。</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message3" xml:space="preserve">
-        <value>如果你不確定如何獲取它，你可以查看我為你準備的這個教程：</value>
-    </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message4" xml:space="preserve">
-        <value>小提示：它通常以「sk-」或「AI」開頭，所以不要錯過！</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message3" xml:space="preserve">
+        <value>如果你不知道如何選擇或者如何獲取 API 密鑰，請參考這裡的教學</value>
     </data>
     <data name="WelcomeView_EnterApiKeyStep_HowToGetApiKeyHyperlinkButton_Content" xml:space="preserve">
         <value>👉 點擊打開</value>
     </data>
-    <data name="WelcomeView_VerifyApiKeyButton_Content" xml:space="preserve">
-        <value>驗證 API 金鑰</value>
+    <data name="WelcomeView_CheckConnectivityButton_Content" xml:space="preserve">
+        <value>測試助手可用性</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message5" xml:space="preserve">
-        <value>此外，你可以選擇一個模型或保持默認。</value>
+    <data name="WelcomeView_AssistantStep_PresetBased_Message4" xml:space="preserve">
+        <value>完成選擇後，請點擊“測試助手可用性”，我會檢查配置是否正確。</value>
     </data>
     <data name="WelcomeView_ApiKeyTextBox_Watermark" xml:space="preserve">
         <value>在此輸入 API 金鑰...</value>
     </data>
-    <data name="WelcomeView_EnterApiKeyStep_Message6" xml:space="preserve">
+    <data name="WelcomeView_AssistantStep_PresetBased_Message5" xml:space="preserve">
         <value>🎉 驗證成功！讓我們進入最後一步！</value>
     </data>
     <data name="WelcomeView_ShortcutStep_Message1" xml:space="preserve">
@@ -987,8 +963,8 @@
         <value>指定助手的描述，僅用於顯示和區分。</value>
     </data>
     <data name="CustomAssistant_SystemPrompt_Description" xml:space="preserve">
-        <value>系統提示會在對話開始時預設發送給模型。一個精心設計的提示包括介紹、任務描述和上下文信息。
-提示中可以使用佔位符，並用 {} 括起來，發送給模型前會替換為相應內容。</value>
+        <value>系統提示詞會在對話的開頭發送給模型，每次發送消息時都會保持最新。
+提示詞中可以使用佔位符，包含在 {} 中，在發送給模型前會被替換成對應的內容。</value>
     </data>
     <data name="CustomAssistant_SystemPrompt_Header" xml:space="preserve">
         <value>系統提示</value>
@@ -1009,16 +985,16 @@
         <value>否</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Header" xml:space="preserve">
-        <value>模型提供者範本</value>
+        <value>模型提供商</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Header" xml:space="preserve">
-        <value>模型定義範本</value>
+        <value>模型名稱</value>
     </data>
     <data name="CustomAssistant_ModelDefinitionTemplate_Description" xml:space="preserve">
-        <value>選擇一個模板以自動填充選項，例如「模型 ID、支持圖像輸入、支持工具使用」。您可以根據需要修改這些設置。</value>
+        <value>選擇一個預設的模型名稱。</value>
     </data>
     <data name="CustomAssistant_ModelProviderTemplate_Description" xml:space="preserve">
-        <value>選擇一個模板以自動填充選項，例如「API 地址和 API 架構」。您可以根據需要修改這些設置。</value>
+        <value>選擇一個預設的模型提供商。</value>
     </data>
     <data name="HandledSystemException_IOException" xml:space="preserve">
         <value>發生了一般的 I/O 錯誤。這可能是由於讀取或寫入檔案時出現問題。</value>
@@ -1296,13 +1272,13 @@
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Documents" xml:space="preserve">
         <value>文件</value>
     </data>
-    <data name="ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles" xml:space="preserve">
+    <data name="FilePickerFileType_SupportedFiles" xml:space="preserve">
         <value>支援的檔案</value>
     </data>
     <data name="ChatWindowViewModel_AddFile_FilePickerFileType_Images" xml:space="preserve">
         <value>圖片</value>
     </data>
-    <data name="ChatWindowViewModel_FilePickerFileType_AllFiles" xml:space="preserve">
+    <data name="FilePickerFileType_AllFiles" xml:space="preserve">
         <value>所有檔案</value>
     </data>
     <data name="ChatContext_Metadata_Topic_Header" xml:space="preserve">
@@ -1618,7 +1594,7 @@
     <data name="ChatPluginPageViewModel_RemoveMcpPlugin_ConfirmationMessage" xml:space="preserve">
         <value>您確定要移除 “{0}” 嗎？</value>
     </data>
-    <data name="ChatPluginPage_AddMCPPluginButton_Content" xml:space="preserve">
+    <data name="ChatPluginPage_AddMcpPluginButton_Content" xml:space="preserve">
         <value>添加</value>
     </data>
     <data name="ChatPluginPage_CopyLogsButton_ToolTip" xml:space="preserve">
@@ -1900,10 +1876,118 @@
     <data name="CustomAssistant_ConfiguratorSelector_Header" xml:space="preserve">
         <value>配置 AI 提供者</value>
     </data>
-    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
-        <value>在 Linux 上通常不需要以系統管理員身份執行。如有需要，請使用 sudo 重新執行。</value>
+    <data name="ApiKeyComboBox_AddApiKey" xml:space="preserve">
+        <value>添加 API 密鑰</value>
     </data>
-    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
-        <value>無法取得快捷鍵。該按鍵組合可能已被使用。</value>
+    <data name="ApiKeyComboBox_ManageApiKey" xml:space="preserve">
+        <value>管理 API 密鑰</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeys_Dialog_Message" xml:space="preserve">
+        <value>你確定要刪除 {0} 個 API 密鑰嗎？此操作無法撤銷！</value>
+    </data>
+    <data name="Common_Copied" xml:space="preserve">
+        <value>已複製</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKey_Flyout_Content" xml:space="preserve">
+        <value>你確定要刪除嗎？此操作無法撤銷！</value>
+    </data>
+    <data name="ManageApiKeyForm_SecretKeyDataGridTemplateColumn_Header" xml:space="preserve">
+        <value>密鑰</value>
+    </data>
+    <data name="ManageApiKeyForm_NameDataGridTextColumn_Header" xml:space="preserve">
+        <value>名稱</value>
+    </data>
+    <data name="CustomAssistantInformationForm_IconButton_ToolTip" xml:space="preserve">
+        <value>點擊更換圖標</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Header" xml:space="preserve">
+        <value>進階模式</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_AdvancedConfiguratorModel_Description" xml:space="preserve">
+        <value>自由配置所有的模型參數，兼容第三方模型</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Header" xml:space="preserve">
+        <value>預設模式</value>
+    </data>
+    <data name="ModelProviderConfiguratorSelector_PresetBasedConfiguratorModel_Description" xml:space="preserve">
+        <value>在預設中選擇常見模型並快速上手</value>
+    </data>
+    <data name="CreateApiKeyForm_NameTextBox_Label" xml:space="preserve">
+        <value>名稱 (僅用於顯示和區分)</value>
+    </data>
+    <data name="CreateApiKeyForm_SecretKeyTextBox_Label" xml:space="preserve">
+        <value>密鑰</value>
+    </data>
+    <data name="ManageApiKeyForm_AddApiKeyButton_Content" xml:space="preserve">
+        <value>添加</value>
+    </data>
+    <data name="ManageApiKeyForm_DeleteApiKeysButton_Content" xml:space="preserve">
+        <value>刪除選中項</value>
+    </data>
+    <data name="WelcomeView_ModelProviderHyperlinkButton_Content" xml:space="preserve">
+        <value>點我查看</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message1" xml:space="preserve">
+        <value>歡迎使用進階模式。你可以自行配置 API 協議支持的第三方模型。</value>
+    </data>
+    <data name="WelcomeView_AssistantStep_Advanced_Message2" xml:space="preserve">
+        <value>請注意，我無法保證完美兼容所有第三方模型。</value>
+    </data>
+    <data name="AdvancedModelProviderConfigurator_InvalidEndpoint" xml:space="preserve">
+        <value>必須是 http:// 或 https:// 開頭的有效 URL</value>
+    </data>
+    <data name="VisualElementType_Spinner" xml:space="preserve">
+        <value>下拉列表</value>
+    </data>
+    <data name="VisualElementType_Splitter" xml:space="preserve">
+        <value>分隔線</value>
+    </data>
+    <data name="VisualElementType_StatusBar" xml:space="preserve">
+        <value>狀態欄</value>
+    </data>
+    <data name="VisualElementType_ToolBar" xml:space="preserve">
+        <value>工具欄</value>
+    </data>
+    <data name="VisualElementType_Header" xml:space="preserve">
+        <value>標題</value>
+    </data>
+    <data name="VisualElementType_HeaderItem" xml:space="preserve">
+        <value>標題項</value>
+    </data>
+    <data name="ApiKey_EmptyName" xml:space="preserve">
+        <value>(空)</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Header" xml:space="preserve">
+        <value>始終開始新對話</value>
+    </data>
+    <data name="ChatWindowSettings_AlwaysStartNewChat_Description" xml:space="preserve">
+        <value>當通過快捷鍵召喚應用程式時，自動開始一個全新的會話，跳過之前的對話。</value>
+    </data>
+    <data name="ChatPluginPage_ImportMcpPluginButton_ToolTip" xml:space="preserve">
+        <value>從 JSON 匯入</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_DialogTitle" xml:space="preserve">
+        <value>導入 MCP 插件</value>
+    </data>
+    <data name="McpImportForm_Description" xml:space="preserve">
+        <value>在下面粘貼您的 MCP 配置 JSON，或從本地文件導入。</value>
+    </data>
+    <data name="McpImportForm_OpenButton_Content" xml:space="preserve">
+        <value>打開</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_SuccessToast_Title" xml:space="preserve">
+        <value>已導入 {0} 個 MCP 插件</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_FailedToast_Title" xml:space="preserve">
+        <value>導入 MCP 插件失敗</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_NotFoundToast_Title" xml:space="preserve">
+        <value>未找到有效的 MCP 插件</value>
+    </data>
+    <data name="McpTransportConfiguration_DefaultName" xml:space="preserve">
+        <value>MCP 伺服器</value>
+    </data>
+    <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
+        <value>成功導入 {0} 個插件，{1} 個失敗</value>
     </data>
 </root>

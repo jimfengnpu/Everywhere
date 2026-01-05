@@ -8,6 +8,15 @@
   xmlns:vc="clr-namespace:Everywhere.ValueConverters" xmlns:vm="clr-namespace:Everywhere.ViewModels"
   d:DesignHeight="450" d:DesignWidth="800"
   x:DataType="vm:ChatPluginPageViewModel" mc:Ignorable="d">
+  <UserControl.Resources>
+    <vc:LogLevelToBrushConverter
+      x:Key="LogLevelToBrushConverter"
+      CriticalBrush="{DynamicResource ErrorColor}"
+      DefaultBrush="{DynamicResource ForegroundColor}"
+      ErrorBrush="{DynamicResource ErrorColor}"
+      WarningBrush="{DynamicResource WarningColor}"/>
+  </UserControl.Resources>
+
   <UserControl.Styles>
     <Style Selector="ListBox.PluginListBox">
       <Setter Property="Padding" Value="0"/>
@@ -118,17 +127,16 @@
             Classes="Secondary"
             shadui:ButtonAssist.Icon="{LucideIconContent Plus}"
             Command="{Binding AddMcpPluginCommand}"
-            Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMCPPluginButton_Content}}"/>
+            Content="{I18N {x:Static LocaleKey.ChatPluginPage_AddMcpPluginButton_Content}}"/>
 
-          <!--  <Button  -->
-          <!--  Classes="Secondary"  -->
-          <!--  Command="{Binding DuplicateCustomAssistantCommand}"  -->
-          <!--  IsEnabled="{Binding SelectedCustomAssistant, Converter={x:Static ObjectConverters.IsNotNull}}"  -->
-          <!--  ToolTip.Tip="{I18N {x:Static LocaleKey.CustomAssistantPage_DuplicateCustomAssistantButton_ToolTip}}">  -->
-          <!--  <LucideIcon  -->
-          <!--  Kind="Copy"  -->
-          <!--  Size="{DynamicResource FontSizeL}"/>  -->
-          <!-- </Button> -->
+          <Button
+            Classes="Secondary"
+            Command="{Binding ImportMcpPluginCommand}"
+            ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_ImportMcpPluginButton_ToolTip}}">
+            <LucideIcon
+              Kind="Import"
+              Size="{DynamicResource FontSizeL}"/>
+          </Button>
         </shadui:ButtonGroup>
       </DockPanel>
     </shadui:NavigationView.PaneHeader>
@@ -375,7 +383,8 @@
                           Content="{LucideIconContent Copy, Size=16}"
                           ToolTip.Tip="{I18N {x:Static LocaleKey.ChatPluginPage_CopyLogsButton_ToolTip}}"/>
                         <ToggleSwitch
-                          x:Name="ShowTimestampToggle" VerticalAlignment="Center"/>
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding ShowTimestamp}"/>
                         <TextBlock
                           Margin="8,0,0,0" VerticalAlignment="Center"
                           Text="{I18N {x:Static LocaleKey.ChatPluginPage_ShowTimestampTextBlock_Text}}"/>
@@ -407,24 +416,14 @@
                                 <ColumnDefinition Width="*"/>
                               </Grid.ColumnDefinitions>
 
-                              <TextBlock.Foreground>
-                                <Binding Path="Level">
-                                  <Binding.Converter>
-                                    <vc:LogLevelToBrushConverter
-                                      CriticalBrush="{DynamicResource ErrorColor}"
-                                      DefaultBrush="{DynamicResource ForegroundColor}"
-                                      ErrorBrush="{DynamicResource ErrorColor}"
-                                      WarningBrush="{DynamicResource WarningColor}"/>
-                                  </Binding.Converter>
-                                </Binding>
-                              </TextBlock.Foreground>
-
                               <TextBlock
                                 Classes="Muted" Grid.Column="0"
-                                IsVisible="{Binding #ShowTimestampToggle.IsChecked}"
+                                Foreground="{Binding Level, Converter={StaticResource LogLevelToBrushConverter}}"
+                                IsVisible="{ReflectionBinding DataContext.ShowTimestamp, RelativeSource={RelativeSource FindAncestor, AncestorType=ItemsControl}, FallbackValue={x:Null}}"
                                 Text="{Binding Timestamp, StringFormat='[{0:yyyy-MM-dd HH:mm:ss}]'}"/>
                               <SelectableTextBlock
                                 Grid.Column="1"
+                                Foreground="{Binding Level, Converter={StaticResource LogLevelToBrushConverter}}"
                                 Text="{Binding Message}"
                                 TextWrapping="Wrap"/>
                             </Grid>

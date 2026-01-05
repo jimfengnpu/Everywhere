@@ -9,8 +9,6 @@
   <ControlTheme
     x:Key="{x:Type v:SettingsItemsControl}"
     TargetType="v:SettingsItemsControl">
-    <Setter Property="CornerRadius" Value="{DynamicResource XlCornerRadius}"/>
-
     <Setter Property="Template">
       <ControlTemplate>
         <ItemsPresenter
@@ -37,11 +35,7 @@
         <Expander
           Classes="LeftIcon" Padding="16"
           at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
-          Background="Transparent"
-          BorderBrush="{Binding $parent[v:SettingsItemsControl].BorderBrush}"
-          BorderThickness="{Binding $parent[v:SettingsItemsControl].BorderThickness}"
           Classes.NotExpandable="{Binding !IsExpandable}"
-          CornerRadius="{Binding $parent[v:SettingsItemsControl].CornerRadius}"
           IsEnabled="{Binding IsEnabled}"
           IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
           <Expander.Styles>
@@ -64,6 +58,7 @@
                       shadui:ControlAssist.Height="{Binding Height}"
                       AcceptsReturn="{Binding IsMultiline}"
                       MaxLength="{Binding MaxLength}"
+                      MaxLines="6"
                       PasswordChar="{Binding PasswordChar}"
                       Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       TextWrapping="{Binding TextWrapping}"
@@ -122,8 +117,8 @@
                         Command="{Binding ResetCommand}"
                         ToolTip.Tip="{I18N {x:Static LocaleKey.SettingsPage_Reset_Button_ToolTip}}">
                         <LucideIcon
-                          Width="18" Height="18"
-                          Kind="RotateCcw" Size="18"/>
+                          Kind="RotateCcw"
+                          Size="{DynamicResource FontSizeL}"/>
                       </Button>
 
                       <ContentControl
@@ -204,6 +199,7 @@
                 VerticalAlignment="Center" Spacing="4">
                 <TextBlock
                   IsHitTestVisible="False"
+                  IsVisible="{Binding $self.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                   Text="{Binding HeaderKey^, FallbackValue={x:Null}}"
                   TextWrapping="Wrap"/>
                 <TextBlock
@@ -217,7 +213,7 @@
 
           <v:SettingsItemsControl
             HorizontalAlignment="Stretch"
-            ItemsSource="{Binding Items}"/>
+            ItemsSource="{Binding Children}"/>
         </Expander>
       </DataTemplate>
     </Setter>

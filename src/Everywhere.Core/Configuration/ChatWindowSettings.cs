@@ -53,6 +53,15 @@ public partial class ChatWindowSettings : ObservableObject, ISettingsCategory
     public partial bool AutomaticallyAddElement { get; set; } = true;
 
     /// <summary>
+    /// When enabled, always start a new chat when opening chat window.
+    /// </summary>
+    [ObservableProperty]
+    [DynamicResourceKey(
+        LocaleKey.ChatWindowSettings_AlwaysStartNewChat_Header,
+        LocaleKey.ChatWindowSettings_AlwaysStartNewChat_Description)]
+    public partial bool AlwaysStartNewChat { get; set; }
+
+    /// <summary>
     /// When enabled, chat window can generate response in the background when closed.
     /// </summary>
     [ObservableProperty]

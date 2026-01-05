@@ -165,14 +165,20 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                 // We need to figure out the symbol of `itemsSourceBindingPath`
                 var itemsSourceSymbol = metadata.Symbol;
                 var parts = itemsSourceBindingPath.Split('.');
-                foreach (var part in parts)
-                {
-                    if (itemsSourceSymbol is null) break;
 
-                    var trimmedPart = part.Trim();
-                    itemsSourceSymbol = itemsSourceSymbol.ContainingType?.GetMembers().FirstOrDefault(m => m.Name == trimmedPart);
+                // If there are no parts, meaning an empty path, report diagnostic
+                if (parts.Length == 0)
+                {
+                    ctx.ReportDiagnostic(
+                        Diagnostic.Create(
+                            Diagnostics.InvalidItemsSourceBindingPath,
+                            metadata.Symbol.Locations.FirstOrDefault(),
+                            metadata.Name));
+                    break;
                 }
 
+                // First part, it starts from the current class
+                itemsSourceSymbol = itemsSourceSymbol.ContainingType?.GetMembers().FirstOrDefault(m => m.Name == parts[0]);
                 if (itemsSourceSymbol is null)
                 {
                     ctx.ReportDiagnostic(
@@ -183,12 +189,20 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                     break;
                 }
 
-                var itemSourceType = itemsSourceSymbol switch
+                // Then, dive into the parts
+                ITypeSymbol? itemSourceType = null;
+                for (var i = 0; i < parts.Length; i++)
                 {
-                    IPropertySymbol prop => prop.Type,
-                    IFieldSymbol field => field.Type,
-                    _ => null
-                };
+                    if (i == 0)
+                    {
+                        itemSourceType = itemsSourceSymbol.GetTypeSymbol();
+                    }
+                    else
+                    {
+                        itemSourceType = itemSourceType?.GetMembers(parts[1]).FirstOrDefault()?.GetTypeSymbol();
+                    }
+                }
+
                 if (itemSourceType is null)
                 {
                     ctx.ReportDiagnostic(
@@ -237,8 +251,9 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
                         "DirectResourceKey(k)";
 
                     // If the type is INotifyPropertyChanged and IEnumerable<T>, use ToObservableChangeSet
-                    if (itemSourceType.AllInterfaces.Any(i => i.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.IEnumerable<T>" &&
-                            itemSourceType.AllInterfaces.Any(ii => ii.ToDisplayString() == "System.ComponentModel.INotifyPropertyChanged")))
+                    if (itemSourceType.AllInterfaces.Any(i =>
+                            i.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.IEnumerable<T>") &&
+                        itemSourceType.AllInterfaces.Any(ii => ii.ToDisplayString() == "System.ComponentModel.INotifyPropertyChanged"))
                     {
                         converterBuilder.AppendLine("global::DynamicData.ObservableListEx.Bind(");
                         using (converterBuilder.Indent())
@@ -402,7 +417,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         ApplyTypeSpecificMetadata(sb, itemName, metadata);
 
         // Handle nested items via [SettingsItems]
-        ApplyGroup(ctx, sb, itemName, metadata, bindingPath);
+        ApplySettingsItems(ctx, sb, itemName, metadata, bindingPath);
 
         sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ValueProperty] = ");
         EmitBinding(sb, bindingPath, BindingMode.TwoWay).AppendLine(";");
@@ -582,7 +597,7 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ApplyGroup(
+    private static void ApplySettingsItems(
         in SourceProductionContext ctx,
         IndentedStringBuilder sb,
         string itemName,
@@ -591,26 +606,44 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
     {
         if (metadata.AttributeOwner.GetAttribute(KnownAttributes.SettingsItems) is not { } settingsItemsAttribute) return;
 
+        // If we are here, it means this item has nested settings items.
+        // It must satisfy at least one of the following:
+        // - Has an attribute [GeneratedSettingsItems] on the class itself so that SettingsItems property is generated.
+        // - Has a property of name SettingsItems and type implementing IEnumerable<SettingsItem>.
+
+        // 1. check satisfactions
+        var hasAttribute = metadata.Type.GetAttribute(KnownAttributes.GeneratedSettingsItems) is not null;
+        var hasSettingsItemsProperty = metadata.Type.GetMembers()
+            .OfType<IPropertySymbol>()
+            .Any(p =>
+                p.Name == "SettingsItems" &&
+                p.Type.AllInterfaces.Any(i =>
+                    i.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.IEnumerable<T>" &&
+                    i.TypeArguments.Length == 1 &&
+                    i.TypeArguments[0].ToDisplayString() == "Everywhere.Configuration.SettingsItem"));
+        if (!hasAttribute && !hasSettingsItemsProperty)
+        {
+            // Report diagnostic for missing GeneratedSettingsItems attribute or SettingsItems property
+            ctx.ReportDiagnostic(
+                Diagnostic.Create(
+                    Diagnostics.InvalidSettingsItemsType,
+                    metadata.Symbol.Locations.FirstOrDefault(),
+                    metadata.Name,
+                    metadata.Type.ToDisplayString()));
+            return;
+        }
+
+        // 2. Emit binding for SettingsItems -> Children
+        sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.ChildrenProperty] = ");
+        EmitBinding(sb, $"{fullBindingPath}.SettingsItems", BindingMode.OneWay);
+        sb.AppendLine(";");
+
+        // 3. Emit IsExpanded
         sb.AppendLine($"{itemName}.IsExpanded = {GetNamedArgValue(settingsItemsAttribute, "IsExpanded", "false")};");
 
         sb.Append($"{itemName}[!global::Everywhere.Configuration.SettingsItem.IsExpandableProperty] = ");
         EmitBinding(sb, metadata.Name, BindingMode.OneWay, "global::Avalonia.Data.Converters.ObjectConverters.IsNotNull");
         sb.AppendLine(";").AppendLine();
-
-        var nestedProperties = metadata.Type.GetMembers()
-            .OfType<IPropertySymbol>()
-            .Where(p => p is { IsStatic: false, GetMethod: not null, IsImplicitlyDeclared: false })
-            .Where(p => !p.IsHiddenItem())
-            .Select(p => BuildPropertyMetadata(p, p, p.Name))
-            .ToImmutableArray();
-
-        foreach (var nestedMeta in nestedProperties)
-        {
-            var nestedItemName = $"{itemName}_{nestedMeta.Name.Replace(".", "_")}";
-            // The new path is the current full path + the nested property name.
-            var nestedPath = $"{fullBindingPath}.{nestedMeta.Name}";
-            EmitItemRecursive(ctx, sb, nestedMeta, nestedItemName, nestedPath, $"{itemName}.Items");
-        }
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 ﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Reflection;
-using System.Text.Json;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
@@ -52,9 +51,11 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
         double? topP = _customAssistant.TopP.IsCustomValueSet ? _customAssistant.TopP.ActualValue : null;
         double? presencePenalty = _customAssistant.PresencePenalty.IsCustomValueSet ? _customAssistant.PresencePenalty.ActualValue : null;
         double? frequencyPenalty = _customAssistant.FrequencyPenalty.IsCustomValueSet ? _customAssistant.FrequencyPenalty.ActualValue : null;
+        int? maxTokens = _customAssistant.MaxTokens <= 0 ? null : _customAssistant.MaxTokens;
 
         return new OpenAIPromptExecutionSettings
         {
+            MaxTokens = maxTokens,
             Temperature = temperature,
             TopP = topP,
             PresencePenalty = presencePenalty,
@@ -172,14 +173,11 @@ public sealed class OpenAIKernelMixin : KernelMixinBase
                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
                     // Extract and process the raw data if it exists.
-                    string? reasoningContent = null;
-                    if (_deltaPatchProperty?.GetValue(delta) is JsonPatch jsonPatch)
+                    if (_deltaPatchProperty?.GetValue(delta) is not JsonPatch jsonPatch ||
+                        !jsonPatch.TryGetValue("$.reasoning_content"u8, out string? reasoningContent))
                     {
-                        try
-                        {
-                            reasoningContent = jsonPatch.GetString("$.reasoning_content"u8);
-                        }
-                        catch { }
+                        yield return update;
+                        continue;
                     }
 
                     if (string.IsNullOrEmpty(reasoningContent))

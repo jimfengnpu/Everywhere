@@ -245,6 +245,11 @@ public sealed partial class ChatWindowViewModel :
 
         try
         {
+            if (Settings.ChatWindow.AlwaysStartNewChat && ChatContextManager.CreateNewCommand.CanExecute(null))
+            {
+                ChatContextManager.CreateNewCommand.Execute(null);
+            }
+
             IsOpened = true;
 
             // Avoid adding duplicate attachments
@@ -334,7 +339,7 @@ public sealed partial class ChatWindowViewModel :
                     }
                 }
             }
-            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported.ActualValue is true &&
+            else if (Settings.Model.SelectedCustomAssistant?.IsImageInputSupported is true &&
                      formats.Contains(DataFormat.Bitmap) &&
                      await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {
@@ -382,7 +387,7 @@ public sealed partial class ChatWindowViewModel :
                     AllowMultiple = true,
                     FileTypeFilter =
                     [
-                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_AddFile_FilePickerFileType_SupportedFiles)
+                        new FilePickerFileType(LocaleResolver.FilePickerFileType_SupportedFiles)
                         {
                             Patterns = FileUtilities.GetFileExtensionsByCategory(FileTypeCategory.Image)
                                 .AsValueEnumerable()
@@ -406,7 +411,7 @@ public sealed partial class ChatWindowViewModel :
                                 .Select(x => '*' + x)
                                 .ToList()
                         },
-                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_FilePickerFileType_AllFiles)
+                        new FilePickerFileType(LocaleResolver.FilePickerFileType_AllFiles)
                         {
                             Patterns = ["*"]
                         }
@@ -656,7 +661,7 @@ public sealed partial class ChatWindowViewModel :
                         {
                             Patterns = ["*.md"]
                         },
-                        new FilePickerFileType(LocaleResolver.ChatWindowViewModel_FilePickerFileType_AllFiles)
+                        new FilePickerFileType(LocaleResolver.FilePickerFileType_AllFiles)
                         {
                             Patterns = ["*"]
                         }

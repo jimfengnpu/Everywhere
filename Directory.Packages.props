@@ -16,6 +16,7 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageVersion Include="DynamicData" Version="9.4.1" />
     <PackageVersion Include="FuzzySharp" Version="2.0.2" />
+    <PackageVersion Include="GnomeStack.Os.Secrets" Version="0.1.3" />
     <PackageVersion Include="Google.Protobuf" Version="3.30.2" />
     <PackageVersion Include="Grpc.Core.Api" Version="2.71.0" />
     <PackageVersion Include="Grpc.Tools" Version="2.71.0" />
@@ -64,11 +65,11 @@
     <PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Themes.Simple" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+    <PackageVersion Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
+    <PackageVersion Include="AvaloniaEdit.TextMate" Version="11.3.0" />
     <PackageVersion Include="MinVer" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
