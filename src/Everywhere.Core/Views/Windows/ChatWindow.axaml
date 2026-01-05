@@ -79,6 +79,11 @@
               </Style>
             </Style>
 
+            <Style Selector="ToggleButton.TitleBar">
+              <Setter Property="shadui:ButtonAssist.CheckedForeground" Value="{DynamicResource PrimaryForegroundColor}"/>
+              <Setter Property="shadui:ButtonAssist.CheckedBackground" Value="{DynamicResource PrimaryColor50}"/>
+            </Style>
+
             <Style Selector="FlyoutPresenter">
               <Setter Property="BorderBrush" Value="{DynamicResource AcrylicBorderBrush}"/>
               <Setter Property="BorderThickness" Value="1"/>

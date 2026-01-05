@@ -31,7 +31,7 @@
             </Border.Transitions>
 
             <ToggleButton
-              x:Name="PART_ToggleButton" Classes="Ghost Secondary"
+              x:Name="PART_ToggleButton" Classes="Ghost"
               MinHeight="0"
               Padding="{TemplateBinding Padding}"
               CornerRadius="{TemplateBinding CornerRadius}"

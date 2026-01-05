@@ -49,7 +49,7 @@
     </DataTemplate.DataType>
 
     <v:KeyboardShortcutInputBox
-      MinWidth="160" MinHeight="32"
+      MinWidth="320" MinHeight="32"
       HorizontalAlignment="Left"
       Shortcut="{Binding Value, Mode=TwoWay}"/>
   </DataTemplate>

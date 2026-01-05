@@ -9,8 +9,6 @@
   <ControlTheme
     x:Key="{x:Type v:SettingsItemsControl}"
     TargetType="v:SettingsItemsControl">
-    <Setter Property="CornerRadius" Value="{DynamicResource XlCornerRadius}"/>
-
     <Setter Property="Template">
       <ControlTemplate>
         <ItemsPresenter
@@ -37,11 +35,7 @@
         <Expander
           Classes="LeftIcon" Padding="16"
           at:BindingAssist.Classes="{Binding Classes, Mode=OneTime}"
-          Background="Transparent"
-          BorderBrush="{Binding $parent[v:SettingsItemsControl].BorderBrush}"
-          BorderThickness="{Binding $parent[v:SettingsItemsControl].BorderThickness}"
           Classes.NotExpandable="{Binding !IsExpandable}"
-          CornerRadius="{Binding $parent[v:SettingsItemsControl].CornerRadius}"
           IsEnabled="{Binding IsEnabled}"
           IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
           <Expander.Styles>
