@@ -224,11 +224,13 @@ Translation Guidelines:
 
             if not lang_name:
                 match = re.match(r'Strings\.(.+)\.resx', filename)
-                if not match:
+                if match:
+                    lang_name = match.group(1) # Fallback to language code from filename
+                elif filename == 'Strings.resx':
+                    lang_name = 'English'
+                else:
                     log(f"  [x] Could not determine language code from filename: {filename}. Skipping.")
                     continue
-
-                lang_name = match.group(1) # Fallback to language code from filename
 
             log(f"Processing: {filename} ({lang_name})")
             existing_resources = self._read_resx(file_path)
