@@ -144,11 +144,13 @@ public class App : Application
             _isShowWindowBusy = true;
             if (window is { IsVisible: true })
             {
-                var topmost = window.Topmost;
-                window.Topmost = false;
-                window.Activate();
-                window.Topmost = true;
-                window.Topmost = topmost;
+                if (window.WindowState is WindowState.Minimized)
+                {
+                    window.WindowState = WindowState.Normal;
+                }
+
+                var windowHelper = ServiceLocator.Resolve<IWindowHelper>();
+                windowHelper.SetCloaked(window, false);
             }
             else
             {
