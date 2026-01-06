@@ -14,15 +14,32 @@
     <IsDeploymentTarget>true</IsDeploymentTarget>
     <UseAppHost>true</UseAppHost>
     <CreateAppBundle>true</CreateAppBundle> <!-- Enable .app bundle creation -->
-    <UseHardenedRuntime>true</UseHardenedRuntime>
     <BundleCreateDump>true</BundleCreateDump>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
-    <EnableCodeSigning>false</EnableCodeSigning> <!-- Disable SDK automatic signing to have full control -->
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsPublish)' == 'true'">
+    <EnableCodeSigning>false</EnableCodeSigning> <!-- Disable SDK automatic signing to have full control -->
+    <UseHardenedRuntime>true</UseHardenedRuntime>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPublish)' == 'false'">
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <UseHardenedRuntime>false</UseHardenedRuntime>
+    <CodesignDependsOn>$(CodesignDependsOn);ClearQuarantineAttribute</CodesignDependsOn>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <CodesignKey Condition="'$(CodesignKey)' == ''">-</CodesignKey> <!-- Ad-hoc signing by default -->
+    <CodesignExtraArgs>--deep</CodesignExtraArgs>
+  </PropertyGroup>
+
+  <Target Name="ClearQuarantineAttribute">
+    <Message Text="Clearing quarantine attribute from app bundle..." Importance="high" />
+    <Exec Command="xattr -cr &quot;$(AppBundleDir)&quot;" />
+  </Target>
+
   <!-- Manual Code Signing & Packaging Workflow -->
-  <Target Name="ManualSignAndPackage" AfterTargets="Publish">
+  <Target Name="ManualSignAndPackage" AfterTargets="Publish" Condition="'$(IsPublish)' == 'true'">
     <PropertyGroup>
       <AppBundlePath>$(AppBundleDir)</AppBundlePath>
       <InfoPListPath>$(AppBundlePath)/Contents/Info.plist</InfoPListPath>

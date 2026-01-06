@@ -208,9 +208,47 @@ jobs:
         CODE_SIGN_KEY: ${{ secrets.CODE_SIGN_KEY }}
         PACKAGE_SIGNING_KEY: ${{ secrets.PACKAGE_SIGNING_KEY }}
       run: |
-        dotnet publish src/Everywhere.Mac/Everywhere.Mac.csproj -c Release -r ${{ matrix.runtime }} /p:CodesignKey="$CODE_SIGN_KEY" /p:PackageSigningKey="$PACKAGE_SIGNING_KEY" -p:Version=${{ env.VERSION }} -o ./publish --no-restore
+        dotnet publish src/Everywhere.Mac/Everywhere.Mac.csproj \
+          -c Release \
+          -r ${{ matrix.runtime }} \
+          /p:CodesignKey="$CODE_SIGN_KEY" \
+          /p:PackageSigningKey="$PACKAGE_SIGNING_KEY" \
+          /p:Version=${{ env.VERSION }} \
+          /p:IsPublish="true" \
+          -o ./publish \
+          --no-restore
+
+    - name: Notarize App
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        APPLE_PWD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      run: |
+        # Find the generated PKG file in the publish output directory
+        PKG_PATH=$(find ./publish -name "Everywhere-*.pkg" | head -n 1)
+        
+        if [ -z "$PKG_PATH" ]; then
+          echo "Error: .pkg file not found in ./publish!"
+          exit 1
+        fi
+
+        echo "Found package: $PKG_PATH"
+        
+        echo "Notarizing..."
+        xcrun notarytool submit "$PKG_PATH" \
+          --apple-id "$APPLE_ID" \
+          --team-id "$APPLE_TEAM_ID" \
+          --password "$APPLE_PWD" \
+          --wait
+
+        echo "Stapling..."
+        xcrun stapler staple "$PKG_PATH"
+        
+        # Move to a known location for upload
+        mkdir -p ./release_assets
+        mv "$PKG_PATH" ./release_assets/Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.pkg
 
     - name: Upload Release Assets
       uses: softprops/action-gh-release@v2
       with:
-        files: Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.pkg
+        files: ./release_assets/*.pkg
