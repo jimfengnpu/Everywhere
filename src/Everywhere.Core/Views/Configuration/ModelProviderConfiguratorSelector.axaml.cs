@@ -1,17 +1,26 @@
-﻿using Avalonia.Controls.Primitives;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Everywhere.AI;
-using Everywhere.Configuration;
 
 namespace Everywhere.Views;
 
+/// <summary>
+/// A control selects <see cref="ModelProviderConfiguratorType"/> for a given <see cref="CustomAssistant"/>
+/// </summary>
+[TemplatePart(ListBoxPartName, typeof(ListBox), IsRequired = true)]
 public class ModelProviderConfiguratorSelector : TemplatedControl
 {
+    private const string ListBoxPartName = "PART_ListBox";
+
     public sealed record ConfiguratorModel(
         ModelProviderConfiguratorType Type,
         DynamicResourceKeyBase HeaderKey,
         DynamicResourceKeyBase DescriptionKey,
-        IBrush? Background);
+        IBrush? Background
+    );
 
     public IReadOnlyList<ConfiguratorModel> ConfiguratorModels { get; } =
     [
@@ -27,33 +36,57 @@ public class ModelProviderConfiguratorSelector : TemplatedControl
             null),
     ];
 
-    /// <summary>
-    /// Defines the <see cref="SelectedType"/> property.
-    /// </summary>
-    public static readonly StyledProperty<ModelProviderConfiguratorType> SelectedTypeProperty =
-        AvaloniaProperty.Register<ModelProviderConfiguratorSelector, ModelProviderConfiguratorType>(nameof(SelectedType));
+    public static readonly DirectProperty<ModelProviderConfiguratorSelector, CustomAssistant?> CustomAssistantProperty =
+        AvaloniaProperty.RegisterDirect<ModelProviderConfiguratorSelector, CustomAssistant?>(
+        nameof(CustomAssistant),
+        o => o.CustomAssistant,
+        (o, v) => o.CustomAssistant = v);
 
-    /// <summary>
-    /// Gets or sets the selected model provider configurator type.
-    /// </summary>
-    public ModelProviderConfiguratorType SelectedType
+    public CustomAssistant? CustomAssistant
     {
-        get => GetValue(SelectedTypeProperty);
-        set => SetValue(SelectedTypeProperty, value);
+        get;
+        set
+        {
+            _isCustomAssistantChanging = true;
+            try
+            {
+                SetAndRaise(CustomAssistantProperty, ref field, value);
+                _listBox?.SelectedValue = value?.ConfiguratorType;
+            }
+            finally
+            {
+                _isCustomAssistantChanging = false;
+            }
+        }
     }
 
-    /// <summary>
-    /// Defines the <see cref="SettingsItems"/> property.
-    /// </summary>
-    public static readonly StyledProperty<SettingsItems> SettingsItemsProperty =
-        AvaloniaProperty.Register<ModelProviderConfiguratorSelector, SettingsItems>(nameof(SettingsItems));
+    private bool _isCustomAssistantChanging;
+    private ListBox? _listBox;
+    private IDisposable? _listBoxSelectionChangedSubscription;
 
-    /// <summary>
-    /// Gets or sets the settings items to be displayed.
-    /// </summary>
-    public SettingsItems SettingsItems
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        get => GetValue(SettingsItemsProperty);
-        set => SetValue(SettingsItemsProperty, value);
+        base.OnApplyTemplate(e);
+
+        _listBoxSelectionChangedSubscription?.Dispose();
+
+        _listBox = e.NameScope.Find<ListBox>(ListBoxPartName);
+        _listBoxSelectionChangedSubscription = _listBox?.AddDisposableHandler(SelectingItemsControl.SelectionChangedEvent, HandleSelectionChanged);
+    }
+
+    private void HandleSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (CustomAssistant is not { } customAssistant) return;
+        if (_isCustomAssistantChanging) return;
+
+        if (e.RemovedItems is [ConfiguratorModel oldModel, ..])
+        {
+            customAssistant.GetConfigurator(oldModel.Type).Backup();
+        }
+
+        if (e.AddedItems is [ConfiguratorModel newModel, ..])
+        {
+            customAssistant.GetConfigurator(newModel.Type).Apply();
+        }
     }
 }

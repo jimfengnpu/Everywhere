@@ -8,10 +8,11 @@
       <ControlTemplate>
         <StackPanel Spacing="8">
           <ListBox
+            x:Name="PART_ListBox"
             Width="{Binding $parent[DockPanel].Bounds.Width}"
             ItemsSource="{Binding ConfiguratorModels, RelativeSource={RelativeSource TemplatedParent}}"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
-            SelectedValue="{TemplateBinding SelectedType, Mode=TwoWay}"
+            SelectedValue="{Binding CustomAssistant.ConfiguratorType, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
             SelectedValueBinding="{Binding Type, DataType=v:ModelProviderConfiguratorSelector+ConfiguratorModel}">
             <ListBox.ItemsPanel>
               <ItemsPanelTemplate>
@@ -116,7 +117,7 @@
             </ListBox.ItemTemplate>
           </ListBox>
 
-          <v:SettingsItemsControl ItemsSource="{TemplateBinding SettingsItems}"/>
+          <v:SettingsItemsControl ItemsSource="{Binding CustomAssistant.Configurator.SettingsItems, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"/>
         </StackPanel>
       </ControlTemplate>
     </Setter>

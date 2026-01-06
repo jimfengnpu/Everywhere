@@ -46,46 +46,21 @@ public partial class CustomAssistant : ObservableValidator
     [SettingsStringItem(IsMultiline = true, MaxLength = 40960)]
     public partial Customizable<string> SystemPrompt { get; set; } = new(Prompts.DefaultSystemPrompt, isDefaultValueReadonly: true);
 
+    [ObservableProperty]
     [HiddenSettingsItem]
-    public ModelProviderConfiguratorType ConfiguratorType
-    {
-        get;
-        set
-        {
-            if (field == value) return;
-
-            Configurator.Backup();
-            field = value;
-            Configurator.Apply();
-
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(Configurator));
-        }
-    }
+    [NotifyPropertyChangedFor(nameof(Configurator))]
+    public partial ModelProviderConfiguratorType ConfiguratorType { get; set; }
 
     [JsonIgnore]
     [HiddenSettingsItem]
-    public IModelProviderConfigurator Configurator => ConfiguratorType switch
-    {
-        ModelProviderConfiguratorType.Official => _officialConfigurator,
-        ModelProviderConfiguratorType.PresetBased => _presetBasedConfigurator,
-        _ => _advancedConfigurator
-    };
+    public IModelProviderConfigurator Configurator => GetConfigurator(ConfiguratorType);
 
     [JsonIgnore]
     [DynamicResourceKey(LocaleKey.CustomAssistant_ConfiguratorSelector_Header)]
     public SettingsControl<ModelProviderConfiguratorSelector> ConfiguratorSelector => new(
         new ModelProviderConfiguratorSelector
         {
-            [!ModelProviderConfiguratorSelector.SelectedTypeProperty] = new Binding(nameof(ConfiguratorType))
-            {
-                Source = this,
-                Mode = BindingMode.TwoWay
-            },
-            [!ModelProviderConfiguratorSelector.SettingsItemsProperty] = new Binding($"{nameof(Configurator)}.{nameof(Configurator.SettingsItems)}")
-            {
-                Source = this
-            },
+            CustomAssistant = this
         });
 
     [ObservableProperty]
@@ -190,6 +165,13 @@ public partial class CustomAssistant : ObservableValidator
         _presetBasedConfigurator = new PresetBasedModelProviderConfigurator(this);
         _advancedConfigurator = new AdvancedModelProviderConfigurator(this);
     }
+
+    public IModelProviderConfigurator GetConfigurator(ModelProviderConfiguratorType type) => type switch
+    {
+        ModelProviderConfiguratorType.Official => _officialConfigurator,
+        ModelProviderConfiguratorType.PresetBased => _presetBasedConfigurator,
+        _ => _advancedConfigurator
+    };
 }
 
 public enum ModelProviderConfiguratorType
@@ -273,7 +255,6 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelProviderTemplateId) return;
             owner.ModelProviderTemplateId = value;
 
-            Apply();
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelProviderTemplate));
             OnPropertyChanged(nameof(ModelDefinitionTemplates));
@@ -337,7 +318,6 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelDefinitionTemplateId) return;
             owner.ModelDefinitionTemplateId = value;
 
-            Apply();
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelDefinitionTemplate));
         }
@@ -367,24 +347,21 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
     {
         owner.ApiKey = _apiKeyBackup;
 
-        var modelProviderTemplate = ModelProviderTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId);
-        if (modelProviderTemplate is not null)
+        if (ModelProviderTemplate is { } modelProviderTemplate)
         {
             owner.Endpoint = modelProviderTemplate.Endpoint;
             owner.Schema = modelProviderTemplate.Schema;
             owner.RequestTimeoutSeconds = modelProviderTemplate.RequestTimeoutSeconds;
-            ModelDefinitionTemplateId = modelProviderTemplate.ModelDefinitions.FirstOrDefault(m => m.IsDefault)?.Id;
         }
         else
         {
             owner.Endpoint = string.Empty;
             owner.Schema = ModelProviderSchema.OpenAI;
             owner.RequestTimeoutSeconds = 20;
-            ModelDefinitionTemplateId = null;
+            owner.ModelDefinitionTemplateId = null;
         }
 
-        var modelDefinitionTemplate = modelProviderTemplate?.ModelDefinitions.FirstOrDefault(m => m.Id == ModelDefinitionTemplateId);
-        if (modelDefinitionTemplate is not null)
+        if (ModelDefinitionTemplate is { } modelDefinitionTemplate)
         {
             owner.ModelId = modelDefinitionTemplate.Id;
             owner.IsImageInputSupported = modelDefinitionTemplate.IsImageInputSupported;
