@@ -15,11 +15,21 @@ public class _20260106195452_0_6_0 : SettingsMigration
         var secretsToMigrate = new Dictionary<string, string>();
         foreach (var credential in WinCredManager.EnumerateCredentials())
         {
-            if (credential.Service != "com.sylinko.everywhere.apikeys") continue;
-            if (credential is not { Account: { } account, Password: { } password }) continue;
+            // com.sylinko.everywhere.apikeys/[GUID]
+            if (!credential.Service.StartsWith("com.sylinko.everywhere.apikeys/")) continue;
+            if (credential.Account is not { } account) continue;
 
-            secretsToMigrate[account] = credential.Password;
-            WinCredManager.DeleteSecret("com.sylinko.everywhere.apikeys", account);
+            if (WinCredManager.GetSecret("com.sylinko.everywhere.apikeys", account) is { } secret) secretsToMigrate[account] = secret;
+
+            // Delete original credential
+            try
+            {
+                WinCredManager.DeleteSecret("com.sylinko.everywhere.apikeys", account);
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         foreach (var (account, secret) in secretsToMigrate.AsValueEnumerable())
