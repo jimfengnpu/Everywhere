@@ -7,9 +7,9 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi 
 
-PWD=$(pwd)
+WORKSPACE=$(pwd)
 SHELLFOLDER=$(cd "$(dirname "$0")";pwd)
-cd $PWD
+cd $WORKSPACE
 
 BINARCH="$1"
 VERSION="$2"
@@ -101,5 +101,4 @@ EOF
 
 chmod +x DEBIAN/prerm
 
-cd "$PWD"
-dpkg-deb --build "$PACKAGINGPATH/" "$PWD/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
+dpkg-deb --build "$PACKAGINGPATH/" "$WORKSPACE/Everywhere-Linux-$ARCHSUFFIX-v$VERSION.deb" 
