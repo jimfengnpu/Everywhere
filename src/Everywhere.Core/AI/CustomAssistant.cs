@@ -548,7 +548,7 @@ public sealed partial class AdvancedModelProviderConfigurator(CustomAssistant ow
 
     private T? Restore<T>(T property, [CallerArgumentExpression("property")] string propertyName = "")
     {
-        return _backups.TryGetValue(propertyName, out var backup) ? (T?)backup : default;
+        return _backups.TryGetValue(propertyName, out var backup) ? (T?)backup : property;
     }
 
     public static ValidationResult? ValidateEndpoint(string? endpoint)
