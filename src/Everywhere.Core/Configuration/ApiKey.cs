@@ -17,9 +17,8 @@ public partial class ApiKey : ObservableValidator
 {
     /// <summary>
     /// The service name used for secure storage of API keys.
-    /// TODO: Move to a centralized constant location?
     /// </summary>
-    private const string ServiceName = "com.sylinko.everywhere.apikeys";
+    private const string ServiceName = "com.sylinko.everywhere";
 
     public static ApiKey Empty { get; } = new()
     {
