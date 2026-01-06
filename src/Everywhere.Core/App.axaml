@@ -44,7 +44,7 @@
   <TrayIcon.Icons>
     <TrayIcons>
       <TrayIcon
-        Clicked="HandleOpenMainWindowMenuItemClicked" ToolTipText="Everywhere">
+        Clicked="HandleTrayIconClicked" ToolTipText="Everywhere">
         <TrayIcon.Icon>
           <OnPlatform
             x:TypeArguments="WindowIcon" Default="avares://Everywhere.Core/Assets/Everywhere.ico"
@@ -52,6 +52,9 @@
         </TrayIcon.Icon>
         <TrayIcon.Menu>
           <NativeMenu>
+            <NativeMenuItem
+              Click="HandleOpenChatWindowMenuItemClicked"
+              Header="{I18N {x:Static LocaleKey.Application_TrayIcon_Menu_OpenChatWindow}}"/>
             <NativeMenuItem
               Click="HandleOpenMainWindowMenuItemClicked"
               Header="{I18N {x:Static LocaleKey.Application_TrayIcon_Menu_OpenMainWindow}}"/>
