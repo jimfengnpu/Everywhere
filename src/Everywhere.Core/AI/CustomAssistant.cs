@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Avalonia.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -32,6 +33,7 @@ public partial class CustomAssistant : ObservableValidator
     [HiddenSettingsItem]
     public partial string? Description { get; set; }
 
+    [JsonIgnore]
     [DynamicResourceKey(LocaleKey.Empty)]
     public SettingsControl<CustomAssistantInformationForm> InformationForm => new(
         new CustomAssistantInformationForm
@@ -43,8 +45,9 @@ public partial class CustomAssistant : ObservableValidator
     [DynamicResourceKey(
         LocaleKey.CustomAssistant_SystemPrompt_Header,
         LocaleKey.CustomAssistant_SystemPrompt_Description)]
-    [SettingsStringItem(IsMultiline = true, MaxLength = 40960)]
-    public partial Customizable<string> SystemPrompt { get; set; } = new(Prompts.DefaultSystemPrompt, isDefaultValueReadonly: true);
+    [SettingsStringItem(IsMultiline = true, MaxLength = 40960, Watermark = Prompts.DefaultSystemPrompt)]
+    [DefaultValue(null)]
+    public partial string? SystemPrompt { get; set; }
 
     [ObservableProperty]
     [HiddenSettingsItem]
@@ -567,6 +570,3 @@ public sealed partial class AdvancedModelProviderConfigurator(CustomAssistant ow
         return ValidationResult.Success;
     }
 }
-
-[JsonSerializable(typeof(CustomAssistant))]
-public partial class CustomAssistantJsonSerializerContext : JsonSerializerContext;

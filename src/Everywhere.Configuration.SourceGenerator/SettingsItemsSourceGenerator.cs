@@ -810,12 +810,22 @@ public sealed class SettingsItemsSourceGenerator : IIncrementalGenerator
         return value switch
         {
             null => "null",
-            string s => $"\"{s.Replace("\"", "\\\"")}\"",
+            string s => $"\"{EscapeString(s)}\"",
             bool b => b ? "true" : "false",
             double d => $"{d}d",
             float f => $"{f}f",
             _ => value.ToString()
         };
+
+        static string EscapeString(string str)
+        {
+            return str
+                .Replace("\\", @"\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t");
+        }
     }
 
     private static ItemKind Classify(ISymbol symbol, ITypeSymbol type)
