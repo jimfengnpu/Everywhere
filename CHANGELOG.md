@@ -1,3 +1,19 @@
+## [v0.5.7](https://github.com/DearVa/Everywhere/releases/tag/v0.5.7) - 2026-01-06
+
+⚠️ IMPORTANT WARNING
+If upgrading from v0.5.5 or earlier, this version will automatically migrate your settings file. It is recommended to backup `C:\Users\[Username]\AppData\Roaming\Everywhere\settings.json` beforehand. Migration completes upon startup. All existing API keys will be cleared and moved to the `LegacyApiKeys` property in `settings.json`. You will need to reconfigure them. For security reasons, please delete `LegacyApiKeys` immediately after reconfiguring your keys.
+
+### ✨ Features
+- Improved tray icon interaction: Single-click to open the Chat Window, double-click to open the Main Window.
+
+### 🐛 Bug Fixes
+- (Important) Fixed an issue where "Advanced Configuration" settings were not applied correctly.
+- Fixed an issue where the Main Window could not be restored from the tray menu if it was minimized.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.6...v0.5.7
+
+
+
 ## [v0.5.6](https://github.com/DearVa/Everywhere/releases/tag/v0.5.6) - 2026-01-05
 
 ### ⚠️ Important Changes

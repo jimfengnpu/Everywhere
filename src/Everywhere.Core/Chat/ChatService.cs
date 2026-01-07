@@ -389,7 +389,7 @@ public sealed partial class ChatService(
             var chatHistory = new ChatHistory();
 
             // Because the custom assistant maybe changed, we need to re-render the system prompt.
-            chatContextManager.PopulateSystemPrompt(chatContext, customAssistant.SystemPrompt.ActualValue);
+            chatContextManager.PopulateSystemPrompt(chatContext, customAssistant.SystemPrompt);
 
             // Build the chat history from the chat context.
             foreach (var chatMessage in chatContext

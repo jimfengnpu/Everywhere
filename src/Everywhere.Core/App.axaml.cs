@@ -8,6 +8,7 @@ using Everywhere.AttachedProperties;
 using Everywhere.Common;
 using Everywhere.Configuration;
 using Everywhere.Interop;
+using Everywhere.Utilities;
 using Everywhere.Views;
 using LiveMarkdown.Avalonia;
 using Serilog;
@@ -26,7 +27,31 @@ public class App : Application
 
     public TopLevel TopLevel { get; } = new Window();
 
+    private readonly DebounceExecutor<App, DispatcherTimerImpl> _trayIconClickedDebounce;
+
     private TransientWindow? _mainWindow, _debugWindow;
+    private int _trayIconClickCount;
+
+    public App()
+    {
+        _trayIconClickedDebounce = new DebounceExecutor<App, DispatcherTimerImpl>(
+            () => this,
+            app =>
+            {
+                if (app._trayIconClickCount >= 2)
+                {
+                    app.HandleOpenMainWindowMenuItemClicked(app, EventArgs.Empty);
+                }
+                else
+                {
+                    app.HandleOpenChatWindowMenuItemClicked(app, EventArgs.Empty);
+                }
+
+                app._trayIconClickCount = 0;
+            },
+            TimeSpan.FromMilliseconds(300)
+        );
+    }
 
     public override void Initialize()
     {
@@ -121,6 +146,29 @@ public class App : Application
         ShowWindow<MainView>(ref _mainWindow);
     }
 
+    private void HandleTrayIconClicked(object? sender, EventArgs e)
+    {
+        _trayIconClickCount++;
+        if (_trayIconClickCount >= 2)
+        {
+            // Double click detected, open main window immediately.
+            HandleOpenMainWindowMenuItemClicked(this, EventArgs.Empty);
+            _trayIconClickCount = 0;
+            _trayIconClickedDebounce.Cancel();
+        }
+        else
+        {
+            // Start or reset the debounce timer for single click.
+            _trayIconClickedDebounce.Trigger();
+        }
+    }
+
+    private void HandleOpenChatWindowMenuItemClicked(object? sender, EventArgs e)
+    {
+        var chatWindow = ServiceLocator.Resolve<ChatWindow>();
+        chatWindow.ViewModel.ShowAsync(null).Detach(IExceptionHandler.DangerouslyIgnoreAllException);
+    }
+
     private void HandleOpenMainWindowMenuItemClicked(object? sender, EventArgs e)
     {
         ShowWindow<MainView>(ref _mainWindow);
@@ -144,11 +192,13 @@ public class App : Application
             _isShowWindowBusy = true;
             if (window is { IsVisible: true })
             {
-                var topmost = window.Topmost;
-                window.Topmost = false;
-                window.Activate();
-                window.Topmost = true;
-                window.Topmost = topmost;
+                if (window.WindowState is WindowState.Minimized)
+                {
+                    window.WindowState = WindowState.Normal;
+                }
+
+                var windowHelper = ServiceLocator.Resolve<IWindowHelper>();
+                windowHelper.SetCloaked(window, false);
             }
             else
             {

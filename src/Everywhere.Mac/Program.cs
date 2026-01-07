@@ -88,6 +88,7 @@ public static class Program
         );
 
         NSApplication.Init();
+        NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
     }
 
@@ -191,6 +192,16 @@ public static class Program
     private static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .With(
+                new AvaloniaNativePlatformOptions
+                {
+                    AppSandboxEnabled = false
+                })
+            .With(
+                new MacOSPlatformOptions
+                {
+                    ShowInDock = false
+                })
             .WithInterFont()
             .LogToTrace();
 
@@ -235,12 +246,13 @@ public static class Program
     // ReSharper disable once RedundantAssignment
     private static bool BclLauncherExecPatch(ref string urlOrFile, ref bool __result)
     {
-        using var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = "open",
-            ArgumentList = { urlOrFile }, // Use ArgumentList to avoid issues with spaces/special characters
-            CreateNoWindow = true,
-        });
+        using var process = Process.Start(
+            new ProcessStartInfo
+            {
+                FileName = "open",
+                ArgumentList = { urlOrFile }, // Use ArgumentList to avoid issues with spaces/special characters
+                CreateNoWindow = true,
+            });
         __result = true;
         return false;
     }

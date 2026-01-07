@@ -24,7 +24,15 @@
             Classes="Outline"
             shadui:ButtonAssist.Icon="{LucideIconContent Bug}"
             Command="{Binding CreateDumpCommand, RelativeSource={RelativeSource TemplatedParent}}"
-            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_CreateDumpButton_Content}}"/>
+            Content="{I18N {x:Static LocaleKey.DebugFeaturesControl_CreateDumpButton_Content}}">
+            <Button.IsVisible>
+              <OnPlatform x:TypeArguments="x:Boolean">
+                <OnPlatform.macOS>False</OnPlatform.macOS>
+                <OnPlatform.Windows>True</OnPlatform.Windows>
+                <OnPlatform.Linux>True</OnPlatform.Linux>
+              </OnPlatform>
+            </Button.IsVisible>
+          </Button>
         </shadui:ButtonGroup>
       </ControlTemplate>
     </Setter>

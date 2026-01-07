@@ -1990,6 +1990,9 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
         <value>Successfully imported {0} plugins, {1} failed</value>
     </data>
+    <data name="Application_TrayIcon_Menu_OpenChatWindow" xml:space="preserve">
+        <value>Open Chat Window</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Administrator privileges are usually unnecessary on Linux. If needed, please re-exec with sudo.</value>
     </data>
