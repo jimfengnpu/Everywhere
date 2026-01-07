@@ -322,7 +322,7 @@ public partial class ChatWindow : ReactiveShadWindow<ChatWindowViewModel>, IReac
     }
 
     [RelayCommand]
-    private Task LaunchInlineHyperlink(InlineHyperlinkClickedEventArgs e)
+    private Task LaunchLink(LinkClickedEventArgs e)
     {
         // currently we only support http(s) links for safety reasons
         return e.HRef is not { Scheme: "http" or "https" } uri ? Task.CompletedTask : _launcher.LaunchUriAsync(uri);
