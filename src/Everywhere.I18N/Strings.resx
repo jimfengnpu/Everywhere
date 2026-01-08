@@ -1422,20 +1422,20 @@ Placeholders can be used in the prompt, enclosed in {}, which will be replaced w
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Failed to launch the Puppeteer browser.</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>Left click to select, Right click or Esc to cancel
 Scroll wheel or number keys to switch pick modes</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>Screen</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>Window</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>Element</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>None</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1998,5 +1998,14 @@ Scroll wheel or number keys to switch pick modes</value>
     </data>
     <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
         <value>Failed to grab the hotkey. The key combination may be already in use.</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value />
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value />
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value />
     </data>
 </root>

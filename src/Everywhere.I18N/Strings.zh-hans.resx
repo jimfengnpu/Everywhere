@@ -1423,20 +1423,20 @@
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>无法启动 Puppeteer 浏览器。</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>点击左键选择，右键或 Esc 退出
 滚轮或数字键切换选择模式</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>屏幕</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>窗口</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>元素</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>无</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1999,5 +1999,15 @@
     </data>
     <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
         <value>无法注册快捷键。该组合键可能已被占用。</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value>自由</value>
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value>按住左键框选，右键或 Esc 退出
+滚轮或数字键切换选择模式</value>
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value>屏幕截图</value>
     </data>
 </root>

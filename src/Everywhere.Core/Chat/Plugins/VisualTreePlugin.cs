@@ -63,7 +63,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description)]
     private Task<ChatFileAttachment> CaptureFullScreenAsync(CancellationToken cancellationToken = default)
     {
-        var visualElement = _visualElementContext.ElementFromPointer(ElementPickMode.Screen);
+        var visualElement = _visualElementContext.ElementFromPointer(ScreenSelectionMode.Screen);
         if (visualElement is null)
         {
             throw new HandledException(

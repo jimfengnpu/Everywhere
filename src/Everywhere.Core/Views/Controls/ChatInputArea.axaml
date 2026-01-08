@@ -228,7 +228,8 @@
                         MaxWidth="24" MaxHeight="24"
                         Margin="0,4" VerticalAlignment="Center"
                         IsVisible="{Binding IsImage}"
-                        Source="{Binding Image}">
+                        Source="{Binding Image}"
+                        ToolTip.Placement="Top">
                         <ToolTip.Tip>
                           <Image Source="{Binding Image}"/>
                         </ToolTip.Tip>
