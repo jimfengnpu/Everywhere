@@ -789,22 +789,10 @@
         <value>인증 오류.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>개선을 위해 '텔레메트리'를 활성화하여 익명 데이터를 수집해야 합니다. 이 데이터는 분석 목적으로만 사용되며, 개인 식별 정보를 포함하거나 추론할 수 없습니다.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>필수 데이터만 전송할 수 있으며, 이 옵션은 핵심 기능에 영향을 미치지 않습니다.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>필수 데이터만 전송</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>텔레메트리 활성화</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>진단</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>개선을 위해 '텔레메트리'를 활성화하여 익명 데이터를 수집해야 합니다. 이 데이터는 분석 목적으로만 사용되며, 개인 식별 정보를 포함하거나 추론할 수 없습니다. 필수 데이터만 전송할 수 있으며, 이 옵션은 핵심 기능에 영향을 미치지 않습니다.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>채팅 통계 표시</value>

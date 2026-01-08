@@ -789,22 +789,10 @@
         <value>Ошибка аутентификации.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Чтобы помочь мне улучшиться, мне нужно включить «Телеметрию» для сбора анонимных данных. Эти данные используются исключительно для анализа и не содержат и не позволяют делать выводы о какой-либо личной информации о вас.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Вы можете выбрать отправку только необходимых данных; эта опция не повлияет на основную функциональность.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Отправлять только необходимые данные</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Включить телеметрию</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Диагностика</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Чтобы помочь нам улучшиться, нам нужна «телеметрия» для сбора анонимных данных. Эти данные используются исключительно для анализа и не содержат и не позволяют делать выводы о какой-либо личной информации о вас. Вы можете выбрать отправку только необходимых данных; эта опция не повлияет на основную функциональность.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Показать статистику чата</value>

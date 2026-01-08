@@ -789,22 +789,22 @@
         <value>认证错误。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>为了帮助我成长，我需要启用“遥测”来收集匿名数据。这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。</value>
+        <value>为了帮助我成长，我们诚邀您加入用户体验计划。我们会收集您的使用数据，这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>您可以选择只发送必要数据，此选择不会影响核心功能。</value>
+        <value>如果不加入，将只会发送必要数据。请放心，此选择不会影响核心功能。</value>
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>仅发送必要数据</value>
+        <value>不加入</value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>启用遥测</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>诊断数据</value>
+        <value>加入用户体验计划</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>为了帮助我们改进，我们需要“遥测”来收集匿名数据。这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。您可以选择只发送必要数据，此选择不会影响核心功能。</value>
+        <value>为了帮助我们改进，我们诚邀您加入用户体验计划。我们会收集您的使用数据，这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。如果不加入，将只会发送必要数据。此选择不会影响核心功能。</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>显示聊天统计数据</value>

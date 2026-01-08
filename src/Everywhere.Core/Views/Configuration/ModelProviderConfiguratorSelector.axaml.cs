@@ -60,6 +60,22 @@ public class ModelProviderConfiguratorSelector : TemplatedControl
         }
     }
 
+    /// <summary>
+    /// Defines the <see cref="IsSettingsVisible"/> property.
+    /// </summary>
+    public static readonly StyledProperty<bool> IsSettingsVisibleProperty =
+        AvaloniaProperty.Register<ModelProviderConfiguratorSelector, bool>(
+        nameof(IsSettingsVisible), true);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the settings content is visible.
+    /// </summary>
+    public bool IsSettingsVisible
+    {
+        get => GetValue(IsSettingsVisibleProperty);
+        set => SetValue(IsSettingsVisibleProperty, value);
+    }
+
     private bool _isCustomAssistantChanging;
     private ListBox? _listBox;
     private IDisposable? _listBoxSelectionChangedSubscription;

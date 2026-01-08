@@ -786,22 +786,10 @@ Zekam büyük dil modeli tarafından sağlanıyor, senin yardımınla yapıland�
         <value>Kimlik doğrulama hatası.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Benim gelişmemi desteklemek için “Telemetri”yi etkinleştirerek anonim veri toplamam gerekir. Bu veriler yalnızca analiz amaçlıdır ve sizinle ilgili kişisel tanımlanabilir bilgi içermez veya çıkarılmasına izin vermez.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Yalnızca gerekli verileri göndermeyi seçebilirsiniz; bu seçenek temel işlevselliği etkilemeyecektir.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Sadece gerekli veriyi gönder</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Telemetriyi etkinleştir</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Tanı Verileri</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Bizim gelişmemizi desteklemek için anonim veri toplamak üzere “telemetri”ye ihtiyacımız var. Bu veriler yalnızca analiz amaçlıdır ve sizinle ilgili kişisel tanımlanabilir bilgi içermez veya çıkarılmasına izin vermez. Yalnızca gerekli veriyi göndermeyi seçebilirsiniz; bu seçenek temel işlevselliği etkilemeyecektir.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Sohbet İstatistiklerini Göster</value>

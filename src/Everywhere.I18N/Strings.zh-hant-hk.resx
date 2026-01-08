@@ -789,22 +789,10 @@
         <value>身份驗證錯誤。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>為了幫助我改進，我需要啟用「遙測」以收集匿名數據。這些數據僅用於分析，不包含或允許推斷任何有關您個人身份的信息。</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>您可以選擇僅發送必要數據；此選項不會影響核心功能。</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>僅發送必要數據</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>啟用遙測</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>診斷數據</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>為了幫助我們改進，我們需要「遙測」來收集匿名數據。這些數據僅用於分析，不包含或允許推斷任何有關您個人身份的信息。您可以選擇僅發送必要數據；此選項不會影響核心功能。</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>顯示聊天統計</value>

@@ -789,22 +789,10 @@ Mi inteligencia está impulsada por un modelo de lenguaje grande, y necesito que
         <value>Error de autenticación.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Para ayudarme a mejorar, necesito habilitar la “telemetría” para recopilar datos anónimos. Estos datos se utilizan únicamente para análisis y no contienen ni permiten inferir ninguna información personal identificable sobre ti.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Puedes elegir enviar solo los datos necesarios; esta opción no afectará la funcionalidad principal.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Enviar solo datos necesarios</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Habilitar telemetría</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnósticos</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Para ayudarnos a mejorar, necesitamos la “telemetría” para recopilar datos anónimos. Estos datos se utilizan únicamente para análisis y no contienen ni permiten inferir ninguna información personal identificable sobre ti. Puedes elegir enviar solo los datos necesarios; esta opción no afectará la funcionalidad principal.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Mostrar estadísticas del chat</value>

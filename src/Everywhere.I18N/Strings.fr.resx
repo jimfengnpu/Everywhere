@@ -789,22 +789,10 @@ Mon intelligence est alimentée par un grand modèle de langage, et j'ai besoin 
         <value>Erreur d'authentification.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Pour m'aider à m'améliorer, j'ai besoin d'activer la « Télémétrie » pour collecter des données anonymes. Ces données sont utilisées uniquement à des fins d'analyse et ne contiennent ni ne permettent d'inférer des informations personnellement identifiables vous concernant.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Vous pouvez choisir d'envoyer uniquement les données nécessaires ; cette option n'affectera pas les fonctionnalités principales.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Envoyer uniquement les données nécessaires</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Activer la télémétrie</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnostics</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Pour nous aider à nous améliorer, nous avons besoin de la « télémétrie » pour collecter des données anonymes. Ces données sont utilisées uniquement à des fins d'analyse et ne contiennent ni ne permettent d'inférer des informations personnellement identifiables vous concernant. Vous pouvez choisir d'envoyer uniquement les données nécessaires ; cette option n'affectera pas les fonctionnalités principales.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Afficher les statistiques de chat</value>

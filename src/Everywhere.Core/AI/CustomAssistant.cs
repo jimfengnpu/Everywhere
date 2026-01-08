@@ -258,6 +258,9 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelProviderTemplateId) return;
             owner.ModelProviderTemplateId = value;
 
+            ApplyModelProvider();
+            ModelDefinitionTemplateId = null;
+
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelProviderTemplate));
             OnPropertyChanged(nameof(ModelDefinitionTemplates));
@@ -321,6 +324,8 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelDefinitionTemplateId) return;
             owner.ModelDefinitionTemplateId = value;
 
+            ApplyModelDefinition();
+
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelDefinitionTemplate));
         }
@@ -350,6 +355,12 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
     {
         owner.ApiKey = _apiKeyBackup;
 
+        ApplyModelProvider();
+        ApplyModelDefinition();
+    }
+
+    private void ApplyModelProvider()
+    {
         if (ModelProviderTemplate is { } modelProviderTemplate)
         {
             owner.Endpoint = modelProviderTemplate.Endpoint;
@@ -361,9 +372,11 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             owner.Endpoint = string.Empty;
             owner.Schema = ModelProviderSchema.OpenAI;
             owner.RequestTimeoutSeconds = 20;
-            owner.ModelDefinitionTemplateId = null;
         }
+    }
 
+    private void ApplyModelDefinition()
+    {
         if (ModelDefinitionTemplate is { } modelDefinitionTemplate)
         {
             owner.ModelId = modelDefinitionTemplate.Id;

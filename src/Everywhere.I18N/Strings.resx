@@ -789,22 +789,22 @@ My intelligence is powered by large language models, and I need your help to con
         <value>Authentication error.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>To help me improve, I need to enable “Telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you.</value>
+        <value></value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>You may choose to send only necessary data; this option will not affect core functionality.</value>
+        <value />
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Send only necessary data</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Enable telemetry</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnostics</value>
+        <value />
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>To help us improve, we need the “telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you. You may choose to send only necessary data; this option will not affect core functionality.</value>
+        <value />
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Show Chat Statistics</value>

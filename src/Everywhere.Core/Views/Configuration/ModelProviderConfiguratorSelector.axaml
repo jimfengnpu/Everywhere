@@ -42,7 +42,9 @@
             </ListBox.ItemTemplate>
           </ListBox>
 
-          <v:SettingsItemsControl ItemsSource="{Binding CustomAssistant.Configurator.SettingsItems, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"/>
+          <v:SettingsItemsControl
+            IsVisible="{TemplateBinding IsSettingsVisible}"
+            ItemsSource="{Binding CustomAssistant.Configurator.SettingsItems, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"/>
         </StackPanel>
       </ControlTemplate>
     </Setter>

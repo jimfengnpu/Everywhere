@@ -786,22 +786,10 @@ Meine Intelligenz wird von einem großen Sprachmodell bereitgestellt, und ich be
         <value>Authentifizierungsfehler.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Um mir zu helfen, mich zu verbessern, muss ich &quot;Telemetrie&quot; aktivieren, um anonyme Daten zu sammeln. Diese Daten werden ausschließlich zur Analyse verwendet und enthalten keine oder erlauben keine Rückschlüsse auf personenbezogene Informationen über Sie.</value>
-    </data>
-    <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Sie können wählen, nur notwendige Daten zu senden; diese Option wirkt sich nicht auf die Kernfunktionalität aus.</value>
-    </data>
-    <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Nur notwendige Daten senden</value>
+        <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
         <value>Telemetrie aktivieren</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnosedaten</value>
-    </data>
-    <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Um uns zu helfen, zu verbessern, benötigen wir die &quot;Telemetrie&quot;, um anonyme Daten zu sammeln. Diese Daten werden ausschließlich zur Analyse verwendet und enthalten keine oder erlauben keine Rückschlüsse auf personenbezogene Informationen über Sie. Sie können wählen, nur notwendige Daten zu senden; diese Option wirkt sich nicht auf die Kernfunktionalität aus.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Chat-Statistik anzeigen</value>
