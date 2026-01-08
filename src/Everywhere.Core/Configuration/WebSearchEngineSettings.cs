@@ -90,6 +90,15 @@ public partial class WebSearchEngineSettings : ObservableObject
                 }
             },
             {
+                WebSearchEngineProviderId.UniFuncs,
+                new WebSearchEngineProvider(ApiKeys)
+                {
+                    Id = WebSearchEngineProviderId.UniFuncs,
+                    DisplayName = "UniFuncs",
+                    EndPoint = new Customizable<string>("https://api.unifuncs.com/api/web-search/search", isDefaultValueReadonly: true)
+                }
+            },
+            {
                 WebSearchEngineProviderId.SearXNG,
                 new WebSearchEngineProvider(ApiKeys)
                 {
