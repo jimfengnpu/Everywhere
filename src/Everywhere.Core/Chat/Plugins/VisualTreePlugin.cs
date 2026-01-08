@@ -36,10 +36,11 @@ public class VisualTreePlugin : BuiltInChatPlugin
                 new NativeChatFunction(
                     CaptureFullScreenAsync,
                     ChatFunctionPermissions.ScreenRead));
-            list.Add(
-                new NativeChatFunction(
-                    ExecuteVisualActionQueueAsync,
-                    ChatFunctionPermissions.ScreenAccess));
+            // temporary disabled due to reliability issues
+            // list.Add(
+            //     new NativeChatFunction(
+            //         ExecuteVisualActionQueueAsync,
+            //         ChatFunctionPermissions.ScreenAccess));
         });
     }
 
