@@ -791,9 +791,6 @@
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
         <value></value>
     </data>
-    <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>啟用遙測</value>
-    </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>顯示聊天統計</value>
     </data>

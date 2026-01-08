@@ -798,7 +798,7 @@ My intelligence is powered by large language models, and I need your help to con
         <value></value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>Enable telemetry</value>
+        <value>Join</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
         <value />
