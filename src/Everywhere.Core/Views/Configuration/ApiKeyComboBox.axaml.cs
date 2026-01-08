@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
@@ -51,11 +51,14 @@ public sealed partial class ApiKeyComboBox : TemplatedControl, IDisposable
     {
         _itemsSource = itemsSource;
 
-        // Use DynamicData to create ItemsSource, it starts with a single ApiKey.Empty, then follows the itemsSource
-        // If itemsSource changes, ItemsSource will be updated accordingly
-        ItemsSource = _itemsSource.ToObservableChangeSet()
-            .StartWith(AvaloniaScheduler.Instance, new ChangeSet<ApiKey>([new Change<ApiKey>(ListChangeReason.Add, ApiKey.Empty)]))
-            .BindEx(out _subscription);
+        var head = new SourceList<ApiKey>();
+        head.Add(ApiKey.Empty);
+
+        ItemsSource = head.Connect()
+            .Or(_itemsSource.ToObservableChangeSet())
+            .BindEx(out var bindSub);
+
+        _subscription = new CompositeDisposable(bindSub, head);
     }
 
     [RelayCommand]
