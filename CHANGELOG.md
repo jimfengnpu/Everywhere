@@ -1,3 +1,24 @@
+## [v0.5.8](https://github.com/DearVa/Everywhere/releases/tag/v0.5.8) - 2026-01-08
+
+### ✨ Features
+- Added a screenshot tool for quickly attaching screen captures in the chat window.
+- Added support for the UniFuncs search engine.
+
+### 🔄️ Changed
+- Removed the unstable UI element manipulation tool.
+
+### 🐛 Bug Fixes
+- Fixed a critical issue where assistant preset modes were not correctly applied.
+- Fixed an issue where assistants could not be duplicated.
+- Fixed styling issues on the Welcome Page.
+- Fixed an issue where the update check timestamp did not use the local time zone.
+- (Windows) Fixed an issue where the PowerShell plugin failed to refresh environment variables.
+- (Windows) Fixed an issue where the main window could incorrectly remain always-on-top.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.7...v0.5.8
+
+
+
 ## [v0.5.7](https://github.com/DearVa/Everywhere/releases/tag/v0.5.7) - 2026-01-06
 
 ⚠️ IMPORTANT WARNING
