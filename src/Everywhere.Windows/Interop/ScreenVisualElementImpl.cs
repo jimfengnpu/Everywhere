@@ -86,7 +86,9 @@ public partial class VisualElementContext
 
         public Task<Bitmap> CaptureAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(CaptureScreen(BoundingRectangle));
+            return CaptureScreen(BoundingRectangle) is not { } bitmap ?
+                throw new InvalidOperationException("Failed to capture screen.") :
+                Task.FromResult(bitmap);
         }
 
         private sealed class SiblingAccessorImpl(ScreenVisualElementImpl visualElement) : VisualElementSiblingAccessor

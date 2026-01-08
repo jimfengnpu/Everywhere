@@ -231,7 +231,9 @@
                         Source="{Binding Image}"
                         ToolTip.Placement="Top">
                         <ToolTip.Tip>
-                          <Image Source="{Binding Image}"/>
+                          <Image
+                            MaxWidth="600" MaxHeight="600"
+                            Source="{Binding Image}"/>
                         </ToolTip.Tip>
                       </Image>
 

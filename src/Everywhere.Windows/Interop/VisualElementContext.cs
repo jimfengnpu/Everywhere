@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using Windows.Win32;
 using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.Platform;
 using Everywhere.Common;
@@ -59,9 +60,9 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
         return !PInvoke.GetCursorPos(out var point) ? null : ElementFromPoint(new PixelPoint(point.X, point.Y), mode);
     }
 
-    public Task<IVisualElement?> PickElementAsync(ScreenSelectionMode? initialMode) => VisualElementPicker.PickAsync(windowHelper, initialMode);
+    public Task<IVisualElement?> PickElementAsync(ScreenSelectionMode? initialMode) => PickerSession.PickAsync(windowHelper, initialMode);
 
-    public Task<Bitmap?> ScreenshotAsync(ScreenSelectionMode? initialMode) => ScreenshotPicker.ScreenshotAsync(windowHelper, initialMode);
+    public Task<Bitmap?> ScreenshotAsync(ScreenSelectionMode? initialMode) => ScreenshotSession.ScreenshotAsync(windowHelper, initialMode);
 
     private static AutomationVisualElementImpl? TryCreateVisualElement(Func<AutomationElement?> factory)
     {
@@ -87,8 +88,20 @@ public partial class VisualElementContext(IWindowHelper windowHelper) : IVisualE
     /// </summary>
     /// <param name="rect"></param>
     /// <returns></returns>
-    private static Bitmap CaptureScreen(PixelRect rect)
+    private static Bitmap? CaptureScreen(PixelRect rect)
     {
+        var x = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_XVIRTUALSCREEN);
+        var y = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_YVIRTUALSCREEN);
+        var w = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXVIRTUALSCREEN);
+        var h = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYVIRTUALSCREEN);
+        var screenRect = new PixelRect(x, y, w, h);
+
+        rect = rect.Intersect(screenRect);
+        if (rect.Width <= 0 || rect.Height <= 0)
+        {
+            return null;
+        }
+
         var gdiBitmap = new System.Drawing.Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb);
         using (var graphics = Graphics.FromImage(gdiBitmap))
         {

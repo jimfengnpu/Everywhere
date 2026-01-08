@@ -1,7 +1,4 @@
 using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Everywhere.Interop;
@@ -12,14 +9,14 @@ namespace Everywhere.Windows.Interop;
 
 public partial class VisualElementContext
 {
-    private sealed class ScreenshotPicker : ScreenSelectionSession
+    private sealed class ScreenshotSession : ScreenSelectionSession
     {
         private static ScreenSelectionMode _previousMode = ScreenSelectionMode.Element;
 
         public static Task<Bitmap?> ScreenshotAsync(IWindowHelper windowHelper, ScreenSelectionMode? initialMode)
         {
             // Start with Screen mode by default, or maybe Free?
-            var window = new ScreenshotPicker(windowHelper, initialMode ?? _previousMode);
+            var window = new ScreenshotSession(windowHelper, initialMode ?? _previousMode);
             window.Show();
             return window._pickingPromise.Task;
         }
@@ -28,14 +25,13 @@ public partial class VisualElementContext
         private readonly DisposeCollector _disposables = new();
 
         private Bitmap? _resultBitmap;
-        private IVisualElement? _selectedElement;
 
         // Free Mode State
         private bool _isDragging;
         private PixelPoint _dragStart;
         private PixelRect _dragRect;
 
-        private ScreenshotPicker(IWindowHelper windowHelper, ScreenSelectionMode initialMode)
+        private ScreenshotSession(IWindowHelper windowHelper, ScreenSelectionMode initialMode)
             : base(
                 windowHelper,
                 [ScreenSelectionMode.Screen, ScreenSelectionMode.Window, ScreenSelectionMode.Element, ScreenSelectionMode.Free],
@@ -63,8 +59,11 @@ public partial class VisualElementContext
                 try
                 {
                     var bitmap = CaptureScreen(screen.Bounds);
-                    maskWindow.SetImage(bitmap);
-                    _disposables.Add(bitmap);
+                    if (bitmap is not null)
+                    {
+                        maskWindow.SetImage(bitmap);
+                        _disposables.Add(bitmap);
+                    }
                 }
                 catch
                 {
@@ -78,12 +77,9 @@ public partial class VisualElementContext
             _resultBitmap = null;
         }
 
-        protected override void OnCloseCleanup()
+        protected override void OnClosed(EventArgs e)
         {
-            foreach (var maskWindow in MaskWindows)
-            {
-                maskWindow.SetImage(null);
-            }
+            base.OnClosed(e);
 
             _disposables.Dispose();
 
@@ -120,8 +116,8 @@ public partial class VisualElementContext
             else
             {
                 // Other modes
-                if (_selectedElement == null) return false;
-                captureRect = _selectedElement.BoundingRectangle;
+                if (SelectedElement == null) return false;
+                captureRect = SelectedElement.BoundingRectangle;
             }
 
             // Hide ToolTip and capture
@@ -171,49 +167,7 @@ public partial class VisualElementContext
                 // Reset Drag state if we switched modes while dragging (should handle in OnModeChanged but Update is enough)
                 _isDragging = false;
 
-                var maskRect = new PixelRect();
-                switch (CurrentMode)
-                {
-                    case ScreenSelectionMode.Screen:
-                    {
-                        var screen = Screens.All.FirstOrDefault(s => s.Bounds.Contains(pixelPoint));
-                        if (screen != null)
-                        {
-                            var hMonitor = PInvoke.MonitorFromPoint(point, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
-                            if (hMonitor != HMONITOR.Null)
-                            {
-                                // We don't necessarily need IVisualElement here if we just want rect, but consistent UI is good.
-                                _selectedElement = new ScreenVisualElementImpl(hMonitor);
-                                maskRect = screen.Bounds;
-                            }
-                        }
-                        break;
-                    }
-                    case ScreenSelectionMode.Window:
-                    {
-                        var selectedHWnd = PInvoke.WindowFromPoint(point);
-                        if (selectedHWnd != HWND.Null)
-                        {
-                            var rootHWnd = PInvoke.GetAncestor(selectedHWnd, GET_ANCESTOR_FLAGS.GA_ROOTOWNER);
-                            if (rootHWnd != HWND.Null)
-                            {
-                                _selectedElement = TryCreateVisualElement(() => Automation.FromHandle(rootHWnd));
-                                if (_selectedElement != null) maskRect = _selectedElement.BoundingRectangle;
-                            }
-                        }
-                        break;
-                    }
-                    case ScreenSelectionMode.Element:
-                    {
-                        _selectedElement = TryCreateVisualElement(() => Automation.FromPoint(point));
-                        if (_selectedElement != null) maskRect = _selectedElement.BoundingRectangle;
-                        break;
-                    }
-                }
-
-                foreach (var maskWindow in MaskWindows) maskWindow.SetMask(maskRect);
-                ToolTipWindow.ToolTip.Element = _selectedElement;
-                UpdateToolTipInfo(maskRect);
+                base.OnMove(point);
             }
         }
 

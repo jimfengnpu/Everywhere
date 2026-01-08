@@ -62,6 +62,7 @@ MonitorFromPoint
 MonitorFromWindow
 GetDC
 ReleaseDC
+GetSystemMetrics
 DwmGetWindowAttribute
 DwmSetWindowAttribute
 
