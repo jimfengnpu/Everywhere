@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Everywhere.Interop;
 using Everywhere.Utilities;
 using ImageIO;
@@ -8,13 +9,15 @@ namespace Everywhere.Mac.Interop;
 
 public partial class VisualElementContext
 {
-    private sealed class ScreenshotPicker : ScreenSelectionSession
+    private sealed class ScreenshotSession : ScreenSelectionSession
     {
-        public static Task<Bitmap?> ScreenshotAsync(IWindowHelper windowHelper, ScreenSelectionMode? initialMode)
+        public static async Task<Bitmap?> ScreenshotAsync(IWindowHelper windowHelper, ScreenSelectionMode? initialMode)
         {
-            var window = new ScreenshotPicker(windowHelper, initialMode ?? ScreenSelectionMode.Element);
+            // Give time to hide other windows
+            await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
+            var window = new ScreenshotSession(windowHelper, initialMode ?? ScreenSelectionMode.Element);
             window.Show();
-            return window._pickingPromise.Task;
+            return await window._pickingPromise.Task;
         }
 
         private readonly TaskCompletionSource<Bitmap?> _pickingPromise = new();
@@ -22,19 +25,12 @@ public partial class VisualElementContext
 
         private readonly DisposeCollector _disposables = new();
 
-        /// <summary>
-        /// We reuse a single list to avoid allocations during picking.
-        /// </summary>
-        private readonly List<int> _windowOwnerPids = [];
-
-        private IVisualElement? _selectedElement;
-
         // Free Mode State
         private bool _isDragging;
         private CGPoint _dragStart;
         private PixelRect _dragRect;
 
-        private ScreenshotPicker(IWindowHelper windowHelper, ScreenSelectionMode initialMode)
+        private ScreenshotSession(IWindowHelper windowHelper, ScreenSelectionMode initialMode)
             : base(
                 windowHelper,
                 [ScreenSelectionMode.Screen, ScreenSelectionMode.Window, ScreenSelectionMode.Element, ScreenSelectionMode.Free],
@@ -62,45 +58,41 @@ public partial class VisualElementContext
 
         protected override void OnCanceled()
         {
+            base.OnCanceled();
+
             _resultBitmap = null;
         }
 
-        protected override void OnCloseCleanup()
+        protected override void OnClosed(EventArgs e)
         {
-            foreach (var maskWindow in MaskWindows)
-            {
-                maskWindow.SetImage(null);
-            }
-
             _disposables.Dispose();
-
             _pickingPromise.TrySetResult(_resultBitmap);
+            base.OnClosed(e);
         }
 
         protected override void OnLeftButtonDown()
         {
-            if (CurrentMode == ScreenSelectionMode.Free)
-            {
-                _dragStart = CurrentMouseLocation; // Cocoa coords (bottom-left)
-                // But CurrentMouseLocation is updated in OnPointerMoved.
-                // ScreenSelectionSession.CurrentMouseLocation is updated via NSEvent.CurrentMouseLocation (Cocoa)
+            if (CurrentMode != ScreenSelectionMode.Free) return;
 
-                _isDragging = true;
-                _dragRect = new PixelRect(0, 0, 0, 0);
+            _dragStart = CurrentMouseLocation; // Cocoa coords (bottom-left)
+            // But CurrentMouseLocation is updated in OnPointerMoved.
+            // ScreenSelectionSession.CurrentMouseLocation is updated via NSEvent.CurrentMouseLocation (Cocoa)
 
-                // However, OnMove logic uses Quartz point.
-                // Let's rely on OnMove to convert and update drag logic if we track drag start in Quartz?
+            _isDragging = true;
+            _dragRect = new PixelRect(0, 0, 0, 0);
 
-                var primaryScreenHeight = NSScreen.Screens[0].Frame.Height;
-                var quartzStart = new CGPoint(_dragStart.X, primaryScreenHeight - _dragStart.Y);
+            // However, OnMove logic uses Quartz point.
+            // Let's rely on OnMove to convert and update drag logic if we track drag start in Quartz?
 
-                // Update internal state
-                _dragStart = quartzStart; // Store as quartz for consistency with OnMove?
+            var primaryScreenHeight = NSScreen.Screens[0].Frame.Height;
+            var quartzStart = new CGPoint(_dragStart.X, primaryScreenHeight - _dragStart.Y);
 
-                var dragRect = new PixelRect((int)quartzStart.X, (int)quartzStart.Y, 0, 0);
-                foreach (var maskWindow in MaskWindows) maskWindow.SetMask(dragRect);
-                UpdateToolTipInfo(dragRect);
-            }
+            // Update internal state
+            _dragStart = quartzStart; // Store as quartz for consistency with OnMove?
+
+            var dragRect = new PixelRect((int)quartzStart.X, (int)quartzStart.Y, 0, 0);
+            foreach (var maskWindow in MaskWindows) maskWindow.SetMask(dragRect);
+            UpdateToolTipInfo(dragRect);
         }
 
         protected override bool OnLeftButtonUp()
@@ -116,10 +108,12 @@ public partial class VisualElementContext
             }
             else
             {
-                if (_selectedElement == null) return false;
-                captureRect = _selectedElement.BoundingRectangle;
+                if (SelectedElement == null) return false;
+                captureRect = SelectedElement.BoundingRectangle;
             }
 
+            WindowHelper.SetCloaked(ToolTipWindow, true);
+            Dispatcher.UIThread.Invoke(() => { }, DispatcherPriority.Background);
             _resultBitmap = CaptureScreen(captureRect);
             return true;
         }
@@ -156,75 +150,8 @@ public partial class VisualElementContext
                 // Reuse element picking logic
                 _isDragging = false;
 
-                var maskRect = new PixelRect();
-                switch (CurrentMode)
-                {
-                    case ScreenSelectionMode.Screen:
-                    {
-                        var primaryHeight = NSScreen.Screens[0].Frame.Height;
-                        var screen = NSScreen.Screens.FirstOrDefault(s =>
-                        {
-                            var quartzRect = new CGRect(
-                                s.Frame.X,
-                                primaryHeight - (s.Frame.Y + s.Frame.Height),
-                                s.Frame.Width,
-                                s.Frame.Height);
-                            return quartzRect.Contains(point);
-                        });
-
-                        if (screen != null)
-                        {
-                            // Temporary element just for rect
-                            var el = new NSScreenVisualElement(screen);
-                            _selectedElement = el; // used for screenshot capture later
-                            maskRect = el.BoundingRectangle;
-                        }
-                        break;
-                    }
-                    case ScreenSelectionMode.Window:
-                    {
-                        _selectedElement = GetElementAtPoint();
-                        while (_selectedElement is AXUIElement axui && axui.Role != AXRoleAttribute.AXWindow)
-                        {
-                            _selectedElement = _selectedElement.Parent;
-                        }
-                        if (_selectedElement != null) maskRect = _selectedElement.BoundingRectangle;
-                        break;
-                    }
-                    case ScreenSelectionMode.Element:
-                    {
-                        _selectedElement = GetElementAtPoint();
-                        if (_selectedElement != null) maskRect = _selectedElement.BoundingRectangle;
-                        break;
-                    }
-                }
-
-                foreach (var maskWindow in MaskWindows) maskWindow.SetMask(maskRect);
-                ToolTipWindow.ToolTip.Element = _selectedElement;
-                UpdateToolTipInfo(maskRect);
+                base.OnMove(point);
             }
-
-            AXUIElement? GetElementAtPoint()
-            {
-                _windowOwnerPids.Clear();
-                GetWindowOwnerPidsAtLocation(point, GetWindowNumber(), _windowOwnerPids);
-                foreach (var windowOwnerPid in _windowOwnerPids)
-                {
-                    if (AXUIElement.ElementFromPid(windowOwnerPid) is not { } element) continue;
-
-                    if (element.ElementAtPosition((float)point.X, (float)point.Y) is { } foundElement)
-                    {
-                        return foundElement;
-                    }
-                }
-
-                return null;
-            }
-        }
-
-        private void UpdateToolTipInfo(PixelRect rect)
-        {
-            ToolTipWindow.ToolTip.SizeInfo = $"{rect.Width} x {rect.Height}";
         }
 
         private static Bitmap? CaptureScreen(PixelRect rect)
@@ -236,12 +163,35 @@ public partial class VisualElementContext
         {
             if (rect.IsEmpty) return null;
 
+            // Adjust rect to be within all screens
+            var screens = NSScreen.Screens;
+            if (screens.Length > 0)
+            {
+                var primaryHeight = screens[0].Frame.Height;
+                var allScreensRect = CGRect.Empty;
+
+                foreach (var screen in screens)
+                {
+                    var frame = screen.Frame;
+                    // Convert Cocoa coordinates (Bottom-Left) to Quartz coordinates (Top-Left)
+                    var y = primaryHeight - (frame.Y + frame.Height);
+                    var screenRect = new CGRect(frame.X, y, frame.Width, frame.Height);
+
+                    if (allScreensRect.IsEmpty) allScreensRect = screenRect;
+                    else allScreensRect = CGRect.Union(allScreensRect, screenRect);
+                }
+
+                rect = CGRect.Intersect(rect, allScreensRect);
+            }
+
+            if (rect.IsEmpty || rect.Width <= 0 || rect.Height <= 0) return null;
+
 #pragma warning disable CA1422 // Validate platform compatibility
             // ReSharper disable once MethodIsTooComplex
             using var cgImage = CGImage.ScreenImage(
                 0,
                 rect,
-                CGWindowListOption.OnScreenOnly,
+                CGWindowListOption.All,
                 CGWindowImageOption.Default);
 #pragma warning restore CA1422
 

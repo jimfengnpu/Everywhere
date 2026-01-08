@@ -30,12 +30,13 @@ public abstract class ScreenSelectionWindow : Window
 /// </summary>
 public class ScreenSelectionTransparentWindow : ScreenSelectionWindow
 {
-    public ScreenSelectionTransparentWindow()
+    protected ScreenSelectionTransparentWindow()
     {
         Background = Brushes.Transparent;
         Cursor = new Cursor(StandardCursorType.Cross);
         TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         SystemDecorations = SystemDecorations.None;
+        SizeToContent = SizeToContent.Manual;
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ public class ScreenSelectionTransparentWindow : ScreenSelectionWindow
     /// </summary>
     /// <param name="screenBounds"></param>
     /// <param name="scale"></param>
-    public void SetPlacement(PixelRect screenBounds, out double scale)
+    protected void SetPlacement(PixelRect screenBounds, out double scale)
     {
         Position = screenBounds.Position;
         scale = DesktopScaling; // we must set Position first to get the correct scaling factor
@@ -59,7 +60,6 @@ public sealed class ScreenSelectionMaskWindow : ScreenSelectionTransparentWindow
 {
     private readonly Border _maskBorder;
     private readonly Border _elementBoundsBorder;
-    private readonly Image _imageControl;
     private readonly PixelRect _screenBounds;
     private readonly double _scale;
 
@@ -70,10 +70,6 @@ public sealed class ScreenSelectionMaskWindow : ScreenSelectionTransparentWindow
             IsHitTestVisible = false,
             Children =
             {
-                (_imageControl = new Image
-                {
-                    Stretch = Stretch.UniformToFill
-                }),
                 (_maskBorder = new Border
                 {
                     Background = Brushes.Black,
@@ -95,13 +91,9 @@ public sealed class ScreenSelectionMaskWindow : ScreenSelectionTransparentWindow
 
     public void SetImage(Bitmap? bitmap)
     {
-        _imageControl.Source = bitmap;
-        // If we have a background image, the "mask" effect logic changes.
-        // The mask border (background black, opacity 0.4) is overlaying the image.
-        // We want the SELECTED area to be clear (showing the image directly) and the UNSELECTED area to be darkened.
-        // The 'SetMask' function uses 'Clip' to Exclude the selected rect from the mask border.
-        // This is exactly what we want: Exclude rect -> that rect part of black border is gone -> underlying Image is visible. 
-        // So no changes needed in SetMask logic if we assume standard freeze frame behavior.
+        // We use an ImageBrush here instead of an Image control
+        // to avoid issues with scaling and rearrangement.
+        Background = new ImageBrush(bitmap);
     }
 
     public void SetMask(PixelRect rect)

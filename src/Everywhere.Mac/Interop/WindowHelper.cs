@@ -14,8 +14,8 @@ public class WindowHelper : IWindowHelper
     /// <param name="focusable">True to allow focus, false to prevent it.</param>
     public void SetFocusable(Window window, bool focusable)
     {
-        if (GetNativeWindow(window) is not { } nativeWindow) return;
-
+        // We need to NonactivatingPanel, but only NSPanel supports that.
+        // So we cannot implement currently.
     }
 
     /// <summary>
@@ -78,7 +78,11 @@ public class WindowHelper : IWindowHelper
         {
             // Hide the window and ensure it's not in the window cycle (Cmd+Tab).
             nativeWindow.CollectionBehavior |= NSWindowCollectionBehavior.IgnoresCycle;
+            
+            NSAnimationContext.BeginGrouping();
+            NSAnimationContext.CurrentContext.Duration = 0;
             window.Hide();
+            NSAnimationContext.EndGrouping();
         }
         else
         {

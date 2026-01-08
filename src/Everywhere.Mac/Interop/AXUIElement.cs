@@ -234,6 +234,7 @@ public partial class AXUIElement : NSObject, IVisualElement
         using var cgImage = SkyLightInterop.HardwareCaptureWindowList(
             [(uint)windowId],
             SkyLightInterop.CGSWindowCaptureOptions.IgnoreGlobalCLipShape |
+            SkyLightInterop.CGSWindowCaptureOptions.NominalResolution |
             SkyLightInterop.CGSWindowCaptureOptions.FullSize);
 
         if (cgImage is null)
