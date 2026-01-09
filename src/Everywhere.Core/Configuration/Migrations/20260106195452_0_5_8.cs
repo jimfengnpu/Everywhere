@@ -14,21 +14,29 @@ public class _20260106195452_0_5_8 : SettingsMigration
 {
     public override Version Version => new(0, 5, 8);
 
-    protected internal override bool Migrate(JsonObject root)
-    {
-        var modified = false;
-        modified |= MigrateTask1();
-        modified |= MigrateTask2(root);
+    protected override IEnumerable<Func<JsonObject, bool>> MigrationTasks =>
+    [
+        MigrateTask1,
+        MigrateTask2
+    ];
 
-        return modified;
-    }
-
-    private static bool MigrateTask1()
+    private static bool MigrateTask1(JsonObject _)
     {
         if (!OperatingSystem.IsWindows()) return false;
+        WinCredSecret[] credentials;
+        try
+        {
+            credentials = WinCredManager.EnumerateCredentials();
+        }
+        catch
+        {
+            // Unable to access Windows Credential Manager
+            // Or 1168 - The specified item could not be found.
+            return false;
+        }
 
         var secretsToMigrate = new Dictionary<string, string>();
-        foreach (var credential in WinCredManager.EnumerateCredentials())
+        foreach (var credential in credentials)
         {
             // com.sylinko.everywhere.apikeys/[GUID]
             if (!credential.Service.StartsWith("com.sylinko.everywhere.apikeys/")) continue;

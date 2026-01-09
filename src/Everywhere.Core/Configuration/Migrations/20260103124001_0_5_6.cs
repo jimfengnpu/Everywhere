@@ -17,17 +17,15 @@ public class _20260103124001_0_5_6 : SettingsMigration
 {
     public override Version Version => new(0, 5, 6);
 
-    protected internal override bool Migrate(JsonObject root)
-    {
-        var modified = false;
-        modified |= MigrateTask1(root);
-        modified |= MigrateTask2(root);
-        modified |= MigrateTask3(root);
-        modified |= MigrateTask4(root);
-        modified |= MigrateTask5(root);
-        modified |= MigrateTask6(root);
-        return modified;
-    }
+    protected override IEnumerable<Func<JsonObject, bool>> MigrationTasks =>
+    [
+        MigrateTask1,
+        MigrateTask2,
+        MigrateTask3,
+        MigrateTask4,
+        MigrateTask5,
+        MigrateTask6
+    ];
 
     private static bool MigrateTask1(JsonObject root)
     {
