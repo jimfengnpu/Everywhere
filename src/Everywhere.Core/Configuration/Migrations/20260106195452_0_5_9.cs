@@ -5,14 +5,14 @@ using ZLinq;
 namespace Everywhere.Configuration.Migrations;
 
 /// <summary>
-/// This migration handles 0.5.8 settings changes.
+/// This migration handles 0.5.9 settings changes.
 /// It has 2 changes:
 /// 1. Migrate API keys stored in Windows Credential Manager from "com.sylinko.everywhere.apikeys/[GUID]" to "com.sylinko.everywhere/[GUID]"
 /// 2. Flatten SystemPrompt property of CustomAssistant from a Customizable{string} to a simple string
 /// </summary>
-public class _20260106195452_0_5_8 : SettingsMigration
+public class _20260106195452_0_5_9 : SettingsMigration
 {
-    public override Version Version => new(0, 5, 8);
+    public override Version Version => new(0, 5, 9);
 
     protected override IEnumerable<Func<JsonObject, bool>> MigrationTasks =>
     [
@@ -23,20 +23,9 @@ public class _20260106195452_0_5_8 : SettingsMigration
     private static bool MigrateTask1(JsonObject _)
     {
         if (!OperatingSystem.IsWindows()) return false;
-        WinCredSecret[] credentials;
-        try
-        {
-            credentials = WinCredManager.EnumerateCredentials();
-        }
-        catch
-        {
-            // Unable to access Windows Credential Manager
-            // Or 1168 - The specified item could not be found.
-            return false;
-        }
 
         var secretsToMigrate = new Dictionary<string, string>();
-        foreach (var credential in credentials)
+        foreach (var credential in WinCredManager.EnumerateCredentials())
         {
             // com.sylinko.everywhere.apikeys/[GUID]
             if (!credential.Service.StartsWith("com.sylinko.everywhere.apikeys/")) continue;
