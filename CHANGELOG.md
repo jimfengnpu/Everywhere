@@ -1,3 +1,13 @@
+## [v0.5.9](https://github.com/DearVa/Everywhere/releases/tag/v0.5.9) - 2026-01-10
+
+### 🐛 Bug Fixes
+- Fixed an issue where the display order of content in the ApiKey selection box was incorrect.
+- (Windows) Fixed an issue where custom assistants were not migrating correctly.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.8...v0.5.9
+
+
+
 ## [v0.5.8](https://github.com/DearVa/Everywhere/releases/tag/v0.5.8) - 2026-01-08
 
 ### ✨ Features
