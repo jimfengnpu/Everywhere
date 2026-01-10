@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Avalonia.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -32,6 +33,7 @@ public partial class CustomAssistant : ObservableValidator
     [HiddenSettingsItem]
     public partial string? Description { get; set; }
 
+    [JsonIgnore]
     [DynamicResourceKey(LocaleKey.Empty)]
     public SettingsControl<CustomAssistantInformationForm> InformationForm => new(
         new CustomAssistantInformationForm
@@ -43,49 +45,25 @@ public partial class CustomAssistant : ObservableValidator
     [DynamicResourceKey(
         LocaleKey.CustomAssistant_SystemPrompt_Header,
         LocaleKey.CustomAssistant_SystemPrompt_Description)]
-    [SettingsStringItem(IsMultiline = true, MaxLength = 40960)]
-    public partial Customizable<string> SystemPrompt { get; set; } = new(Prompts.DefaultSystemPrompt, isDefaultValueReadonly: true);
+    [SettingsStringItem(IsMultiline = true, MaxLength = 40960, Watermark = Prompts.DefaultSystemPrompt)]
+    [DefaultValue(null)]
+    public partial string? SystemPrompt { get; set; }
 
+    [ObservableProperty]
     [HiddenSettingsItem]
-    public ModelProviderConfiguratorType ConfiguratorType
-    {
-        get;
-        set
-        {
-            if (field == value) return;
-
-            Configurator.Backup();
-            field = value;
-            Configurator.Apply();
-
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(Configurator));
-        }
-    }
+    [NotifyPropertyChangedFor(nameof(Configurator))]
+    public partial ModelProviderConfiguratorType ConfiguratorType { get; set; }
 
     [JsonIgnore]
     [HiddenSettingsItem]
-    public IModelProviderConfigurator Configurator => ConfiguratorType switch
-    {
-        ModelProviderConfiguratorType.Official => _officialConfigurator,
-        ModelProviderConfiguratorType.PresetBased => _presetBasedConfigurator,
-        _ => _advancedConfigurator
-    };
+    public IModelProviderConfigurator Configurator => GetConfigurator(ConfiguratorType);
 
     [JsonIgnore]
     [DynamicResourceKey(LocaleKey.CustomAssistant_ConfiguratorSelector_Header)]
     public SettingsControl<ModelProviderConfiguratorSelector> ConfiguratorSelector => new(
         new ModelProviderConfiguratorSelector
         {
-            [!ModelProviderConfiguratorSelector.SelectedTypeProperty] = new Binding(nameof(ConfiguratorType))
-            {
-                Source = this,
-                Mode = BindingMode.TwoWay
-            },
-            [!ModelProviderConfiguratorSelector.SettingsItemsProperty] = new Binding($"{nameof(Configurator)}.{nameof(Configurator.SettingsItems)}")
-            {
-                Source = this
-            },
+            CustomAssistant = this
         });
 
     [ObservableProperty]
@@ -190,6 +168,13 @@ public partial class CustomAssistant : ObservableValidator
         _presetBasedConfigurator = new PresetBasedModelProviderConfigurator(this);
         _advancedConfigurator = new AdvancedModelProviderConfigurator(this);
     }
+
+    public IModelProviderConfigurator GetConfigurator(ModelProviderConfiguratorType type) => type switch
+    {
+        ModelProviderConfiguratorType.Official => _officialConfigurator,
+        ModelProviderConfiguratorType.PresetBased => _presetBasedConfigurator,
+        _ => _advancedConfigurator
+    };
 }
 
 public enum ModelProviderConfiguratorType
@@ -273,7 +258,9 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelProviderTemplateId) return;
             owner.ModelProviderTemplateId = value;
 
-            Apply();
+            ApplyModelProvider();
+            ModelDefinitionTemplateId = null;
+
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelProviderTemplate));
             OnPropertyChanged(nameof(ModelDefinitionTemplates));
@@ -337,7 +324,8 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
             if (value == owner.ModelDefinitionTemplateId) return;
             owner.ModelDefinitionTemplateId = value;
 
-            Apply();
+            ApplyModelDefinition();
+
             OnPropertyChanged();
             OnPropertyChanged(nameof(ModelDefinitionTemplate));
         }
@@ -367,24 +355,29 @@ public sealed partial class PresetBasedModelProviderConfigurator(CustomAssistant
     {
         owner.ApiKey = _apiKeyBackup;
 
-        var modelProviderTemplate = ModelProviderTemplates.FirstOrDefault(t => t.Id == ModelProviderTemplateId);
-        if (modelProviderTemplate is not null)
+        ApplyModelProvider();
+        ApplyModelDefinition();
+    }
+
+    private void ApplyModelProvider()
+    {
+        if (ModelProviderTemplate is { } modelProviderTemplate)
         {
             owner.Endpoint = modelProviderTemplate.Endpoint;
             owner.Schema = modelProviderTemplate.Schema;
             owner.RequestTimeoutSeconds = modelProviderTemplate.RequestTimeoutSeconds;
-            ModelDefinitionTemplateId = modelProviderTemplate.ModelDefinitions.FirstOrDefault(m => m.IsDefault)?.Id;
         }
         else
         {
             owner.Endpoint = string.Empty;
             owner.Schema = ModelProviderSchema.OpenAI;
             owner.RequestTimeoutSeconds = 20;
-            ModelDefinitionTemplateId = null;
         }
+    }
 
-        var modelDefinitionTemplate = modelProviderTemplate?.ModelDefinitions.FirstOrDefault(m => m.Id == ModelDefinitionTemplateId);
-        if (modelDefinitionTemplate is not null)
+    private void ApplyModelDefinition()
+    {
+        if (ModelDefinitionTemplate is { } modelDefinitionTemplate)
         {
             owner.ModelId = modelDefinitionTemplate.Id;
             owner.IsImageInputSupported = modelDefinitionTemplate.IsImageInputSupported;
@@ -571,7 +564,7 @@ public sealed partial class AdvancedModelProviderConfigurator(CustomAssistant ow
 
     private T? Restore<T>(T property, [CallerArgumentExpression("property")] string propertyName = "")
     {
-        return _backups.TryGetValue(propertyName, out var backup) ? (T?)backup : default;
+        return _backups.TryGetValue(propertyName, out var backup) ? (T?)backup : property;
     }
 
     public static ValidationResult? ValidateEndpoint(string? endpoint)
@@ -590,6 +583,3 @@ public sealed partial class AdvancedModelProviderConfigurator(CustomAssistant ow
         return ValidationResult.Success;
     }
 }
-
-[JsonSerializable(typeof(CustomAssistant))]
-public partial class CustomAssistantJsonSerializerContext : JsonSerializerContext;

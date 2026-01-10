@@ -15,6 +15,7 @@ public enum WebSearchEngineProviderId
     Brave,
     Bocha,
     Jina,
+    UniFuncs,
     SearXNG
 }
 

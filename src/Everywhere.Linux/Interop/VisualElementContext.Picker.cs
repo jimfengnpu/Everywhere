@@ -1,0 +1,69 @@
+using Avalonia;
+using Everywhere.Interop;
+
+namespace Everywhere.Linux.Interop;
+
+public partial class VisualElementContext
+{
+    private class ElementPicker : ScreenSelectionSession
+    {
+        public static Task<IVisualElement?> PickAsync(
+            VisualElementContext context,
+            IWindowBackend backend,
+            ScreenSelectionMode mode)
+        {
+            var window = new ElementPicker(context, backend, mode);
+            window.Show();
+            return window._pickingPromise.Task;
+        }
+
+        private readonly TaskCompletionSource<IVisualElement?> _pickingPromise = new();
+        private readonly VisualElementContext _context;
+        private IVisualElement? _selectedElement;
+
+        private ElementPicker(
+            VisualElementContext context,
+            IWindowBackend backend,
+            ScreenSelectionMode screenSelectionMode)
+            : base(backend, [ScreenSelectionMode.Screen, ScreenSelectionMode.Window, ScreenSelectionMode.Element], screenSelectionMode)
+        {
+            _context = context;
+        }
+
+        protected override void OnCanceled()
+        {
+            _selectedElement = null;
+        }
+
+        protected override void OnCloseCleanup()
+        {
+            _pickingPromise.TrySetResult(_selectedElement);
+        }
+
+        protected override bool OnLeftButtonUp()
+        {
+            // Confirm selection
+            return true;
+        }
+
+        protected override void OnMove(PixelPoint point)
+        {
+            _selectedElement = _context.ElementFromPoint(point, CurrentMode);
+
+            var maskRect = new PixelRect();
+            if (_selectedElement != null)
+            {
+                maskRect = _selectedElement.BoundingRectangle;
+            }
+
+            // Safety check for invalid rects
+            if (maskRect.Width < 0 || maskRect.Height < 0)
+            {
+                maskRect = new PixelRect();
+            }
+
+            foreach (var maskWindow in MaskWindows) maskWindow.SetMask(maskRect);
+            ToolTipWindow.ToolTip.Element = _selectedElement;
+        }
+    }
+}

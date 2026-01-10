@@ -1,4 +1,4 @@
-﻿name: Build and Release
+﻿name: (Windows) Build and Release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build-windows:
+  build-and-release:
     runs-on: windows-latest
 
     steps:
@@ -147,117 +147,3 @@ jobs:
         files: |
           ./Everywhere-Windows-x64-v${{env.VERSION}}.zip
           ./Everywhere-Windows-x64-Setup-v${{env.VERSION}}.exe
-
-  build-mac:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        include:
-          - runtime: osx-x64
-            asset_name: macOS-x64
-          - runtime: osx-arm64
-            asset_name: macOS-arm64
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        submodules: true
-        lfs: true
-
-    - name: Get version from tag
-      id: get_version
-      run: |
-        echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
-
-    - name: Import Code Signing Certificate
-      env:
-        P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
-        P12_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-      run: |
-        # Create a temporary keychain
-        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-        security create-keychain -p "" $KEYCHAIN_PATH
-        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-        security unlock-keychain -p "" $KEYCHAIN_PATH
-
-        # Decode the P12 file
-        CERT_PATH=$RUNNER_TEMP/certificate.p12
-        echo "$P12_BASE64" | base64 --decode -o $CERT_PATH
-
-        # Import the certificate
-        security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-        security list-keychain -d user -s $KEYCHAIN_PATH
-
-    - name: Replace Version inside Info.plist
-      run: |
-        /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${{ env.VERSION }}" src/Everywhere.Mac/Info.plist
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ env.VERSION }}" src/Everywhere.Mac/Info.plist
-
-    - name: Restore
-      run: dotnet restore src/Everywhere.Mac/Everywhere.Mac.csproj -r ${{ matrix.runtime }}
-
-    - name: Publish
-      env:
-        CODE_SIGN_KEY: ${{ secrets.CODE_SIGN_KEY }}
-        PACKAGE_SIGNING_KEY: ${{ secrets.PACKAGE_SIGNING_KEY }}
-      run: |
-        dotnet publish src/Everywhere.Mac/Everywhere.Mac.csproj -c Release -r ${{ matrix.runtime }} /p:CodesignKey="$CODE_SIGN_KEY" /p:PackageSigningKey="$PACKAGE_SIGNING_KEY" -p:Version=${{ env.VERSION }} -o ./publish --no-restore
-
-    - name: Upload Release Assets
-      uses: softprops/action-gh-release@v2
-      with:
-        files: Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.pkg
-
-#  build-linux:
-#    strategy:
-#      matrix:
-#        include:
-#          - runtime: linux-x64
-#            runner: ubuntu-latest
-#            asset_name: Linux-x64
-#          - runtime: linux-arm64
-#            runner: ubuntu-24.04-arm
-#            asset_name: Linux-arm64
-#
-#    runs-on: ${{ matrix.runner }}
-#
-#    steps:
-#    - name: Checkout code
-#      uses: actions/checkout@v4
-#      with:
-#        fetch-depth: 0
-#        submodules: true
-#        lfs: true
-#
-#    - name: Get version from tag
-#      id: get_version
-#      run: |
-#        echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-#
-#    - name: Setup .NET
-#      uses: actions/setup-dotnet@v4
-#      with:
-#        dotnet-version: 10.0.x
-#
-#    - name: Restore
-#      run: dotnet restore src/Everywhere.Linux/Everywhere.Linux.csproj -r ${{ matrix.runtime }}
-#
-#    - name: Publish
-#      run: |
-#        dotnet publish src/Everywhere.Linux/Everywhere.Linux.csproj -c Release -r ${{ matrix.runtime }} -o ./publish
-#
-#    - name: Build Deb Package
-#      run: |
-#        ./src/Everywhere.Linux/packaging_deb.sh ${{ matrix.runtime }} ${{ env.VERSION }} ./publish
-#
-#    - name: Upload Release Assets
-#      uses: softprops/action-gh-release@v2
-#      with:
-#        files: Everywhere-${{ matrix.asset_name }}-v${{ env.VERSION }}.deb

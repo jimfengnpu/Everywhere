@@ -129,7 +129,9 @@
           <ListBox Classes="AssistantMessage">
             <TextBlock Text="{I18N {x:Static LocaleKey.WelcomeView_ConfiguratorStep_Message1}}"/>
             <TextBlock Text="{I18N {x:Static LocaleKey.WelcomeView_ConfiguratorStep_Message2}}"/>
-            <v:ModelProviderConfiguratorSelector SelectedType="{Binding ViewModel.Assistant.ConfiguratorType, Mode=TwoWay}"/>
+            <v:ModelProviderConfiguratorSelector
+              CustomAssistant="{Binding ViewModel.Assistant, Mode=OneTime}"
+              IsSettingsVisible="False"/>
           </ListBox>
         </DataTemplate>
 

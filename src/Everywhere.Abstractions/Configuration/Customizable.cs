@@ -163,10 +163,54 @@ public partial class Customizable<T> : ObservableObject where T : notnull
     /// </summary>
     public sealed class JsonConverter : JsonConverter<Customizable<T>>
     {
-        public override Customizable<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Customizable<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Use default deserialization
-            return JsonSerializer.Deserialize<Customizable<T>>(ref reader, options);
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException("Expected StartObject token");
+            }
+
+            T? defaultValue = default;
+            object? customValue = null;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Expected PropertyName token");
+                }
+
+                var propertyName = reader.GetString();
+                reader.Read();
+
+                switch (propertyName)
+                {
+                    case nameof(DefaultValue):
+                        defaultValue = JsonSerializer.Deserialize<T>(ref reader, options);
+                        break;
+                    case nameof(CustomValue):
+                        customValue = JsonSerializer.Deserialize<object>(ref reader, options);
+                        break;
+                }
+            }
+
+            if (defaultValue is null)
+            {
+                throw new NotSupportedException("Customizable<T> must have a DefaultValue when deserialized from JSON.");
+            }
+
+            var customizable = new Customizable<T>
+            {
+                DefaultValue = defaultValue,
+                CustomValue = ConvertValue(customValue)
+            };
+
+            return customizable;
         }
 
         public override void Write(Utf8JsonWriter writer, Customizable<T> value, JsonSerializerOptions options)

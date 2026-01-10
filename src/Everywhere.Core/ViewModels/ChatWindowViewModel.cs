@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Text;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -294,7 +295,7 @@ public sealed partial class ChatWindowViewModel :
     }
 
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
-    private Task PickElementAsync(ElementPickMode mode) => ExecuteBusyTaskAsync(
+    private Task PickElementAsync() => ExecuteBusyTaskAsync(
         async cancellationToken =>
         {
             if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
@@ -303,12 +304,30 @@ public sealed partial class ChatWindowViewModel :
             var chatWindow = ServiceLocator.Resolve<ChatWindow>();
             var windowHelper = ServiceLocator.Resolve<IWindowHelper>();
             windowHelper.SetCloaked(chatWindow, true);
-            var element = await _visualElementContext.PickElementAsync(mode);
+            var element = await _visualElementContext.PickElementAsync(null);
             windowHelper.SetCloaked(chatWindow, false);
 
             if (element is null) return;
             if (_chatAttachmentsSource.Items.OfType<ChatVisualElementAttachment>().Any(a => Equals(a.Element?.Target, element))) return;
             _chatAttachmentsSource.Add(await Task.Run(() => CreateFromVisualElement(element), cancellationToken));
+        },
+        _logger.ToExceptionHandler());
+
+    [RelayCommand(CanExecute = nameof(IsNotBusy))]
+    private Task ScreenshotAsync() => ExecuteBusyTaskAsync(
+        async cancellationToken =>
+        {
+            if (_chatAttachmentsSource.Count >= PersistentState.MaxChatAttachmentCount) return;
+
+            // Hide the chat window to avoid picking itself
+            var chatWindow = ServiceLocator.Resolve<ChatWindow>();
+            var windowHelper = ServiceLocator.Resolve<IWindowHelper>();
+            windowHelper.SetCloaked(chatWindow, true);
+            var bitmap = await _visualElementContext.ScreenshotAsync(null);
+            windowHelper.SetCloaked(chatWindow, false);
+
+            if (bitmap is null) return;
+            _chatAttachmentsSource.Add(await Task.Run(() => CreateFromBitmapAsync(bitmap, cancellationToken), cancellationToken));
         },
         _logger.ToExceptionHandler());
 
@@ -343,22 +362,7 @@ public sealed partial class ChatWindowViewModel :
                      formats.Contains(DataFormat.Bitmap) &&
                      await Clipboard.TryGetBitmapAsync() is { } bitmap)
             {
-                await Task.Run(
-                    async () =>
-                    {
-                        using var memoryStream = new MemoryStream();
-                        bitmap.Save(memoryStream, 100);
-
-                        var blob = await _blobStorage.StorageBlobAsync(memoryStream, "image/png", cancellationToken);
-
-                        var attachment = new ChatFileAttachment(
-                            new DynamicResourceKey(string.Empty),
-                            blob.LocalPath,
-                            blob.Sha256,
-                            blob.MimeType);
-                        _chatAttachmentsSource.Add(attachment);
-                    },
-                    cancellationToken);
+                _chatAttachmentsSource.Add(await Task.Run(() => CreateFromBitmapAsync(bitmap, cancellationToken), cancellationToken));
             }
 
             // TODO: add as text attachment when text is too long
@@ -517,6 +521,19 @@ public sealed partial class ChatWindowViewModel :
                 _ => LucideIconKind.Component
             },
             element);
+    }
+
+    private async Task<ChatFileAttachment> CreateFromBitmapAsync(Bitmap bitmap, CancellationToken cancellationToken)
+    {
+        using var memoryStream = new MemoryStream();
+        bitmap.Save(memoryStream, 100);
+
+        var blob = await _blobStorage.StorageBlobAsync(memoryStream, "image/png", cancellationToken);
+        return new ChatFileAttachment(
+            new DynamicResourceKey(string.Empty),
+            blob.LocalPath,
+            blob.Sha256,
+            blob.MimeType);
     }
 
     [RelayCommand]
@@ -811,6 +828,7 @@ public sealed partial class ChatWindowViewModel :
         base.OnIsBusyChanged();
 
         PickElementCommand.NotifyCanExecuteChanged();
+        ScreenshotCommand.NotifyCanExecuteChanged();
         AddClipboardCommand.NotifyCanExecuteChanged();
         AddFileCommand.NotifyCanExecuteChanged();
         SendMessageCommand.NotifyCanExecuteChanged();

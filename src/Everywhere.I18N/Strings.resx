@@ -789,22 +789,22 @@ My intelligence is powered by large language models, and I need your help to con
         <value>Authentication error.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>To help me improve, I need to enable “Telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you.</value>
+        <value>To help me grow, we invite you to join the user experience program. We will collect your usage data, which will only be used for analysis and does not contain or allow for any inference of personal data about you.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>You may choose to send only necessary data; this option will not affect core functionality.</value>
+        <value>If you do not join, only necessary data will be sent. Rest assured, this choice will not affect core functionality.</value>
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Send only necessary data</value>
+        <value>Do not join</value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>Enable telemetry</value>
+        <value>Join</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Diagnostics</value>
+        <value>Join the user experience program</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>To help us improve, we need the “telemetry” to collect anonymous data. This data is used solely for analysis and does not contain or allow the inference of any personally identifiable information about you. You may choose to send only necessary data; this option will not affect core functionality.</value>
+        <value>To help us improve, we invite you to join the user experience program. We will collect your usage data, which will only be used for analysis and does not contain or allow for any inference of personal data about you. If you do not join, only necessary data will be sent. This choice will not affect core functionality.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Show Chat Statistics</value>
@@ -1422,20 +1422,20 @@ Placeholders can be used in the prompt, enclosed in {}, which will be replaced w
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Failed to launch the Puppeteer browser.</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>Left click to select, Right click or Esc to cancel
 Scroll wheel or number keys to switch pick modes</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>Screen</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>Window</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>Element</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>None</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1990,10 +1990,23 @@ Scroll wheel or number keys to switch pick modes</value>
     <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
         <value>Successfully imported {0} plugins, {1} failed</value>
     </data>
+    <data name="Application_TrayIcon_Menu_OpenChatWindow" xml:space="preserve">
+        <value>Open Chat Window</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Administrator privileges are usually unnecessary on Linux. If needed, please re-exec with sudo.</value>
     </data>
     <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
         <value>Failed to grab the hotkey. The key combination may be already in use.</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value>Free</value>
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value>Hold left mouse button to select, right-click or Esc to exit
+Use scroll wheel or number keys to switch selection mode</value>
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value>Screenshot</value>
     </data>
 </root>

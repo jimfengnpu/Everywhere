@@ -789,22 +789,22 @@
         <value>認証エラー。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>改善のために、「テレメトリ」を有効にして匿名データを収集する必要があります。このデータは分析のみに使用され、あなたの個人を特定できる情報を含んだり推測したりすることはありません。</value>
+        <value>私が成長するために、ユーザーエクスペリエンスプログラムに参加していただくことをお勧めします。使用データを収集しますが、これらのデータは分析のみに使用され、個人に関する情報は含まれず、推測することもできません。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>必要なデータのみを送信することも選択できます。このオプションは基本機能に影響を与えません。</value>
+        <value>参加しない場合は、必要なデータのみが送信されます。ご安心ください。この選択はコア機能に影響を与えません。</value>
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>必要なデータのみ送信</value>
+        <value>参加しない</value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>テレメトリを有効にする</value>
+        <value>参加する</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>診断</value>
+        <value>ユーザーエクスペリエンスプログラムに参加する</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>改善のために、「テレメトリ」を有効にして匿名データを収集する必要があります。このデータは分析のみに使用され、あなたの個人を特定できる情報を含んだり推測したりすることはありません。必要なデータのみを送信することも選択できます。このオプションは基本機能に影響を与えません。</value>
+        <value>私たちが改善するために、ユーザーエクスペリエンスプログラムに参加していただくことをお勧めします。使用データを収集しますが、これらのデータは分析のみに使用され、個人に関する情報は含まれず、推測することもできません。参加しない場合は、必要なデータのみが送信されます。この選択はコア機能に影響を与えません。</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>チャット統計を表示</value>
@@ -1422,20 +1422,20 @@
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Puppeteerブラウザの起動に失敗しました。</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>左クリックで選択、右クリックまたはEscでキャンセル
 スクロールホイールまたは数字キーでピックモードを切り替え</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>スクリーン</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>ウィンドウ</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>要素</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>なし</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1989,5 +1989,24 @@
     </data>
     <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
         <value>{0}のプラグインが正常にインポートされましたが、{1}が失敗しました</value>
+    </data>
+    <data name="Application_TrayIcon_Menu_OpenChatWindow" xml:space="preserve">
+        <value>チャットウィンドウを開く</value>
+    </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>Linuxシステムでは通常、ユーザー権限のみが使用されます。管理者権限が必要な場合は、sudoを使用してアプリを再起動してください。</value>
+    </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>ホットキーを登録できませんでした。このキーの組み合わせはすでに使用されている可能性があります。</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value>自由</value>
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value>左クリックを押しながら選択し、右クリックまたは Esc で終了
+ホイールまたは数字キーで選択モードを切り替え</value>
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value>スクリーンショット</value>
     </data>
 </root>

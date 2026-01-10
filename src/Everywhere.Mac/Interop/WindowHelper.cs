@@ -1,5 +1,7 @@
 ﻿using Avalonia.Controls;
 using Everywhere.Interop;
+using Everywhere.Views;
+using ObjCRuntime;
 
 namespace Everywhere.Mac.Interop;
 
@@ -12,27 +14,8 @@ public class WindowHelper : IWindowHelper
     /// <param name="focusable">True to allow focus, false to prevent it.</param>
     public void SetFocusable(Window window, bool focusable)
     {
-        if (GetNativeWindow(window) is not { } nativeWindow) return;
-
-        // On macOS, the equivalent of a non-focusable window is often a panel that doesn't activate.
-        // We can achieve this by modifying the window's style mask.
-        // However, a simpler and less intrusive way is to prevent it from becoming the key window.
-        // This requires subclassing NSWindow, which is complex with Avalonia.
-        // A pragmatic approach is to set its level to one for utility windows, which often don't take focus.
-        // The most direct way is to use a private API or subclass, but for now, we can try setting the window level.
-        // A more robust solution might involve changing the CollectionBehavior.
-        if (focusable)
-        {
-            // Restore default behavior. This is hard without knowing the original state.
-            // For now, we assume it's a normal window.
-            nativeWindow.Level = NSWindowLevel.Normal;
-        }
-        else
-        {
-            // Setting a high window level prevents it from becoming the main or key window.
-            // This is similar to WS_EX_NOACTIVATE.
-            nativeWindow.Level = NSWindowLevel.Floating;
-        }
+        // We need to NonactivatingPanel, but only NSPanel supports that.
+        // So we cannot implement currently.
     }
 
     /// <summary>
@@ -77,11 +60,29 @@ public class WindowHelper : IWindowHelper
     {
         if (GetNativeWindow(window) is not { } nativeWindow) return;
 
+        if (window is ChatWindow)
+        {
+            // For ChatWindow, we might want to ensure it can appear on all spaces and in full screen mode.
+            nativeWindow.CollectionBehavior |=
+                NSWindowCollectionBehavior.CanJoinAllSpaces |
+                NSWindowCollectionBehavior.FullScreenAuxiliary |
+                NSWindowCollectionBehavior.FullScreenDisallowsTiling |
+                NSWindowCollectionBehavior.Auxiliary;
+            nativeWindow.CollectionBehavior &=
+                ~(NSWindowCollectionBehavior.FullScreenPrimary |
+                    NSWindowCollectionBehavior.Managed);
+            nativeWindow.Level = NSWindowLevel.MainMenu;
+        }
+
         if (cloaked)
         {
             // Hide the window and ensure it's not in the window cycle (Cmd+Tab).
             nativeWindow.CollectionBehavior |= NSWindowCollectionBehavior.IgnoresCycle;
+            
+            NSAnimationContext.BeginGrouping();
+            NSAnimationContext.CurrentContext.Duration = 0;
             window.Hide();
+            NSAnimationContext.EndGrouping();
         }
         else
         {
@@ -90,6 +91,7 @@ public class WindowHelper : IWindowHelper
             nativeWindow.CollectionBehavior &= ~NSWindowCollectionBehavior.IgnoresCycle;
             nativeWindow.MakeKeyAndOrderFront(null);
 
+            // Make sure it gets an input focus.
             if (OperatingSystem.IsMacOSVersionAtLeast(14))
             {
                 NSApplication.SharedApplication.Activate();
@@ -131,8 +133,6 @@ public class WindowHelper : IWindowHelper
     /// </summary>
     private static NSWindow? GetNativeWindow(Window window)
     {
-        return window.TryGetPlatformHandle()?.Handle is { } handle
-            ? ObjCRuntime.Runtime.GetNSObject<NSWindow>(handle)
-            : null;
+        return window.TryGetPlatformHandle()?.Handle is { } handle ? Runtime.GetNSObject<NSWindow>(handle) : null;
     }
 }

@@ -36,10 +36,11 @@ public class VisualTreePlugin : BuiltInChatPlugin
                 new NativeChatFunction(
                     CaptureFullScreenAsync,
                     ChatFunctionPermissions.ScreenRead));
-            list.Add(
-                new NativeChatFunction(
-                    ExecuteVisualActionQueueAsync,
-                    ChatFunctionPermissions.ScreenAccess));
+            // temporary disabled due to reliability issues
+            // list.Add(
+            //     new NativeChatFunction(
+            //         ExecuteVisualActionQueueAsync,
+            //         ChatFunctionPermissions.ScreenAccess));
         });
     }
 
@@ -63,7 +64,7 @@ public class VisualTreePlugin : BuiltInChatPlugin
         LocaleKey.BuiltInChatPlugin_VisualTree_CaptureFullScreen_Description)]
     private Task<ChatFileAttachment> CaptureFullScreenAsync(CancellationToken cancellationToken = default)
     {
-        var visualElement = _visualElementContext.ElementFromPointer(ElementPickMode.Screen);
+        var visualElement = _visualElementContext.ElementFromPointer(ScreenSelectionMode.Screen);
         if (visualElement is null)
         {
             throw new HandledException(

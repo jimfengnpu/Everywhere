@@ -4,10 +4,10 @@ using Everywhere.Interop;
 
 namespace Everywhere.Views;
 
-public class VisualElementPickerToolTip : TemplatedControl
+public class ScreenSelectionToolTip(IEnumerable<ScreenSelectionMode> allowedModes) : TemplatedControl
 {
     public static readonly StyledProperty<string?> HeaderProperty =
-        AvaloniaProperty.Register<VisualElementPickerToolTip, string?>(nameof(Header));
+        AvaloniaProperty.Register<ScreenSelectionToolTip, string?>(nameof(Header));
 
     public string? Header
     {
@@ -15,13 +15,33 @@ public class VisualElementPickerToolTip : TemplatedControl
         set => SetValue(HeaderProperty, value);
     }
 
-    public static readonly StyledProperty<ElementPickMode> ModeProperty =
-        AvaloniaProperty.Register<VisualElementPickerToolTip, ElementPickMode>(nameof(Mode));
+    public IEnumerable<ScreenSelectionMode> AllowedModes { get; } = allowedModes;
 
-    public ElementPickMode Mode
+    public static readonly StyledProperty<ScreenSelectionMode> ModeProperty =
+        AvaloniaProperty.Register<ScreenSelectionToolTip, ScreenSelectionMode>(nameof(Mode));
+
+    public ScreenSelectionMode Mode
     {
         get => GetValue(ModeProperty);
         set => SetValue(ModeProperty, value);
+    }
+
+    public static readonly DirectProperty<ScreenSelectionToolTip, string> TipTextProperty =
+        AvaloniaProperty.RegisterDirect<ScreenSelectionToolTip, string>(
+        nameof(TipText),
+        o => o.TipText);
+
+    public string TipText => Mode == ScreenSelectionMode.Free ?
+        LocaleResolver.ScreenSelectionToolTip_TipText_Free :
+        LocaleResolver.ScreenSelectionToolTip_TipText_Normal;
+
+    public static readonly StyledProperty<string?> SizeInfoProperty =
+        AvaloniaProperty.Register<ScreenSelectionToolTip, string?>(nameof(SizeInfo));
+
+    public string? SizeInfo
+    {
+        get => GetValue(SizeInfoProperty);
+        set => SetValue(SizeInfoProperty, value);
     }
 
     public IVisualElement? Element
@@ -30,6 +50,16 @@ public class VisualElementPickerToolTip : TemplatedControl
     }
 
     private readonly Dictionary<int, string> _processNameCache = new();
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == ModeProperty)
+        {
+            RaisePropertyChanged(TipTextProperty, string.Empty, TipText);
+        }
+    }
 
     private string? GetElementDescription(IVisualElement? element)
     {

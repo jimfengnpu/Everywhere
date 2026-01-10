@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Media.Imaging;
 using Avalonia.Controls.ApplicationLifetimes;
 using Everywhere.Interop;
 using Microsoft.Extensions.Logging;
@@ -42,21 +43,21 @@ public partial class VisualElementContext(
 
     private readonly AtspiService _atspi = new(backend);
 
-    public IVisualElement? ElementFromPoint(PixelPoint point, ElementPickMode mode = ElementPickMode.Element)
+    public IVisualElement? ElementFromPoint(PixelPoint point, ScreenSelectionMode mode = ScreenSelectionMode.Element)
     {
         try
         {
             switch (mode)
             {
-                case ElementPickMode.Element:
+                case ScreenSelectionMode.Element:
                     var win = backend.GetWindowElementAt(point);
                     var elem = _atspi.ElementFromWindow(point, win);
                     return elem ?? win; // fallback to window mode
 
-                case ElementPickMode.Window:
+                case ScreenSelectionMode.Window:
                     return backend.GetWindowElementAt(point);
 
-                case ElementPickMode.Screen:
+                case ScreenSelectionMode.Screen:
                     return backend.GetScreenElement();
 
                 default:
@@ -70,13 +71,13 @@ public partial class VisualElementContext(
         }
     }
 
-    public IVisualElement? ElementFromPointer(ElementPickMode mode = ElementPickMode.Element)
+    public IVisualElement? ElementFromPointer(ScreenSelectionMode mode = ScreenSelectionMode.Element)
     {
         var point = backend.GetPointer();
         return ElementFromPoint(point, mode);
     }
 
-    public async Task<IVisualElement?> PickElementAsync(ElementPickMode mode)
+    public async Task<IVisualElement?> PickElementAsync(ScreenSelectionMode? initialMode)
     {
         if (Application.Current is not { ApplicationLifetime: ClassicDesktopStyleApplicationLifetime desktopLifetime })
         {
@@ -85,10 +86,25 @@ public partial class VisualElementContext(
 
         var windows = desktopLifetime.Windows.AsValueEnumerable().Where(w => w.IsVisible).ToList();
         foreach (var window in windows) window.Hide();
-        var result = await ElementPicker.PickAsync(this, backend, mode);
+        var result = await ElementPicker.PickAsync(this, backend, initialMode ?? ScreenSelectionMode.Element);
         foreach (var window in windows) window.IsVisible = true;
         return result;
     }
 
+    public async Task<Avalonia.Media.Imaging.Bitmap?> ScreenshotAsync(ScreenSelectionMode? initialMode)
+    {
+         if (Application.Current is not { ApplicationLifetime: ClassicDesktopStyleApplicationLifetime desktopLifetime })
+        {
+            return null;
+        }
+
+        var windows = desktopLifetime.Windows.AsValueEnumerable().Where(w => w.IsVisible).ToList();
+        foreach (var window in windows) window.Hide();
+        
+        var result = await ScreenshotPicker.ScreenshotAsync(this, backend, initialMode);
+        
+        foreach (var window in windows) window.IsVisible = true;
+        return result;
+    }
 
 }

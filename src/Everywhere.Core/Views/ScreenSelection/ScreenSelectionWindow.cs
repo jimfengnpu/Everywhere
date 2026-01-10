@@ -2,17 +2,18 @@
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Everywhere.Interop;
 
 namespace Everywhere.Views;
 
 /// <summary>
-/// Base window class for visual element picking.
+/// Base window class for screen selection windows.
 /// </summary>
-public abstract class VisualElementPickerWindow : Window
+public abstract class ScreenSelectionWindow : Window
 {
-    protected VisualElementPickerWindow()
+    protected ScreenSelectionWindow()
     {
         Topmost = true;
         CanResize = false;
@@ -24,17 +25,18 @@ public abstract class VisualElementPickerWindow : Window
 }
 
 /// <summary>
-/// Transparent window used for visual element picking.
+/// Transparent window used for screen selection.
 /// Provides methods to set placement based on screen bounds.
 /// </summary>
-public class VisualElementPickerTransparentWindow : VisualElementPickerWindow
+public class ScreenSelectionTransparentWindow : ScreenSelectionWindow
 {
-    public VisualElementPickerTransparentWindow()
+    protected ScreenSelectionTransparentWindow()
     {
         Background = Brushes.Transparent;
         Cursor = new Cursor(StandardCursorType.Cross);
         TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         SystemDecorations = SystemDecorations.None;
+        SizeToContent = SizeToContent.Manual;
     }
 
     /// <summary>
@@ -42,7 +44,7 @@ public class VisualElementPickerTransparentWindow : VisualElementPickerWindow
     /// </summary>
     /// <param name="screenBounds"></param>
     /// <param name="scale"></param>
-    public void SetPlacement(PixelRect screenBounds, out double scale)
+    protected void SetPlacement(PixelRect screenBounds, out double scale)
     {
         Position = screenBounds.Position;
         scale = DesktopScaling; // we must set Position first to get the correct scaling factor
@@ -52,16 +54,16 @@ public class VisualElementPickerTransparentWindow : VisualElementPickerWindow
 }
 
 /// <summary>
-/// Mask window that displays the overlay during element picking.
+/// Mask window that displays the overlay during screen selection.
 /// </summary>
-public sealed class VisualElementPickerMaskWindow : VisualElementPickerTransparentWindow
+public sealed class ScreenSelectionMaskWindow : ScreenSelectionTransparentWindow
 {
     private readonly Border _maskBorder;
     private readonly Border _elementBoundsBorder;
     private readonly PixelRect _screenBounds;
     private readonly double _scale;
 
-    public VisualElementPickerMaskWindow(PixelRect screenBounds)
+    public ScreenSelectionMaskWindow(PixelRect screenBounds)
     {
         Content = new Panel
         {
@@ -87,6 +89,13 @@ public sealed class VisualElementPickerMaskWindow : VisualElementPickerTranspare
         SetPlacement(screenBounds, out _scale);
     }
 
+    public void SetImage(Bitmap? bitmap)
+    {
+        // We use an ImageBrush here instead of an Image control
+        // to avoid issues with scaling and rearrangement.
+        Background = new ImageBrush(bitmap);
+    }
+
     public void SetMask(PixelRect rect)
     {
         var maskRect = rect.Translate(-(PixelVector)_screenBounds.Position).ToRect(_scale);
@@ -97,15 +106,15 @@ public sealed class VisualElementPickerMaskWindow : VisualElementPickerTranspare
     }
 }
 
-public sealed class VisualElementPickerToolTipWindow : VisualElementPickerWindow
+public sealed class ScreenSelectionToolTipWindow : ScreenSelectionWindow
 {
-    public VisualElementPickerToolTip ToolTip { get; }
+    public ScreenSelectionToolTip ToolTip { get; }
 
-    public VisualElementPickerToolTipWindow(ElementPickMode elementPickMode)
+    public ScreenSelectionToolTipWindow(IEnumerable<ScreenSelectionMode> allowedModes, ScreenSelectionMode mode)
     {
-        Content = ToolTip = new VisualElementPickerToolTip
+        Content = ToolTip = new ScreenSelectionToolTip(allowedModes)
         {
-            Mode = elementPickMode
+            Mode = mode
         };
         SizeToContent = SizeToContent.WidthAndHeight;
         SystemDecorations = SystemDecorations.BorderOnly;

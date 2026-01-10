@@ -1,3 +1,50 @@
+## [v0.5.9](https://github.com/DearVa/Everywhere/releases/tag/v0.5.9) - 2026-01-10
+
+### 🐛 Bug Fixes
+- Fixed an issue where the display order of content in the ApiKey selection box was incorrect.
+- (Windows) Fixed an issue where custom assistants were not migrating correctly.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.8...v0.5.9
+
+
+
+## [v0.5.8](https://github.com/DearVa/Everywhere/releases/tag/v0.5.8) - 2026-01-08
+
+### ✨ Features
+- Added a screenshot tool for quickly attaching screen captures in the chat window.
+- Added support for the UniFuncs search engine.
+
+### 🔄️ Changed
+- Removed the unstable UI element manipulation tool.
+
+### 🐛 Bug Fixes
+- Fixed a critical issue where assistant preset modes were not correctly applied.
+- Fixed an issue where assistants could not be duplicated.
+- Fixed styling issues on the Welcome Page.
+- Fixed an issue where the update check timestamp did not use the local time zone.
+- (Windows) Fixed an issue where the PowerShell plugin failed to refresh environment variables.
+- (Windows) Fixed an issue where the main window could incorrectly remain always-on-top.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.7...v0.5.8
+
+
+
+## [v0.5.7](https://github.com/DearVa/Everywhere/releases/tag/v0.5.7) - 2026-01-06
+
+⚠️ IMPORTANT WARNING
+If upgrading from v0.5.5 or earlier, this version will automatically migrate your settings file. It is recommended to backup `C:\Users\[Username]\AppData\Roaming\Everywhere\settings.json` beforehand. Migration completes upon startup. All existing API keys will be cleared and moved to the `LegacyApiKeys` property in `settings.json`. You will need to reconfigure them. For security reasons, please delete `LegacyApiKeys` immediately after reconfiguring your keys.
+
+### ✨ Features
+- Improved tray icon interaction: Single-click to open the Chat Window, double-click to open the Main Window.
+
+### 🐛 Bug Fixes
+- (Important) Fixed an issue where "Advanced Configuration" settings were not applied correctly.
+- Fixed an issue where the Main Window could not be restored from the tray menu if it was minimized.
+
+**Full Changelog**: https://github.com/DearVa/Everywhere/compare/v0.5.6...v0.5.7
+
+
+
 ## [v0.5.6](https://github.com/DearVa/Everywhere/releases/tag/v0.5.6) - 2026-01-05
 
 ### ⚠️ Important Changes

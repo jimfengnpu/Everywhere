@@ -170,6 +170,8 @@ public partial class WebBrowserPlugin : BuiltInChatPlugin
                 new BoChaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             WebSearchEngineProviderId.Jina => (
                 new JinaConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), new Uri(uri, "?q"), _loggerFactory), 50),
+            WebSearchEngineProviderId.UniFuncs => (
+                new UniFuncsConnector(EnsureApiKey(provider.ApiKey), _httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             WebSearchEngineProviderId.SearXNG => (new SearxngConnector(_httpClientFactory.CreateClient(), uri, _loggerFactory), 50),
             _ => throw new HandledException(
                 new NotSupportedException($"Web search engine provider '{provider.Id}' is not supported."),

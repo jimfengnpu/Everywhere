@@ -7,11 +7,14 @@
     <Setter Property="Template">
       <ControlTemplate>
         <StackPanel Spacing="8">
+          <!--  ReSharper disable once Xaml.StaticResourceNotResolved  -->
           <ListBox
+            x:Name="PART_ListBox"
             Width="{Binding $parent[DockPanel].Bounds.Width}"
+            ItemContainerTheme="{StaticResource TabListBoxItemTheme}"
             ItemsSource="{Binding ConfiguratorModels, RelativeSource={RelativeSource TemplatedParent}}"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
-            SelectedValue="{TemplateBinding SelectedType, Mode=TwoWay}"
+            SelectedValue="{Binding CustomAssistant.ConfiguratorType, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"
             SelectedValueBinding="{Binding Type, DataType=v:ModelProviderConfiguratorSelector+ConfiguratorModel}">
             <ListBox.ItemsPanel>
               <ItemsPanelTemplate>
@@ -19,83 +22,6 @@
                   ColumnSpacing="4" Rows="1"/>
               </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
-
-            <ListBox.ItemContainerTheme>
-              <ControlTheme TargetType="ListBoxItem">
-                <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}"/>
-                <Setter Property="FontSize" Value="{DynamicResource FontSizeM}"/>
-                <Setter Property="FontWeight" Value="Medium"/>
-                <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
-                <Setter Property="Focusable" Value="False"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource MdCornerRadius}"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Padding" Value="10,8"/>
-                <Setter Property="Template">
-                  <ControlTemplate>
-                    <Panel>
-                      <Border
-                        x:Name="SelectedBorder"
-                        Background="{DynamicResource SelectionColor}"
-                        BoxShadow="{DynamicResource Shadow}"
-                        CornerRadius="{TemplateBinding CornerRadius}"
-                        Opacity="0">
-                        <Border.Transitions>
-                          <Transitions>
-                            <DoubleTransition
-                              Property="Opacity" Duration="0:0:0.20"/>
-                          </Transitions>
-                        </Border.Transitions>
-                      </Border>
-                      <Border
-                        ClipToBounds="True"
-                        CornerRadius="{TemplateBinding CornerRadius}">
-                        <ContentPresenter
-                          x:Name="ContentPresenter"
-                          Padding="{TemplateBinding Padding}"
-                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                          BorderBrush="{TemplateBinding BorderBrush}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
-                          Content="{TemplateBinding Content}"
-                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                          Foreground="{TemplateBinding Foreground}"
-                          Opacity="{TemplateBinding Opacity}"
-                          RecognizesAccessKey="True">
-                          <ContentPresenter.Transitions>
-                            <Transitions>
-                              <DoubleTransition
-                                Property="Opacity" Duration="0:0:0.20"/>
-                            </Transitions>
-                          </ContentPresenter.Transitions>
-                        </ContentPresenter>
-                      </Border>
-                    </Panel>
-                  </ControlTemplate>
-                </Setter>
-                <Style Selector="^:disabled /template/ ContentPresenter#ContentPresenter">
-                  <Setter Property="Opacity" Value="0.50"/>
-                </Style>
-                <Style Selector="^[IsSelected=False]">
-                  <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-                    <Setter Property="Opacity" Value="0.75"/>
-                  </Style>
-                  <Style Selector="^ /template/ Border#SelectedBorder">
-                    <Setter Property="Opacity" Value="0"/>
-                  </Style>
-                </Style>
-                <Style Selector="^:selected">
-                  <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
-                  <Style Selector="^ /template/ Border#SelectedBorder">
-                    <Setter Property="Opacity" Value="1"/>
-                  </Style>
-                  <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-                    <Setter Property="Opacity" Value="1"/>
-                  </Style>
-                </Style>
-              </ControlTheme>
-            </ListBox.ItemContainerTheme>
 
             <ListBox.ItemTemplate>
               <DataTemplate DataType="v:ModelProviderConfiguratorSelector+ConfiguratorModel">
@@ -116,7 +42,9 @@
             </ListBox.ItemTemplate>
           </ListBox>
 
-          <v:SettingsItemsControl ItemsSource="{TemplateBinding SettingsItems}"/>
+          <v:SettingsItemsControl
+            IsVisible="{TemplateBinding IsSettingsVisible}"
+            ItemsSource="{Binding CustomAssistant.Configurator.SettingsItems, RelativeSource={RelativeSource TemplatedParent}, FallbackValue={x:Null}}"/>
         </StackPanel>
       </ControlTemplate>
     </Setter>

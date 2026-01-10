@@ -786,22 +786,22 @@ Zekam büyük dil modeli tarafından sağlanıyor, senin yardımınla yapıland�
         <value>Kimlik doğrulama hatası.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>Benim gelişmemi desteklemek için “Telemetri”yi etkinleştirerek anonim veri toplamam gerekir. Bu veriler yalnızca analiz amaçlıdır ve sizinle ilgili kişisel tanımlanabilir bilgi içermez veya çıkarılmasına izin vermez.</value>
+        <value>Büyümeme yardımcı olmak için sizi kullanıcı deneyimi programına katılmaya davet ediyoruz. Kullanım verilerinizi toplayacağız, bu veriler yalnızca analiz için kullanılacak ve sizinle ilgili herhangi bir kişisel bilgi içermeyecek veya çıkarım yapılamayacaktır.</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>Yalnızca gerekli verileri göndermeyi seçebilirsiniz; bu seçenek temel işlevselliği etkilemeyecektir.</value>
+        <value>Katılmazsanız yalnızca gerekli veriler gönderilecektir. Lütfen bu seçimin temel işlevleri etkilemeyeceğinden emin olun.</value>
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>Sadece gerekli veriyi gönder</value>
+        <value>Katılmıyorum</value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>Telemetriyi etkinleştir</value>
+        <value>Katılıyorum</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>Tanı Verileri</value>
+        <value>Kullanıcı deneyimi programına katılın</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>Bizim gelişmemizi desteklemek için anonim veri toplamak üzere “telemetri”ye ihtiyacımız var. Bu veriler yalnızca analiz amaçlıdır ve sizinle ilgili kişisel tanımlanabilir bilgi içermez veya çıkarılmasına izin vermez. Yalnızca gerekli veriyi göndermeyi seçebilirsiniz; bu seçenek temel işlevselliği etkilemeyecektir.</value>
+        <value>Gelişmemize yardımcı olmak için sizi kullanıcı deneyimi programına katılmaya davet ediyoruz. Kullanım verilerinizi toplayacağız, bu veriler yalnızca analiz için kullanılacak ve sizinle ilgili herhangi bir kişisel bilgi içermeyecek veya çıkarım yapılamayacaktır. Katılmazsanız yalnızca gerekli veriler gönderilecektir. Bu seçim temel işlevleri etkilemeyecektir.</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>Sohbet İstatistiklerini Göster</value>
@@ -1419,20 +1419,20 @@ Zekam büyük dil modeli tarafından sağlanıyor, senin yardımınla yapıland�
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>Puppeteer tarayıcısını başlatma başarısız oldu.</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>Seçmek için sol tıklayın, iptal etmek için sağ tıklayın veya Esc tuşuna basın
 Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlarını kullanın</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>Ekran</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>Pencere</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>Eleman</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>Yok</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1986,5 +1986,24 @@ Seçim modlarını değiştirmek için kaydırma tekerleğini veya sayı tuşlar
     </data>
     <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
         <value>{0} eklenti başarıyla içe aktarıldı, {1} başarısız oldu</value>
+    </data>
+    <data name="Application_TrayIcon_Menu_OpenChatWindow" xml:space="preserve">
+        <value>Sohbet Penceresini Aç</value>
+    </data>
+    <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
+        <value>Linux sistemlerinde genellikle yalnızca kullanıcı izinleri kullanılır. Yönetici izinlerine ihtiyaç duyulursa, lütfen uygulamayı sudo ile yeniden başlatın.</value>
+    </data>
+    <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
+        <value>Kısayol tuşunu kaydetmek mümkün olmadı. Bu kombinasyon tuşu zaten kullanılıyor olabilir.</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value>Serbest</value>
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value>Sol tuşa basılı tutarak seçim yapın, sağ tuş veya Esc ile çıkın
+Seçim modunu değiştirmek için kaydırıcı veya rakam tuşlarını kullanın</value>
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value>Ekran görüntüsü</value>
     </data>
 </root>

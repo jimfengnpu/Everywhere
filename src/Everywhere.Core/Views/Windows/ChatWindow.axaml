@@ -2,10 +2,10 @@
   x:Class="Everywhere.Views.ChatWindow" xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:at="clr-namespace:Everywhere.AttachedProperties"
   xmlns:be="clr-namespace:Everywhere.Behaviors" xmlns:chat="clr-namespace:Everywhere.Chat"
-  xmlns:common="clr-namespace:Everywhere.Common" xmlns:interop="clr-namespace:Everywhere.Interop"
-  xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia" xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI"
-  xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:v="clr-namespace:Everywhere.Views"
-  xmlns:vc="clr-namespace:Everywhere.ValueConverters" xmlns:vm="clr-namespace:Everywhere.ViewModels"
+  xmlns:common="clr-namespace:Everywhere.Common" xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+  xmlns:shadui="clr-namespace:ShadUI.Controls;assembly=ShadUI" xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+  xmlns:v="clr-namespace:Everywhere.Views" xmlns:vc="clr-namespace:Everywhere.ValueConverters"
+  xmlns:vm="clr-namespace:Everywhere.ViewModels"
   Title="{I18N {x:Static LocaleKey.ChatWindow_Title}}"
   MinWidth="400" MinHeight="224"
   x:DataType="vm:ChatWindowViewModel" x:TypeArguments="vm:ChatWindowViewModel"
@@ -468,34 +468,6 @@
                                 </Setter>
                               </Style>
 
-                              <Style Selector="md|InlineHyperlink Button">
-                                <Setter Property="ContextFlyout">
-                                  <MenuFlyout Placement="Bottom">
-                                    <MenuItem
-                                      x:Name="InlineHyperlinkContextFlyoutOpenLinkItem"
-                                      Command="{Binding $parent[md:InlineHyperlink].Open}"
-                                      Cursor="Hand"
-                                      Header="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_ContextFlyout_OpenLink}}"
-                                      Icon="{LucideIconContent ExternalLink}"/>
-                                    <MenuItem
-                                      x:Name="InlineHyperlinkContextFlyoutCopyLinkItem"
-                                      Command="{Binding $parent[md:InlineHyperlink].Copy}"
-                                      Cursor="Hand"
-                                      Header="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_ContextFlyout_CopyLink}}"
-                                      Icon="{LucideIconContent Link}"/>
-                                    <Separator IsVisible="{Binding $parent[md:MarkdownRenderer].CanCopy}"/>
-                                    <MenuItem
-                                      x:Name="InlineHyperlinkContextFlyoutCopyItem"
-                                      Command="{Binding $parent[md:MarkdownRenderer].Copy}"
-                                      Cursor="Hand"
-                                      Header="{I18N {x:Static LocaleKey.Common_Copy}}"
-                                      Icon="{LucideIconContent Copy}"
-                                      InputGesture="{Binding $parent[md:MarkdownRenderer].CopyGesture}"
-                                      IsVisible="{Binding $parent[md:MarkdownRenderer].CanCopy}"/>
-                                  </MenuFlyout>
-                                </Setter>
-                              </Style>
-
                               <Style Selector="Panel#ReasoningPanel">
                                 <Style Selector="^ &gt; ScrollViewer.Collapsed">
                                   <Setter Property="MaxHeight" Value="160"/>
@@ -557,8 +529,8 @@
                                   <md:MarkdownRenderer
                                     Margin="4,0"
                                     shadui:Timeline.Anchor="{Binding $self.(TextBlock.LineHeight), Converter={x:Static shadui:TimelineConverters.HalfDouble}}"
-                                    InlineHyperlinkCommand="{Binding $parent[v:ChatWindow].LaunchInlineHyperlinkCommand}"
                                     IsVisible="{Binding !!MarkdownBuilder.Length}"
+                                    LinkCommand="{Binding $parent[v:ChatWindow].LaunchLinkCommand}"
                                     MarkdownBuilder="{Binding MarkdownBuilder}"
                                     TextBlock.LineHeight="{DynamicResource LineHeightM}">
                                     <md:MarkdownRenderer.ContextFlyout>
@@ -572,6 +544,28 @@
                                           IsEnabled="{Binding $parent[md:MarkdownRenderer].CanCopy}"/>
                                       </MenuFlyout>
                                     </md:MarkdownRenderer.ContextFlyout>
+                                    <md:MarkdownRenderer.LinkContextMenu>
+                                      <ContextMenu>
+                                        <MenuItem
+                                          Command="{Binding OpenCommand, DataType=md:Link}"
+                                          Cursor="Hand"
+                                          Header="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_ContextFlyout_OpenLink}}"
+                                          Icon="{LucideIconContent ExternalLink}"/>
+                                        <MenuItem
+                                          Command="{Binding CopyCommand, DataType=md:Link}"
+                                          Cursor="Hand"
+                                          Header="{I18N {x:Static LocaleKey.ChatWindow_ChatMessage_ContextFlyout_CopyLink}}"
+                                          Icon="{LucideIconContent Link}"/>
+                                        <Separator IsVisible="{Binding $parent[md:MarkdownRenderer].CanCopy}"/>
+                                        <MenuItem
+                                          Command="{Binding $parent[md:MarkdownRenderer].Copy}"
+                                          Cursor="Hand"
+                                          Header="{I18N {x:Static LocaleKey.Common_Copy}}"
+                                          Icon="{LucideIconContent Copy}"
+                                          InputGesture="{Binding $parent[md:MarkdownRenderer].CopyGesture}"
+                                          IsVisible="{Binding $parent[md:MarkdownRenderer].CanCopy}"/>
+                                      </ContextMenu>
+                                    </md:MarkdownRenderer.LinkContextMenu>
                                   </md:MarkdownRenderer>
 
                                   <ItemsControl
@@ -700,9 +694,12 @@
                                     IsVisible="{Binding IsImage}">
                                     <Image
                                       MaxWidth="64" MaxHeight="64"
-                                      Source="{Binding Image}">
+                                      Source="{Binding Image}"
+                                      ToolTip.Placement="Left">
                                       <ToolTip.Tip>
-                                        <Image Source="{Binding Image}"/>
+                                        <Image
+                                          MaxWidth="600" MaxHeight="600"
+                                          Source="{Binding Image}"/>
                                       </ToolTip.Tip>
                                     </Image>
                                   </Border>
@@ -994,11 +991,19 @@
             <v:ChatInputArea.AddChatAttachmentMenuItems>
               <MenuItem
                 Command="{Binding PickElementCommand}"
-                CommandParameter="{x:Static interop:ElementPickMode.Element}"
                 Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_AddAttachmentMenuItems_PickVisualElement}}">
                 <MenuItem.Icon>
                   <LucideIcon
                     Kind="SquareMousePointer"
+                    Size="{DynamicResource FontSizeL}"/>
+                </MenuItem.Icon>
+              </MenuItem>
+              <MenuItem
+                Command="{Binding ScreenshotCommand}"
+                Header="{I18N {x:Static LocaleKey.ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot}}">
+                <MenuItem.Icon>
+                  <LucideIcon
+                    Kind="Fullscreen"
                     Size="{DynamicResource FontSizeL}"/>
                 </MenuItem.Icon>
               </MenuItem>

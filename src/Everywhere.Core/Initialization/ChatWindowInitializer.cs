@@ -41,8 +41,7 @@ public class ChatWindowInitializer(
         HandleChatShortcutChanged(settings.ChatWindow.Shortcut);
 
         // Preload ChatWindow to avoid delay on first open
-        Dispatcher.UIThread.Invoke(() => ServiceLocator.Resolve<ChatWindow>().Initialize());
-
+        ServiceLocator.Resolve<ChatWindow>().Initialize();
         return Task.CompletedTask;
     }
 

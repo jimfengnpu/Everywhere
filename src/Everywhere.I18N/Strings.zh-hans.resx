@@ -789,22 +789,22 @@
         <value>认证错误。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message1" xml:space="preserve">
-        <value>为了帮助我成长，我需要启用“遥测”来收集匿名数据。这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。</value>
+        <value>为了帮助我成长，我们诚邀您加入用户体验计划。我们会收集您的使用数据，这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。</value>
     </data>
     <data name="WelcomeView_TelemetryStep_Message2" xml:space="preserve">
-        <value>您可以选择只发送必要数据，此选择不会影响核心功能。</value>
+        <value>如果不加入，将只会发送必要数据。请放心，此选择不会影响核心功能。</value>
     </data>
     <data name="WelcomeView_SendOnlyNecessaryDataButton_Content" xml:space="preserve">
-        <value>仅发送必要数据</value>
+        <value>不加入</value>
     </data>
     <data name="WelcomeView_EnableTelemetryButton_Content" xml:space="preserve">
-        <value>启用遥测</value>
+        <value>加入</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Header" xml:space="preserve">
-        <value>诊断数据</value>
+        <value>加入用户体验计划</value>
     </data>
     <data name="CommonSettings_DiagnosticData_Description" xml:space="preserve">
-        <value>为了帮助我们改进，我们需要“遥测”来收集匿名数据。这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。您可以选择只发送必要数据，此选择不会影响核心功能。</value>
+        <value>为了帮助我们改进，我们诚邀您加入用户体验计划。我们会收集您的使用数据，这些数据仅用于分析，不包含也无法从中推断出任何和您个人有关的数据。如果不加入，将只会发送必要数据。此选择不会影响核心功能。</value>
     </data>
     <data name="ChatWindowSettings_ShowChatStatistics_Header" xml:space="preserve">
         <value>显示聊天统计数据</value>
@@ -1423,20 +1423,20 @@
     <data name="BuiltInChatPlugin_WebBrowser_PuppeteerBrowserLaunchError_ErrorMessage" xml:space="preserve">
         <value>无法启动 Puppeteer 浏览器。</value>
     </data>
-    <data name="ElementPickerToolTip_TipTextBlock_Text" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_TipText_Normal" xml:space="preserve">
         <value>点击左键选择，右键或 Esc 退出
 滚轮或数字键切换选择模式</value>
     </data>
-    <data name="ElementPickerToolTip_ScreenPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Screen" xml:space="preserve">
         <value>屏幕</value>
     </data>
-    <data name="ElementPickerToolTip_WindowPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Window" xml:space="preserve">
         <value>窗口</value>
     </data>
-    <data name="ElementPickerToolTip_ElementPickModeBadge_Content" xml:space="preserve">
+    <data name="ScreenSelectionMode_Element" xml:space="preserve">
         <value>元素</value>
     </data>
-    <data name="ElementPickerToolTip_GetElementDescription_NoElement" xml:space="preserve">
+    <data name="ScreenSelectionToolTip_GetElementDescription_NoElement" xml:space="preserve">
         <value>无</value>
     </data>
     <data name="Common_None" xml:space="preserve">
@@ -1991,10 +1991,23 @@
     <data name="ChatPluginPageViewModel_ImportMcpPlugin_PartialSuccessToast_Title" xml:space="preserve">
         <value>成功导入了 {0} 个 MCP 插件，但有 {1} 个失败</value>
     </data>
+    <data name="Application_TrayIcon_Menu_OpenChatWindow" xml:space="preserve">
+        <value>打开聊天窗口</value>
+    </data>
     <data name="Linux_NativeHelper_RestartAsAdministrator_DesktopNotification" xml:space="preserve">
         <value>Linux系统下通常仅使用用户权限。如果需要管理员权限，请使用sudo重新启动应用。</value>
     </data>
     <data name="Linux_ShortcutListener_Register_FailedToGrabHotkey" xml:space="preserve">
         <value>无法注册快捷键。该组合键可能已被占用。</value>
+    </data>
+    <data name="ScreenSelectionMode_Free" xml:space="preserve">
+        <value>自由</value>
+    </data>
+    <data name="ScreenSelectionToolTip_TipText_Free" xml:space="preserve">
+        <value>按住左键框选，右键或 Esc 退出
+滚轮或数字键切换选择模式</value>
+    </data>
+    <data name="ChatWindow_ChatInputArea_AddAttachmentMenuItems_Screenshot" xml:space="preserve">
+        <value>屏幕截图</value>
     </data>
 </root>
