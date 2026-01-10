@@ -31,11 +31,11 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
     private readonly int _wakePipeR = -1;
     private readonly int _wakePipeW = -1;
     private readonly ConcurrentDictionary<X11Window, IVisualElement> _windowCache = new();
+    private readonly List<X11Window> _scanSkipWindows = [];
 
     private volatile bool _running;
 
     private IntPtr _display;
-    private X11Window _scanSkipWindowHandle = X11Window.None;
     private int _nextId = 1;
     private Action<KeyboardShortcut, EventType>? _keyboardHook;
     private Action<PixelPoint, EventType>? _mouseHook;
@@ -454,7 +454,6 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                         {
                             handle(client);
                         }
-
                     }
                 }
             });
@@ -501,7 +500,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
 
     private X11Window GetWindowAtPoint(X11Window window, int x, int y)
     {
-        if (window == _scanSkipWindowHandle)
+        if (_scanSkipWindows.Contains(window))
         {
             return ScanSkipWindow;
         }
@@ -610,11 +609,7 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
                 target = window;
             }
         });
-        if (target != X11Window.None)
-        {
-            return GetWindowElement(target);
-        }
-        return null;
+        return target != X11Window.None ? GetWindowElement(target) : null;
     }
 
     public IVisualElement GetScreenElement()
@@ -672,33 +667,31 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
         {
             var ph = window.TryGetPlatformHandle();
             if (ph is null) return;
-            X11Window wnd = (X11Window)ph.Handle;
+            var wnd = (X11Window)ph.Handle;
 
-            if (_display == IntPtr.Zero) return;
+            if (_display == IntPtr.Zero || wnd == X11Window.None) return;
 
-            if (XFixesQueryExtension(_display, out _, out _) != 0)
+            if (XFixesQueryExtension(_display, out _, out _) == 0) return;
+            if (visible)
             {
-                if (visible)
-                {
-                    IntPtr fullRegion = XFixesCreateRegion(
-                        _display,
-                        new[]
-                        {
-                            new XRectangle { x = 0, y = 0, width = (ushort)window.Width, height = (ushort)window.Height }
-                        },
-                        1);
-                    XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, fullRegion);
-                    XFixesDestroyRegion(_display, fullRegion);
-                }
-                else
-                {
-                    IntPtr emptyRegion = XFixesCreateRegion(
-                        _display,
-                        [],
-                        0);
-                    XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, emptyRegion);
-                    XFixesDestroyRegion(_display, emptyRegion);
-                }
+                IntPtr fullRegion = XFixesCreateRegion(
+                    _display,
+                    new[]
+                    {
+                        new XRectangle { x = 0, y = 0, width = (ushort)window.Width, height = (ushort)window.Height }
+                    },
+                    1);
+                XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, fullRegion);
+                XFixesDestroyRegion(_display, fullRegion);
+            }
+            else
+            {
+                IntPtr emptyRegion = XFixesCreateRegion(
+                    _display,
+                    [],
+                    0);
+                XFixesSetWindowShapeRegion(_display, wnd, ShapeInput, 0, 0, emptyRegion);
+                XFixesDestroyRegion(_display, emptyRegion);
             }
         }
         catch (Exception ex)
@@ -800,10 +793,24 @@ public sealed partial class X11WindowBackend : IWindowBackend, IEventHelper
         return new PixelPoint(rx, ry);
     }
 
-    public void SetPickerWindow(Window? window)
+    public void SetWindowVisualTreeVisible(Window window, bool visible)
     {
-        var handle = (X11Window?)window?.TryGetPlatformHandle()?.Handle;
-        _scanSkipWindowHandle = handle ?? X11Window.None;
+        var ph = window.TryGetPlatformHandle(); 
+        if (ph is null) return;
+        var wnd = (X11Window)ph.Handle; 
+        if (_display == IntPtr.Zero || wnd == X11Window.None) return;
+
+        if (visible)
+        {
+            _scanSkipWindows.Remove(wnd);
+        }
+        else
+        {
+            if (!_scanSkipWindows.Contains(wnd))
+            {
+                _scanSkipWindows.Add(wnd);
+            }
+        }
     }
 
     public Bitmap Capture(IVisualElement? window, PixelRect rect)

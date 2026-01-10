@@ -30,5 +30,5 @@ public interface IWindowBackend : IWindowHelper
     /// <returns></returns>
     Bitmap Capture(IVisualElement? window, PixelRect rect);
 
-    void SetPickerWindow(Window? window);
+    void SetWindowVisualTreeVisible(Window window, bool visible);
 }

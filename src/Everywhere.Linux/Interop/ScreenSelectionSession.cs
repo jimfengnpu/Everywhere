@@ -38,6 +38,7 @@ internal abstract class ScreenSelectionSession : ScreenSelectionTransparentWindo
             allScreenBounds = allScreenBounds.Union(screen.Bounds);
             var maskWindow = new ScreenSelectionMaskWindow(screen.Bounds);
             backend.SetHitTestVisible(maskWindow, false);
+            backend.SetWindowVisualTreeVisible(maskWindow, false);
             MaskWindows[i] = maskWindow;
         }
 
@@ -47,11 +48,13 @@ internal abstract class ScreenSelectionSession : ScreenSelectionTransparentWindo
 
         // Ensure proper initialization of focus/hit-test state
         // On Linux/X11, we rely on the backend to manage window flags/types
+        // This window must receive event, hide in visual tree and should not grab focus
+        backend.SetFocusable(this, false);
+        backend.SetWindowVisualTreeVisible(this, false);
     }
 
     protected override void OnOpened(EventArgs e)
     {
-        Backend.SetPickerWindow(this);
         base.OnOpened(e);
 
         foreach (var maskWindow in MaskWindows) maskWindow.Show(this);
@@ -160,7 +163,8 @@ internal abstract class ScreenSelectionSession : ScreenSelectionTransparentWindo
     protected override void OnClosed(EventArgs e)
     {
         OnCloseCleanup();
-        Backend.SetPickerWindow(null);
+        foreach (var maskWindow in MaskWindows) Backend.SetWindowVisualTreeVisible(maskWindow, true);
+        Backend.SetWindowVisualTreeVisible(this, true);
         base.OnClosed(e);
     }
 
